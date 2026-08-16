@@ -1,5 +1,7 @@
 # SkillArtisan
 
+[![GitHub release](https://img.shields.io/github/v/release/EONRaider/SkillArtisan)](https://github.com/EONRaider/SkillArtisan/releases/latest)
+
 This repo is the working home for **SkillArtisan** — a Claude Code plugin that supersedes Anthropic's shipped `skill-creator`. It contains both the source planning documents and the built plugin itself.
 
 **→ For install instructions, usage, and what SkillArtisan actually does, see [`skill-artisan/README.md`](skill-artisan/README.md).** This root file is a map of the repo, not the plugin's own docs.
