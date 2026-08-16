@@ -1,0 +1,391 @@
+# `SkillArtisan`: Master Specification and Gap Analysis
+
+*Consolidated master version. Supersedes `creating-skills-gap-analysis.md` (the original report + three addenda) as the working spec. Research provenance and correction history are preserved in the Appendix, not in the main body — this document states the current, final understanding directly.*
+
+## TL;DR
+
+- `creating-skills` is a **plugin bundle**, not a single SKILL.md — a main orchestrating skill plus subagents, scripts, references, and a plugin manifest. This is a deliberate architecture decision, detailed in its own section below.
+- The SKILL.md format is governed as an open, cross-vendor standard at **agentskills.io** (published by Anthropic, December 18, 2025; adopted by 40+ agent products including Cursor, GitHub Copilot, VS Code, Gemini CLI, and ChatGPT/Codex). The canonical specification and skill-creation guides live there; Claude's own docs (`platform.claude.com`, `code.claude.com`) implement the spec and layer Claude-specific extensions on top. `creating-skills` defaults to producing spec-compliant, portable output, with Claude-specific extensions as an explicit opt-in layer.
+- Anthropic's shipped `skill-creator` has one genuinely strong asset worth preserving intact: its evaluation and description-optimization engine (parallel with/without-skill runs, grader/comparator/analyzer subagents, 60/40 train/test description tuning). This engine is not just internally strong — it is the documented reference implementation of agentskills.io's own official evaluation methodology.
+- Everywhere else, `creating-skills` is a superset of `skill-creator`: hard frontmatter validation (wrapping the official `skills-ref` tool), a combined "should this be a skill + does one already exist" decision gate, a five-surface matrix (Claude Code, Claude.ai, Cowork, Claude Tag, Messages API), concrete gitleaks-based security tooling with tamper detection, and an audit mode that can upgrade or rebuild existing skills — including bulk mode across a whole skills directory.
+- Real, mature prior art exists in this space (`daymade/claude-code-skills`, 1.2k+ stars) with genuine overlap in ambition. `creating-skills`'s differentiators are: strict grounding in the canonical cross-vendor spec (most prior art is Claude-Code-only), an AGENTS.md/DESIGN.md-aware decision gate, explicit coherent-unit scoping, and an institutional-knowledge-preservation discipline in the audit/rebuild decision.
+- **Ships in two releases, deliberately**: v1 (Stages 1-4 — eval engine, decision gate, surface matrix, security) is a complete, usable tool on its own; v2 (Stages 5-6 — lifecycle framing, audit/bulk mode) follows once v1 has been dogfooded on real skills, so real usage informs the audit mode rather than it being designed in a vacuum.
+- **A mature, real competitor exists**: `tripleyak/SkillForge` (738 stars) uses a review-panel rigor model rather than this project's execution-based eval engine — a genuine structural difference worth stating explicitly, not a gap to close.
+- **Naming is resolved**: the plugin is named **SkillArtisan** (slug `skill-artisan`); the main skill it bundles keeps the gerund-form, spec-compliant name `creating-skills`. This took real effort — ten other candidates (`SkillForge`, `Skillwright`, `SkillComposer`, `SkillScribe`, `SkillCraft`, `Atelier`, `SkillBrew`, `SkillShip`, `SkillFoundry`, `SkillDock`) were checked and all were already taken, several of them multiple times over and specifically within this exact niche. Both final names are confirmed clear of collision. Full naming history in the Appendix.
+
+## Architecture: Plugin Bundle
+
+The plugin is named **SkillArtisan** (slug `skill-artisan`), and it ships as a **plugin**, not a lone SKILL.md file. This follows directly from what the eval engine, security layer, dedup check, and bulk mode each require — none of them fit inside a single instructions-only file. The plugin bundles a main skill named `creating-skills` — gerund-form, spec-compliant, correctly named for what it is at the skill level — plus subagents, scripts, and references that make it more than a single skill.
+
+```
+skill-artisan/
+├── .claude-plugin/
+│   └── plugin.json              # plugin manifest: name "skill-artisan", version, license, entry points
+├── creating-skills/
+│   ├── SKILL.md                 # main orchestrating skill — entry point, decision gate, routes to the rest
+│   └── references/              # loaded on demand, not at discovery
+│       ├── frontmatter-spec.md      # canonical field table (rows 1, 19, 22)
+│       ├── surface-matrix.md        # five-surface compatibility rules (rows 6-8, 22)
+│       ├── security-checklist.md    # gitleaks + pattern rules + marker system (rows 12, 25, 26)
+│       ├── sanitization-checklist.md # AI semantic read-through guide, referenced from clean-scan output (row 40)
+│       ├── script-design.md         # agentic script conventions (row 21)
+│       ├── writing-philosophy.md    # imperative voice, explain-why, coherent units (rows 4, 18, 23)
+│       └── lifecycle.md             # capability-uplift vs encoded-preference (row 14)
+├── agents/                      # subagent roles, ported from skill-creator (Stage 1 / row 15)
+│   ├── grader.md
+│   ├── comparator.md
+│   └── analyzer.md
+├── eval-viewer/
+│   └── generate_review.py        # HTML review UI (Outputs/Benchmark tabs), --static mode, --previous-workspace diffing
+├── assets/
+│   └── eval_review.html          # template for reviewing trigger-eval queries before optimization
+├── scripts/
+│   ├── validate.py               # wraps skills-ref + Claude-specific checks + path-reference existence (rows 1, 19, 20, 29)
+│   ├── security_scan.py          # gitleaks wrapper + pattern checks + marker/hash system (rows 12, 25, 26)
+│   ├── dedup_search.py           # prior-art / Adopt-Extend-Build check (row 27)
+│   ├── eval_loop.py              # with/without-skill runs, benchmark aggregation (row 15)
+│   ├── description_optimizer.py  # 60/40 train/test description tuning (row 15)
+│   └── audit.py                  # single-skill and bulk audit mode (Stage 6, rows 31-32)
+├── LICENSE
+├── CHANGELOG.md
+├── .skillignore
+└── README.md
+```
+
+Naming note, since it took real effort to resolve (see Confidence Notes and the Appendix): gerund-form naming (`creating-skills`) is a rule for a SKILL.md's `name` field, not for a plugin's identity — the two are properly decoupled here, matching real precedent (`daymade-skill` bundles `skill-creator` and `skill-reviewer` under an unrelated plugin name). Both names are collision-checked and confirmed clear.
+
+This structure is the concrete answer to "how do the six build stages map to files" — each stage below names which files it owns.
+
+## Positioning: Cross-Vendor Spec Compliance by Default
+
+Because a spec-compliant SKILL.md is portable across 40+ agent products, `creating-skills` defaults to producing output that validates against the canonical `agentskills.io` spec, and treats Claude-specific extensions (extended frontmatter fields, Claude Tag, Messages API container behavior) as an explicit opt-in layer selected per target surface — never assumed. This is the single clearest differentiator from the closest known prior art (`daymade/claude-code-skills`), which is Claude-Code-specific throughout.
+
+**Source hierarchy**, used as the tiebreaker whenever two pieces of guidance conflict: `agentskills.io` specification/skill-creation docs (canonical, cross-vendor) → `platform.claude.com`/`code.claude.com` (Claude-specific implementation/extensions) → `skill-creator`'s actual shipped SKILL.md (current baseline) → community/prior-art sources (illustrative, lower confidence, verify before relying on specifics).
+
+## Canonical Frontmatter Spec
+
+| Field | Required | Constraints |
+|---|---|---|
+| `name` | Yes | 1–64 chars. Lowercase unicode alphanumeric + hyphens only. Must not start or end with a hyphen. Must not contain consecutive hyphens. Must match the parent directory name exactly. |
+| `description` | Yes | 1–1024 chars, non-empty. Must describe both what the skill does and when to use it, in third person, with imperative "Use when..." framing. Should include specific keywords and explicitly list trigger contexts, including ones that don't name the domain directly ("pushy" framing) — these two techniques (imperative phrasing, explicit breadth) are complementary, not alternatives; the spec's own worked examples combine both. |
+| `license` | No | License name, or a reference to a bundled license file. Keep it short. |
+| `compatibility` | No | Max 500 chars. Only include if the skill has real environment requirements — intended product, required system packages, network access needs. Auto-populate based on target surface(s) rather than leaving it to prose only. Most skills don't need this field. |
+| `metadata` | No | Arbitrary string-to-string map for client-specific properties not covered by the spec. Use reasonably unique key names to avoid collisions. |
+| `allowed-tools` | No | Space-separated string of pre-approved tools. Experimental; support varies by agent implementation. |
+
+Only these six fields are portable across claude.ai and the Messages API; extended Claude Code fields (`disable-model-invocation`, `user-invocable`, `context: fork`, `paths`, `when_to_use`, `argument-hint`) hard-error on spec-only surfaces and should be taught only in the Claude Code branch of the surface matrix.
+
+**Official validator:** the spec ships a reference validation library, `github.com/agentskills/agentskills/tree/main/skills-ref` (`skills-ref validate ./my-skill`), checking frontmatter validity and naming conventions. `scripts/validate.py` wraps this as its base layer rather than reimplementing spec-level parsing, then layers Claude-specific checks on top (reserved words "anthropic"/"claude" in `name`, extended-field warnings, gerund-form suggestion) plus path-reference existence checking (every relative path referenced in the SKILL.md body must resolve to a real file, failing with a specific `Missing referenced files: X` message rather than a silent broken link).
+
+## Progressive Disclosure
+
+Three levels: metadata (~100 tokens/skill, loaded at discovery for every skill on the system) → SKILL.md body (loaded on activation, keep under 500 lines and under ~5,000 tokens) → bundled resources (`scripts/`, `references/`, `assets/`, loaded only when the body points to them). Keep references one level deep from SKILL.md — deeply nested reference chains partially fail, since some clients read nested files with `head -100` rather than loading them fully. Add a table of contents to any reference file over 100 lines.
+
+**Coherent-unit scoping** (distinct from the degrees-of-freedom heuristic below): a skill's boundary should encapsulate one coherent unit of work, the way a well-scoped function does. Too narrow forces multiple skills to load together and risks conflicting instructions; too broad becomes hard to activate precisely.
+
+## The Decision Gate
+
+Before drafting anything, `creating-skills`' main SKILL.md runs a combined gate answering two different questions:
+
+**1. What kind of artifact is this?** Skill vs. CLAUDE.md (always-true, Claude-specific project context) vs. **AGENTS.md** (the cross-vendor equivalent of CLAUDE.md — an open convention stewarded by the Agentic AI Foundation under the Linux Foundation, used across 60,000+ repos and 20-30+ agent tools; use this instead of CLAUDE.md when portability to non-Claude agents matters) vs. MCP (live data/service access) vs. subagent (needs an isolated context) vs. plugin (packaging/distribution layer bundling skills+hooks+agents+MCP). If the answer isn't clearly "skill," say so and stop. A narrower, visual-identity-specific case: if a skill's actual job is enforcing design-system output (colors, typography, spacing tokens), the more portable home for those tokens is **DESIGN.md** (Google Labs, Apache-2.0), not prose inside SKILL.md.
+
+**2. Does one already exist?** Before building, search for an existing skill, MCP server, or tool that already solves this, and route on match confidence rather than a vague three-way call: **use existing** (≥80% match — it already handles this), **improve existing** (50-79% — close, needs enhancement rather than a rebuild), **create new** (<50% — no good match), or **compose** — recommend chaining multiple existing skills together when the request needs several capabilities none of which individually cover it, rather than building one new monolithic skill. `scripts/dedup_search.py` implements this, including the compose outcome, which the original Adopt/Extend/Build framing was missing.
+
+**3. Inline or fork?** A skill's own execution architecture — whether its instructions run inline in the main context or fork into a subagent context (`context: fork`, Claude Code only) — is its own decision point with real failure modes if chosen wrong, not just a frontmatter field to document. Provide worked examples of when each applies.
+
+## Design Principles
+
+**Degrees of freedom:** match instruction specificity to task fragility, in three explicit tiers rather than a vague spectrum — **high freedom** (text guidance, for tasks where multiple approaches are valid), **medium freedom** (pseudocode or parameterized scripts, for tasks with a preferred pattern but some variation), **low freedom** (exact scripts, for fragile or error-prone operations). This is a tightened version of the "narrow bridge vs. open field" heuristic — the three tiers give authors a concrete choice to make rather than a metaphor to interpret. Every tier still ends with a single default approach and an explicit escape hatch, never a menu of equal options.
+
+**Writing philosophy:** imperative voice; explain the *why* behind an instruction rather than bare MUST/ALWAYS/NEVER — models follow instructions more reliably when they understand the purpose; generalize from feedback rather than overfitting to specific test cases; keep the skill lean, cutting content the model would get right without it.
+
+**Content hygiene:** no time-sensitive information (use an "old patterns" `<details>`-style section instead of dated comparisons); forward-slash paths only, never Windows-style; consistent terminology throughout; no unexplained "voodoo constants" in bundled scripts; declare package dependencies rather than assuming they're pre-installed.
+
+## Multi-Model and Multi-Surface Calibration
+
+**Multi-model:** test on Haiku, Sonnet, and Opus before considering a skill done — Haiku needs more explicit guidance, Sonnet needs clarity and efficiency, Opus needs no over-explaining.
+
+**Multi-surface — five surfaces:**
+- **Claude Code**: directory-qualified nested skill variants (e.g. `apps/web:deploy`) for monorepos; extended frontmatter fields as above. Concrete gotcha: installed plugin skills are cached at `~/.claude/plugins/cache/<marketplace>/<skill>/<version>/...` — a read-only copy. Before any edit, confirm the path being edited does NOT contain `/cache/` or `/plugins/cache/`; always edit the source repository, since edits to the cache path are silently lost on the next update.
+- **Claude.ai / Cowork**: standard six-field frontmatter only.
+- **Claude Tag**: same format as Claude Code; skills live in a git repo (one folder per plugin), reach channels after a human merges a PR, and can be self-improved by Claude opening PRs from what it learns in channels. Repository skills are discovered at exactly `.claude/skills/<name>/SKILL.md`, scanned once at session start (mid-session commits are not picked up).
+- **Messages API**: skills run in a code-execution container with **no network access and no runtime package installation** — required packages must be declared (via `compatibility`) and pre-available. Custom skills do not sync across surfaces (a claude.ai upload is not available on the API and vice versa).
+- **Cross-vendor** (any agentskills.io-compliant client, e.g. Cursor, Copilot, Codex): only the six portable frontmatter fields, no Claude-specific assumptions.
+
+## Bundled Scripts: Agentic Design Conventions
+
+Anything placed in `scripts/` must: run non-interactively only (agents operate in non-interactive shells and cannot respond to TTY prompts — a blocking script hangs indefinitely; accept input via flags, environment variables, or stdin); document its interface via `--help`; separate structured data (stdout) from diagnostics (stderr); use meaningful, documented exit codes; be idempotent where feasible; support `--dry-run` for destructive operations; and produce bounded or paginated output, since many agent harnesses truncate tool output past 10-30K characters (default to a summary, support `--offset` or an explicit `--output file|-` flag for large results). For one-off commands that don't need a bundled script, prefer `uvx`/`pipx`/`npx`/`bunx`/`deno run`/`go run` with pinned versions, stating runtime prerequisites via `compatibility` rather than assuming the environment has them.
+
+## Security
+
+This is the area where the shipped `skill-creator` falls shortest, and where real prior art (`daymade/claude-code-skills`) offers a concrete, adoptable mechanism rather than a checklist to re-derive from scratch. `security_scan.py` was read directly (not summarized secondhand) — the description below is verbatim-accurate to the source, not representative.
+
+**Two-tier design: gitleaks gates packaging by default; pattern checks are an opt-in deeper review, not part of the default gate.** Running the scanner plain (`security_scan.py <skill-dir>`) runs gitleaks only, and the exit code depends on gitleaks findings alone. Running it with `--verbose` additionally runs the pattern-based checks below as an "educational review" — and even then, only HIGH-severity pattern findings affect the exit code; MEDIUM findings are informational only, never blocking. Mirror this two-tier structure rather than folding pattern checks into the default gate uniformly.
+
+**Gitleaks as the default gate**: `gitleaks detect --source <path> --report-format json --report-path <tmp-file> --no-git` (gitleaks writes JSON to a file, not stdout — required for Windows compatibility, since it has no `/dev/stdout`). Graded exit codes: `0` clean, `1` high-severity, `2` critical, `3` gitleaks not installed, `4` scan error. Critical vs. high isn't gitleaks-native severity — it's a simple keyword match against the finding's RuleID: any of `api`, `key`, `token`, `password`, `secret`, `credential` (case-insensitive substring) → CRITICAL; everything else → HIGH.
+
+**Pattern-based checks, `--verbose` only**: absolute user paths (`/home/[user]/`, `/Users/[user]/`, `C:\Users\[user]\` — HIGH, no exceptions), email addresses (MEDIUM, exceptions: `example.com`, `test.com`, `localhost`, `noreply@anthropic.com`), insecure `http://` URLs (MEDIUM, exceptions: `localhost`, `127.0.0.1`, `0.0.0.0`, `example.com` — note `test.com` is *not* an exception here, only for the email pattern), dangerous code patterns (`os.system(`, `subprocess.*shell=True`, `import pickle`, `pickle.load` — HIGH, no exceptions). Exceptions are pattern-specific, not a shared global list. Scanned file extensions: `.py .js .ts .jsx .tsx .sh .bash .md .yml .yaml .json .jsonl .toml`, skipping hidden paths, `__pycache__`, and `node_modules`. (`tripleyak/SkillForge`'s "docs safety checker," a separate project, adds an **unsafe command interpolation** check — f-strings/`.format()`/concatenation building a shell command from unsanitized input — that daymade's pattern set does not have; still worth adopting as its own check per row 38, attributed to the correct source.)
+
+**Security marker + content-hash tamper detection**: on a clean scan, write `.security-scan-passed` with an atomic write (temp file + `os.replace`, since packaging reads this marker concurrently) containing a SHA256 hash computed over every non-excluded file's relative path (UTF-8, null-separated) plus its raw content (null-separated), sorted by path for determinism. Packaging refuses to proceed if the current hash doesn't match the marker's stored hash, closing the "scan once, edit quietly, ship anyway" gap.
+
+**Packaging exclusion**: daymade implements this as a Python policy function (`packaging_policy.should_exclude()`), not a static ignore-file — worth knowing before assuming a `.skillignore` dotfile is how *they* do it (the `.skillignore` mechanism itself, row 37, is attributed to `tripleyak/SkillForge`, a different project, and remains a reasonable design choice — just don't describe it as daymade's approach).
+
+**Optional third-party audit step**, complementary to the above and covering a different threat model (adversarial *instructions*, not leaked secrets): for skills from other sources, read all bundled files, run any scripts in a sandbox first, scan the SKILL.md prose itself for adversarial or injected instructions, check for exfiltration patterns including via conversational responses (not just file/network access), and note version pinning.
+
+**AI semantic read-through — a fifth layer, required of the author before publishing their own skill, not just for reviewing others'** (row 40). This isn't only documented in `daymade/claude-code-skills`' `CLAUDE.md` — the scanner prints this reminder verbatim on *every clean scan*: "Keyword-based gate only. It does NOT catch real project/person nicknames, CJK names (gitleaks ignores CJK), or verbatim transcript lines — none have a secret signature. Before publishing to a PUBLIC repo you MUST read the skill yourself; a green scan is not a clean bill of health." It points to their own `references/sanitization_checklist.md` (underscore, their naming convention) — plan for an equivalent reference file at `references/sanitization-checklist.md` (hyphen, matching this plugin's own convention for every other reference file), not just a prose reminder. Every check above is pattern-based and structurally blind to what no pattern was written for; this final step is a human (or careful LLM) semantic read, not another automated layer.
+
+**Why this level of rigor**: Snyk's ToxicSkills audit (the first comprehensive audit of the Agent Skills ecosystem, scanning 3,984 skills from ClawHub and skills.sh as of February 5, 2026) found 13.4% of all skills contain critical-level security issues, 36% carried prompt-injection payloads, and 91% of malicious skills combined prompt injection with traditional malware. These figures are from a single vendor's methodology and corpus — directionally consistent with other industry reports (Cloud Security Alliance, Repello) but not independently reproduced here; cite as motivation, not as a precise, universally-agreed number.
+
+## Testing and Evaluation
+
+This is `skill-creator`'s strongest asset and the part `creating-skills` preserves with the least modification — it is also, per the canonical `agentskills.io/skill-creation/evaluating-skills` and `.../optimizing-descriptions` guides, the documented reference implementation of the *official* methodology, not merely an internally strong feature.
+
+**Eval engine** (`scripts/eval_loop.py`, `agents/grader.md`, `agents/comparator.md`, `agents/analyzer.md`, `eval-viewer/generate_review.py`): parallel with-skill and without-skill (baseline) runs from a clean context each time; `evals/evals.json` test-case format (prompt, expected output, optional input files, assertions added after seeing first-round outputs); assertion grading with concrete evidence, not just an opinion; benchmark aggregation (`benchmark.json`: pass rate, time, tokens, mean ± stddev, delta between with/without); an analyst pass that flags always-pass assertions (uninformative, inflate scores) and always-fail assertions (broken or too-hard); blind A/B comparison for holistic quality judgments an assertion can't capture. Build evals *before* extensive documentation — establish the baseline, write minimal instructions, iterate from there, starting with 2-3 test cases before expanding. Present results through an actual HTML review UI (`eval-viewer/generate_review.py`, ported from `skill-creator` — Outputs and Benchmark tabs, `--static` mode for headless/Cowork environments without a browser, `--previous-workspace` for iteration-over-iteration diffing), not raw JSON — this is a concrete, working piece of `skill-creator` worth porting faithfully, not reinventing.
+
+**Surface-aware eval engine design**: the eval workflow itself branches by surface, mirroring `skill-creator`'s existing Claude.ai/Cowork instruction sets — this is a Stage 1 design concern, not just the Stage 3 frontmatter matrix. Claude.ai has no subagents (sequential test execution, skip baseline runs and quantitative benchmarking, skip description optimization since there's no CLI); Cowork has subagents but no browser (use `--static` HTML generation instead of a live server, and generate the review UI *before* self-evaluating outputs, not after); Claude Code has the full workflow (subagents, browser, CLI). Build this branching into `eval_loop.py` from the start.
+
+**Description optimizer** (`scripts/description_optimizer.py`): ~20 eval queries (8-10 should-trigger, 8-10 should-not-trigger, with strong negative examples being near-misses that share keywords but need something different, not obviously-irrelevant queries); 60/40 train/validation split, shuffled once and kept fixed across iterations; each query run 3× for a reliable trigger rate against a 0.5 threshold; up to 5 iterations, generalizing from train-set failures without adding query-specific keywords (that's overfitting); select the best iteration by *validation* pass rate, which may not be the last iteration produced.
+
+**Lifecycle framing**: classify each skill as capability-uplift (gives the model an ability it otherwise lacks — these can go obsolete as base capability improves, and should be re-benchmarked after model upgrades) or encoded-preference (house style, fixed workflow — no obsolescence risk in the same way). Refine the classification with a scored threshold rather than a bare binary label — a "timelessness score" out of 10, with a minimum bar (≥7) a skill should clear to be considered durable rather than at near-term obsolescence risk; a binary category alone doesn't distinguish a capability-uplift skill likely to age out next quarter from one likely to remain useful for years (adopted from prior art, `tripleyak/SkillForge`'s Evolution Agent). `creating-skills`'s own SKILL.md should classify itself under this framework, with a stated score, as a working example.
+
+## Audit Mode: Upgrading or Rebuilding Existing Skills
+
+`scripts/audit.py` extends `creating-skills` beyond authoring new skills to auditing and improving existing ones — including `skill-creator` itself, third-party skills, or an author's own skill library.
+
+1. **Audit report**: run the validation script plus a full checklist pass against the target skill's SKILL.md and bundled files. Output a per-item pass/fail report and a checklist-pass-rate summary (e.g. "9/16 items pass") — never a bare binary verdict.
+2. **Upgrade-vs-rebuild decision gate**: default to upgrading in place when the skill's core content/logic is sound and failures are mostly structural (naming, frontmatter, missing security section, no evals) — additive fixes. Default to a full rebuild only when the description/triggering logic is fundamentally wrong, the skill is an obsolete capability-uplift skill now duplicated by base-model capability, or the body conflicts badly enough with the degrees-of-freedom principle that patching would mean rewriting most of it anyway. State explicitly which branch was taken and why, citing the specific audit findings.
+3. **Institutional-knowledge safeguard**: before rebuilding, diff the original skill's content against the checklist and flag anything present in the original with no checklist counterpart (undocumented workarounds, domain-specific quirks, hard-won lessons) as "keep or discard?" — never drop it silently.
+4. **Regression benchmarking**: use the eval engine to benchmark the skill before and after any change. A change is only accepted if it doesn't regress trigger accuracy or task-quality pass rate relative to the pre-change baseline — checklist-compliance improvement alone is not sufficient grounds to call it done.
+5. **Bulk mode**: run the same audit across an entire skills directory (e.g. `~/.claude/skills/`) in one invocation, reporting collectively rather than requiring a separate run per skill — a real, independently-observed need for migrating whole skill libraries to a new model generation.
+6. **Optional stretch, lower priority than 1-5 — contribute-back / auto-PR mode**: for third-party skill repositories specifically, never the user's own skills, optionally fork, apply improvements, and open a PR, governed by an explicit additive-only-changes principle (never delete files when contributing to someone else's repo) and requiring explicit user confirmation before any PR is opened, since this changes the trust model to acting on repositories `creating-skills` doesn't own.
+
+## Comparison to Adjacent Systems
+
+- **vs. Custom GPTs**: skills are portable folders that run across Claude Code, claude.ai, the API, the Agent SDK, and now 40+ cross-vendor clients; Custom GPTs live only inside ChatGPT. Skills win on file/data depth, code execution, MCP integration, and portability; GPTs win on public discoverability.
+- **vs. MCP**: a skill is a document (instructions loaded on match); an MCP server is a live running service exposing tools/data. Complementary — an MCP server for live data plus a skill for the workflow/format is a common pairing. Skills cannot replace MCP for live data; MCP cannot replace a skill's procedural knowledge.
+- **vs. subagents / CLAUDE.md / AGENTS.md / plugins**: skills run in the same context on match (or a forked context via `context: fork`); subagents get isolated contexts; CLAUDE.md/AGENTS.md are always-on context for always-true facts (Claude-specific vs. cross-vendor respectively); plugins are the packaging/distribution layer — which is what `creating-skills` itself is.
+- **vs. DESIGN.md**: relevant only when a skill's job is enforcing visual/brand output; DESIGN.md is the more portable home for the actual design tokens than prose inside SKILL.md.
+
+## Fourth Addendum: Remaining Prior Art
+
+Three more sources were reviewed as part of the pre-implementation to-do list, item 3. None required correcting anything above — they mostly *confirm* existing findings (a fourth independent confirmation of the frontmatter naming rules) — but they surface a handful of genuinely new, adoptable ideas.
+
+**`mgechev/skills-best-practices`** (1.9k stars) + its companion **`skillgrade`** (611 stars, MIT, npm): confirms the frontmatter naming rules verbatim (name 1-64 chars, lowercase+hyphens, no consecutive hyphens, parent-directory match) — now confirmed by four independent sources (agentskills.io itself, daymade, this, and agent-skills-eval below). New, adoptable ideas:
+- **Don't bundle library code in `scripts/`** — scripts should be tiny, single-purpose CLIs; long-lived library logic belongs in a proper package structure, not inline in a skill's script folder. This is a real design tension for `creating-skills`' own `scripts/` directory (`security_scan.py` in particular, which combines gitleaks wrapping, pattern checks, and hash/marker logic) — worth factoring shared logic into a small internal module if any script starts exceeding "tiny CLI" scope.
+- **Don't create `README.md`/`CHANGELOG.md`/install guides inside a skill's own directory** — these are human docs that waste tokens in a context an agent loads. `SkillArtisan`'s plugin-root `README.md`/`CHANGELOG.md` (outside `skill-artisan/creating-skills/`) already comply with this, but it's worth stating explicitly so the rule isn't accidentally violated inside the skill subdirectory itself.
+- **A cheap, four-stage LLM self-critique validation method**, distinct from and complementary to the full eval engine: (1) *Discovery* — paste just the frontmatter into a fresh LLM chat, ask it to generate 3 should-trigger + 3 should-not-trigger prompts from the description alone and critique whether it's too broad; (2) *Logic* — feed the entire SKILL.md + directory tree, have the LLM simulate itself executing the skill against a specific request and explicitly flag "Execution Blockers" (points where it's forced to guess due to ambiguous instructions) — this is a dry-run simulation, not real execution, and catches ambiguity before spending eval budget; (3) *Edge Case* — have the LLM adversarially generate challenging failure-state questions without fixing them yet; (4) *Architecture Refinement* — have the LLM rewrite the skill enforcing progressive disclosure based on what surfaced. This is cheap (a handful of chat turns, no subagents or Docker required) and worth offering as a fast pre-flight check before committing to the full with/without-skill eval loop.
+
+**`skillgrade`** itself (the evaluation tool, separate from the best-practices guide): a mature, cross-agent test runner — supports Gemini, Claude, Codex, ACP-compatible agents, OpenCode, and arbitrary custom commands, not just Claude. Runs in Docker by default (local for CI). New ideas worth adopting:
+- **Named trial-count presets**: `--smoke` (5 trials, quick capability check), `--reliable` (15 trials), `--regression` (30 trials, high-confidence regression detection) — a cleaner tiering than a single fixed run count, usable at different points in the workflow (quick sanity check vs. pre-release confidence).
+- **CI integration**: `--ci --threshold=0.8` exits non-zero if pass rate falls below the threshold — a concrete pattern for gating skill releases automatically, not just interactive review.
+- **Weighted composite grading**: deterministic checks and LLM-rubric checks combined via `Σ(grader_score × weight) / Σ weight`. `creating-skills`' assertion-based PASS/FAIL approach (from the canonical spec) is also legitimate and arguably more transparent — this is offered as an optional alternative scoring mode, not a replacement.
+- Explicitly cites Anthropic's own "Demystifying Evals for AI Agents" engineering blog and the academic SkillsBench benchmark as its inspirations — both worth a look if item 4 (the "best in market" scorecard) needs a stronger empirical grounding.
+
+**`darkrishabh/agent-skills-eval`** (652 stars, MIT, npm, published docs site): another mature, independent test runner, provider-agnostic via the OpenAI-compatible chat API (works with OpenAI, Together, Groq, Anthropic via compat layers, local Llama servers). Explicitly implements the full agentskills.io spec end-to-end, including the exact same frontmatter validation rules (a fourth independent confirmation) and the official `iteration-N` artifact layout. New ideas: **tool-call assertions** (deterministic checks for agents that call tools, not just generate text — a dimension not yet covered); **automatic assertion promotion** (if an eval only has `expected_output` and no formal `assertions`, the SDK promotes it into one automatically, lowering the barrier to writing a minimally-useful eval).
+
+**The existence of three independent, actively-maintained, cross-agent eval tools** (`skillgrade`, `agent-skills-eval`, and the with/without-skill pattern baked into `skill-creator` itself) is itself a finding: the with/without-skill baseline comparison is not an internal design choice unique to this project — it is the near-universal methodological standard across the whole ecosystem. This strengthens confidence in Stage 1's core design rather than changing it.
+
+**Positioning implication**: because `creating-skills` already commits to producing cross-vendor spec-compliant skills (see "Positioning" above), and because two independent, popular tools now exist specifically for cross-agent skill evaluation, there's a real option to make the eval engine itself cross-agent — not just the *skill* portable, but the *proof that it works* portable too. This is scoped as optional/advanced (see new Gap Table rows below), not core Stage 1, since it adds real dependencies (Docker, multiple provider API keys) that most authors won't need for a Claude-first workflow.
+
+## Fifth Addendum: `tripleyak/SkillForge` — A Mature Competitor Found During Naming Research
+
+This section was added after a plugin-naming collision check surfaced a real, mature, actively-developed competitor (738 stars, 81 forks, MIT, 5 major versions, latest release Feb 2026) that was not previously part of this research. It confirms several design choices already made, refines others, and adds a small number of genuinely new mechanisms.
+
+**What it validates, unchanged**: the degrees-of-freedom concept (row 4) appears independently in their design, confirming it as a load-bearing idea rather than something specific to this project's sources. Their own SKILL.md shrank 872→313 lines (64% reduction) in a dedicated "context-efficient redesign," explicitly citing "the context window is a public good" — real-world evidence for why progressive disclosure (row 17) and the `scripts/`-discipline (row 34) matter in practice, not just in theory.
+
+**What it refines**: the dedup/decision gate (row 27) — their percentage-based match-confidence routing (≥80% use existing, 50-79% improve existing, <50% create new) plus a fourth **compose** outcome (chain multiple existing skills for requests no single skill covers) is more precise than this project's original Adopt/Extend/Build framing, which had no equivalent to compose at all. The degrees-of-freedom heuristic (row 4) benefits from their explicit three-tier labeling (high/medium/low) over this report's original qualitative "narrow bridge vs. open field" metaphor. The lifecycle framing (row 14) benefits from their scored "timelessness" threshold (≥7/10) over a bare binary capability-uplift/encoded-preference label.
+
+**What it adds, genuinely new**: a `.skillignore`-based packaging-exclusion mechanism (row 37) that enforces "no human docs inside the skill directory" via an explicit ignore file the packaging script reads, rather than relying on directory-placement convention alone; and a specific unsafe-command-interpolation security check (row 38), distinct from the broader dangerous-code-pattern check already adopted from daymade.
+
+**What's out of scope, deliberately**: their **Context Skill Advisor** (v5.2, their newest feature) — a proactive, ambient background system with configurable proactivity levels that watches sessions and suggests skills unprompted — is a genuinely different product category (ambient assistant vs. on-demand tool) and is not adopted here; it's a plausible idea for a future version, not core scope. Their **11-lens analytical framework** and **XML-spec-intermediate-artifact** phases (a structured pre-generation analysis step using named thinking lenses — First Principles, Inversion, Pre-Mortem, and eight others) are real rigor but heavy; adopting them for every skill risks over-engineering simple ones, so they're noted as a possible optional "deep design mode" for complex or high-stakes skills only, not folded into the core build stages.
+
+**The most important finding is structural, not a specific mechanism**: `SkillForge`'s rigor model is fundamentally *review-based* — a panel of subagents evaluates a generated skill against distinct criteria and must unanimously approve it. `creating-skills`' rigor model (ported from `skill-creator`, row 15) is *execution-based* — it actually runs the skill with and without the instructions present and measures a real task-success delta. Both are legitimate, but they are not the same claim: unanimous panel approval means reviewers agree a skill *looks* correct; a measured success delta means it was *observed* to work. This is a genuine, defensible strength of the existing design worth stating explicitly rather than treating as one gap-table row among many — see the updated Best-in-Market Scorecard's Comparison Arms section.
+
+**Naming implication**: `SkillForge` is confirmed as a deliberately-chosen, established brand (their own changelog: "v4.0.0 — Renamed from SkillCreator to SkillForge"), not an accidental placeholder — reinforcing that this candidate was unavailable, more decisively than the earlier collision check alone suggested. This did not change the "creating-skills" (skill-level name) clearance. The plugin-level product name question that was open when this addendum was written has since been resolved — see the Architecture section and the Appendix for the full naming history and final decision (`SkillArtisan`).
+
+## Gap Table
+
+Practice/rule → current best-practice status → what `skill-creator` does today → what `creating-skills` builds. Numbering is preserved from the original research sequence for cross-reference stability; it does not imply priority order (see Stage mapping below for build sequence).
+
+| # | Practice / rule | Status | `skill-creator` today | `creating-skills` |
+|---|---|---|---|---|
+| 1 | Frontmatter validation (name/description hard constraints, six portable fields) | System-enforced, agentskills.io/specification | Not implemented | Wrap `skills-ref` + Claude-specific layer |
+| 2 | Gerund-form naming | Official recommendation | Not implemented | Validate + suggest gerund alternative |
+| 3 | "Pushy," imperative "Use when..." descriptions (combined, not alternative techniques) | Official, agentskills.io/skill-creation/optimizing-descriptions | Already does pushy correctly | Teach both together; description optimizer fine-tunes empirically |
+| 4 | Degrees-of-freedom matching, in explicit tiers (high/medium/low, not a spectrum) | Official + prior art refinement (tripleyak/SkillForge) | Not implemented | Freedom-vs-fragility heuristic, three explicit tiers |
+| 5 | Multi-model testing (Haiku/Sonnet/Opus) | Official | Not implemented | Cross-model eval pass |
+| 6 | Claude Tag surface | Documented | Not implemented | Git-repo layout, PR gate, session-start discovery |
+| 7 | Messages API surface | Documented | Not implemented | No network/installs, declare packages |
+| 8 | Extended Claude Code frontmatter + inline-vs-fork decision | Documented + prior art | Not implemented | Teach fields + explicit decision guide |
+| 9 | One-level-deep references | Official anti-pattern | Partial | Enforce explicitly |
+| 10 | Time-sensitive info / Windows paths / voodoo constants | Official anti-patterns | Not implemented | Writing checklist |
+| 11 | Consistent terminology | Official | Not implemented | Terminology check |
+| 12 | Security: gitleaks scan + tamper detection + instruction-level audit | Official + prior art | Only "Principle of Lack of Surprise" | Full security stack (see Security section) |
+| 13 | Evals-first ordering | Official | Partial | Explicit evals-first step |
+| 14 | Capability-uplift vs. encoded-preference framing, with a scored timelessness threshold | Official (Anthropic blog) + prior art refinement (tripleyak/SkillForge) | Not implemented | Framing + re-benchmark trigger + ≥7/10 timelessness score, not a bare binary label |
+| 15 | Eval + description-optimization engine | Best-practice frontier, matches documented official methodology | `skill-creator`'s strongest asset | Port wholesale — the core to preserve |
+| 16 | "Should this be a skill?" gate (+ prior-art dedup check) | Official + community consensus + prior art | Not implemented | Combined decision gate |
+| 17 | Progressive disclosure (3-level, size limits, TOC) | Official | Implemented | Keep |
+| 18 | Writing philosophy | Partly official + superpowers | `skill-creator`'s second-strongest asset | Keep — ahead of official prose |
+| 19 | Name/parent-directory match, no consecutive hyphens | Official | Not implemented | Add both checks |
+| 20 | Official validator `skills-ref` | Official tool exists | Not used | Wrap as base validation layer |
+| 21 | Agentic script-design conventions | Official | Not confirmed present | Script-design checklist |
+| 22 | `compatibility` field for environment/surface requirements | Official | Briefly mentioned, no constraints/auto-population taught | Auto-populate per target surface with full spec semantics |
+| 23 | Coherent-unit scoping | Official | Conflated with row 4 | Explicit, separate check |
+| 24 | AGENTS.md in the decision gate | Official (Agentic AI Foundation) | Not implemented | Add as CLAUDE.md's cross-vendor equivalent |
+| 25 | Gitleaks-based graded security scan, gating by default; pattern checks as an opt-in `--verbose` layer, not part of the default gate | Prior art (daymade), primary-source-verified | Not implemented | Adopt as reference implementation of row 12 — mirror the two-tier structure exactly, not a uniform gate |
+| 26 | Security marker + content-hash tamper detection (SHA256, path+content, atomic write) | Prior art (daymade), primary-source-verified | Not implemented | Adopt as part of row 12 |
+| 27 | Prior-art / dedup check, with numeric match-confidence routing and a compose outcome | Prior art (daymade; refined by tripleyak/SkillForge) | Not implemented | Add to the decision gate alongside row 16: use-existing (≥80%) / improve-existing (50-79%) / create-new (<50%) / compose (chain multiple existing skills) |
+| 28 | Inline vs. fork architecture decision guide | Prior art (daymade) | Not implemented | Explicit guide with worked examples |
+| 29 | Path-reference existence validation | Prior art (daymade) | Not implemented | Add to validation layer |
+| 30 | Cache-vs-source-path gotcha (Claude Code plugins) | Prior art (daymade) | Not implemented | Add to Claude Code surface guidance |
+| 31 | Bulk/whole-library audit mode | Prior art (independent) | Not implemented | Extend audit mode |
+| 32 | Optional contribute-back / auto-PR mode | Prior art (daymade) | Not implemented | Optional Stage 6 extension, lower priority |
+| 33 | Cheap four-stage LLM self-critique validation (Discovery/Logic/Edge-Case/Architecture) | Prior art (mgechev/skills-best-practices) | Not implemented | Optional fast pre-flight check before the full eval loop, in Stage 2 |
+| 34 | `scripts/` discipline: tiny CLIs only, no bundled library code; no README/CHANGELOG inside the skill's own directory | Prior art (mgechev/skills-best-practices) | N/A (no scripts/ discipline stated) | Apply to `creating-skills`' own `scripts/` design; state the rule explicitly for authored skills |
+| 35 | Named trial-count presets (smoke/reliable/regression) + CI gating (`--ci --threshold`) | Prior art (skillgrade) | Not implemented | Add presets to the eval engine; add CI mode to `eval_loop.py`/`audit.py` |
+| 36 | Optional cross-agent evaluation (not just cross-agent authoring) | Prior art (skillgrade, agent-skills-eval — two independent tools) | Not implemented | Optional advanced eval mode; real dependency cost (Docker, multi-provider keys), scope as opt-in |
+| 37 | `.skillignore`-style packaging exclusion, not directory placement alone | Prior art (tripleyak/SkillForge) | N/A | Enforce row 34 via an explicit ignore-file the packaging script reads, not just folder conventions |
+| 38 | Unsafe command-interpolation check (shell injection via string formatting) | Prior art (tripleyak/SkillForge) | Not implemented | Add as its own pattern in the security scan, distinct from the broader dangerous-code-pattern check |
+| 39 | Review-panel rigor as a complementary (not replacement) validation layer | Prior art (tripleyak/SkillForge's multi-agent synthesis panel) | N/A | Note as a legitimate alternative rigor model; `creating-skills` already has the stronger execution-based eval engine (row 15) and doesn't need to add a review panel, but the distinction is worth stating explicitly in the Best-in-Market Scorecard |
+| 40 | AI semantic read-through as a fifth security layer, closing pattern-based scanning's structural blind spots (non-English content, real content in examples/transcripts) | Prior art (daymade/claude-code-skills `CLAUDE.md`, primary-source-verified) | N/A | Required of the author before publishing their own skill, not just for third-party review; document as its own step alongside the gitleaks/pattern layers (row 12) |
+
+## Build Stages → Plugin Files → Release Scope
+
+Six stages, each owning specific files in the plugin structure above. Build in order; each stage's acceptance criteria must pass before moving to the next.
+
+**Release split, decided:** Stages 1-4 ship as **v1**; Stages 5-6 ship as **v2**, once v1 has been dogfogged on real skills. This is a deliberate choice, not a fallback — building all six stages simultaneously risks mediocre depth everywhere instead of real strength where it counts (the eval engine, the decision gate, the security layer), and v1 alone is already a complete, usable, meaningfully-better-than-`skill-creator` tool: it has the full eval engine, the combined decision/dedup gate, all five surfaces, and the concrete security stack. v2 adds the lifecycle framing and the audit/rebuild/bulk mode — real value, but value that depends on having real skills already built with v1 to audit and lifecycle-track in the first place. Version both releases in `plugin.json` and `CHANGELOG.md` (e.g. `1.0.0` for the v1 scope, `2.0.0` for v2) rather than treating this as one undifferentiated build.
+
+**v1 — Stages 1-4:**
+
+**Stage 1 — Eval engine** (`agents/*.md`, `scripts/eval_loop.py`, `scripts/description_optimizer.py`; row 15, 18). Port `skill-creator`'s evaluation engine unchanged. This is what makes the plugin worth using — get it working end-to-end on a real or dummy skill before anything else. Add named trial-count presets and CI gating (row 35: `--smoke`/`--reliable`/`--regression`, `--ci --threshold`). Scope cross-agent evaluation (row 36) as an optional, clearly-separated advanced mode — real dependency cost, not needed for the core Claude-first workflow.
+
+**Stage 2 — Decision gate and validation** (`SKILL.md` decision-gate section, `scripts/validate.py`, `scripts/dedup_search.py`; rows 1, 2, 3, 4, 16, 19, 20, 23, 24, 27, 28, 29, 33). The combined "what kind of artifact + does one exist" gate, coherent-unit scoping, the inline-vs-fork guide, frontmatter validation wrapping `skills-ref`, path-reference checking, gerund naming, degrees-of-freedom guidance, the (unmodified, correct) pushy-description teaching, and the optional four-stage LLM self-critique (row 33) as a cheap pre-flight check before the full eval loop.
+
+**Stage 3 — Surface matrix** (`references/surface-matrix.md`; rows 6, 7, 8, 22). Five-surface branching, extended Claude Code frontmatter, `compatibility` field auto-population.
+
+**Stage 4 — Security and content hygiene** (`scripts/security_scan.py`, `references/security-checklist.md`, `references/script-design.md`; rows 10, 11, 12, 21, 25, 26, 30, 34, 37, 38, 40). The gitleaks scan, pattern checks (including the unsafe command-interpolation check, row 38), marker/hash tamper detection, instruction-level third-party audit, the AI semantic read-through step for the author's own skills before publishing (row 40), script-design conventions, content hygiene, the cache-path gotcha, and the `scripts/`-discipline rule (row 34) enforced via a `.skillignore` mechanism (row 37) rather than directory placement alone — apply this discipline to `creating-skills`' own `scripts/` directory as well as teaching it to authors.
+
+**v1 release checkpoint:** package and tag `1.0.0` here, using the pre-written `README.md`, `LICENSE`, and `CHANGELOG.md` (see "Market Readiness" below) rather than generating fresh ones — copy them into the plugin root and update `CHANGELOG.md`'s `[Unreleased]` section into a dated `[1.0.0]` entry reflecting what actually shipped. Dogfood it on real skills before starting v2 — the point of the split is to let real usage inform Stages 5-6, not to treat the checkpoint as a formality.
+
+**v2 — Stages 5-6, after v1 has been used:**
+
+**Stage 5 — Lifecycle framing** (`references/lifecycle.md`; row 14). Capability-uplift vs. encoded-preference classification, re-benchmarking trigger after model upgrades.
+
+**Stage 6 — Audit mode** (`scripts/audit.py`; rows 31, 32, and reuses Stages 1-4 infrastructure). Single-skill and bulk audit, upgrade-vs-rebuild decision, institutional-knowledge safeguard, regression benchmarking, optional auto-PR extension.
+
+## Market Readiness
+
+Three files are already written and ready to drop into the plugin root — `skill-artisan-README.md`, `skill-artisan-LICENSE`, `skill-artisan-CHANGELOG.md` (rename to `README.md`, `LICENSE`, `CHANGELOG.md` respectively when copying in). Don't regenerate these during implementation; use them as-is and update `CHANGELOG.md` as work actually ships.
+
+**License: MIT.** This matches the dominant convention among every piece of real prior art reviewed for this project — `daymade/claude-code-skills`, `skillgrade`, `agent-skills-eval`, and `tripleyak/SkillForge` are all MIT-licensed. Consistency with the ecosystem norm matters more here than any licensing nuance specific to this project; there's no reason to deviate. The LICENSE file has a placeholder copyright holder (`[YOUR NAME OR ORGANIZATION HERE]`) that needs a real name filled in before release — this wasn't decided as part of this project's scope and shouldn't be guessed.
+
+**README positioning.** The README leads with what's different from `skill-creator` (a comparison table, not just prose), states the v1/v2 release split plainly so users aren't surprised audit mode is missing from v1, and includes a **Credits** section attributing the security architecture and dedup-gate refinements to `daymade/claude-code-skills` and `tripleyak/SkillForge` by name. This isn't just courtesy — significant parts of this design are directly adapted from their work (see the Gap Table's "Prior art" status column throughout), and claiming it as wholly original would be inaccurate. Don't remove or water down the Credits section when finalizing.
+
+**Versioning discipline.** Semantic versioning, but interpreted for this project's actual shape: a major version bump (`1.0.0` → `2.0.0`) marks the v1/v2 stage boundary specifically, not just "something breaking changed" — this is a deliberate choice to make the release history legible against the plan in this document, not a semver purity argument. Minor versions are for new capability within a stage (e.g. adding the optional cross-agent evaluation mode, row 36, without breaking existing v1 usage). Patch versions are for fixes.
+
+**Do not claim "best in market" anywhere in the README or marketing copy** until the Best-in-Market Scorecard has actually been run and clears its target bar (see below) — this constraint from the Claude Code prompt applies equally to any human-facing copy, not just what an agent might write unprompted.
+
+## Best-in-Market Scorecard
+
+"Best in market" needs to be a number `creating-skills` is built toward, not a feeling. This section defines the methodology — three axes, scored and reported *separately* rather than blended into one score (per `SkillTester`'s precedent of reporting utility and security as distinct scores), against named comparison arms, on a fixed benchmark corpus, with concrete numeric targets.
+
+### Why three separate axes, not one blended score
+
+Checklist compliance, actual capability lift, and security posture measure different things and can move independently — a skill can be 100% spec-compliant and still not help the model, or help the model while carrying a real security risk. Blending them into one number (as a weighted composite would) hides which one is actually weak. Report all three.
+
+**Axis 1 — Authoring quality (process compliance).** Does the *skill this tool produces* actually follow the Gap Table's 40 rows? Scored as a checklist-compliance percentage, the same methodology daymade used to justify their own fork (their published comparison: 65/80 = 81% vs. official `skill-creator`'s 42/80 = 53%, across 8 dimensions). `creating-skills`' own Synthesized Checklist is the scoring instrument. **Run this against a v1-scoped subset of the checklist (excluding the audit-mode and lifecycle-framing rows, 14 and 31-32) after the v1 release checkpoint, and the full checklist after v2** — a v1-only scorecard shouldn't be penalized for capability that's deliberately scoped to v2.
+
+**Axis 2 — Skill quality lift (capability).** Does using the skill actually make the model better at the task, measured the same with/without-skill way every tool in this space measures it (`skill-creator`, `skillgrade`, `agent-skills-eval` all use this pattern independently — see the Fourth Addendum). Reported as a task-success-rate delta on a fixed benchmark corpus (below), not a self-reported claim.
+
+**Axis 3 — Security posture.** Gitleaks-clean rate and adversarial-instruction-audit pass rate across the corpus, kept as its own line item rather than folded into a general "quality" number, since a security failure should never be averaged away by good writing quality elsewhere.
+
+### Comparison arms
+
+Every benchmark run scores five arms on the same corpus, so the numbers are comparable, not self-reported in isolation:
+
+1. **No skill** (baseline) — establishes the floor.
+2. **Anthropic's shipped `skill-creator`** — the incumbent this project supersedes.
+3. **`daymade/claude-code-skills`' fork** — the closest known prior art with a published comparison methodology of its own.
+4. **`tripleyak/SkillForge`** — a mature, independently-developed competitor (738 stars) with a structurally different rigor model worth measuring explicitly: its quality assurance comes from a *review-based* panel (multiple subagents evaluating a generated skill against distinct criteria, requiring unanimous approval) rather than *execution-based* evals (actually running with/without-skill task comparisons and measuring the delta, which is what `creating-skills` and `skill-creator` both do). Both are legitimate approaches, but they make different claims — a unanimous panel approval means reviewers agree the skill *looks* right; a measured task-success delta means it was *observed* to work. State this distinction explicitly in the results, not just the numbers, since it's the more meaningful difference between arms 4 and 5.
+5. **`creating-skills`** — this project.
+
+### Benchmark corpus
+
+A fixed set of test skills, not cherry-picked per run, so results are reproducible across iterations (the same discipline `skillgrade`'s `--regression` preset and `agent-skills-eval`'s workspace artifacts are built around):
+
+- **12-20 skills** spanning at least four categories: document/data processing, developer tooling, research/analysis, and creative/design — wide enough to catch category-specific weaknesses, small enough to keep the benchmark affordable to re-run after every meaningful change.
+- Each test skill ships an `evals/evals.json` with **8-10 realistic tasks**, mixing should-trigger and should-not-trigger cases with genuine near-misses (per the `optimizing-descriptions` methodology already adopted in Stage 1) — not obviously-irrelevant negatives.
+- Source the corpus from a mix of: 2-3 skills built from scratch specifically for this benchmark (so results aren't biased toward skills any one arm already "knows" how to handle), plus a handful of real skills from `daymade`'s public repository used as-is (their existing eval material, if any, reused rather than rewritten, to avoid tuning the benchmark to favor `creating-skills`).
+
+### Methodology per run
+
+For each arm and each test skill: (1) run the arm's authoring/improvement workflow starting from the same rough draft or blank slate; (2) score the resulting skill against the Gap Table checklist (Axis 1); (3) run the trigger-accuracy eval (8-10/8-10 should/should-not split, 3x runs per query, same methodology as Stage 1's description optimizer) and the task-success eval (with-skill vs. without-skill delta, judge-graded assertions with cited evidence, not vibes) for Axis 2; (4) run the gitleaks + pattern security scan for Axis 3. Use a **blind grading pass** for any subjective judgments (quality, writing style) — present outputs to a judge without revealing which arm produced them, per the blind-comparison technique already in Stage 1, to avoid self-grading bias.
+
+### Reporting format
+
+A published table, one row per arm, columns: Checklist compliance %, Trigger-accuracy delta (should-trigger and should-not-trigger, reported separately), Task-success delta, Security-clean rate, and cost (tokens/time) — mirroring what `skillgrade`'s and `agent-skills-eval`'s static HTML reports already surface, so the format is recognizable to anyone who's used either tool. Re-run on every meaningful change to `creating-skills`, using `skillgrade`'s `--ci --threshold` pattern to gate regressions automatically once a baseline is established, not just at initial release.
+
+### Target bar for the "best in market" claim
+
+Numeric, not aspirational — `creating-skills` should not claim "best in market" publicly until it clears all four:
+
+- **Checklist compliance ≥ 90%** on Axis 1 (exceeds daymade's self-reported 81%, and Anthropic's shipped `skill-creator`'s status quo).
+- **Trigger-accuracy delta strictly greater than `skill-creator`, the daymade fork, and `tripleyak/SkillForge`** on the same held-out validation split — not just "improved," but ahead of all three named competitors specifically.
+- **Security: 100% gitleaks-clean and zero critical findings** across the entire corpus — this is a bar to clear, not a percentage to optimize, given what's at stake if it's wrong.
+- **Task-success delta ≥ `skill-creator`'s own delta** on the same corpus — the floor is "doesn't regress the one thing `skill-creator` is already good at," with genuine improvement expected given everything else this project adds. Report `SkillForge`'s panel-approval rate alongside this rather than treating it as directly comparable — a review-based approval rate and an execution-based success delta answer different questions, and collapsing them into one comparison would overstate or understate either result.
+
+### Honesty and limits
+
+This is a self-administered benchmark unless and until it's published with enough methodology detail for someone else to reproduce it — treat any internal results with the same skepticism this whole research process has applied to other single-source claims (see Confidence Notes). If `creating-skills` is ever released publicly with a "best in market" claim, publish the corpus, the grading methodology, and the raw per-arm results alongside it — the same transparency daymade's own comparison table provides, not just a marketing number.
+
+## Synthesized Checklist
+
+- [ ] Decision gate: confirm a skill (not CLAUDE.md / AGENTS.md / MCP / subagent / plugin) is the right tool, and route the dedup check by match confidence (≥80% use existing / 50-79% improve existing / <50% create new / compose for multi-skill chains) rather than a vague three-way call.
+- [ ] Coherent-unit scoping checked, distinct from instruction-level specificity.
+- [ ] Architecture decision made explicitly: inline vs. forked subagent context.
+- [ ] Name: gerund form, 1–64 chars, lowercase/numbers/hyphens, no consecutive hyphens, no XML, no "anthropic"/"claude", matches parent directory exactly.
+- [ ] Description: third person, imperative "Use when...", explicitly and pushily lists trigger contexts (including ones that don't name the domain directly), ≤1,024 chars, single line, no colons, no XML; tuned by the optimizer for both false positives and negatives.
+- [ ] Frontmatter validated via `skills-ref` + Claude-specific layer + path-reference existence; only six portable fields used outside Claude Code.
+- [ ] `compatibility` field populated when real environment requirements exist.
+- [ ] SKILL.md body <500 lines and <5,000 tokens; references one level deep; TOC for files >100 lines.
+- [ ] Writing: imperative voice, explain the why, no overfitting to test cases, lean content.
+- [ ] Content hygiene: no time-sensitive info, forward-slash paths, consistent terminology, no voodoo constants, declared dependencies.
+- [ ] Bundled scripts: non-interactive, `--help` documented, stdout/stderr separated, meaningful exit codes, idempotent, `--dry-run` for destructive ops, bounded output; pinned versions for one-off commands.
+- [ ] Surface coverage: Claude Code (+ nested variants), Claude.ai, Cowork, Claude Tag, Messages API, and generic cross-vendor.
+- [ ] Multi-model tested: Haiku, Sonnet, Opus.
+- [ ] Evals-first: baseline → minimal instructions → iterate, ≥3 scenarios initially.
+- [ ] Eval engine run: parallel runs, assertions, grading, benchmark, analyst pass, blind A/B; named presets (smoke/reliable/regression) available; CI mode with pass-rate threshold supported.
+- [ ] Optional cheap pre-flight: four-stage LLM self-critique (discovery/logic/edge-case/architecture) available before committing to the full eval loop.
+- [ ] `creating-skills`' own `scripts/` stay tiny and single-purpose; no bundled library code; no README/CHANGELOG inside the skill's own directory (only at plugin root), enforced via a `.skillignore` the packaging step actually reads, not directory placement alone.
+- [ ] Description optimization run: ~20 queries, 60/40 split, 3× runs, ≤5 iterations, selected by validation pass rate.
+- [ ] Capability-uplift vs. encoded-preference classified with a scored timelessness threshold (≥7/10), not a bare binary label; re-benchmark trigger set for uplift skills.
+- [ ] Security: gitleaks graded scan, pattern checks, gitignored tamper-detection marker blocking packaging on mismatch, instruction-level third-party audit for external skills, and an AI semantic read-through step required of the author before publishing their own skill (pattern-based checks alone are structurally blind to non-English content and real content in examples/transcripts).
+- [ ] Packaged with the pre-written `README.md` (positioning table + Credits section intact), `LICENSE` (MIT, copyright holder filled in — not left as a placeholder), and `CHANGELOG.md` (`[Unreleased]` converted to a dated version entry reflecting what actually shipped).
+- [ ] Audit mode functional: single-skill and bulk, upgrade-vs-rebuild, institutional-knowledge preservation, regression benchmarking.
+- [ ] Claude Code cache-vs-source-path warning present in surface guidance.
+- [ ] Best-in-Market Scorecard run at least once: all three axes scored (checklist compliance, trigger/task-success deltas, security-clean rate) against all five comparison arms on the fixed benchmark corpus, with results published alongside the methodology if any public claim is made.
+
+## Confidence Notes
+
+- **`skill-creator` was re-read live (not from a cached snapshot) immediately before this note was written.** Current file: 485 lines, 32.4 KB — identical in size to the version this report was originally built from, so the understanding throughout this document is current, not stale. Confirmed accurate: the eval engine mechanics exactly as documented (20-query optimizer, 8-10/8-10 split, 60/40 train/test, 3× runs, 5 iterations, test-score selection), the pushy-description guidance verbatim, the "Principle of Lack of Surprise" as the entire security section, and the complete absence of frontmatter validation, gerund naming, multi-model testing, or any skill-vs-CLAUDE.md/AGENTS.md/MCP decision framework. **One correction made as a result**: the `compatibility` field is briefly mentioned in `skill-creator` (row 22 updated from "not implemented" to "partial" — mentioned, but no constraints or auto-population taught). **One important clarification, not a correction**: `skill-creator` does have an "updating an existing skill" section (in its Claude.ai- and Cowork-specific instructions), but it is read-only-path handling advice bolted onto the same create/iterate loop — not a structured audit, scoring system, upgrade-vs-rebuild decision, institutional-knowledge preservation, or bulk mode. Stage 6 remains fully unclosed scope, confirmed rather than weakened by this finding. **Two additions made to Stage 1's scope**: the actual HTML eval-viewer (`eval-viewer/generate_review.py`) and the `assets/eval_review.html` review template should be ported as concrete artifacts, not reinvented from a generic "benchmark aggregation" description; and the eval engine itself needs surface-aware branching (subagent/browser/CLI availability), mirroring `skill-creator`'s existing Claude.ai/Cowork instruction sets.
+- **The Snyk ToxicSkills figures** are from a single vendor's methodology and corpus (ClawHub/skills.sh, Feb 2026) — directionally corroborated elsewhere but not independently reproduced.
+- **`daymade/claude-code-skills` security details are now fully primary-source-verified — the actual `security_scan.py` source was read directly, not summarized secondhand.** This corrected several inaccuracies in this document's earlier, DeepWiki-sourced pass: the pattern-based checks (paths, emails, HTTP, dangerous code) only run in `--verbose` mode and don't gate default packaging (gitleaks alone does); critical-vs-high severity is a keyword match on the RuleID, not gitleaks-native; exceptions are pattern-specific, not a shared list (`test.com` was wrongly attributed as an exception to the insecure-HTTP check; it only applies to the email check); the gitleaks command needs `--report-path`, which the earlier pass omitted. The AI-semantic-read-through finding (row 40) is confirmed even more strongly than before — it's not just documented in `CLAUDE.md`, the scanner prints it verbatim on every clean scan and points to their own `references/sanitization_checklist.md` (underscore — their file naming, not necessarily ours; this plugin's equivalent file is `sanitization-checklist.md`, hyphenated to match its own convention). The Security section above now reflects the verified architecture throughout; nothing about this remains a gap.
+- **`SkillTester` was directly verified, not left as a secondhand reference.** Full citation: L. Wang, Z. Wang, A. Xu, "SkillTester: Benchmarking Utility and Security of Agent Skills," arXiv:2603.28815, March 2026 (Peking University / Northwestern Polytechnical University). Directly confirms the comparative utility principle (paired baseline vs. with-skill execution), the user-facing simplicity principle, and a utility score plus a security score plus a three-level security status label reported as distinct outputs — exactly the "report axes separately" precedent this document cites it for.
+- **Quantitative trigger-accuracy figures from third-party guides** (e.g. "45%→94%") are illustrative, not first-party; only Anthropic's own "5 of 6 public skills improved" figure is first-party.
+- **Prior art has now been reviewed across six independent sources** (`daymade/claude-code-skills`, `mgechev/skills-best-practices`/`skillgrade`, `darkrishabh/agent-skills-eval`, and `tripleyak/SkillForge`) — this is a reasonably thorough sweep, though the field is demonstrably larger and more active than initially assumed. Treat this as well-researched, not exhaustive — a saturated, fast-moving space.
+- **The plugin's own product name is resolved: `SkillArtisan`** (slug `skill-artisan`). The skill-level name `creating-skills` was confirmed clear of collision early and needed no change. The plugin name took substantially more effort — twelve candidates were checked in total: `SkillForge`, `Skillwright`, `SkillComposer`, `SkillScribe`, `SkillCraft`, `SkillBrew`, `SkillShip`, `SkillFoundry`, `SkillDock` (the "Skill + craft noun" pattern), `Atelier` (a structurally different, non-"Skill"-prefixed attempt), and `SkillArtisan`/`SkillAssembler` (the two that cleared). Ten of the twelve were already taken, several multiple times over and specifically within the AI-agent-skill niche — a useful finding in its own right about how saturated this naming space has become. `SkillArtisan` was selected. Full detail in the Appendix.
+
+## Appendix: Research Provenance
+
+This document consolidates an original report and five subsequent research passes:
+1. **Original report** — `skill-creator` vs. Claude's own docs (`platform.claude.com`, `code.claude.com`), community sources (`superpowers`, AI Builder Club, practitioner guides), and Snyk's ToxicSkills audit.
+2. **First addendum** — direct review of `agentskills.io/specification` and the full `skill-creation/*` guide series, correcting the original's "pushy description" finding (the original wrongly recommended softening it) and adding the canonical frontmatter details, the `skills-ref` validator, script-design conventions, and the `compatibility` field.
+3. **Second addendum** — review of a third-party AI-generated summary of adjacent agentic standards, adding AGENTS.md and DESIGN.md after independent verification, and explicitly correcting an inaccurate governing-body claim in that summary rather than repeating it.
+4. **Third addendum** — direct competitive-landscape review of `daymade/claude-code-skills`, adding concrete security tooling, the dedup check, the inline-vs-fork guide, path-reference validation, the cache-path gotcha, and bulk/auto-PR mode extensions.
+5. **Fourth addendum** — review of `mgechev/skills-best-practices`/`skillgrade` and `darkrishabh/agent-skills-eval`, adding the `.skillignore`/`scripts/`-discipline mechanism, a cheap four-stage LLM self-critique method, named eval trial presets with CI gating, and confirming the with/without-skill baseline as an ecosystem-wide standard rather than a one-off design choice.
+6. **Fifth addendum** — direct review of `tripleyak/SkillForge`, adding the numeric match-confidence dedup routing and compose outcome, tiered degrees-of-freedom language, a scored lifecycle threshold, an unsafe-interpolation security check, and the explicit review-vs-execution rigor distinction now reflected in the Best-in-Market Scorecard's five arms.
+
+A sixth, non-addendum research effort resolved the plugin's product name: twelve candidates were checked (`SkillForge`, `Skillwright`, `SkillComposer`, `SkillScribe`, `SkillCraft`, `SkillBrew`, `SkillShip`, `SkillFoundry`, `SkillDock`, `Atelier`, `SkillArtisan`, `SkillAssembler`); ten were already taken, several multiple times over and specifically within the AI-agent-skill niche. `SkillArtisan` was selected as the plugin name; `creating-skills` was confirmed clear early and kept as the bundled skill's name. A seventh effort closed out remaining research gaps: `SkillTester` was verified directly (arXiv:2603.28815) rather than left as a secondhand reference, and a direct fetch of `daymade/claude-code-skills`' own `CLAUDE.md` surfaced a fifth security layer (AI semantic read-through) not previously captured, now added as Gap Table row 40.
+
+Row numbers in the Gap Table above are stable across all five addenda and match the numbering used in the companion Claude Code build prompt.

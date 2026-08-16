@@ -1,0 +1,24 @@
+# Packaging-exclusion patterns, read by scripts/security_scan.py's --package
+# mode (row 37, prior art: tripleyak/SkillForge). One pattern per line;
+# trailing "/" excludes a directory (and everything under it) at any depth;
+# no "/" matches by filename/dirname at any depth; a pattern containing "/"
+# elsewhere is matched against the relative path.
+#
+# This file lives at the plugin root per the architecture tree, and doubles
+# as the reference example for the convention: scripts/security_scan.py
+# reads .skillignore from inside whatever directory is being scanned/
+# packaged, so an authored skill's own exclusions belong in
+# <that-skill>/.skillignore, not here. creating-skills/ itself doesn't need
+# one — the row 34 discipline this file documents is exactly why: no
+# README.md/CHANGELOG.md/install guide ever lands inside the skill
+# subdirectory in the first place, so there's nothing there to exclude.
+
+README.md
+LICENSE
+CHANGELOG.md
+CONTEXT.md
+docs/
+*.png
+*.jpg
+*.jpeg
+*.gif
