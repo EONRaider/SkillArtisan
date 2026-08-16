@@ -44,7 +44,7 @@ SkillArtisan's decision gate will first confirm a skill is actually the right to
 | Existing-skill audit | Path-handling advice only | Full audit mode: checklist scoring, upgrade-vs-rebuild decision, institutional-knowledge preservation, regression benchmarking, bulk mode |
 | Eval engine | Strong — with/without-skill runs, description optimizer | Same engine, ported intact — this is the one thing kept unchanged |
 
-See the full [Gap Table](./skill-artisan-master-spec.md#gap-table) (40 rows) for the complete comparison, including against other community tools (`daymade/claude-code-skills`, `tripleyak/SkillForge`).
+See the full [Gap Table](../skill-artisan-master-spec.md#gap-table) (40 rows) for the complete comparison, including against other community tools (`daymade/claude-code-skills`, `tripleyak/SkillForge`).
 
 ## Architecture
 
@@ -66,7 +66,7 @@ skill-artisan/
 └── README.md
 ```
 
-Full rationale in the project's [master specification](./skill-artisan-master-spec.md).
+Full rationale in the project's [master specification](../skill-artisan-master-spec.md).
 
 ## Release scope
 
@@ -85,7 +85,7 @@ Every skill produced or audited by SkillArtisan is scanned with [gitleaks](https
 
 ## Credits
 
-SkillArtisan's evaluation engine is ported from Anthropic's `skill-creator`. Its security scanning architecture, dedup/decision gate refinements, and several structural conventions are adapted from real prior art in this space — particularly [`daymade/claude-code-skills`](https://github.com/daymade/claude-code-skills) and [`tripleyak/SkillForge`](https://github.com/tripleyak/SkillForge) — with attribution preserved in the [Gap Table](./skill-artisan-master-spec.md#gap-table) row by row. This project exists because that prior art already fought many of these battles well; the goal was to synthesize the best of it against the canonical spec, not to claim originality it doesn't have.
+SkillArtisan's evaluation engine is ported from Anthropic's `skill-creator`. Its security scanning architecture, dedup/decision gate refinements, and several structural conventions are adapted from real prior art in this space — particularly [`daymade/claude-code-skills`](https://github.com/daymade/claude-code-skills) and [`tripleyak/SkillForge`](https://github.com/tripleyak/SkillForge) — with attribution preserved in the [Gap Table](../skill-artisan-master-spec.md#gap-table) row by row. This project exists because that prior art already fought many of these battles well; the goal was to synthesize the best of it against the canonical spec, not to claim originality it doesn't have.
 
 ## License
 
