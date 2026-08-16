@@ -130,10 +130,18 @@ def branch_name_for(skill_name: str) -> str:
     return f"skillartisan-audit-fix-{safe}"
 
 
-def find_existing_pr(upstream_repo: str, fork_owner: str, branch: str) -> str | None:
+def find_existing_pr(upstream_repo: str, fork_owner: str, branch: str, direct_push: bool) -> str | None:
+    """`gh pr list --head` takes a bare branch name for a same-repo PR (the
+    direct-push, no-fork case) but requires `owner:branch` for a cross-repo
+    (forked) PR — using `owner:branch` unconditionally silently matches
+    nothing in the same-repo case. Found live: a second run against a
+    disposable repo the author already had push access to fell through this
+    check entirely and attempted a real push that then failed on an
+    unrelated non-fast-forward error, rather than being caught here first."""
+    head_filter = branch if direct_push else f"{fork_owner}:{branch}"
     result = run_gh([
         "pr", "list", "--repo", upstream_repo,
-        "--head", f"{fork_owner}:{branch}", "--state", "all",
+        "--head", head_filter, "--state", "all",
         "--json", "url", "--jq", ".[0].url",
     ])
     url = result.stdout.strip()
@@ -146,12 +154,37 @@ def get_authenticated_login() -> str | None:
     return login or None
 
 
+def has_push_access(upstream_repo: str) -> bool:
+    """True if the authenticated user can already push to upstream_repo
+    directly (owner, or a collaborator with WRITE/MAINTAIN/ADMIN) — in which
+    case forking is both unnecessary and impossible (GitHub doesn't support
+    forking a repo into an account that already owns it). Found by actually
+    trying to test --execute against a disposable repo the user owns: a
+    genuinely third-party repo needs a fork, but a repo the user already has
+    write access to (their own scratch repo, or one they collaborate on)
+    doesn't, and treating every target as fork-required would hard-fail
+    exactly the case a live test needs."""
+    result = run_gh(["repo", "view", upstream_repo, "--json", "viewerPermission"])
+    if result.returncode != 0:
+        return False
+    return '"viewerPermission":"WRITE"' in result.stdout or \
+        '"viewerPermission":"MAINTAIN"' in result.stdout or \
+        '"viewerPermission":"ADMIN"' in result.stdout
+
+
 def ensure_fork(upstream_repo: str) -> tuple[bool, str]:
-    """gh repo fork is itself idempotent — safe to call whether or not a
-    fork already exists. Returns (ok, fork_owner_or_error)."""
+    """Returns (ok, push_target_owner_or_error). If the authenticated user
+    already has push access to upstream_repo, skips forking entirely and
+    pushes directly to it — forking would fail outright in that case.
+    Otherwise, gh repo fork is itself idempotent — safe to call whether or
+    not a fork already exists."""
     login = get_authenticated_login()
     if not login:
         return False, "could not determine authenticated gh user"
+
+    if has_push_access(upstream_repo):
+        return True, upstream_repo.split("/")[0]
+
     result = run_gh(["repo", "fork", upstream_repo, "--clone=false"], timeout=60)
     if result.returncode != 0 and "already exists" not in (result.stderr + result.stdout).lower():
         return False, (result.stderr or result.stdout).strip()
@@ -243,9 +276,10 @@ def cmd(args: argparse.Namespace) -> int:
     branch = branch_name_for(args.skill_name)
     repo_name = args.upstream_repo.split("/")[-1]
     login = get_authenticated_login()
-    fork_owner = login or "<unknown>"
+    direct_push = has_push_access(args.upstream_repo) if login else False
+    fork_owner = (args.upstream_repo.split("/")[0] if direct_push else login) or "<unknown>"
 
-    existing_pr = find_existing_pr(args.upstream_repo, fork_owner, branch) if login else None
+    existing_pr = find_existing_pr(args.upstream_repo, fork_owner, branch, direct_push) if login else None
     if existing_pr:
         print(f"Idempotent no-op: a PR already exists for {args.skill_name} against {args.upstream_repo}.", file=sys.stderr)
         print(existing_pr)
@@ -257,7 +291,10 @@ def cmd(args: argparse.Namespace) -> int:
     pr_body = Path(args.pr_body_file).read_text() if args.pr_body_file else DEFAULT_PR_BODY_TEMPLATE
 
     if args.dry_run:
-        print(f"[dry-run] Would fork {args.upstream_repo} to {fork_owner}/{repo_name} (or reuse existing fork)", file=sys.stderr)
+        if direct_push:
+            print(f"[dry-run] Already have push access to {args.upstream_repo} — would push directly, no fork needed", file=sys.stderr)
+        else:
+            print(f"[dry-run] Would fork {args.upstream_repo} to {fork_owner}/{repo_name} (or reuse existing fork)", file=sys.stderr)
         print(f"[dry-run] Would create/reset branch: {branch}", file=sys.stderr)
         print(f"[dry-run] Would commit and push {len(changes)} changed file(s):", file=sys.stderr)
         for code, path in changes:
