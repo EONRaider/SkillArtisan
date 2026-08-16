@@ -75,7 +75,7 @@ SkillArtisan ships in two deliberate stages:
 - **v1** — eval engine, decision gate, surface matrix, security scanning. A complete, usable tool on its own.
 - **v2** — lifecycle framing (capability-uplift vs. encoded-preference classification) and audit mode (upgrade/rebuild existing skills, bulk mode across a whole skills directory). Ships after v1 has been used on real skills, so the audit heuristics are informed by real usage rather than designed in a vacuum.
 
-See [CHANGELOG.md](./CHANGELOG.md) for what's shipped and what's planned.
+See [CHANGELOG.md](./skill-artisan/CHANGELOG.md) for what's shipped and what's planned.
 
 ## Security
 
@@ -89,4 +89,4 @@ SkillArtisan's evaluation engine is ported from Anthropic's `skill-creator`. Its
 
 ## License
 
-MIT — see [LICENSE](./LICENSE).
+MIT — see [LICENSE](./skill-artisan/LICENSE).
