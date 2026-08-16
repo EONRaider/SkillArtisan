@@ -1,7 +1,7 @@
 {
   "name": "skill-artisan",
   "displayName": "SkillArtisan",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Build, validate, secure, and maintain Claude Skills. Supersedes Anthropic's shipped skill-creator with a spec-compliant, cross-vendor, security-hardened successor: frontmatter validation, a combined decision/dedup gate, a five-surface compatibility matrix, gitleaks-based security scanning with tamper detection, and the full with/without-skill evaluation engine.",
   "license": "MIT",
   "author": {
