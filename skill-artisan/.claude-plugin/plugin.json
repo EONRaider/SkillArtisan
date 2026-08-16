@@ -1,13 +1,13 @@
 {
   "name": "skill-artisan",
   "displayName": "SkillArtisan",
-  "version": "1.0.1",
-  "description": "Build, validate, secure, and maintain Claude Skills. Supersedes Anthropic's shipped skill-creator with a spec-compliant, cross-vendor, security-hardened successor: frontmatter validation, a combined decision/dedup gate, a five-surface compatibility matrix, gitleaks-based security scanning with tamper detection, and the full with/without-skill evaluation engine.",
+  "version": "2.0.0",
+  "description": "Build, validate, secure, and maintain Claude Skills. Supersedes Anthropic's shipped skill-creator with a spec-compliant, cross-vendor, security-hardened successor: frontmatter validation, a combined decision/dedup gate, a five-surface compatibility matrix, gitleaks-based security scanning with tamper detection, the full with/without-skill evaluation engine, lifecycle classification, and an audit mode for upgrading, rebuilding, and bulk-auditing existing skills.",
   "license": "MIT",
   "author": {
     "name": "EONRaider",
     "url": "https://github.com/EONRaider"
   },
-  "keywords": ["skills", "skill-creator", "agentskills", "authoring", "validation", "security"],
+  "keywords": ["skills", "skill-creator", "agentskills", "authoring", "validation", "security", "audit", "lifecycle"],
   "skills": "./"
 }

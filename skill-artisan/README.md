@@ -41,7 +41,8 @@ SkillArtisan's decision gate will first confirm a skill is actually the right to
 | Security | "Don't build malware" (one line) | Gitleaks-based scan, pattern checks, content-hash tamper detection, AI semantic read-through |
 | Surfaces covered | Claude Code, Claude.ai, Cowork | + Claude Tag, Messages API, generic cross-vendor |
 | Multi-model testing | Not mentioned | Explicit Haiku/Sonnet/Opus pass |
-| Existing-skill audit | Path-handling advice only | Full audit mode: checklist scoring, upgrade-vs-rebuild decision, institutional-knowledge preservation, regression benchmarking, bulk mode |
+| Existing-skill audit | Path-handling advice only | Full audit mode (`scripts/audit.py`): checklist scoring, upgrade-vs-rebuild decision, institutional-knowledge preservation, regression benchmarking, bulk mode |
+| Lifecycle tracking | Not mentioned | Capability-uplift vs. encoded-preference classification with a scored timelessness threshold (`references/lifecycle.md`) |
 | Eval engine | Strong — with/without-skill runs, description optimizer | Same engine, ported intact — this is the one thing kept unchanged |
 
 See the full [Gap Table](../skill-artisan-master-spec.md#gap-table) (40 rows) for the complete comparison, including against other community tools (`daymade/claude-code-skills`, `tripleyak/SkillForge`).
@@ -70,12 +71,12 @@ Full rationale in the project's [master specification](../skill-artisan-master-s
 
 ## Release scope
 
-SkillArtisan ships in two deliberate stages:
+SkillArtisan shipped in two deliberate stages, both now released:
 
-- **v1** — eval engine, decision gate, surface matrix, security scanning. A complete, usable tool on its own.
-- **v2** — lifecycle framing (capability-uplift vs. encoded-preference classification) and audit mode (upgrade/rebuild existing skills, bulk mode across a whole skills directory). Ships after v1 has been used on real skills, so the audit heuristics are informed by real usage rather than designed in a vacuum.
+- **v1** (`1.0.0`) — eval engine, decision gate, surface matrix, security scanning. A complete, usable tool on its own.
+- **v2** (`2.0.0`) — lifecycle framing (capability-uplift vs. encoded-preference classification, `references/lifecycle.md`) and audit mode (`scripts/audit.py`: upgrade/rebuild existing skills, bulk mode across a whole skills directory, an optional additive-only contribution-plan mode for third-party repos). Shipped after v1 had been dogfooded on a real project skill, so the audit heuristics were informed by real usage (see `[1.0.1]` in the changelog) rather than designed in a vacuum.
 
-See [CHANGELOG.md](./CHANGELOG.md) for what's shipped and what's planned.
+The one thing v2 deliberately did not do: claim "best in market." That requires the master spec's full Best-in-Market Scorecard — a 12-20 skill benchmark corpus, four other comparison arms actually run, three axes scored separately — and that hasn't been run yet. See [CHANGELOG.md](./CHANGELOG.md) for what's shipped, what's deferred, and why.
 
 ## Security
 

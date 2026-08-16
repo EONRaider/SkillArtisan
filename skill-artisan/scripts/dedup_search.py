@@ -35,7 +35,7 @@ import re
 import sys
 from pathlib import Path
 
-from _common import parse_skill_md
+from _common import find_skill_dirs, parse_skill_md
 
 STOPWORDS = {
     "a", "an", "the", "and", "or", "for", "to", "of", "in", "on", "with", "that", "this",
@@ -67,22 +67,6 @@ def jaccard(a: set[str], b: set[str]) -> float:
     intersection = len(a & b)
     union = len(a | b)
     return intersection / union if union else 0.0
-
-
-def find_skill_dirs(search_paths: list[Path]) -> list[Path]:
-    found = []
-    for base in search_paths:
-        if not base.is_dir():
-            continue
-        if (base / "SKILL.md").exists():
-            found.append(base)
-            continue
-        for skill_md in base.glob("*/SKILL.md"):
-            found.append(skill_md.parent)
-        # one level deeper, for marketplace/plugin-style layouts (<plugin>/<skill>/SKILL.md)
-        for skill_md in base.glob("*/*/SKILL.md"):
-            found.append(skill_md.parent)
-    return sorted(set(found))
 
 
 def suggest_tier(score: float) -> str:

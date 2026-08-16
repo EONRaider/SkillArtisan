@@ -117,3 +117,27 @@ TRIAL_PRESETS = {
     "reliable": 15,   # pre-review confidence
     "regression": 30,  # high-confidence regression detection before release
 }
+
+
+def find_skill_dirs(search_paths: list[Path]) -> list[Path]:
+    """Find skill directories under each search path: the path itself if it
+    directly contains a SKILL.md, one level down (marketplace/<skill>), or
+    two levels down (plugin/<skill>, for marketplace/plugin-style layouts).
+
+    Shared by dedup_search.py (searching for prior art) and audit.py's bulk
+    mode (auditing a whole skills directory) — one implementation per the
+    scripts/ discipline in references/script-design.md, not two copies that
+    drift apart.
+    """
+    found = []
+    for base in search_paths:
+        if not base.is_dir():
+            continue
+        if (base / "SKILL.md").exists():
+            found.append(base)
+            continue
+        for skill_md in base.glob("*/SKILL.md"):
+            found.append(skill_md.parent)
+        for skill_md in base.glob("*/*/SKILL.md"):
+            found.append(skill_md.parent)
+    return sorted(set(found))
