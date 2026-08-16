@@ -173,6 +173,27 @@ def aggregate_results(results: dict) -> dict:
     return run_summary
 
 
+def observed_runs_per_configuration(results: dict) -> int:
+    """Derive the actual runs-per-(eval, configuration) count from the loaded
+    grading.json results, rather than assuming it from --preset (or a bare
+    hardcoded 3 when no preset is given at all — the previous behavior,
+    which reported "3 runs each per configuration" in benchmark.md even when
+    only 1 run had actually happened per config, confirmed live while
+    running this against a real 1-run-per-config benchmark).
+
+    Typically uniform (the same repeat count everywhere in one benchmark
+    run); if a partial or failed run makes it uneven, report the max
+    observed — under-reporting a real run that did happen is worse than
+    over-reporting.
+    """
+    counts: dict[tuple[str, int], int] = {}
+    for config, config_results in results.items():
+        for result in config_results:
+            key = (config, result["eval_id"])
+            counts[key] = counts.get(key, 0) + 1
+    return max(counts.values()) if counts else 0
+
+
 def generate_benchmark(benchmark_dir: Path, skill_name: str = "", skill_path: str = "", preset: str | None = None) -> dict:
     results = load_run_results(benchmark_dir)
     run_summary = aggregate_results(results)
@@ -199,7 +220,7 @@ def generate_benchmark(benchmark_dir: Path, skill_name: str = "", skill_path: st
             })
 
     eval_ids = sorted({r["eval_id"] for config_results in results.values() for r in config_results})
-    runs_per_configuration = TRIAL_PRESETS.get(preset, 3) if preset else 3
+    runs_per_configuration = observed_runs_per_configuration(results)
 
     return {
         "metadata": {
