@@ -19,6 +19,8 @@ claude plugin install skill-artisan
 
 Requirements: Python 3.8+, [gitleaks](https://github.com/gitleaks/gitleaks) (for security scanning), `claude` CLI (for evaluation runs and description optimization).
 
+**Developing SkillArtisan itself, rather than installing it?** The eval engine's `grader`/`comparator`/`analyzer` subagents (`agents/*.md`) are only invocable via `Task(subagent_type: ...)` once the plugin is genuinely installed — confirmed directly: installing it locally mid-session does not make them available in that same session, since Claude Code's subagent-type registry is fixed at session start. A repo-context session (this repo open directly, not installed) should follow each agent's documented process by hand instead — see `creating-skills/SKILL.md`'s "Testing and evaluating" section for the proven fallback.
+
 ## Quick start
 
 Once installed, just ask Claude naturally:

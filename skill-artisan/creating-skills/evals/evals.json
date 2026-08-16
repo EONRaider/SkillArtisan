@@ -1,0 +1,66 @@
+{
+  "skill_name": "creating-skills",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Can you make a skill that always reminds Claude this repo uses pnpm not npm, and that the build command is `pnpm run build:all`? I want this to apply automatically every time, not something Claude has to decide to load.",
+      "expected_output": "Routes the request to CLAUDE.md rather than a skill, explains why, and does not proceed to draft SKILL.md content.",
+      "expectations": [
+        "The response identifies CLAUDE.md (not a skill) as the correct artifact for this request",
+        "The response cites the reasoning that always-on project context doesn't need a trigger description or progressive disclosure",
+        "The response does not proceed to draft SKILL.md frontmatter or a skill directory structure"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I want a skill that writes CHANGELOG entries for this project by cross-referencing what actually shipped against our spec's Gap Table, so we never claim something is done that isn't verifiably true of the repo.",
+      "expected_output": "Runs the dedup check, finds this closely duplicates the existing drafting-changelog-entries skill, and concludes 'use existing' rather than proposing new work.",
+      "expectations": [
+        "The response runs (or reasons through running) dedup_search.py and identifies drafting-changelog-entries as an existing match",
+        "The response concludes 'use existing' at high (>=80%) confidence, not 'create new'",
+        "The response points the user at the existing skill's path rather than drafting new SKILL.md content"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I want something like our changelog-drafting skill, but that also opens a PR with the drafted entry attached once it's ready, not just writes the text for me to paste in myself.",
+      "expected_output": "Identifies drafting-changelog-entries as a close but partial match (it drafts text, doesn't open PRs), recommends 'improve existing' rather than 'use existing' or 'create new', and explicitly addresses the inline-vs-fork question for the new PR-opening piece.",
+      "expectations": [
+        "The response identifies drafting-changelog-entries as a partial match with a real, named gap (no PR-opening capability), not a full match or a total miss",
+        "The response recommends 'improve existing' rather than 'use existing' or 'create new'",
+        "The response explicitly addresses inline-vs-fork for the new PR-opening addition, not just the content gap"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I want something that reviews my CLAUDE.md for clarity issues and also writes up a session report of what changed, every time I finish a work session.",
+      "expected_output": "Searches beyond the default project-local path, correctly identifies claude-md-improver (marketplace) as a real match for the CLAUDE.md-review slice, correctly evaluates superficially-plausible candidates for the 'session report' slice by reading their actual content rather than assuming from name (e.g. distinguishing a token/cost-usage report from a narrative of what changed), and reaches an outcome grounded in what actually exists rather than a name-matched guess.",
+      "expectations": [
+        "The response searches beyond the default project-local search path (e.g. the installed marketplace), since the CLAUDE.md-review slice isn't covered by a project-local skill alone",
+        "The response names claude-md-improver specifically as a real match for the CLAUDE.md-review slice, not a vague 'some skill handles this'",
+        "For the 'session report of what changed' slice, the response reads candidate skills' actual content rather than assuming a match from name alone, and correctly does not recommend a skill whose real purpose is different (e.g. token/cost usage analytics, not a narrative of what changed)",
+        "The response's overall outcome (compose, improve-existing, or create-new for the unmatched slice) is justified by what the response actually found, not asserted without the supporting evidence"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "For two skills I'm about to build: (a) one audits every file in a large codebase and returns a list of findings, and (b) a different one reformats whatever code block the user just pasted into the conversation. Tell me the right execution architecture for each.",
+      "expected_output": "Recommends context: fork for the codebase-audit skill and inline for the reformat-pasted-code skill, each with reasoning tied to the specific worked-example logic (tool-call noise avoidance vs. needing the actual conversation), not a bare verdict.",
+      "expectations": [
+        "The response recommends fork (context: fork) for the codebase-audit skill, citing that its tool-call trail would flood the main conversation with noise",
+        "The response recommends inline for the reformat-pasted-code skill, citing that it needs the actual conversational context to do the task",
+        "Each recommendation is tied to the specific reasoning from the worked examples, not just a bare inline-or-fork verdict with no justification"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Package the following skill for me. I edited the SKILL.md five minutes ago to fix a typo, and I remember running the security scan on it yesterday before that edit.",
+      "expected_output": "Refuses to package without first confirming or re-running the security scan, citing the tamper-detection marker/content-hash mismatch as the reason a stale scan can't be trusted after an edit.",
+      "expectations": [
+        "The response does not proceed to package the skill without first confirming or re-running the security scan",
+        "The response cites the tamper-detection marker/content-hash mismatch as the specific reason a scan from before the edit can't be trusted",
+        "The response does not fabricate or assume a clean scan result just because one existed before the edit"
+      ]
+    }
+  ]
+}
