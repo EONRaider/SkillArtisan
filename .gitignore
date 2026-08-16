@@ -7,3 +7,8 @@
 __pycache__/
 *.pyc
 *.skill
+
+# Kept locally for running v2 (Prompt B) later, deliberately excluded from
+# the public repo — removed from git history via git-filter-repo on
+# 2026-08-16. Do not re-add.
+/skill-artisan-claude-code-prompt.md

@@ -23,7 +23,7 @@ Ships once v1 has been used on real skills — see the master spec's "Build Stag
 
 ## [1.0.0] - 2026-08-15
 
-Stages 1-4 of the master spec, built and verified against a live `claude -p` session and a real `gitleaks` install (not just documentation) — see the companion build prompt (`skill-artisan-claude-code-prompt.md`, Prompt A).
+Stages 1-4 of the master spec, built and verified against a live `claude -p` session and a real `gitleaks` install (not just documentation) — per the companion build prompt (Prompt A; kept locally rather than in this repo, not published alongside the plugin).
 
 ### Added
 - **Eval engine**, ported from `skill-creator` with no loss of capability: parallel with/without-skill subagent runs from a clean context, `agents/grader.md`/`comparator.md`/`analyzer.md` subagent roles, the `evals/evals.json` test-case format, benchmark aggregation with mean/stddev/delta (`scripts/eval_loop.py`), an analyst pass flagging always-pass/always-fail assertions, blind A/B comparison, the HTML eval-viewer (`eval-viewer/generate_review.py` + `viewer.html`, Outputs/Benchmark tabs, `--static` mode, `--previous-workspace` diffing), and the trigger-eval review template (`assets/eval_review.html`).

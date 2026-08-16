@@ -14,12 +14,12 @@ This repo is the working home for **SkillArtisan** — a Claude Code plugin that
 │   └── README.md CHANGELOG.md LICENSE   # the live, canonical copies
 ├── .claude/skills/              # project-local skills for maintaining this repo
 │   └── drafting-changelog-entries/   # dogfoods the plugin's own workflow
-├── skill-artisan-master-spec.md      # design spec + 40-row Gap Table vs. skill-creator
-├── skill-artisan-claude-code-prompt.md  # the two build prompts (v1 shipped, v2 pending)
-└── skill-artisan-TODO.md             # pre-implementation research log
+└── skill-artisan-master-spec.md      # design spec + 40-row Gap Table vs. skill-creator
 ```
 
-`skill-artisan-master-spec.md` and `skill-artisan-claude-code-prompt.md` stay at the root because they document the *build process* itself, not the plugin — there's no equivalent of either inside `skill-artisan/`. `README.md`, `CHANGELOG.md`, and `LICENSE` exist only inside `skill-artisan/`; root-level copies of those three were removed after they drifted out of sync with the real ones (the root `CHANGELOG.md` copy kept saying "nothing shipped yet" long after v1.0.1 had). One canonical copy each, no duplication to keep in sync.
+`skill-artisan-master-spec.md` stays at the root because it documents the *build process* itself, not the plugin — there's no equivalent inside `skill-artisan/`. `README.md`, `CHANGELOG.md`, and `LICENSE` exist only inside `skill-artisan/`; root-level copies of those three were removed after they drifted out of sync with the real ones (the root `CHANGELOG.md` copy kept saying "nothing shipped yet" long after v1.0.1 had). One canonical copy each, no duplication to keep in sync.
+
+Two more files existed at the root during earlier development and were deliberately removed, including from git history: `skill-artisan-TODO.md` (a pre-implementation research log, redundant with the master spec's own "Appendix: Research Provenance" section) and `skill-artisan-claude-code-prompt.md` (the two build prompts — Prompt A, already run for v1, and Prompt B, the not-yet-run v2 instructions). The prompt file is kept locally for running v2 later; it's git-ignored rather than tracked, since the project intentionally doesn't publish its own build prompts.
 
 ## Status
 
