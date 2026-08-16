@@ -11,16 +11,15 @@ This repo is the working home for **SkillArtisan** — a Claude Code plugin that
 ├── skill-artisan/              # the plugin itself — install/run this
 │   ├── creating-skills/        # the bundled skill (decision gate, SKILL.md)
 │   ├── agents/ eval-viewer/ assets/ scripts/
-│   └── README.md CHANGELOG.md LICENSE
+│   └── README.md CHANGELOG.md LICENSE   # the live, canonical copies
 ├── .claude/skills/              # project-local skills for maintaining this repo
 │   └── drafting-changelog-entries/   # dogfoods the plugin's own workflow
 ├── skill-artisan-master-spec.md      # design spec + 40-row Gap Table vs. skill-creator
 ├── skill-artisan-claude-code-prompt.md  # the two build prompts (v1 shipped, v2 pending)
-├── skill-artisan-TODO.md             # pre-implementation research log
-└── skill-artisan-README.md, -LICENSE, -CHANGELOG.md   # source copies, pre-written before the build
+└── skill-artisan-TODO.md             # pre-implementation research log
 ```
 
-The `skill-artisan-*.md` files at the root are the original planning documents the build worked from — `README.md`, `LICENSE`, and `CHANGELOG.md` were copied from these into `skill-artisan/` as part of packaging; `skill-artisan-master-spec.md` and `skill-artisan-claude-code-prompt.md` stay at the root since they document the *build process*, not the plugin itself.
+`skill-artisan-master-spec.md` and `skill-artisan-claude-code-prompt.md` stay at the root because they document the *build process* itself, not the plugin — there's no equivalent of either inside `skill-artisan/`. `README.md`, `CHANGELOG.md`, and `LICENSE` exist only inside `skill-artisan/`; root-level copies of those three were removed after they drifted out of sync with the real ones (the root `CHANGELOG.md` copy kept saying "nothing shipped yet" long after v1.0.1 had). One canonical copy each, no duplication to keep in sync.
 
 ## Status
 
