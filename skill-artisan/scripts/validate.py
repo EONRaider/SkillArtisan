@@ -91,7 +91,17 @@ def run_skills_ref(skill_path: Path, frontmatter: dict[str, str], body_after_fro
         # genuine mismatch is still caught.
         stripped_dir = Path(tmp) / skill_path.name
         stripped_dir.mkdir()
-        fm_lines = "\n".join(f"{k}: {v}" for k, v in portable.items())
+        # json.dumps produces a YAML-valid double-quoted scalar (YAML's
+        # double-quoted flow style is a superset of JSON string syntax) —
+        # escapes any character that would otherwise break the reconstructed
+        # line (a leading `"`, an embedded `:` or `#`, a backslash). Naive
+        # f"{k}: {v}" interpolation broke on a real value that itself started
+        # with a literal quote character: a legitimately-parsed description
+        # was re-serialized into invalid YAML, so skills-ref rejected a
+        # genuinely valid skill. Every value here is always a plain string
+        # (parse_frontmatter_raw never returns anything else), so this is a
+        # safe, unconditional escape, not a special case.
+        fm_lines = "\n".join(f"{k}: {json.dumps(v)}" for k, v in portable.items())
         (stripped_dir / "SKILL.md").write_text(f"---\n{fm_lines}\n---\n{body_after_frontmatter}")
 
         try:
