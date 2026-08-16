@@ -121,8 +121,13 @@ TRIAL_PRESETS = {
 
 def find_skill_dirs(search_paths: list[Path]) -> list[Path]:
     """Find skill directories under each search path: the path itself if it
-    directly contains a SKILL.md, one level down (marketplace/<skill>), or
-    two levels down (plugin/<skill>, for marketplace/plugin-style layouts).
+    directly contains a SKILL.md, one level down (marketplace/<skill>), two
+    levels down (marketplace/plugin/<skill>), or a plugin's own `skills/`
+    subdirectory (marketplace/plugin/skills/<skill> — the real Claude Code
+    plugin convention, verified directly: every installed plugin under
+    ~/.claude/plugins/marketplaces/*/plugins/ on the machine this was built
+    on uses <plugin>/skills/<skill>/SKILL.md, not the flatter <plugin>/<skill>
+    shape the two-level glob alone assumes).
 
     Shared by dedup_search.py (searching for prior art) and audit.py's bulk
     mode (auditing a whole skills directory) — one implementation per the
@@ -139,5 +144,7 @@ def find_skill_dirs(search_paths: list[Path]) -> list[Path]:
         for skill_md in base.glob("*/SKILL.md"):
             found.append(skill_md.parent)
         for skill_md in base.glob("*/*/SKILL.md"):
+            found.append(skill_md.parent)
+        for skill_md in base.glob("*/skills/*/SKILL.md"):
             found.append(skill_md.parent)
     return sorted(set(found))
