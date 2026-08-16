@@ -42,6 +42,7 @@ import re
 import sys
 from pathlib import Path
 
+import pr_execute
 import security_scan
 import validate
 from _common import find_skill_dirs, parse_skill_md
@@ -407,10 +408,10 @@ def cmd_pr_plan(args: argparse.Namespace) -> int:
     name, _, _ = parse_skill_md(skill_path)
     report = audit_skill(skill_path, None, None)
     print(f"Contribution plan for {name or skill_path.name} -> {args.upstream_repo}\n")
-    print("This is a PLAN only — it does not fork, commit, or open a PR. Row 32 is explicitly")
-    print("lower priority than items 1-5, and opening a PR against a repo this plugin doesn't own")
-    print("changes the trust model — it requires explicit user confirmation in chat before any of")
-    print("the steps below actually run, every time, not just once per skill.\n")
+    print("This command itself is a PLAN only — it does not fork, commit, or open a PR. Real")
+    print("execution exists separately (`audit.py pr-execute` / `pr_execute.py`), gated behind an")
+    print("--execute flag the orchestrator only passes after explicit user confirmation in chat,")
+    print("every time, not just once per skill — never a script-side auto-confirm.\n")
     print("Additive-only-changes principle: never delete or rename anything in the upstream skill's")
     print("directory. Every change below must be a pure addition or an in-place fix to something")
     print("this audit found broken — not a stylistic rewrite of content that already worked.\n")
@@ -424,6 +425,15 @@ def cmd_pr_plan(args: argparse.Namespace) -> int:
     print("\nNext step: present this plan to the user and get explicit confirmation before forking,")
     print("committing, or calling `gh pr create` against the upstream repository.")
     return 0
+
+
+def cmd_pr_execute(args: argparse.Namespace) -> int:
+    """Delegates to pr_execute.py — the real-effects counterpart to
+    pr-plan. Kept as a thin wrapper (same pattern as validate/security_scan
+    reuse above) so `audit.py` stays the single entry point for every
+    audit-related subcommand, while the actual git/gh logic lives in its own
+    tiny, separately-runnable module per the scripts/ discipline."""
+    return pr_execute.cmd(args)
 
 
 # --- CLI -----------------------------------------------------------------------
@@ -467,10 +477,22 @@ def main() -> None:
     p_bulk.add_argument("--json", action="store_true", help="Emit structured JSON instead of a text report")
     p_bulk.set_defaults(func=cmd_bulk)
 
-    p_pr = sub.add_parser("pr-plan", help="Print an additive-only contribution plan for a third-party skill (row 32, optional stretch — plan only, never executes)")
+    p_pr = sub.add_parser("pr-plan", help="Print an additive-only contribution plan for a third-party skill (row 32 — plan only, this subcommand never executes)")
     p_pr.add_argument("skill_path", help="Path to the (third-party) skill directory")
     p_pr.add_argument("--upstream-repo", required=True, metavar="owner/repo", help="Upstream repository this skill came from")
     p_pr.set_defaults(func=cmd_pr_plan)
+
+    p_pr_exec = sub.add_parser("pr-execute", help="Execute a contribution (branch/commit/push/PR) against a third-party skill repo — real side effects, see pr_execute.py")
+    p_pr_exec.add_argument("clone_path", help="Local git clone (of a fork of) the upstream repo, with the fix already applied as uncommitted changes")
+    p_pr_exec.add_argument("--upstream-repo", required=True, metavar="owner/repo", help="Upstream repository to open the PR against")
+    p_pr_exec.add_argument("--skill-name", required=True, help="Name of the skill being fixed")
+    p_pr_exec.add_argument("--pr-title", default=None, help="PR title (default: generated from --skill-name)")
+    p_pr_exec.add_argument("--pr-body-file", default=None, help="Path to a file with the PR body (default: a generic additive-only-changes template)")
+    p_pr_exec.add_argument("--commit-message", default=None, help="Commit message (default: generated from --skill-name)")
+    pr_exec_mode = p_pr_exec.add_mutually_exclusive_group(required=True)
+    pr_exec_mode.add_argument("--dry-run", action="store_true", help="Preview the branch/diff/PR that would be created — no git or gh mutation")
+    pr_exec_mode.add_argument("--execute", action="store_true", help="Actually fork/branch/commit/push/open the PR. Only pass this after a separate, explicit human confirmation obtained in chat.")
+    p_pr_exec.set_defaults(func=cmd_pr_execute)
 
     args = parser.parse_args()
     sys.exit(args.func(args))
