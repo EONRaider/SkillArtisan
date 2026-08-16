@@ -31,3 +31,7 @@ SkillArtisan's own build process (the master spec + the Stage 1-4/5-6 build prom
 ## Worked check: does this entry earn its claims?
 
 Before finalizing, read every "Added" line back and ask: *is there a file I can point to, and have I actually looked at what's in it?* If the answer to either is no for any line, that line isn't ready to ship — go verify it or cut it, don't soften the wording and hope. A hedge like "partial support for X" is still a claim; it still needs the same verification, just of a narrower claim.
+
+## Lifecycle
+
+Encoded-preference, timelessness 8/10, last verified against claude-sonnet-5 (2026-08). This skill encodes a fixed process for *this specific project* — cross-reference the Gap Table, apply this repo's local semver interpretation, match the existing changelog's line-item density — not a capability gap a smarter model closes on its own; a future model still benefits from being told to check the Gap Table before claiming a row closed. Scored a point below `creating-skills`' own 9/10 because part of its durability depends on `skill-artisan-master-spec.md` and its Gap Table continuing to exist under those names — a narrower, project-specific dependency than a plugin's own self-contained rules.

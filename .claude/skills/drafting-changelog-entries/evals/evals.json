@@ -1,0 +1,37 @@
+{
+  "skill_name": "drafting-changelog-entries",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We just finished Stage 1 of the master spec — ported the eval engine (eval_loop.py, the grader/comparator/analyzer subagents, the evals.json format) from skill-creator with no loss of capability, and added named trial-count presets plus CI gating. Write the CHANGELOG entry.",
+      "expected_output": "A dated CHANGELOG entry under the correct version heading that names the actual files/rows it claims to close (scripts/eval_loop.py, agents/*.md, row 15/35), grouped under an Added-style heading rather than one bullet per file.",
+      "expectations": [
+        "The entry cites specific file paths for each claim (e.g. scripts/eval_loop.py, agents/grader.md), not just a restated task description",
+        "The entry references the relevant Gap Table row number(s) it claims to close",
+        "The version number chosen matches this project's local semver interpretation (a new stage-scoped capability, not automatically a patch)",
+        "The entry is placed under a dated version heading, not left in prose with no heading"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "We finished audit mode (scripts/audit.py: report, bulk, upgrade-vs-rebuild decision, institutional-knowledge safeguard) but didn't get to the auto-PR contribute-back extension — that's still just a plan, nothing calls gh pr create yet. Write the changelog entry for what shipped.",
+      "expected_output": "An entry that lists audit mode's shipped pieces under Added, and explicitly does NOT claim the auto-PR extension as shipped — moves it to an Unreleased/Planned section instead of silently dropping it or vaguely implying it's done.",
+      "expectations": [
+        "The auto-PR / contribute-back capability is NOT listed as shipped in the dated version's Added section",
+        "The auto-PR / contribute-back capability appears somewhere as explicitly planned-but-not-shipped, not omitted entirely",
+        "The shipped audit-mode pieces (report, bulk, decision gate, institutional-knowledge safeguard) are each named specifically enough to point to a file"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "While verifying the eval engine against a live claude -p session (not just reading the code), we found a real bug: the trigger-eval harness was silently miscounting results when the skill under test was also installed at its real name in the same project. It's fixed now (run_eval moves the real skill aside for the duration of the run). Write the changelog entry.",
+      "expected_output": "A Fixed entry that documents the discovered bug as its own distinct, specific note — not folded anonymously into a generic 'Added: eval engine' bullet — including how it was found (a live run, not just code reading) and what the fix actually does.",
+      "expectations": [
+        "The bug is documented under a Fixed heading (or clearly distinguished from Added claims), not buried inside an unrelated Added bullet",
+        "The entry states how the bug was discovered (verified via a live run, not just reading the code)",
+        "The entry describes the actual fix mechanism, not just 'fixed a bug'",
+        "The entry does not claim the fix is exhaustively verified for cases that weren't actually tested (e.g. doesn't overclaim crash-safety if only the normal-completion path was confirmed)"
+      ]
+    }
+  ]
+}
