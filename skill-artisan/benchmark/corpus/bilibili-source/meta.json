@@ -1,0 +1,11 @@
+{
+  "category": "research-analysis",
+  "source": "daymade",
+  "origin_skill": "bilibili-source",
+  "origin_repo": "daymade/claude-code-skills",
+  "origin_commit": "d24f6d1",
+  "evals_reused": true,
+  "evals_reused_note": "Origin ships 4 real evals (evals/evals.json). Reused as the basis for all 4 task-success cases here, adapted only in the two places noted below.",
+  "live_dependency": true,
+  "live_dependency_note": "This skill's whole value proposition is fetching REAL, current Bilibili engagement numbers rather than estimating them, which is fundamentally in tension with a fixed, reproducible benchmark corpus. Resolution: none of the origin author's own grading criteria hardcode a specific golden number in the first place — every expectation is process-based ('used the fetch script, not a guess', 'included the fetched_at timestamp', 'did not fabricate a transcript when none exists'), which stays gradeable even though the underlying live numbers legitimately differ between benchmark reruns. Kept as a genuine live call rather than mocked with a fixture server, because building and maintaining a mock Bilibili API stand-in would itself be a nontrivial harness component for one corpus entry, and would stop testing the thing this skill is actually for (real API integration correctness). Flagged live=true so Phase 3's harness caps rep count against this entry specifically (avoid hammering a real third-party API at full benchmark scale) rather than treating it identically to the 15 fully offline entries."
+}

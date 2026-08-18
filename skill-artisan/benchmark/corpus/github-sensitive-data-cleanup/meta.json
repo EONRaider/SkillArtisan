@@ -1,0 +1,11 @@
+{
+  "category": "dev-tooling",
+  "source": "daymade",
+  "origin_skill": "github-sensitive-data-cleanup",
+  "origin_repo": "daymade/claude-code-skills",
+  "origin_commit": "d24f6d1",
+  "evals_reused": true,
+  "evals_reused_note": "Origin ships 6 real evals but in a bare-list JSON shape ({name, prompt, expected_behavior}), not this project's {skill_name, evals:[{id, prompt, expected_output, expectations}]} schema — reshaped, not rewritten; content and scenarios kept intact. All 6 originals already operate against a local disposable repo path (/tmp/test-repo) rather than a live GitHub remote, so no live-dependency rewrite was needed despite the skill's name. Extended to 8 with 2 additional cases.",
+  "live_dependency": false,
+  "live_dependency_note": "Origin's own eval design already uses a local disposable repo fixture rather than a real GitHub remote for the destructive-operation cases; the one 'gh repo view'-flavored case (public-repo-push-warning) states the repo's visibility/fork count as given information in the prompt rather than requiring a live API call during grading."
+}

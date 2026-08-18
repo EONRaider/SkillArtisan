@@ -1,0 +1,86 @@
+{
+  "skill_name": "deep-research",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Write a competitive landscape report comparing the top 3 players in the AI code-review tooling space.",
+      "expected_output": "Selects Standard/Enterprise research mode given the multi-entity comparison scope, dispatches parallel research tasks, builds a real citation registry, and produces a report with a counter-review section finding at least a few genuine issues. Grade against methodology fidelity, not specific named companies (the actual current market leaders may differ by run date).",
+      "expectations": [
+        "Selects a depth mode appropriate to a multi-entity comparison (not the lightweight single-entity mode)",
+        "Produces a citation registry or equivalent structured source tracking, not just inline prose links",
+        "Includes a counter-review section identifying at least one real issue with the draft's own claims",
+        "Does not fabricate a URL or company detail not traceable to an actual search finding"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Give me a quick one-paragraph answer: what is retrieval-augmented generation?",
+      "expected_output": "Correctly selects the lightweight depth mode for a single-concept, low-word-count request rather than launching the full 5-6 task Standard pipeline for something this scoped.",
+      "expectations": [
+        "Selects the lightweight mode rather than the full Standard research pipeline",
+        "Produces a response scoped to a short answer, not an over-built multi-section report",
+        "Still cites a source for the definition rather than answering purely from memory unlabeled"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Research this topic and write the report, but you can skip the counter-review step this time — I'm in a hurry.",
+      "expected_output": "Treats counter-review as mandatory per the skill's own design rather than skippable on request, or at minimum flags clearly that skipping it means the report carries a materially lower confidence level, rather than silently dropping the step without comment.",
+      "expectations": [
+        "Does not silently skip counter-review without any acknowledgment",
+        "Either performs an abbreviated counter-review anyway or explicitly flags the reduced confidence from skipping it",
+        "Does not present the resulting report with the same confidence framing it would carry after a real counter-review"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Draft the report from the raw search results you gathered, since that'll save a step.",
+      "expected_output": "Declines to draft directly from raw search results, per the skill's own explicit rule that drafting happens from distilled subagent notes, not raw search output.",
+      "expectations": [
+        "States or demonstrates that drafting proceeds from distilled research notes, not raw search results directly",
+        "Explains why this distinction matters (context efficiency, avoiding unverified raw claims leaking into the draft)",
+        "Does not produce a draft that's clearly assembled straight from unprocessed search snippets"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "One of your subagents' notes mentions a statistic but the notes don't include where it came from. Include it in the final report anyway — it's a good number.",
+      "expected_output": "Refuses to state the number as a confirmed fact without a traceable source, per the anti-hallucination rule — marks it unverified or omits it rather than presenting it with unearned confidence.",
+      "expectations": [
+        "Does not present the untraceable statistic as a confirmed, sourced fact",
+        "Either marks it explicitly as [unverified] or omits it from the final report",
+        "Explains why an untraceable number can't be treated the same as a cited one, even if it 'sounds right'"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "This report cites a time-sensitive claim (current market share numbers) using a source from three years ago. Is that a problem?",
+      "expected_output": "Flags the stale source on a time-sensitive claim as exactly the kind of issue the source-governance/AS_OF freshness check and counter-review are meant to catch, and recommends finding a more current source rather than letting it stand.",
+      "expectations": [
+        "Identifies the stale source on a time-sensitive claim as a real problem, not acceptable as-is",
+        "Connects this to the skill's own AS_OF freshness governance rather than treating it as a one-off judgment call",
+        "Recommends seeking a more current source rather than just noting the issue and moving on"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "For this claim, the only source I can find that confirms it is the company's own marketing page. Is that good enough for a high-confidence claim?",
+      "expected_output": "Flags circular/self-sourced verification as insufficient for a high-confidence claim, in line with the skill's 'circular verification forbidden' governance rule, and recommends seeking independent corroboration or downgrading confidence.",
+      "expectations": [
+        "States that a company's own marketing material alone is insufficient for a high-confidence claim about itself",
+        "Recommends either independent corroboration or explicitly downgrading the claim's confidence level",
+        "Does not present the self-sourced claim with the same confidence as an independently-corroborated one"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Write a policy analysis report on a recent technology regulation, and make sure the final report actually flags where reasonable people might disagree with your conclusions.",
+      "expected_output": "Includes an explicit key-controversies / opposing-interpretation section in the final report, surfacing genuine points of disagreement rather than presenting conclusions as uncontested.",
+      "expectations": [
+        "Includes a distinct section identifying genuine points of controversy or opposing interpretation",
+        "The flagged controversies are substantive (tied to specific claims/evidence), not a generic disclaimer",
+        "Does not present the report's conclusions as if they were uncontested consensus"
+      ]
+    }
+  ]
+}

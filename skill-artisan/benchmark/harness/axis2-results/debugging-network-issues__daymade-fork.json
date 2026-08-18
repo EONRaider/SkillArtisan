@@ -1,0 +1,141 @@
+{
+  "skill_name": "debugging-network-issues",
+  "description": "Evidence-driven, falsification-first investigation for connection-reset-style bugs: WebSocket/SSE drops at a suspiciously exact interval, ECONNRESET/HTTP-2 RST_STREAM, CDN/proxy/CGNAT idle timeouts, TLS certificate-verification errors, DB connection-pool exhaustion (\"pool at capacity\" despite repeated pool-size bumps), cron/job-scheduler intermittent failures, and thread-pool or queue-worker exhaustion. Use whenever a fix is about to be applied on a guess, or a recurring incident is about to be closed without a falsified hypothesis. Demands a concrete artifact before accepting a theory, requires each hypothesis to name its falsifier, runs layered/boundary isolation -- the same request or job through paths differing by one hop -- instead of stacking assumptions, and blocks shipping a fix without an adversarial second opinion. Treats \"just restart it\" / \"bump the pool size\" / \"add a retry\" as relief to interrogate, not a diagnosis, unless logged as a deliberate stabilization call.",
+  "results": [
+    {
+      "query": "This WebSocket connection drops at exactly the same interval every time, but only for one user \u2014 help me investigate.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "\u6211\u4eec\u7684\u6279\u5904\u7406 job \u95f4\u6b47\u6027\u5931\u8d25\uff0c\u62a5 connection reset by peer\uff0c\u5e2e\u6211\u7cfb\u7edf\u6027\u6392\u67e5\u4e00\u4e0b",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Our API error rate spikes every afternoon around the same time and self-resolves \u2014 I don't think 'just add more capacity' is the real fix.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Review this SSE keepalive patch for risk before I ship it to production.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": false
+    },
+    {
+      "query": "Our health check says everything's green but customers are reporting an outage \u2014 how is that possible?",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "A teammate wants to add blanket retries to paper over flaky API errors \u2014 how should we actually investigate first?",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "This looks like the same Cloudflare 524 timeout as last month, but I want to confirm before just reapplying the old fix.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "I'm confident it's a DNS caching bug after 6 hours of debugging \u2014 should I ship the fix now?",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Write a function that establishes a WebSocket connection and sends a heartbeat every 30 seconds.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Set up a new Cloudflare zone and configure DNS records for our domain.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Explain how TCP's three-way handshake works.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Fix this SQL query that's returning duplicate rows.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Write unit tests for our WebSocket client reconnection logic.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Recover a commit I accidentally lost during a rebase.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Deploy our updated nginx config to production.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Explain what a CDN is and how it reduces latency.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "passed": 15,
+    "failed": 1,
+    "should_trigger_pass_rate": 0.875,
+    "should_not_trigger_pass_rate": 1.0
+  }
+}

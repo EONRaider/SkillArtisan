@@ -1,0 +1,85 @@
+{
+  "skill_name": "design-style-picker",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I can't describe the visual style I want for our new admin dashboard. Just show me a bunch of real options so I can point at what's close.",
+      "expected_output": "Generates a batch of visibly distinct options (not near-identical variants) rather than asking the user to describe an abstract style they already said they can't articulate.",
+      "expectations": [
+        "Does not ask the user to describe the abstract style in words given they already said they can't",
+        "Generates multiple genuinely distinct options rather than one guess or minor variations of the same idea",
+        "Presents the options with enough distinction that a real choice is possible"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Here's our existing product's screenshots and our current brand color (a specific teal). Generate style directions for a new settings page that still feels like the same product.",
+      "expected_output": "Reads and treats the existing screenshots/brand color as the starting vocabulary, generating directions that build on the existing identity rather than proposing unrelated fresh concepts.",
+      "expectations": [
+        "Inspects the provided existing screenshots/brand color before generating anything",
+        "Generated options are recognizably related to the existing product identity, not disconnected fresh concepts",
+        "Does not discard or ignore the stated brand color without the user asking to"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me some color intensity options for this dashboard — I want to see the range from pretty muted to pretty bold.",
+      "expected_output": "Generates a real vertical ladder across the color-intensity axis (e.g. several distinct intensity steps), not just two extremes or a single 'medium' option.",
+      "expectations": [
+        "Generates multiple distinct steps along the color-intensity axis, not just two endpoints",
+        "The steps are genuinely visually distinguishable from each other, not near-duplicates",
+        "Covers the requested range from muted to bold, not just one end of it"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I said I want it less colorful, but don't just make it black and white — I still want it to feel like our brand.",
+      "expected_output": "Correctly interprets 'less colorful' as fewer competing focal points / better color-role discipline rather than desaturating everything to grayscale, per the skill's own explicit distinction.",
+      "expectations": [
+        "Does not interpret 'less colorful' as a literal black-and-white/grayscale treatment",
+        "Preserves the brand's color identity while reducing competing focal points",
+        "Explains or demonstrates the actual change as a color-role adjustment, not blanket desaturation"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Here are the 6 options you generated. Just show them all to me now, I'm ready to pick.",
+      "expected_output": "Reviews the generated options itself first (marking which look too generic, too colorful, closest to target, etc.) before presenting them, rather than dumping all 6 with no curation.",
+      "expectations": [
+        "Reviews/opens the generated images itself before presenting them",
+        "Provides a short decision note or characterization for each option (e.g. too dead, too colorful, closest to target)",
+        "Does not present a raw, uncurated dump of file paths with no guidance"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "I like option H02's color placement and option V04's palette intensity best. Combine those two into the actual implementation.",
+      "expected_output": "Extracts and fuses the specific named principles (H02's color placement, V04's intensity) from the two selected references, rather than trying to literally copy pixels from either generated image.",
+      "expectations": [
+        "Explicitly references combining the two named options' specific attributes (color placement from one, intensity from the other)",
+        "Implements based on extracted principles (color roles, layout density) rather than attempting pixel-level reproduction",
+        "The result is a coherent fusion, not just one option with the other ignored"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "These three generated options you're about to show me all kind of look like siblings — barely different from each other.",
+      "expected_output": "Recognizes insufficient contrast between options as a real problem and regenerates at least one with clearer differentiation, rather than presenting near-identical options as if they were meaningfully distinct choices.",
+      "expectations": [
+        "Acknowledges that near-identical options don't serve the goal of exposing a real taste boundary",
+        "Regenerates or revises at least one option for clearer contrast rather than presenting the flawed batch as-is",
+        "Does not claim the near-identical options represent genuinely different directions"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "I want you to evolve our existing UI to feel fresher, but don't throw away the current layout and components — just the visual treatment.",
+      "expected_output": "Generates options that evolve the existing UI's visual treatment while explicitly preserving the current layout/components, rather than proposing a from-scratch redesign that discards existing assets.",
+      "expectations": [
+        "Preserves the existing layout and component structure per the explicit request",
+        "Changes are scoped to visual treatment (color, style) rather than a full redesign",
+        "Does not propose discarding current assets when the user explicitly asked to keep them"
+      ]
+    }
+  ]
+}

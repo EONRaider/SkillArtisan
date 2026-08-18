@@ -1,0 +1,11 @@
+{
+  "category": "creative-design",
+  "source": "daymade",
+  "origin_skill": "frontend-visual-qa",
+  "origin_repo": "daymade/claude-code-skills",
+  "origin_commit": "d24f6d1",
+  "evals_reused": true,
+  "evals_reused_note": "The strongest reuse case in this corpus: origin ships 21 real task-success evals plus a separate 24-query trigger-evals.json, both already in exactly this project's schema ({skill_name, evals:[{id, prompt, expected_output, expectations, files}]} and [{query, should_trigger}]) with genuine self-contained HTML/PNG fixtures. Trimmed to a representative 8 of the 21 (kept only cases with bundled fixtures, dropped live-URL/no-fixture cases like the Electron/authenticated-admin/sensitive-URL scenarios to preserve full offline reproducibility) and a representative 10/10 of the 24 trigger queries (kept all 10 negatives, trimmed 14 positives to 10 by dropping narrower duplicates of already-covered scenario types). IDs renumbered after trimming; prompt/expectation text otherwise unchanged.",
+  "live_dependency": false,
+  "live_dependency_note": "All 8 kept cases operate against bundled local HTML/PNG fixtures via a real headless/GUI browser or static image inspection — no live external service. The 13 dropped cases (live localhost UAT URLs, example.invalid placeholders, Electron native shell) were excluded specifically to avoid live/no-fixture dependencies, not for quality reasons."
+}

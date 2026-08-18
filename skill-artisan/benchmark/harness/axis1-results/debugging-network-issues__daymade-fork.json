@@ -1,0 +1,135 @@
+{
+  "skill_name": "debugging-network-issues",
+  "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/harness/workspace/debugging-network-issues/daymade-fork/audited/debugging-network-issues",
+  "items": [
+    {
+      "id": "frontmatter-valid",
+      "status": "PASS",
+      "detail": "skills-ref + Claude-specific checks pass"
+    },
+    {
+      "id": "path-references-exist",
+      "status": "PASS",
+      "detail": "every relative link resolves"
+    },
+    {
+      "id": "gerund-naming",
+      "status": "PASS",
+      "detail": "name is gerund-form"
+    },
+    {
+      "id": "description-pushy-imperative",
+      "status": "PASS",
+      "detail": "has 'Use when...' framing and real length"
+    },
+    {
+      "id": "body-size-limits",
+      "status": "PASS",
+      "detail": "219 lines, ~4717 tokens (approx \u2014 word count x1.3, not a real tokenizer)"
+    },
+    {
+      "id": "references-one-level-deep",
+      "status": "PASS",
+      "detail": "all references one level deep"
+    },
+    {
+      "id": "references-toc-for-long-files",
+      "status": "FAIL",
+      "detail": "missing TOC (>100 lines): references/case-cloudflare-524-upload.md, references/case-proxy-tun-cname-override.md, references/case-sse-rst-130s.md, references/cognitive-traps.md, references/counter-review-pattern.md, references/cross-domain-boundary-isolation.md, references/instrumentation-patterns.md, references/layered-isolation-experiment.md, references/packet-capture-recipes.md, references/upload-vs-processing-timeout.md"
+    },
+    {
+      "id": "no-human-docs-in-skill-dir",
+      "status": "PASS",
+      "detail": "clean"
+    },
+    {
+      "id": "evals-present",
+      "status": "PASS",
+      "detail": "6 eval case(s)"
+    },
+    {
+      "id": "security-scan-marker-current",
+      "status": "FAIL",
+      "detail": "Could not read .security-scan-passed: Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "id": "security-gitleaks-clean",
+      "status": "PASS",
+      "detail": "clean"
+    },
+    {
+      "id": "security-pattern-checks",
+      "status": "WARN",
+      "detail": "1 MEDIUM (informational) finding(s)"
+    },
+    {
+      "id": "no-time-sensitive-info",
+      "status": "WARN",
+      "detail": "2 possible time-sensitive phrase(s) \u2014 heuristic, verify by reading"
+    },
+    {
+      "id": "forward-slash-paths-only",
+      "status": "PASS",
+      "detail": "none found"
+    },
+    {
+      "id": "lifecycle-classified",
+      "status": "FAIL",
+      "detail": "no lifecycle classification found \u2014 add one per references/lifecycle.md"
+    },
+    {
+      "id": "degrees-of-freedom-writing-style",
+      "status": "PASS",
+      "detail": "0 bare MUST/ALWAYS/NEVER \u2014 low, likely explained elsewhere"
+    },
+    {
+      "id": "architecture-declared",
+      "status": "PASS",
+      "detail": "context: inline (default)"
+    },
+    {
+      "id": "coherent-unit-scoping",
+      "status": "MANUAL",
+      "detail": "read the skill's one-sentence job description \u2014 does it need 'and' to join two unrelated verbs? (references/writing-philosophy.md)"
+    },
+    {
+      "id": "multi-model-tested",
+      "status": "MANUAL",
+      "detail": "cannot verify from files alone \u2014 confirm a smoke-preset pass exists for Haiku, Sonnet, and Opus"
+    },
+    {
+      "id": "description-optimizer-run",
+      "status": "MANUAL",
+      "detail": "cannot verify from files alone \u2014 confirm the 20-query/60-40-split optimizer was run, not just a hand-written description"
+    },
+    {
+      "id": "inline-vs-fork-decision-correct",
+      "status": "MANUAL",
+      "detail": "presence of `context: fork` is checkable, but whether it's the *right* call needs the worked examples in SKILL.md's Decision Gate section"
+    }
+  ],
+  "summary": {
+    "passed": 12,
+    "failed": 3,
+    "warned": 2,
+    "manual": 4,
+    "total_scored": 15,
+    "pass_rate": 0.8
+  },
+  "decision": {
+    "decision": "upgrade-in-place",
+    "reasons": [
+      "failures found are structural (naming, frontmatter details, missing security/evals) \u2014 additive fixes, not a rewrite"
+    ]
+  },
+  "institutional_knowledge_candidates": [
+    "Is this actually the right skill?",
+    "Core principles",
+    "Workflow",
+    "Common cognitive traps",
+    "Where this methodology comes from",
+    "Anti-patterns \u2014 things to explicitly avoid",
+    "Case studies",
+    "Scripts"
+  ]
+}

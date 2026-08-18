@@ -1,0 +1,85 @@
+{
+  "skill_name": "git-safety-net",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I think I just lost a commit after a bad rebase. Help me get it back.",
+      "expected_output": "Routes to Mode A (Recover): starts with git reflog rather than the deeper git fsck, confirms the located commit's content before acting, and recovers onto a new branch rather than resetting onto live work.",
+      "expectations": [
+        "Starts the recovery with git reflog, not git fsck, as the first move",
+        "Confirms the identified commit's content (e.g. git show) before acting on it",
+        "Recovers onto a new branch rather than resetting the current branch onto the recovered commit"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "An audit of this repo already said everything's clean and safe to delete. Just double-checking before I run rm -rf on some old branches.",
+      "expected_output": "Does not simply trust the prior 'clean' verdict at face value — treats a repeat request as a signal the first pass may have had the wrong scope, and starts from checkout discovery rather than skipping straight to 'confirmed clean.'",
+      "expectations": [
+        "Does not immediately affirm the prior clean result without re-establishing scope",
+        "Runs or recommends checkout discovery (finding all clones/worktrees of this repo on the machine) as part of re-verifying",
+        "Explains why a repeat 'is it really clean' question usually means a scope gap, not carelessness, per the skill's own framing"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "git branch -a and git fsck in this directory both look totally clean. Is it safe to delete this whole project folder?",
+      "expected_output": "Does not treat a clean audit within this one checkout as conclusive — explains that an independent clone elsewhere on the machine is structurally invisible to git branch -a, git fsck, and similar in-repo commands, and recommends searching for other checkouts before declaring it safe.",
+      "expectations": [
+        "Explicitly states that in-repo commands cannot see an independent clone elsewhere on disk",
+        "Recommends actively searching for other checkouts of the same repo before declaring deletion safe",
+        "Does not declare it 'safe to delete' based solely on this checkout's clean result"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "This feature branch was squash-merged into main a while back. main..branch shows 40 unmerged commits — is that branch actually safe to delete?",
+      "expected_output": "Explains that commit count is unreliable after a squash-merge (phantom unmerged commits), and that even some content-level checks (like a three-dot diff) can be unsound — recommends an actual trial merge as the reliable check.",
+      "expectations": [
+        "States that the 40 'unmerged' commits are expected/phantom after a squash-merge and don't by themselves mean the content is missing from main",
+        "Does not stop at a naive content check (e.g. three-dot diff or file-existence check) as if it were conclusive",
+        "Recommends a real trial merge as the reliable way to confirm the content is actually on main"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "I have two clones of the same repo on this machine — one at ~/work/repo and one at ~/scratch/repo-hotfix, different directory names. Will your audit find both?",
+      "expected_output": "Confirms checkout discovery matches by remote URL or shared commit history, not by directory name, so the differently-named clone is still found.",
+      "expectations": [
+        "States explicitly that checkout discovery does not rely on matching directory names",
+        "Explains it matches via normalized remote URL or shared commit history instead",
+        "Confirms both clones would be included in the audit scope despite the name mismatch"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "I have some files I created but never ran git add on. If I back up this repo with git bundle, will those be included?",
+      "expected_output": "Explains the critical asymmetry: bundle/archive/format-patch can only reach objects git already knows about, so never-added untracked files are invisible to all of them and must be copied out separately.",
+      "expectations": [
+        "States clearly that git bundle cannot back up untracked, never-added files",
+        "Explains this applies to archive and format-patch as well, not just bundle",
+        "Recommends directly copying the untracked files out as the only way to actually preserve them"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Before I trust the 'is anything unpushed' check, does it matter when I last ran git fetch?",
+      "expected_output": "Explains that origin/* refs are a cached snapshot from the last fetch, not live remote state, and that this cache staleness cuts in different directions depending on which question is being asked (what-would-be-lost vs. is-this-already-upstream).",
+      "expectations": [
+        "States that origin/* refs reflect the last fetch, not the actual current remote state",
+        "Recommends fetching before trusting a verdict that depends on remote-tracking refs",
+        "Explains the asymmetry: stale cache is safe (over-reports risk) for 'what would be lost' but unsafe (can silently revert improvements) for 'is this already upstream'"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "This is a high-stakes call — we're about to delete 15 branches company-wide. I want to be really sure nothing gets lost. What's the right way to verify that?",
+      "expected_output": "Recommends adversarial, independent verification (e.g. multiple independent checks/agents each trying to disprove 'everything is merged') rather than a single pass, and specifically calls out widening scope as a distinct check from re-confirming the branches already listed.",
+      "expectations": [
+        "Recommends more than a single reviewer/pass for a high-stakes verification, given how easy scope gaps are to miss",
+        "Explicitly calls out widening the scope (finding checkouts/branches not already on the list) as its own distinct check, not just re-verifying the given list",
+        "Frames the goal as trying to disprove 'everything is safe' rather than confirm it"
+      ]
+    }
+  ]
+}

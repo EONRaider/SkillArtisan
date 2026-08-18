@@ -1,0 +1,11 @@
+{
+  "category": "dev-tooling",
+  "source": "daymade",
+  "origin_skill": "git-safety-net",
+  "origin_repo": "daymade/claude-code-skills",
+  "origin_commit": "d24f6d1",
+  "evals_reused": false,
+  "evals_reused_note": "Origin ships no evals/ directory. Authored fresh from the origin SKILL.md's five modes (Recover/Audit/Verify-merged/Prevent/Retire) and its six load-bearing rules, especially the scope rule (a second clone elsewhere on disk is invisible to every in-repo command) and the merge-verification rule (commit-count and naive content checks are all unsound; only a real trial merge is reliable).",
+  "live_dependency": false,
+  "live_dependency_note": "Purely local git-object-store forensics (reflog, fsck, worktrees, stashes). No live external service."
+}

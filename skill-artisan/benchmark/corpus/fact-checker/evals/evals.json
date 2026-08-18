@@ -1,0 +1,86 @@
+{
+  "skill_name": "fact-checker",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Fact-check this paragraph from our docs: 'Claude 3.5 Sonnet supports a 200K token context window and was Anthropic's most capable model.' Is this still accurate?",
+      "expected_output": "Searches official Anthropic sources for the current model lineup and context-window specs, correctly identifies whether the claim is accurate, outdated, or incorrect relative to current models, and cites the source. Grade against what the search actually returns during this run, not a frozen answer — the correct verdict legitimately depends on when this is run.",
+      "expectations": [
+        "Searches an official/authoritative source (not just recalling from memory) before answering",
+        "Applies one of the defined status categories (accurate/incorrect/outdated/unverifiable) rather than a vague yes/no",
+        "Cites the specific source used for the current information",
+        "Does not present the answer as verified if no authoritative source was actually found"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Here's a doc with three sentences: (1) 'Our team follows a strict TDD workflow.' (2) 'GPT-4o has a 128K token context window.' (3) 'I think this codebase's architecture is elegant.' Which of these actually need fact-checking?",
+      "expected_output": "Correctly identifies only sentence 2 as a verifiable factual claim, explicitly excluding the workflow-preference statement and the subjective architecture opinion from the fact-checking scope.",
+      "expectations": [
+        "Identifies sentence 2 (the model spec) as the verifiable claim requiring a source check",
+        "Explicitly excludes sentence 3 (an opinion) from fact-checking",
+        "Does not attempt to 'fact-check' sentence 1 as if a team's stated workflow practice were an external verifiable fact"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Check this claim: 'Python's GIL means it can never run multiple threads truly in parallel.' Verify and correct if needed.",
+      "expected_output": "Searches authoritative sources (Python docs, PEP discussions) and reports the current accurate status, correctly distinguishing this from a permanently-true claim if anything has changed (e.g. free-threaded/no-GIL builds), citing the source either way.",
+      "expectations": [
+        "Searches an authoritative source rather than answering purely from training-time knowledge",
+        "Reports a specific, sourced status rather than a vague 'this is mostly true'",
+        "Cites the specific source for whatever the current answer is"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "This doc claims 'the npm package left-pad has over 50 million weekly downloads.' Check it and propose a correction if it's wrong — but don't edit the file yet, just show me.",
+      "expected_output": "Searches an authoritative source (npm registry) for the current figure, reports the status and correction with a citation, and explicitly does not edit the file, respecting the 'show me first' instruction.",
+      "expectations": [
+        "Searches an authoritative source (e.g. the npm registry) for the actual current download figure",
+        "Proposes a specific correction with a cited source if the claim is inaccurate",
+        "Does not edit the document, honoring the explicit 'don't edit yet' instruction"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "I fact-checked this doc with you last week and you found 2 issues. Go ahead and apply both corrections now.",
+      "expected_output": "Applies the corrections only after this explicit approval is given — the earlier fact-check step alone was not sufficient authorization to edit.",
+      "expectations": [
+        "Treats this message as the actual authorization needed before editing (not something already implied by the earlier fact-check)",
+        "Applies the specific corrections that were previously identified, not a fresh unrelated set",
+        "Confirms which corrections were applied after doing so"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Check this claim: 'Acme Corp's internal deployment pipeline uses a proprietary tool called FlowGate.' Verify it.",
+      "expected_output": "Attempts a search, cannot find an authoritative external source for an internal/proprietary claim like this, and honestly reports it as unverifiable rather than fabricating a plausible-sounding confirmation or denial.",
+      "expectations": [
+        "Attempts to search rather than answering from assumption alone",
+        "Reports the claim as unverifiable given the lack of an authoritative external source, rather than guessing",
+        "Does not fabricate a citation to make the answer look more confirmed than it is"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Fact-check this whole 40-paragraph technical document and give me a summary report, not a play-by-play of every single search.",
+      "expected_output": "Produces the structured summary report format (total claims checked, accurate/issues counts, per-issue location/claim/correction/source/rationale) rather than a raw narration of every search performed.",
+      "expectations": [
+        "Produces a structured summary (counts of accurate vs. issues found) rather than a blow-by-blow search narration",
+        "Each flagged issue includes location, the claim, the correction, and a cited source",
+        "Respects the request for a report rather than exhaustive process narration"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "This claim says 'as of last year, X was true' — is that framing itself a problem for fact-checking, or should I just check whether X was true at that time?",
+      "expected_output": "Recognizes that a claim scoped to a specific past time period should be checked against what was true at that time (making it potentially 'accurate' even if no longer true today), distinguishing this from an unscoped claim that would be marked 'outdated.'",
+      "expectations": [
+        "Recognizes the claim's own time-scoping as relevant to how it should be checked, rather than checking only against the current state",
+        "Explains the distinction between a time-scoped claim that was true then (still accurate as stated) and an unscoped claim that's now outdated",
+        "Does not mark a correctly time-scoped historical claim as simply 'incorrect' just because it's no longer true today"
+      ]
+    }
+  ]
+}

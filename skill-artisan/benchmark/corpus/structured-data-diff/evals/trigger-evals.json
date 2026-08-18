@@ -1,0 +1,18 @@
+[
+  {"query": "Compare these two CSV exports and tell me what rows were added, removed, or changed.", "should_trigger": true},
+  {"query": "Diff this week's JSON API response against last week's and summarize the actual changes.", "should_trigger": true},
+  {"query": "These two data files have the same rows in a different order — tell me if anything actually changed.", "should_trigger": true},
+  {"query": "I need to know which records were modified between these two dataset snapshots, matched by their ID column.", "should_trigger": true},
+  {"query": "Compare these two spreadsheet exports for real changes, ignoring floating-point rounding noise.", "should_trigger": true},
+  {"query": "What's different between v1.json and v2.json, categorized by added/removed/modified?", "should_trigger": true},
+  {"query": "Diff these two CSVs but treat a number and its string form as equal unless I say otherwise.", "should_trigger": true},
+  {"query": "Compare this week's inventory export to last month's and show me a readable change report.", "should_trigger": true},
+  {"query": "Run a plain text diff between these two log files.", "should_trigger": false},
+  {"query": "Compare these two Word documents and show me the tracked changes.", "should_trigger": false},
+  {"query": "Merge these two CSV files into one combined file.", "should_trigger": false},
+  {"query": "Validate this CSV file against a schema and report any malformed rows.", "should_trigger": false},
+  {"query": "Sort this spreadsheet by the price column, descending.", "should_trigger": false},
+  {"query": "Convert this JSON file into a CSV.", "should_trigger": false},
+  {"query": "Compare two images pixel-by-pixel and highlight the differences.", "should_trigger": false},
+  {"query": "Deduplicate the rows in this single CSV file.", "should_trigger": false}
+]

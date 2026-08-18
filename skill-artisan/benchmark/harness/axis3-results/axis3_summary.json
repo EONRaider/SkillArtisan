@@ -1,0 +1,110 @@
+[
+  {
+    "skill": "excel-automation",
+    "arm": "skill-creator",
+    "gitleaks_findings": 0,
+    "critical": 0,
+    "high": 0,
+    "pattern_findings": 4,
+    "clean": true
+  },
+  {
+    "skill": "excel-automation",
+    "arm": "daymade-fork",
+    "gitleaks_findings": 0,
+    "critical": 0,
+    "high": 1,
+    "pattern_findings": 9,
+    "clean": false
+  },
+  {
+    "skill": "excel-automation",
+    "arm": "skillforge",
+    "gitleaks_findings": 0,
+    "critical": 0,
+    "high": 0,
+    "pattern_findings": 3,
+    "clean": true
+  },
+  {
+    "skill": "excel-automation",
+    "arm": "creating-skills",
+    "gitleaks_findings": 0,
+    "critical": 0,
+    "high": 0,
+    "pattern_findings": 4,
+    "clean": true
+  },
+  {
+    "skill": "debugging-network-issues",
+    "arm": "skill-creator",
+    "gitleaks_findings": 0,
+    "critical": 0,
+    "high": 0,
+    "pattern_findings": 0,
+    "clean": true
+  },
+  {
+    "skill": "debugging-network-issues",
+    "arm": "daymade-fork",
+    "gitleaks_findings": 0,
+    "critical": 0,
+    "high": 0,
+    "pattern_findings": 1,
+    "clean": true
+  },
+  {
+    "skill": "debugging-network-issues",
+    "arm": "skillforge",
+    "gitleaks_findings": 0,
+    "critical": 0,
+    "high": 0,
+    "pattern_findings": 0,
+    "clean": true
+  },
+  {
+    "skill": "debugging-network-issues",
+    "arm": "creating-skills",
+    "gitleaks_findings": 0,
+    "critical": 0,
+    "high": 0,
+    "pattern_findings": 0,
+    "clean": true
+  },
+  {
+    "skill": "narrative-arc-builder",
+    "arm": "skill-creator",
+    "gitleaks_findings": 0,
+    "critical": 0,
+    "high": 0,
+    "pattern_findings": 0,
+    "clean": true
+  },
+  {
+    "skill": "narrative-arc-builder",
+    "arm": "daymade-fork",
+    "gitleaks_findings": 0,
+    "critical": 0,
+    "high": 0,
+    "pattern_findings": 0,
+    "clean": true
+  },
+  {
+    "skill": "narrative-arc-builder",
+    "arm": "skillforge",
+    "gitleaks_findings": 0,
+    "critical": 0,
+    "high": 0,
+    "pattern_findings": 0,
+    "clean": true
+  },
+  {
+    "skill": "narrative-arc-builder",
+    "arm": "creating-skills",
+    "gitleaks_findings": 0,
+    "critical": 0,
+    "high": 0,
+    "pattern_findings": 0,
+    "clean": true
+  }
+]

@@ -154,6 +154,23 @@ def run_single_query(
                         continue
 
                     if event.get("type") == "stream_event":
+                        # A turn's FIRST tool call is not necessarily the
+                        # diagnostic one — the model may look around (Bash,
+                        # Read a data file, etc.) before invoking the skill
+                        # under test, and multi-turn responses can have
+                        # several assistant turns before that happens. Bailing
+                        # out on the first non-Skill/Read tool_use (the
+                        # previous version of this loop did exactly that)
+                        # silently misreports "did not trigger" for any
+                        # response that doesn't call the skill as its literal
+                        # first action — confirmed directly: a manual
+                        # `claude -p` run against this exact mechanism showed
+                        # the model call Bash first, Skill second, on a query
+                        # that should obviously trigger. Keep watching across
+                        # every tool call and every turn instead, and only
+                        # conclude "did not trigger" when the process's own
+                        # `result` event (or the process exiting/timing out)
+                        # says the turn is actually over.
                         se = event.get("event", {})
                         se_type = se.get("type", "")
                         if se_type == "content_block_start":
@@ -164,19 +181,23 @@ def run_single_query(
                                     pending_tool_name = tool_name
                                     accumulated_json = ""
                                 else:
-                                    return False
+                                    pending_tool_name = None
                         elif se_type == "content_block_delta" and pending_tool_name:
                             delta = se.get("delta", {})
                             if delta.get("type") == "input_json_delta":
                                 accumulated_json += delta.get("partial_json", "")
                                 if clean_name in accumulated_json:
-                                    return True
+                                    triggered = True
                         elif se_type in ("content_block_stop", "message_stop"):
-                            if pending_tool_name:
-                                return clean_name in accumulated_json
-                            if se_type == "message_stop":
-                                return False
+                            if pending_tool_name and clean_name in accumulated_json:
+                                triggered = True
+                            pending_tool_name = None
                     elif event.get("type") == "assistant":
+                        # Same fix as above: scan every tool_use in this
+                        # message rather than returning on the first one, and
+                        # don't return from the function at all here — later
+                        # assistant turns in the same response may still call
+                        # the skill under test.
                         message = event.get("message", {})
                         for content_item in message.get("content", []):
                             if content_item.get("type") != "tool_use":
@@ -187,11 +208,33 @@ def run_single_query(
                                 triggered = True
                             elif tool_name == "Read" and clean_name in tool_input.get("file_path", ""):
                                 triggered = True
-                            return triggered
                     elif event.get("type") == "result":
                         return triggered
         finally:
             if process.poll() is None:
+                # Loop exited via the timeout condition, not a clean `result`
+                # event or process exit — this run never got a real answer,
+                # and silently returning `triggered` (False, almost always,
+                # since triggering the skill tends to take longer than
+                # answering "no") misreports "did not trigger" for a call
+                # that simply didn't finish in time. Confirmed directly: a
+                # manual claude -p run against this exact mechanism took over
+                # two minutes on a plain query with the default 60s timeout
+                # this script shipped with — every should-trigger query in an
+                # affected run reads as a false negative, while should-not-
+                # trigger queries are unaffected (their correct answer is
+                # also `False`, so a timeout and a genuine non-trigger are
+                # indistinguishable for them). Surface this on stderr since
+                # the return type here is a plain bool used elsewhere
+                # (run_eval, run_loop) and changing it would ripple out;
+                # a caller aggregating many runs can grep for this to catch
+                # a too-short --timeout before trusting the trigger rate.
+                print(
+                    f"WARNING: run_single_query timed out after {timeout}s before the "
+                    f"process finished (query: {query[:60]!r}) — counted as not-triggered, "
+                    f"which may be wrong. Consider a longer --timeout.",
+                    file=sys.stderr,
+                )
                 process.kill()
                 process.wait()
 

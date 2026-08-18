@@ -1,0 +1,71 @@
+{
+  "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/harness/workspace/excel-automation/daymade-fork/audited/excel-automation",
+  "gitleaks_findings": [],
+  "pattern_findings": [
+    {
+      "file": "SKILL.md",
+      "line": 198,
+      "severity": "MEDIUM",
+      "check": "insecure-http-url",
+      "detail": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+    },
+    {
+      "file": "SKILL.md",
+      "line": 199,
+      "severity": "MEDIUM",
+      "check": "insecure-http-url",
+      "detail": "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+    },
+    {
+      "file": "SKILL.md",
+      "line": 200,
+      "severity": "MEDIUM",
+      "check": "insecure-http-url",
+      "detail": "http://schemas.openxmlformats.org/package/2006/relationships"
+    },
+    {
+      "file": "scripts/create_formatted_excel.py",
+      "line": 105,
+      "severity": "HIGH",
+      "check": "blocking-interactive-input",
+      "detail": "\"\"\"Style a cell as user input (blue font, green fill).\"\"\""
+    },
+    {
+      "file": "scripts/create_formatted_excel.py",
+      "line": 1,
+      "severity": "MEDIUM",
+      "check": "no-documented-cli",
+      "detail": "produces output but references no argument-parsing/--help convention (references/script-design.md)"
+    },
+    {
+      "file": "scripts/parse_complex_excel.py",
+      "line": 40,
+      "severity": "MEDIUM",
+      "check": "insecure-http-url",
+      "detail": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+    },
+    {
+      "file": "scripts/parse_complex_excel.py",
+      "line": 41,
+      "severity": "MEDIUM",
+      "check": "insecure-http-url",
+      "detail": "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+    },
+    {
+      "file": "scripts/parse_complex_excel.py",
+      "line": 42,
+      "severity": "MEDIUM",
+      "check": "insecure-http-url",
+      "detail": "http://schemas.openxmlformats.org/package/2006/relationships"
+    },
+    {
+      "file": "scripts/parse_complex_excel.py",
+      "line": 1,
+      "severity": "MEDIUM",
+      "check": "no-documented-cli",
+      "detail": "produces output but references no argument-parsing/--help convention (references/script-design.md)"
+    }
+  ],
+  "critical_count": 0,
+  "high_count": 1
+}

@@ -1,0 +1,85 @@
+{
+  "skill_name": "narrative-arc-builder",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Here's my outline: 1) Company history, 2) Market overview, 3) Our team, 4) Product roadmap so far, 5) Customer segments, 6) Competitive landscape, 7) We're about to run out of runway in 4 months unless we close this round, 8) Ask and next steps. Restructure this for a pitch.",
+      "expected_output": "Identifies the runway/urgency point (currently bullet 7) as the buried lede — the actual stakes of the presentation — and moves it much earlier or uses it to frame the whole narrative, rather than leaving five slides of background before the real point.",
+      "expectations": [
+        "Explicitly identifies the runway/urgency point as a buried lede sitting too late in the current order",
+        "Restructures so this point appears much earlier, or is used to frame why the rest of the material matters",
+        "Explains why burying it hurts the pitch, not just that it moved"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Outline for an all-hands update: 1) Q3 revenue numbers, 2) New hires this quarter, 3) Office move to the new building, 4) Rollout of the new internal tool. Give this a narrative arc.",
+      "expected_output": "Honestly recognizes these are four genuinely disconnected topics with no natural shared throughline, and either proposes a real connecting frame if one plausibly exists (e.g. 'a quarter of growth and change') or says so plainly and asks what the actual point of the update is, rather than fabricating a forced narrative connection.",
+      "expectations": [
+        "Does not fabricate a strained, unconvincing throughline just to satisfy the 'give it an arc' request",
+        "Either proposes a genuinely plausible connecting theme, or explicitly states the four topics don't share a natural throughline",
+        "If no theme is proposed, asks what the actual point/priority of the update is rather than guessing"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "This section of my outline has a dense pricing/ROI data table dropped right in the middle of a customer-story-driven section, with no transition between them. Fix the flow.",
+      "expected_output": "Identifies the abrupt tonal/format shift as a real structural problem and adds an explicit transition (or repositions the data section) so the shift from story to data doesn't feel jarring.",
+      "expectations": [
+        "Identifies the story-to-data transition as a real structural problem, not just a formatting nitpick",
+        "Proposes a specific transition or repositioning to smooth the shift",
+        "Does not simply leave the data section in place with no change"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Here's my outline: 1) The problem (support tickets doubled in 6 months), 2) Why it's happening (root cause investigation), 3) What we tried that didn't work and why, 4) The fix we're proposing, 5) Expected impact and how we'll measure it. Does this need restructuring?",
+      "expected_output": "Recognizes this outline already has a coherent setup-tension-resolution arc and does not force unnecessary restructuring on it, while being honest that it's already well-paced.",
+      "expectations": [
+        "States that the outline already has a coherent narrative arc",
+        "Does not manufacture a forced restructuring or fabricated 'problem' just to have something to change",
+        "Any suggestions offered are genuinely minor, not a wholesale unnecessary reshuffle"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "My deck opens with 'our onboarding drop-off rate is unacceptably high' and closes with 'in summary, onboarding drop-off is high and we looked at several causes.' Is the ending doing its job?",
+      "expected_output": "Identifies that the conclusion merely restates the opening problem rather than resolving the tension it set up, and proposes an actual resolution (a recommended fix, a decision, a clear next step) instead of a summary.",
+      "expectations": [
+        "Identifies that the current ending is a restatement/summary, not a resolution",
+        "Explains specifically what's missing (a decision, recommendation, or clear next step)",
+        "Proposes a concrete alternative ending that actually resolves the opening's stated tension"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "My outline has 6 slides of background on our industry before it gets to the one insight everyone actually needs to hear. Fix the pacing.",
+      "expected_output": "Recommends substantially trimming or compressing the background section and moving the key insight much earlier, rather than leaving the pacing as-is or only making cosmetic edits.",
+      "expectations": [
+        "Recommends trimming/compressing the 6 slides of background rather than leaving them as-is",
+        "Recommends moving the key insight significantly earlier in the deck",
+        "The proposed restructuring is substantive, not a cosmetic wording pass over the same slide order"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "This deck presents three vendor options with a comparison matrix for the team to choose between — it's a decision-support deck, not really a 'story.' Does it need a narrative arc?",
+      "expected_output": "Recognizes that a decision/comparison-matrix format serves this deck's actual purpose better than forcing an artificial setup-tension-resolution structure, and doesn't reshape it into an unnecessary narrative just because that's the skill's default lens.",
+      "expectations": [
+        "Recognizes this deck's actual purpose (structured comparison for a decision) as legitimately different from a story-driven narrative",
+        "Does not force an artificial tension/resolution arc onto a comparison-matrix format that doesn't need one",
+        "May still offer genuine structural improvements suited to a decision deck, but doesn't misapply the narrative-arc lens wholesale"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "This is for a compliance audit review — I need ALL the background and methodology detail kept in, even though it's a lot of setup before the findings. Don't trim it for pacing.",
+      "expected_output": "Respects the explicit instruction to preserve the full background/methodology detail rather than trimming it for narrative pacing, even though that runs counter to the skill's usual pacing guidance.",
+      "expectations": [
+        "Does not trim or compress the background/methodology detail given the explicit instruction to keep it",
+        "May still offer structural suggestions (e.g. ordering, signposting) that don't remove content",
+        "Explicitly acknowledges the audience-driven reason (compliance audit) for keeping full detail rather than silently overriding the request"
+      ]
+    }
+  ]
+}

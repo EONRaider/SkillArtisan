@@ -1,0 +1,94 @@
+{
+  "skill_name": "debugging-network-issues",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "我们的实时推送服务有个怪问题。用户 Alice 的客户端每次 WebSocket 连上之后，精确在 87 秒左右被断开，控制台报 `WebSocket is already in CLOSING or CLOSED state`。但同事 Bob 用相同的客户端代码没问题。服务端 nginx 日志没看到明显 error，upstream Go 服务也没记录异常。我们的架构是：浏览器 → Cloudflare → nginx → WebSocket server (Go)。Alice 现在开发被卡住，我应该怎么排查？",
+      "expected_output": "Evidence-first investigation plan: collect direct artifacts before touching config, propose ≥3 falsifiable candidate root causes, recommend layered isolation bypassing Cloudflare on at least one path, flag the fixed 87s interval as a probable intermediate-layer idle timeout, and instrument/tcpdump for the RST source rather than guessing.",
+      "expectations": [
+        "Recommends collecting direct evidence (DevTools Network, server logs, tcpdump) before proposing an nginx config change",
+        "Proposes at least 3 candidate root causes, each with a stated falsifier",
+        "Recommends a layered-isolation experiment bypassing Cloudflare on at least one path for comparison",
+        "Identifies the fixed 87-second duration as plausibly an intermediate layer's idle timeout, not a client-code bug",
+        "Does not recommend an unevidenced action like 'just restart nginx' or 'upgrade the client library'"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "我们的凌晨批处理 job 最近一周有 3 天失败了（4/20, 4/21, 4/22），每次都是 `connection reset by peer`，成功和失败的几天我看不出配置或代码有什么不同。SRE 同事说 'restart 一下就好'，但我想搞清楚根因——这种间歇性问题之前发生过，每次 restart 完就不管了，过几周又复发。你能帮我规划一个系统性调查方法吗？",
+      "expected_output": "Explicitly rejects the restart-and-forget shortcut, proposes widening the evidence window around the failure days, recommends adding instrumentation before the next recurrence, proposes ≥3 falsifiable hypotheses, and calls out that 'connection reset by peer' needs a named party confirmed via tcpdump/upstream logs, not assumed.",
+      "expectations": [
+        "Explicitly argues against 'just restart it' and explains why the recurring pattern indicates that's not a real fix",
+        "Recommends widening the evidence-collection window beyond the exact failure timestamp",
+        "Recommends adding instrumentation now so the next recurrence produces direct evidence",
+        "Proposes at least 3 falsifiable candidate root causes",
+        "States that determining who sent the reset requires tcpdump or upstream logs, not assumption"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "我写了一个 SSE keepalive 补丁准备上生产，目的是 upstream idle > 15s 时主动塞 `: keepalive\\n\\n` 防止被中间层 RST。代码大概是：\n```js\nlet lastChunk = Date.now();\nconst timer = setInterval(() => {\n  if (Date.now() - lastChunk > 15000 && !res.writableEnded) {\n    res.write(': keepalive\\n\\n');\n  }\n}, 10000);\nproxyRes.on('data', chunk => { lastChunk = Date.now(); });\nproxyRes.on('end', () => clearInterval(timer));\n```\n你能帮我审查一下有没有风险？我打算 canary 5% 流量后 24 小时内全量。",
+      "expected_output": "A counter-review of the patch that catches the ERR_HTTP_HEADERS_SENT risk, the missing cleanup on error/abort paths, and the non-streaming-response blast radius, before endorsing the canary plan.",
+      "expectations": [
+        "Identifies that writing before headers are sent (if upstream hasn't responded yet) risks an implicit header send, causing a later writeHead to throw ERR_HTTP_HEADERS_SENT",
+        "Checks whether clearInterval covers all exit paths (proxyReq error, proxyRes aborted, res close), not just the normal 'end' path",
+        "Raises the risk of this keepalive firing on non-streaming/JSON responses where it doesn't belong",
+        "Recommends a more precise gate (env flag or response-type check) before the canary rather than shipping as-is",
+        "Applies a critical filter rather than listing every theoretical risk indiscriminately"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "我们生产应用最近一周每天下午 3-4 点期间，API 错误率会从 0.1% 飙到 2% 左右，持续 30-60 分钟然后自己恢复。logs 里主要是 `Error: pool is at capacity` from 我们的 DB driver (pg-pool)。DB 那边 CPU/mem 看起来 OK，慢查询日志也没明显异常。运维同事说 \"pool 加大就好\"，我们的 config 已经从 20 连接加到 50 然后到 100 了，每次加大都撑一阵子又开始触发。这个模式让我怀疑根因不是 pool 大小本身。你帮我设计下调查计划？",
+      "expected_output": "Verifies the premise with direct evidence, rejects pool-upsizing as a surface fix, proposes ≥3 falsifiable hypotheses spanning multiple layers, and generalizes the methodology to a database domain rather than misapplying network-specific tools.",
+      "expectations": [
+        "Asks for direct evidence confirming the 3-4pm spike pattern rather than accepting the premise unverified",
+        "Explicitly rejects 'just enlarge the pool again' as a surface-level fix and explains why the recurring pattern shows it isn't working",
+        "Proposes at least 3 falsifiable hypotheses across different layers (upstream latency, workload overlap, lock contention, query plan regression)",
+        "Recommends differential analysis comparing the 3-4pm window against other times",
+        "Recommends instrumentation (pool-wait metrics, query timing, lock wait time) installed before the next recurrence",
+        "Does not force network-specific tools like tcpdump where they don't fit a DB-layer problem"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "A teammate says our API is 'just flaky' and wants to add automatic retries everywhere to paper over it. Before we do that, how should we actually investigate?",
+      "expected_output": "Pushes back on blanket retries as a root-cause substitute, insists on characterizing the actual failure mode with evidence first (which endpoints, what error codes, what pattern over time), and proposes a falsifiable investigation plan.",
+      "expectations": [
+        "Explicitly cautions that blanket retries can mask a real root cause rather than fixing it",
+        "Recommends first characterizing the failure with concrete evidence (which endpoints, error codes, timing pattern) before deciding on a fix",
+        "Proposes falsifiable hypotheses rather than jumping straight to 'add retries and see'"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Our health check dashboard has been green for two hours, but three customers just reported the login page is completely down. Explain how that's possible and what to check.",
+      "expected_output": "Applies the 'a green monitor certifies only the path it probes' principle — asks which specific path the health check actually exercises, and recommends directly probing the failing plane (login) rather than trusting the aggregate dashboard.",
+      "expectations": [
+        "States explicitly that a passing health check only proves the specific path it probes, not the whole system",
+        "Recommends identifying exactly which plane/path the existing health check covers versus the one that's actually failing (login)",
+        "Recommends a direct probe of the login path specifically, rather than continuing to trust the dashboard"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "This looks like the exact same Cloudflare 524 timeout issue we had last month on the upload endpoint — same error code, same general area. Just apply the fix we used last time.",
+      "expected_output": "Resists pattern-matching to a superficially similar past incident without first confirming matching evidence for this specific case (e.g., checking whether this is genuinely upload-time-to-origin exceeding read timeout, per the skill's own documented Cloudflare 524 note, rather than assuming identical root cause from error code alone).",
+      "expectations": [
+        "Does not assume identical root cause purely from a matching error code without checking evidence for this specific incident",
+        "Recommends confirming the actual current symptom pattern (e.g. payload size, timing) before reapplying last time's fix",
+        "States a falsifier for the 'same root cause as last time' hypothesis rather than treating it as automatically confirmed"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "I found the bug — it's definitely a DNS caching issue. I want to ship the fix now, no need to double check, I've been debugging this for 6 hours and I'm confident.",
+      "expected_output": "Applies the counter-review principle even under time pressure and stated confidence — recommends an independent check or falsifier before committing to the fix, rather than deferring to confidence level alone.",
+      "expectations": [
+        "Does not simply defer to the user's stated confidence as a substitute for evidence",
+        "Recommends a concrete falsifier or independent verification step for the DNS-caching theory before shipping",
+        "Frames this as protecting against sunk-cost-driven tunnel vision after a long debugging session, not as distrust of the user"
+      ]
+    }
+  ]
+}

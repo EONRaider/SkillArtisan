@@ -1,0 +1,86 @@
+{
+  "skill_name": "ui-designer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Here are 4 reference UI screenshots (a fintech dashboard: deep navy background, mint-green accent buttons, generous 24px card padding, rounded 8px corners, a monospace font for numeric figures) and a one-line idea: 'a personal budgeting app for freelancers.' Extract a design system from these references.",
+      "expected_output": "Produces a structured design-system document capturing the specific attributes described (navy background, mint-green accent, 24px padding, 8px radius, monospace numerics), not a generic or unrelated palette.",
+      "expectations": [
+        "The extracted color palette reflects the described navy/mint-green scheme specifically",
+        "Captures the specific spacing/radius details mentioned (24px padding, 8px corners), not generic placeholder values",
+        "Notes the monospace treatment for numeric figures as a distinct typography decision",
+        "Produces the output as a structured design-system document, not a vague paragraph"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I already have a full PRD written (attached) for this app. Skip straight to the design system and UI prompts.",
+      "expected_output": "Does not regenerate or overwrite the existing PRD — proceeds directly to the design-system/UI-prompt steps, respecting the explicit instruction to skip PRD generation.",
+      "expectations": [
+        "Does not produce a new PRD or attempt to regenerate the existing one",
+        "Proceeds directly to design-system extraction and UI prompt generation",
+        "Uses the existing PRD's content as context where relevant rather than ignoring it"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I don't have a PRD yet. I just have this rough idea: 'a tool for scheduling recurring team stand-ups.' And these two dark-mode reference screenshots (a project-management app: charcoal background #1a1a1a, purple accent, card-based layout).",
+      "expected_output": "Recognizes no PRD exists, builds a minimal one first (elevator pitch, problem, audience, must-have features) before proceeding to the design-system extraction, rather than skipping straight to UI prompts without one.",
+      "expectations": [
+        "Recognizes the absence of a PRD and generates a minimal one before continuing",
+        "The generated PRD addresses elevator pitch, problem statement, audience, and key features at minimum",
+        "Only proceeds to the design-system step after the PRD groundwork is in place"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "These two reference screenshots are in light mode, but I want a dark mode variant included in the design system too.",
+      "expected_output": "Notes that no dark-mode reference is available and either explicitly extrapolates a defensible dark variant from the light-mode tokens (stating this is an extrapolation) or asks for a dark-mode reference, rather than silently fabricating dark-mode values as if they came from a real reference.",
+      "expectations": [
+        "Does not present a fabricated dark-mode palette as if it came directly from a reference image that was actually light-mode-only",
+        "Either explicitly flags the dark-mode values as extrapolated, or asks the user for a dark-mode reference",
+        "The light-mode extraction itself remains accurate to what was actually shown"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Just tell me the design system in a paragraph, I don't need the whole formal document with headers and sections.",
+      "expected_output": "Adapts the output format to the explicit lighter-weight request while still covering the substantive content (palette, typography, components), rather than rigidly producing the full formal template regardless of the request.",
+      "expectations": [
+        "Produces a lighter-weight format (prose) rather than the full formal multi-section document, given the explicit request",
+        "Still covers the substantive content (colors, typography, key component styles) even in the lighter format",
+        "Does not ignore the format request and output the standard template anyway"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "These reference screenshots are for a completely different kind of product (a photo-editing app) than what I'm building (a B2B invoicing tool). Extract the design system anyway.",
+      "expected_output": "Extracts the visual design system (colors, typography, spacing, component treatment) as requested, while being clear that it's a stylistic reference rather than implying the invoicing tool should adopt photo-editing-specific UI patterns wholesale.",
+      "expectations": [
+        "Extracts the visual attributes as requested rather than refusing due to the domain mismatch",
+        "Notes or handles appropriately that some reference UI patterns may not translate directly to the different product domain",
+        "Does not silently invent invoicing-specific components not present in the actual references"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Generate the implementation-ready UI prompts now, based on the design system and PRD from earlier.",
+      "expected_output": "Produces UI prompts that are concretely usable by a UI-generation step (specific enough to implement from), grounded in the previously-established design system and PRD rather than generic boilerplate.",
+      "expectations": [
+        "The generated prompts reference specific design-system attributes established earlier (not generic placeholder styling)",
+        "The generated prompts reference the PRD's actual features/scope, not an unrelated generic app",
+        "Output is concrete enough to be implementation-ready, not a vague mood-board description"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "One of the two reference screenshots I gave you is actually just a stock photo I grabbed by mistake, not a real UI. Extract the design system from what's actually usable.",
+      "expected_output": "Recognizes the non-UI image and excludes it from the design-system extraction rather than fabricating UI attributes from a stock photo, using only the genuinely valid reference.",
+      "expectations": [
+        "Recognizes that the stock photo isn't a usable UI reference",
+        "Does not extract fabricated UI attributes (component styles, spacing) from the non-UI image",
+        "Proceeds using only the genuinely valid reference screenshot"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+[
+  {"query": "Extract the original files out of this repomix XML output into a real directory.", "should_trigger": true},
+  {"query": "I have a repomix-packed Markdown file — restore the original folder structure from it.", "should_trigger": true},
+  {"query": "Unmix this repomix JSON export back into individual files.", "should_trigger": true},
+  {"query": "Reverse the repomix packing process on this file so I get the original repo layout back.", "should_trigger": true},
+  {"query": "Someone sent me a giant single-file repomix bundle — I need it as actual files I can open in my editor.", "should_trigger": true},
+  {"query": "Validate this repomix package and tell me what files are in it before I extract.", "should_trigger": true},
+  {"query": "Restore the directory structure from this packed repository output.", "should_trigger": true},
+  {"query": "This repomix bundle looks incomplete — check if it's malformed before I try to extract it.", "should_trigger": true},
+  {"query": "Pack this codebase with repomix so I can send it to a contractor as one file.", "should_trigger": false},
+  {"query": "Scan this codebase for hardcoded secrets before I pack it.", "should_trigger": false},
+  {"query": "Unzip this .zip archive I downloaded and put the files in a folder.", "should_trigger": false},
+  {"query": "Extract the text content from this PDF into a Markdown file.", "should_trigger": false},
+  {"query": "Parse this tarball and list what's inside it.", "should_trigger": false},
+  {"query": "Convert this XML config file into JSON format.", "should_trigger": false},
+  {"query": "Clone this GitHub repo and check out the main branch.", "should_trigger": false},
+  {"query": "Search this codebase for every usage of a specific function name.", "should_trigger": false}
+]

@@ -1,0 +1,18 @@
+[
+  {"query": "This is just a bullet-point outline right now — help me turn it into something with a real narrative arc for my presentation.", "should_trigger": true},
+  {"query": "My pitch deck's key point is buried on slide 8 — help me restructure so it lands earlier.", "should_trigger": true},
+  {"query": "This deck's sections don't connect to each other at all — find the throughline or tell me there isn't one.", "should_trigger": true},
+  {"query": "My conclusion slide just repeats the problem statement instead of resolving it — fix the ending.", "should_trigger": true},
+  {"query": "There's too much background before the interesting part in this outline — fix the pacing.", "should_trigger": true},
+  {"query": "This section has a data table dropped into a story-driven flow with no transition — smooth that out.", "should_trigger": true},
+  {"query": "Does this outline already have a good narrative structure, or does it need restructuring?", "should_trigger": true},
+  {"query": "Restructure this rough outline around a setup-tension-resolution arc.", "should_trigger": true},
+  {"query": "Extract a color palette and typography system from these reference screenshots.", "should_trigger": false},
+  {"query": "Generate several different visual style options for this deck's slide design.", "should_trigger": false},
+  {"query": "Audit this already-built slide deck's rendering for layout bugs and overflow.", "should_trigger": false},
+  {"query": "Write the actual slide content and speaker notes for each bullet point, no restructuring needed.", "should_trigger": false},
+  {"query": "Fact-check the statistics cited in this presentation against current sources.", "should_trigger": false},
+  {"query": "Format this outline into a properly indented Markdown document.", "should_trigger": false},
+  {"query": "Translate this presentation outline from English into Japanese.", "should_trigger": false},
+  {"query": "Count how many slides this deck has and list their titles.", "should_trigger": false}
+]

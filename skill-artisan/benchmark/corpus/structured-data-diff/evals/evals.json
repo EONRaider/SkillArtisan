@@ -1,0 +1,91 @@
+{
+  "skill_name": "structured-data-diff",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Compare inventory-v1.csv and inventory-v2.csv (attached, keyed by sku) and tell me what actually changed.",
+      "expected_output": "A categorized report: E500 added, D400 removed, A100 modified (quantity 50→45; price treated as unchanged despite the 19.99 vs 19.990000001 floating-point noise), B200 and C300 correctly reported as unchanged despite appearing in a different row order.",
+      "expectations": [
+        "Reports E500 as added and D400 as removed",
+        "Reports A100's quantity change (50 to 45) as a real modification",
+        "Does NOT report A100's price as changed (19.99 vs 19.990000001 is floating-point noise, not a real edit)",
+        "Does NOT report B200 or C300 as changed merely because their row position differs between files"
+      ],
+      "files": ["evals/files/inventory-v1.csv", "evals/files/inventory-v2.csv"]
+    },
+    {
+      "id": 2,
+      "prompt": "Diff inventory-v1.csv against inventory-v1-reordered.csv (attached) — same data, I just shuffled the rows.",
+      "expected_output": "Reports zero real differences — every row exists in both files with identical field values, only order differs.",
+      "expectations": [
+        "Reports no additions, removals, or modifications",
+        "Explicitly states the files contain the same data (not silent about the reorder, but doesn't treat it as a change)"
+      ],
+      "files": ["evals/files/inventory-v1.csv", "evals/files/inventory-v1-reordered.csv"]
+    },
+    {
+      "id": 3,
+      "prompt": "Compare types-a.json and types-b.json (attached) — default comparison, nothing special requested.",
+      "expected_output": "Reports no differences by default: quantity 50 (number) and \"50\" (string) are treated as the same value unless strict type-checking was requested.",
+      "expectations": [
+        "Does not report a difference for A100's quantity field given only a type change (50 vs \"50\") under default comparison",
+        "Reports B200 as unchanged"
+      ],
+      "files": ["evals/files/types-a.json", "evals/files/types-b.json"]
+    },
+    {
+      "id": 4,
+      "prompt": "Now diff types-a.json and types-b.json again, but this time I care about type strictness — a number and a string with the same digits should count as different.",
+      "expected_output": "With strict-type comparison explicitly requested, reports A100's quantity field as changed (type changed from number to string, even though the digits match).",
+      "expectations": [
+        "Reports A100's quantity as a modification specifically because of the type difference, given the explicit strict-type request",
+        "Correctly still reports B200 as unchanged",
+        "Behaves differently from eval 3's default-mode result given the same input files, in response to the explicit request"
+      ],
+      "files": ["evals/files/types-a.json", "evals/files/types-b.json"]
+    },
+    {
+      "id": 5,
+      "prompt": "Diff inventory-v1.csv against inventory-v1-insert.csv (attached, keyed by sku) — I just added one new item, nothing else should have changed.",
+      "expected_output": "Correctly matches rows by the sku key rather than row position, reporting only Z999 as added and every other row (A100, B200, C300, D400) as unchanged — not a cascade of false 'modified' rows caused by the positional shift.",
+      "expectations": [
+        "Reports exactly one addition: Z999",
+        "Does NOT report B200, C300, or D400 as modified due to their shifted row position",
+        "Uses the sku column as the matching key rather than row index"
+      ],
+      "files": ["evals/files/inventory-v1.csv", "evals/files/inventory-v1-insert.csv"]
+    },
+    {
+      "id": 6,
+      "prompt": "Compare nokey-v1.csv and nokey-v2.csv (attached) — there's no id column, just color and size, and some rows are exact duplicates of each other.",
+      "expected_output": "Recognizes there's no natural unique key, and either falls back to a defensible strategy (e.g. multiset/count-based comparison: one 'red,M' row removed, one 'blue,L' row added) explained clearly, or asks the user how to handle rows with no unique identifier — does not silently fabricate a confident row-by-row match it can't actually justify.",
+      "expectations": [
+        "Explicitly acknowledges the absence of a unique key column rather than silently assuming row position or a wrong column is the key",
+        "Either produces a clearly-explained count-based diff (net -1 'red,M', net +1 'blue,L') or asks the user for guidance before proceeding",
+        "Does not present a row-by-row keyed diff as if a real key existed when none does"
+      ],
+      "files": ["evals/files/nokey-v1.csv", "evals/files/nokey-v2.csv"]
+    },
+    {
+      "id": 7,
+      "prompt": "Diff inventory-v1.csv against inventory-v2.csv and give me a report I can actually read — not a giant unified diff blob.",
+      "expected_output": "Produces a structured, categorized report (clear Added / Removed / Modified sections with the specific changed fields named) rather than a raw line-based diff format.",
+      "expectations": [
+        "Output is organized into clear categories (e.g. headed sections for added/removed/modified), not one undifferentiated diff block",
+        "Modified entries name the specific field(s) that changed and their old/new values",
+        "Does not just dump a generic unified-diff-style text block as the entire answer"
+      ],
+      "files": ["evals/files/inventory-v1.csv", "evals/files/inventory-v2.csv"]
+    },
+    {
+      "id": 8,
+      "prompt": "Diff inventory-v1.csv against itself — same file, compared to itself.",
+      "expected_output": "Cleanly reports zero differences of any kind, without fabricating spurious changes.",
+      "expectations": [
+        "Reports no additions, removals, or modifications",
+        "Does not error out or produce a nonsensical report given identical input on both sides"
+      ],
+      "files": ["evals/files/inventory-v1.csv", "evals/files/inventory-v1.csv"]
+    }
+  ]
+}

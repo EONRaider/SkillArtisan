@@ -1,0 +1,18 @@
+[
+  {"query": "Scan this repo for sensitive data before I push it publicly.", "should_trigger": true},
+  {"query": "I accidentally committed an API key a few commits back — clean the git history.", "should_trigger": true},
+  {"query": "清理这个仓库历史里的敏感数据", "should_trigger": true},
+  {"query": "I need to force-push to a public repo — verify it's safe first.", "should_trigger": true},
+  {"query": "Remove this internal domain name from every commit in our repo's history.", "should_trigger": true},
+  {"query": "We just realized PII leaked into git history months ago — help me sanitize it.", "should_trigger": true},
+  {"query": "历史重写之后怎么确认真的清理干净了？", "should_trigger": true},
+  {"query": "The pre-push hook is blocking me and I want to understand why before bypassing it.", "should_trigger": true},
+  {"query": "Review this pull request's diff for a hardcoded secret before merging.", "should_trigger": false},
+  {"query": "Scan this codebase and pack it with repomix, removing any secrets first.", "should_trigger": false},
+  {"query": "Rotate our production database password on a regular schedule.", "should_trigger": false},
+  {"query": "Set up branch protection rules on our main GitHub branch.", "should_trigger": false},
+  {"query": "Recover a commit I think I lost during an interactive rebase.", "should_trigger": false},
+  {"query": "Write a .gitignore file for this Python project.", "should_trigger": false},
+  {"query": "Merge this feature branch into main after CI passes.", "should_trigger": false},
+  {"query": "Add a CODEOWNERS file to this repository.", "should_trigger": false}
+]

@@ -1,0 +1,15 @@
+{
+  "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/harness/workspace/debugging-network-issues/daymade-fork/audited/debugging-network-issues",
+  "gitleaks_findings": [],
+  "pattern_findings": [
+    {
+      "file": "scripts/layered-isolation-probe.sh",
+      "line": 1,
+      "severity": "MEDIUM",
+      "check": "no-documented-cli",
+      "detail": "produces output but references no argument-parsing/--help convention (references/script-design.md)"
+    }
+  ],
+  "critical_count": 0,
+  "high_count": 0
+}

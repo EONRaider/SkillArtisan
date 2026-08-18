@@ -1,0 +1,128 @@
+{
+  "skill_name": "frontend-visual-qa",
+  "evals": [
+    {
+      "id": 1,
+      "name": "browser-output-evidence-boundary",
+      "prompt": "Audit evals/files/browser-output-fixture.html. Verify Download HTML, Copy share link, Choose CSV, and Print PDF as far as the available tools allow. Do not accept source inspection, handler calls, or Playwright setInputFiles as recipient/dialog-level proof, and do not claim visible Chrome evidence you did not obtain.",
+      "expected_output": "A browser-output audit that uses real GUI evidence when available, identifies the deliberately stale/empty outputs when observed, and otherwise reports the exact Level A checks as partial or blocked.",
+      "expectations": [
+        "Opens the supplied fixture and distinguishes source/handler behavior from visible browser and recipient evidence",
+        "Requires the downloaded file and share URL to be opened and inspected before calling them verified; when that evidence is available, identifies Old report and the empty data URL as defective outputs",
+        "Requires a real browser/OS file-picker path to verify filters and cancel recovery; treats setInputFiles as evidence only for post-selection app behavior and uses no private user file",
+        "Requires real Chrome print preview with nonblank pages for a print/PDF pass; when that evidence is available, identifies the about:blank print target as defective",
+        "Marks unavailable GUI-owned evidence partial or blocked instead of claiming it was clicked or verified"
+      ],
+      "files": [
+        "evals/files/browser-output-fixture.html"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "transient-error-observation",
+      "prompt": "Audit evals/files/transient-fixture.html. Determine whether the login error appears and whether its presentation is usable. A late screenshot alone is not a negative result.",
+      "expected_output": "A lifecycle-instrumented transient-state audit that separates handler failure from an unreadably brief, unlocalized error.",
+      "expectations": [
+        "Arms a MutationObserver or equivalent event capture before triggering the login action",
+        "Observes that the message appears rather than concluding absence from a late screenshot",
+        "Flags the brief lifetime, raw English/backend wording, missing alert semantics, and unchanged recovery state",
+        "Reports actual tool evidence and does not rely only on source reading"
+      ],
+      "files": [
+        "evals/files/transient-fixture.html"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "data-viz-reference-tier",
+      "prompt": "Compare evals/files/data-viz-target.html with evals/files/data-viz-reference.html at the same viewport. Quantify the visual-tier gap and audit chart/series color usage without treating example font sizes or a universal delta-E threshold as standards.",
+      "expected_output": "A measured reference comparison plus token, semantic/categorical color, and accessibility findings.",
+      "expectations": [
+        "Renders and inspects both supplied artifacts at the same viewport",
+        "Compares concrete type size, KPI structure, verdict emphasis, notes, density, and computed color values",
+        "Checks units, source/provenance, selected time range, and freshness; lists loading, empty, filtered-no-match, permission, and error branches as unverified unless actually exercised",
+        "Flags target hardcoded series colors and separates semantic status from categorical identity colors",
+        "Uses project/reference measurements and standards-backed color checks rather than inventing a universal visual-tier or delta-E rule"
+      ],
+      "files": [
+        "evals/files/data-viz-reference.html",
+        "evals/files/data-viz-target.html"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "map-mobile-interaction",
+      "prompt": "Audit evals/files/gis-fixture.html as a GIS workbench at desktop and mobile widths. Give an evidence-backed pass/fail verdict for map interaction, target usability, and the open detail drawer.",
+      "expected_output": "A GIS audit that exercises what exists, identifies missing interaction, and measures the mobile drawer/target problems.",
+      "expectations": [
+        "Renders and inspects the fixture at desktop and mobile widths",
+        "Attempts zoom, pan, reset/fit, selection, and clear-selection and records that the required map interactions are absent",
+        "Measures or directly inspects dense marker target size/spacing and obstruction by labels or the drawer",
+        "Captures the open mobile drawer state and reports width, close-path, overflow, and scroll ownership evidence"
+      ],
+      "files": [
+        "evals/files/gis-fixture.html"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "route-state-addressability",
+      "prompt": "Audit evals/files/route-state-fixture.html. Exercise Overview, Queue, and Map, then test refresh, direct hash/deep link, and browser back/forward. Do not stop after confirming the buttons change visible text.",
+      "expected_output": "A route-state drift finding backed by click, URL, refresh, deep-link, and history evidence.",
+      "expectations": [
+        "Clicks all three workspace controls and records visible active state and URL after each",
+        "Detects that visible content changes while URL/history remain unchanged",
+        "Tests refresh, a direct deep link, and back/forward rather than inferring addressability",
+        "Reports route-state drift with exact state and evidence"
+      ],
+      "files": [
+        "evals/files/route-state-fixture.html"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "mechanical-layout-sweep",
+      "prompt": "Audit evals/files/layout-defects.html with the bundled visual_layout_audit.mjs and the current project's existing Playwright driver, if one is available; do not install or add a dependency. When the driver is available, inspect every generated viewport screenshot and triage the report. When it is absent, record the script's exit-2 prerequisite failure and mark the Level C sweep blocked. Do not edit the fixture.",
+      "expected_output": "With an existing driver, a reproducible Level C sweep that catches the ineffective mobile viewport, clipping, wrapped control, and overflow, followed by actual screenshot inspection; without one, an honest blocked result with the exact prerequisite failure and no project mutation.",
+      "expectations": [
+        "Runs the bundled script against the supplied file and records its exit code and report path, or records exit 2 and the exact missing-driver prerequisite when no existing driver is available",
+        "When the sweep runs, detects the missing/ineffective mobile viewport, clipping, wrapped control, and horizontal overflow candidates",
+        "When screenshots are generated, opens and inspects the desktop and mobile screenshots and identifies the deliberately overlapping schedule events even if the mechanical report does not flag arbitrary element collisions",
+        "Keeps the result audit-only, does not install a driver, and distinguishes mechanical findings or a blocked sweep from a full GUI verdict"
+      ],
+      "files": [
+        "evals/files/layout-defects.html"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "static-image-observation-boundary",
+      "prompt": "Review only the static image evals/files/static-review.png. Identify visible composition and typography problems, but do not invent DOM values, route behavior, focus behavior, or interactions that a static image cannot prove.",
+      "expected_output": "A screenshot-only critique that is concrete about visible defects and explicit about unverified behavior.",
+      "expectations": [
+        "Actually opens and inspects the supplied image",
+        "Identifies the orphan heading line, wrapped action label, unbalanced empty canvas, chrome/canvas contrast, and generic permanent rail",
+        "Ties each finding to visible image evidence and user impact",
+        "Explicitly marks DOM geometry, responsive behavior, routes, focus, and interaction as unverified"
+      ],
+      "files": [
+        "evals/files/static-review.png"
+      ]
+    },
+    {
+      "id": 8,
+      "name": "lazy-media-and-responsive-branch-evidence",
+      "prompt": "Audit evals/files/lazy-responsive-media-fixture.html at 1440x900 and 390x844 with the bundled visual_layout_audit.mjs and an existing Playwright driver. First run without media scrolling, then run with --scroll-visible-media. Do not install dependencies or edit the fixture.",
+      "expected_output": "A media-state audit that distinguishes deferred lazy covers from broken assets, primes only the CSS-rendered desktop/mobile branch, and proves the requested visible covers load after their rows are visited.",
+      "expectations": [
+        "Without media scrolling, reports below-the-fold lazy covers as deferred coverage rather than image-broken or image-source-missing",
+        "With --scroll-visible-media, visits rendered media rows and reports the current viewport's covers loaded with no deferred or broken images",
+        "Counts the inactive responsive branch as not rendered and never waits for, scrolls to, or requires its images to load",
+        "Records commands, exit codes, report paths, and screenshot inspection; uses no dependency installation or project mutation"
+      ],
+      "files": [
+        "evals/files/lazy-responsive-media-fixture.html"
+      ]
+    }
+  ]
+}

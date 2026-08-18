@@ -1,0 +1,7 @@
+{
+  "category": "document-data-processing",
+  "source": "scratch",
+  "scratch_rationale": "Built specifically for this benchmark rather than adapted, so results for this category entry aren't biased toward a skill any one arm's authors already know how to handle. Fills a genuine gap: none of daymade's document-processing-adjacent skills (excel-automation, repomix-safe-mixer, repomix-unmixer) test structured-data comparison/diffing, which is a distinct and common real task.",
+  "live_dependency": false,
+  "live_dependency_note": "Pure local file comparison (CSV/JSON inputs provided as fixtures). No live external service."
+}

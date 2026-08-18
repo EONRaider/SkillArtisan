@@ -1,0 +1,11 @@
+{
+  "category": "research-analysis",
+  "source": "daymade",
+  "origin_skill": "fact-checker",
+  "origin_repo": "daymade/claude-code-skills",
+  "origin_commit": "d24f6d1",
+  "evals_reused": false,
+  "evals_reused_note": "Origin ships no evals/ directory. Authored fresh from the origin SKILL.md's 5-step workflow (identify claims, search authoritative sources, compare with status codes, generate a correction report, apply only with user approval).",
+  "live_dependency": true,
+  "live_dependency_note": "Genuinely needs live web search to verify current facts (model specs, version numbers) — same tension as bilibili-source. Resolution: same technique as bilibili-source's meta.json — expectations grade methodology fidelity (searched official sources, correctly classified factual vs. subjective content, cited a source, asked before applying corrections, distinguished outdated-but-was-true from simply-incorrect) rather than requiring a specific frozen 'correct' answer, since sound process naturally converges on whatever is currently true. Flagged live=true for the same rep-count-capping treatment in Phase 3's harness."
+}

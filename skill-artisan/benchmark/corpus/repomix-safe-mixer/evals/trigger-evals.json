@@ -1,0 +1,18 @@
+[
+  {"query": "Pack this codebase with repomix so I can share it with a contractor.", "should_trigger": true},
+  {"query": "Before I distribute this reference package, check it for hardcoded API keys.", "should_trigger": true},
+  {"query": "I'm worried this repo has a leaked secret somewhere before I pack it up for an LLM.", "should_trigger": true},
+  {"query": "Scan this directory for credentials and pack it with repomix if it's clean.", "should_trigger": true},
+  {"query": "Is it safe to hand this codebase to someone as a repomix bundle?", "should_trigger": true},
+  {"query": "Create a shareable reference package of this project, but make sure there's nothing sensitive in it first.", "should_trigger": true},
+  {"query": "Pack ./api-server for distribution — double check no .env secrets are baked in.", "should_trigger": true},
+  {"query": "I need a repomix bundle of this repo I can safely post publicly.", "should_trigger": true},
+  {"query": "Scan and remove sensitive data from this repo's git commit history before I force-push.", "should_trigger": false},
+  {"query": "Extract the individual files back out of this repomix-packed XML file.", "should_trigger": false},
+  {"query": "Just run gitleaks on this repo and give me the raw report, no packaging needed.", "should_trigger": false},
+  {"query": "Zip up my project folder so I can email it to a client.", "should_trigger": false},
+  {"query": "Review this pull request for a hardcoded secret in the diff.", "should_trigger": false},
+  {"query": "Rotate our production API key since it might have been exposed somewhere.", "should_trigger": false},
+  {"query": "Convert this repomix Markdown output back into the original folder structure.", "should_trigger": false},
+  {"query": "Compress this project folder into a .tar.gz archive.", "should_trigger": false}
+]

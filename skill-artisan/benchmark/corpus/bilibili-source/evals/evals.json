@@ -1,0 +1,88 @@
+{
+  "skill_name": "bilibili-source",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm writing up a short analysis of this B站 video: https://www.bilibili.com/video/BV17x411w7KC — I need the actual play count, likes and favorites to cite, not rough numbers. Can you get them?",
+      "expected_output": "Fetches real, current stats via the skill's fetch mechanism (not an estimate), reports view/like/favorite from that response, and includes a fetch timestamp alongside the numbers since they are live snapshots. Grade against the actual fetch response returned during this run, not a fixed golden value — the numeric answer legitimately differs between benchmark reruns.",
+      "expectations": [
+        "Uses a real fetch call (script/API) rather than estimating or hand-typing a number",
+        "Reports view/like/favorite figures that match what that fetch call actually returned",
+        "Includes a timestamp for when the data was fetched, not presented as a timeless fact",
+        "Does not round or approximate the fetched numbers as if they were rough estimates"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "这个 B站 视频 av170001 弹幕里大家都在说什么？我想了解观众的真实反应",
+      "expected_output": "Recognizes danmaku (bullet comments) as the relevant signal, fetches actual danmaku text using the av-number form of the reference (no BVID required), and does not fabricate comments if the fetch returns few or none.",
+      "expectations": [
+        "Correctly resolves the av-number input without requiring the user to supply a BVID",
+        "Fetches and returns actual danmaku text, not just a danmaku count",
+        "Does not invent representative-sounding comments if the real fetch returns sparse or empty results"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Grab the subtitle transcript from this bilibili video BV17x411w7KC so I can summarize what it's about.",
+      "expected_output": "Recognizes subtitles are login-gated on Bilibili, asks before using the user's login/cookies, and does not claim a login-free path exists for this specific capability.",
+      "expectations": [
+        "States plainly that subtitle access requires the user's Bilibili login",
+        "Asks for explicit permission before using browser cookies / stored login state",
+        "Does not fabricate a transcript if no subtitle track exists or access is denied",
+        "Treats an auto-generated subtitle track (if fetched) as a draft, not a verified verbatim transcript"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "朋友发我一个 b23.tv 短链，说是个多P的合集视频，帮我看看有几个分P、每个分P的 cid 是多少，UP 有多少粉丝",
+      "expected_output": "Resolves the b23.tv short link directly, reports the part count and each part's cid individually (not just a top-level id), and reports the uploader's follower count from the same fetch.",
+      "expectations": [
+        "Accepts and resolves the b23.tv short-link form without asking the user to convert it first",
+        "Reports per-part cids for a multi-part video, not just a single top-level identifier",
+        "Reports the uploader's follower count from the same call",
+        "Does not claim short links or multi-part videos are unsupported"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "This video (BV1abcdefgh) seems to have been taken down or made private — the page won't load for me. Can you still get me the stats?",
+      "expected_output": "Attempts the real fetch, and when it fails (deleted/private/invalid), reports that failure honestly rather than fabricating plausible-looking stats to fill the gap.",
+      "expectations": [
+        "Actually attempts the fetch rather than assuming failure without trying",
+        "On a genuine fetch failure, states clearly that the data could not be retrieved and why (if determinable)",
+        "Does not invent view/like/favorite numbers to avoid returning an unhelpful answer"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Pull the stats for BV17x411w7KC and drop them straight into a paragraph I can paste into my report — no need to show me the raw JSON.",
+      "expected_output": "Fetches real stats and writes prose that still carries the fetch discipline through into the final text — e.g. the timestamp or 'as of' framing survives into the written paragraph, not just the raw tool output.",
+      "expectations": [
+        "Produces the requested prose paragraph, not a raw data dump",
+        "The written prose still communicates when the numbers were captured (not presented as eternally-true facts)",
+        "Numbers in the prose match what the real fetch actually returned"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Here's a Bilibili search results page URL — https://search.bilibili.com/all?keyword=investing — pull the stats for whatever the top video is.",
+      "expected_output": "Recognizes a search-results URL is not a resolvable single-video reference (not a BVID/av/b23.tv/video URL) and asks for a specific video reference instead of guessing which result the user means.",
+      "expectations": [
+        "Does not treat a search-results page as a valid video reference",
+        "Explicitly asks the user to identify which specific video they mean",
+        "Does not guess or fabricate a plausible-looking 'top result' to avoid asking"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Compare engagement between these two videos for me: BV17x411w7KC and BV1xx411c7mD — likes, favorites, and view count side by side.",
+      "expected_output": "Fetches both videos independently and presents a correctly-attributed side-by-side comparison, without conflating or cross-contaminating the two results.",
+      "expectations": [
+        "Performs two separate real fetches, one per video reference",
+        "Each reported number is correctly attributed to the right video in the comparison",
+        "Does not silently drop one video or merge the two datasets"
+      ]
+    }
+  ]
+}

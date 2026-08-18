@@ -1,0 +1,88 @@
+{
+  "skill_name": "auto-repo-setup",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "A collaborator uses either Claude Code or Codex in this repository. I want the latest remote changes before work. Can we just tell the agent once instead of making a launcher or a large synchronization service?",
+      "expected_output": "Routes to the session-routine path: a natural-language or project-instruction workflow, git pull --ff-only on a clean worktree only, no auto-stash/merge/rebase/overwrite, and no hook proposed since pre-prompt timing wasn't required.",
+      "expectations": [
+        "Does not propose a launcher, shortcut, or custom synchronization daemon",
+        "Uses project instructions or a normal agent request as the default mechanism, per the 'least mechanism' operating principle",
+        "Preserves dirty/diverged work rather than auto-stashing or force-overwriting",
+        "Does not propose a lifecycle hook for this ordinary sync request"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I see the same SessionStart message three times. Find out why and tell me what to change. Do not assume there are three registrations.",
+      "expected_output": "Routes to hook-diagnosis mode: audits all hook scopes and correlates firings with root/resume/compact/subagent sessions before editing anything, rather than assuming duplicate configuration.",
+      "expectations": [
+        "Counts actual hook registrations before changing any configuration",
+        "Correlates each observed firing with its lifecycle source or agent session rather than guessing",
+        "States a verified root cause (not an assumption) before proposing a fix"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "This TypeScript repository has package.json and package-lock.json, no Python files, and no ONBOARDING.md. Help me get it running.",
+      "expected_output": "Routes to environment-repair mode: detects the real stack from the lockfile, uses npm, and verifies the project's own start/test path rather than inventing requirements or a new onboarding doc.",
+      "expectations": [
+        "Detects npm specifically from package-lock.json rather than defaulting to another package manager",
+        "Does not require Python, uv, ffmpeg, or a .env file the repo never declared",
+        "Does not stop to ask whether to create ONBOARDING.md when nothing indicates one is needed",
+        "Verifies success via the project's actual start/test command, not just 'dependencies installed'"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I explicitly need a dynamic setup reminder injected before the first Claude Code prompt. Install it without touching my existing PreToolUse hooks, and make sure resume and compact do not fire it.",
+      "expected_output": "Routes to startup-automation mode (genuine pre-prompt timing requirement): passes the hook gate, previews the change, preserves unrelated settings, installs one SessionStart group with matcher startup, and documents removal.",
+      "expectations": [
+        "Uses matcher 'startup' specifically so resume/compact do not also fire it",
+        "Preserves unrelated existing settings, including the existing PreToolUse hooks",
+        "Previews the change before applying it and documents how to remove it",
+        "Does not silently duplicate an already-existing managed entry"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "I found a hardcoded AWS key in the last commit I made locally but haven't pushed yet. Help me clean this up.",
+      "expected_output": "Routes to git-safety mode: reads the git-safety reference before any mutation, and handles this as a guarded workflow (e.g. amend or interactive history edit on an unpushed commit) rather than jumping straight to a destructive rewrite without safeguards.",
+      "expectations": [
+        "Recognizes this as a git-safety scenario, not an ordinary sync/environment-repair request",
+        "Does not silently force-push or rewrite shared history without first checking whether the commit was ever pushed",
+        "Explains the actual remediation step clearly before performing it"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "A new teammate is joining next week and needs to get productive on this repo fast. What's missing from our onboarding?",
+      "expected_output": "Routes to repository-handoff mode: audits what onboarding material already exists and fills only the genuinely missing operational contract, rather than writing a full onboarding doc from scratch regardless of what's already there.",
+      "expectations": [
+        "Checks for existing onboarding material (README, AGENTS.md, CONTRIBUTING, etc.) before proposing new content",
+        "Identifies specific, concrete gaps rather than a generic 'you should have better docs' response",
+        "Does not duplicate content that already exists elsewhere in the repo"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Just set up a quick launcher script so I don't have to remember to say 'sync the remote' every time I start working.",
+      "expected_output": "Declines to build a bespoke launcher/wizard for something a plain natural-language request or project instruction already covers, per the skill's explicit 'do not infer competence from role, do not invent a launcher unless asked with genuine justification' principle — while still explaining the lighter-weight alternative.",
+      "expectations": [
+        "Does not simply build the requested launcher script without first surfacing the lighter-weight project-instruction alternative",
+        "Explains why the least-mechanism approach is preferred here",
+        "If the user insists after hearing the tradeoff, respects that — this is about not defaulting to heavy mechanism, not refusing outright"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "This Python repo has requirements.txt AND a pyproject.toml with different dependency lists, and the previous person on this project isn't around to ask. Get it running.",
+      "expected_output": "Routes to environment-repair mode, and specifically surfaces the conflicting dependency declarations as a real finding rather than silently picking one file and ignoring the discrepancy.",
+      "expectations": [
+        "Notices and reports the conflicting dependency sources rather than silently choosing one without comment",
+        "Bases the choice (or the question back to the user) on real evidence from the repo, not a guess",
+        "Still attempts to get a working environment rather than stalling entirely on the ambiguity"
+      ]
+    }
+  ]
+}

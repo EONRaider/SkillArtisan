@@ -1,0 +1,6 @@
+
+Clean scan — wrote .security-scan-passed.
+Reminder: this is a keyword-based gate only. It does not catch real project/person names,
+non-English content (gitleaks does not cover CJK), or verbatim lines lifted from real
+transcripts — none of that has a secret signature to match. Before publishing to a public
+repo, read the skill yourself — see references/sanitization-checklist.md.

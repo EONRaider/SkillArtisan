@@ -1,0 +1,18 @@
+[
+  {"query": "Extract a design system from these reference UI screenshots for my new app.", "should_trigger": true},
+  {"query": "I have mockups I like the look of — pull out the color palette, typography, and spacing into documentation.", "should_trigger": true},
+  {"query": "Build an MVP UI that matches the aesthetic of these reference screenshots.", "should_trigger": true},
+  {"query": "Generate implementation-ready UI prompts based on this design system and my product idea.", "should_trigger": true},
+  {"query": "I don't have a PRD yet, but I have reference images — help me build both before generating UI prompts.", "should_trigger": true},
+  {"query": "These screenshots are dark mode — extract the design tokens including dark mode variants.", "should_trigger": true},
+  {"query": "Create consistent UI variations for my app following the design language in these references.", "should_trigger": true},
+  {"query": "Turn these competitor app screenshots into a reusable design system doc for our team.", "should_trigger": true},
+  {"query": "Audit this already-built page for visual bugs and layout defects.", "should_trigger": false},
+  {"query": "Generate multiple different visual style directions since I can't describe what I want.", "should_trigger": false},
+  {"query": "Write the actual React components implementing this existing design spec.", "should_trigger": false},
+  {"query": "Explain the difference between a design system and a component library.", "should_trigger": false},
+  {"query": "Create a QA test plan for this application.", "should_trigger": false},
+  {"query": "Fix the layout overflow bug on this page's mobile view.", "should_trigger": false},
+  {"query": "Write a product requirements document for a new feature, no design work needed.", "should_trigger": false},
+  {"query": "Compress and optimize these image files for faster page load.", "should_trigger": false}
+]

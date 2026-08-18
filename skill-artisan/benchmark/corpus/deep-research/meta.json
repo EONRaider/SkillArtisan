@@ -1,0 +1,11 @@
+{
+  "category": "research-analysis",
+  "source": "daymade",
+  "origin_skill": "deep-research",
+  "origin_repo": "daymade/claude-code-skills",
+  "origin_commit": "d24f6d1",
+  "evals_reused": false,
+  "evals_reused_note": "Origin ships no evals/ directory. Authored fresh from the origin SKILL.md's P0-P7 pipeline, source-type governance (AS_OF freshness, circular-verification-forbidden), anti-hallucination rules (never invent URLs, mark unverified numbers), and mandatory counter-review with a minimum-3-issues bar.",
+  "live_dependency": true,
+  "live_dependency_note": "Genuinely needs live web search/research capability to produce a real report. Same resolution as fact-checker and bilibili-source: expectations grade methodology fidelity (source governance followed, counter-review actually performed and found real issues, no fabricated citations/URLs, mode correctly selected) rather than requiring the report's specific factual content to match a frozen golden answer. Flagged live=true for the same rep-count-capping treatment in Phase 3's harness."
+}

@@ -1,0 +1,187 @@
+[
+  {
+    "skill": "excel-automation",
+    "arm": "skill-creator",
+    "declared_name": "excel-automation",
+    "pass_rate": 0.786,
+    "passed": 11,
+    "failed": 3,
+    "warned": 3,
+    "manual": 4,
+    "decision": "upgrade-in-place",
+    "fail_ids": [
+      "references-toc-for-long-files",
+      "security-scan-marker-current",
+      "lifecycle-classified"
+    ]
+  },
+  {
+    "skill": "excel-automation",
+    "arm": "daymade-fork",
+    "declared_name": "excel-automation",
+    "pass_rate": 0.733,
+    "passed": 11,
+    "failed": 4,
+    "warned": 2,
+    "manual": 4,
+    "decision": "upgrade-in-place",
+    "fail_ids": [
+      "references-toc-for-long-files",
+      "security-scan-marker-current",
+      "security-pattern-checks",
+      "lifecycle-classified"
+    ]
+  },
+  {
+    "skill": "excel-automation",
+    "arm": "skillforge",
+    "declared_name": "excel-automation",
+    "pass_rate": 0.733,
+    "passed": 11,
+    "failed": 4,
+    "warned": 2,
+    "manual": 4,
+    "decision": "upgrade-in-place",
+    "fail_ids": [
+      "references-toc-for-long-files",
+      "evals-present",
+      "security-scan-marker-current",
+      "lifecycle-classified"
+    ]
+  },
+  {
+    "skill": "excel-automation",
+    "arm": "creating-skills",
+    "declared_name": "building-excel-reports",
+    "pass_rate": 0.938,
+    "passed": 15,
+    "failed": 1,
+    "warned": 1,
+    "manual": 4,
+    "decision": "upgrade-in-place",
+    "fail_ids": [
+      "references-toc-for-long-files"
+    ]
+  },
+  {
+    "skill": "debugging-network-issues",
+    "arm": "skill-creator",
+    "declared_name": "debugging-network-issues",
+    "pass_rate": 0.867,
+    "passed": 13,
+    "failed": 2,
+    "warned": 2,
+    "manual": 4,
+    "decision": "upgrade-in-place",
+    "fail_ids": [
+      "security-scan-marker-current",
+      "lifecycle-classified"
+    ]
+  },
+  {
+    "skill": "debugging-network-issues",
+    "arm": "daymade-fork",
+    "declared_name": "debugging-network-issues",
+    "pass_rate": 0.8,
+    "passed": 12,
+    "failed": 3,
+    "warned": 2,
+    "manual": 4,
+    "decision": "upgrade-in-place",
+    "fail_ids": [
+      "references-toc-for-long-files",
+      "security-scan-marker-current",
+      "lifecycle-classified"
+    ]
+  },
+  {
+    "skill": "debugging-network-issues",
+    "arm": "skillforge",
+    "declared_name": "debugging-network-issues",
+    "pass_rate": 0.765,
+    "passed": 13,
+    "failed": 4,
+    "warned": 0,
+    "manual": 4,
+    "decision": "upgrade-in-place",
+    "fail_ids": [
+      "references-toc-for-long-files",
+      "evals-present",
+      "security-scan-marker-current",
+      "lifecycle-classified"
+    ]
+  },
+  {
+    "skill": "debugging-network-issues",
+    "arm": "creating-skills",
+    "declared_name": "debugging-network-issues",
+    "pass_rate": 1.0,
+    "passed": 16,
+    "failed": 0,
+    "warned": 1,
+    "manual": 4,
+    "decision": "upgrade-in-place",
+    "fail_ids": []
+  },
+  {
+    "skill": "narrative-arc-builder",
+    "arm": "skill-creator",
+    "declared_name": "narrative-arc-builder",
+    "pass_rate": 0.786,
+    "passed": 11,
+    "failed": 3,
+    "warned": 3,
+    "manual": 4,
+    "decision": "upgrade-in-place",
+    "fail_ids": [
+      "references-toc-for-long-files",
+      "security-scan-marker-current",
+      "lifecycle-classified"
+    ]
+  },
+  {
+    "skill": "narrative-arc-builder",
+    "arm": "daymade-fork",
+    "declared_name": "narrative-arc-builder",
+    "pass_rate": 0.786,
+    "passed": 11,
+    "failed": 3,
+    "warned": 3,
+    "manual": 4,
+    "decision": "upgrade-in-place",
+    "fail_ids": [
+      "references-toc-for-long-files",
+      "security-scan-marker-current",
+      "lifecycle-classified"
+    ]
+  },
+  {
+    "skill": "narrative-arc-builder",
+    "arm": "skillforge",
+    "declared_name": "narrative-arc-builder",
+    "pass_rate": 0.733,
+    "passed": 11,
+    "failed": 4,
+    "warned": 2,
+    "manual": 4,
+    "decision": "upgrade-in-place",
+    "fail_ids": [
+      "references-toc-for-long-files",
+      "evals-present",
+      "security-scan-marker-current",
+      "lifecycle-classified"
+    ]
+  },
+  {
+    "skill": "narrative-arc-builder",
+    "arm": "creating-skills",
+    "declared_name": "building-narrative-arcs",
+    "pass_rate": 1.0,
+    "passed": 17,
+    "failed": 0,
+    "warned": 0,
+    "manual": 4,
+    "decision": "upgrade-in-place",
+    "fail_ids": []
+  }
+]

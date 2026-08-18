@@ -1,0 +1,7 @@
+{
+  "category": "research-analysis",
+  "source": "scratch",
+  "scratch_rationale": "Built specifically for this benchmark rather than adapted. Fills a genuine gap distinct from the two adapted research-analysis skills: fact-checker verifies whether a stated factual claim is true, and deep-research produces a sourced report — neither questions whether a dataset's own methodology (sampling, measurement, comparison group) is sound enough to support the conclusions being drawn from it. This is a common, distinct failure mode ('the numbers are accurate but the study is still misleading').",
+  "live_dependency": false,
+  "live_dependency_note": "Text-based methodology-critique task against a described dataset/study — no live external service needed to grade correctly; the described methodology is provided in the prompt itself."
+}

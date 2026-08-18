@@ -1,0 +1,11 @@
+{
+  "category": "creative-design",
+  "source": "daymade",
+  "origin_skill": "design-style-picker",
+  "origin_repo": "daymade/claude-code-skills",
+  "origin_commit": "d24f6d1",
+  "evals_reused": false,
+  "evals_reused_note": "Origin ships no evals/ directory. Authored fresh from the origin SKILL.md's 6-step workflow (restate target, collect existing assets first, generate a matrix not minor variants, use color as a system, review before presenting, implement from selected images via principle-extraction not pixel-copying).",
+  "live_dependency": true,
+  "live_dependency_note": "Depends on an actual image-generation capability to produce real visual options, which is runtime/tool-availability dependent. Same resolution as fact-checker/deep-research: expectations grade process fidelity (genuinely distinct options generated, ≥2 axes used, existing assets read first, self-review performed before presenting, implementation extracts principles rather than copying pixels) rather than requiring specific generated image content, since the visual outcome isn't something a fixed golden answer can meaningfully pin down anyway."
+}

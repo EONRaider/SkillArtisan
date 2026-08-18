@@ -1,0 +1,18 @@
+[
+  {"query": "帮我调研一下这个行业的竞争格局，写一份深度报告", "should_trigger": true},
+  {"query": "Write a literature review on recent advances in this research area.", "should_trigger": true},
+  {"query": "Give me a competitive analysis of the top players in this market.", "should_trigger": true},
+  {"query": "技术选型分析：帮我对比这几个框架的优劣", "should_trigger": true},
+  {"query": "Produce a policy brief on this proposed regulation with citations.", "should_trigger": true},
+  {"query": "综述一下这个领域最近的研究进展", "should_trigger": true},
+  {"query": "Research this company's market position and write a report with sources.", "should_trigger": true},
+  {"query": "I need a survey of the current state of the art on this technical topic.", "should_trigger": true},
+  {"query": "Fact-check this one specific sentence in my document against official sources.", "should_trigger": false},
+  {"query": "Summarize this single article in three bullet points.", "should_trigger": false},
+  {"query": "What's the weather like today?", "should_trigger": false},
+  {"query": "Write a short opinion piece about why I think remote work is better.", "should_trigger": false},
+  {"query": "Debug why this API call keeps returning a 500 error.", "should_trigger": false},
+  {"query": "Translate this paragraph from French to English.", "should_trigger": false},
+  {"query": "Extract the real engagement stats for this video from the platform's API.", "should_trigger": false},
+  {"query": "Proofread this essay for grammar and clarity.", "should_trigger": false}
+]

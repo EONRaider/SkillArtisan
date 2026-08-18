@@ -1,0 +1,18 @@
+[
+  {"query": "I can't describe the style I want — just generate a bunch of visual options for me to react to.", "should_trigger": true},
+  {"query": "Show me several different visual directions for this dashboard so I can pick the one closest to what I want.", "should_trigger": true},
+  {"query": "This design feels too colorful — give me some toned-down alternatives to compare.", "should_trigger": true},
+  {"query": "I rejected the last three mockups as too generic — batch-generate more options with clearer contrast between them.", "should_trigger": true},
+  {"query": "Evolve our existing design system without throwing away the current components — show me a few visual directions.", "should_trigger": true},
+  {"query": "Give me a color-intensity ladder for this UI, from muted to bold, so I can pick a level.", "should_trigger": true},
+  {"query": "I want to see multiple visual style options for this landing page before committing to one.", "should_trigger": true},
+  {"query": "Batch-generate some UI style variations based on these reference screenshots I like.", "should_trigger": true},
+  {"query": "Extract the design system (colors, typography, spacing) from these screenshots into documentation.", "should_trigger": false},
+  {"query": "Audit this already-built page for visual bugs like overlap and overflow.", "should_trigger": false},
+  {"query": "Build a working React component from this design spec.", "should_trigger": false},
+  {"query": "Generate a single polished hero image for our marketing page, I already know exactly what I want.", "should_trigger": false},
+  {"query": "Write the CSS to implement this exact Figma design, pixel for pixel.", "should_trigger": false},
+  {"query": "Create a full QA test plan for this application's UI.", "should_trigger": false},
+  {"query": "Explain the difference between CSS Grid and Flexbox with code examples.", "should_trigger": false},
+  {"query": "Write the backend API for saving a user's theme preference.", "should_trigger": false}
+]

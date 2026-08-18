@@ -94,32 +94,40 @@ def load_run_results(benchmark_dir: Path) -> dict:
                     print(f"Warning: invalid JSON in {grading_file}: {e}", file=sys.stderr)
                     continue
 
+                # `.get(key, default)` only falls back to `default` when the key is
+                # ABSENT — a grader that legitimately couldn't recover timing/tool-call
+                # data (no metrics.json/timing.json in the run directory, a real case
+                # this project's own grader.md handles by writing the field with an
+                # explicit `null` rather than omitting it) leaves the key present with
+                # value None, which .get() happily returns and calculate_stats then
+                # crashes on (`sum([..., None, ...])`). `or default` coerces both
+                # "missing" and "explicitly null" to the same safe default.
                 summary = grading.get("summary", {})
                 result = {
                     "eval_id": eval_id,
                     "run_number": run_number,
-                    "pass_rate": summary.get("pass_rate", 0.0),
-                    "passed": summary.get("passed", 0),
-                    "failed": summary.get("failed", 0),
-                    "total": summary.get("total", 0),
+                    "pass_rate": summary.get("pass_rate") or 0.0,
+                    "passed": summary.get("passed") or 0,
+                    "failed": summary.get("failed") or 0,
+                    "total": summary.get("total") or 0,
                 }
 
-                timing = grading.get("timing", {})
-                result["time_seconds"] = timing.get("total_duration_seconds", 0.0)
+                timing = grading.get("timing", {}) or {}
+                result["time_seconds"] = timing.get("total_duration_seconds") or 0.0
                 timing_file = run_dir / "timing.json"
                 if result["time_seconds"] == 0.0 and timing_file.exists():
                     try:
                         timing_data = json.loads(timing_file.read_text())
-                        result["time_seconds"] = timing_data.get("total_duration_seconds", 0.0)
-                        result["tokens"] = timing_data.get("total_tokens", 0)
+                        result["time_seconds"] = timing_data.get("total_duration_seconds") or 0.0
+                        result["tokens"] = timing_data.get("total_tokens") or 0
                     except json.JSONDecodeError:
                         pass
 
-                metrics = grading.get("execution_metrics", {})
-                result["tool_calls"] = metrics.get("total_tool_calls", 0)
+                metrics = grading.get("execution_metrics", {}) or {}
+                result["tool_calls"] = metrics.get("total_tool_calls") or 0
                 if not result.get("tokens"):
-                    result["tokens"] = metrics.get("output_chars", 0)
-                result["errors"] = metrics.get("errors_encountered", 0)
+                    result["tokens"] = metrics.get("output_chars") or 0
+                result["errors"] = metrics.get("errors_encountered") or 0
 
                 expectations = grading.get("expectations", [])
                 for exp in expectations:

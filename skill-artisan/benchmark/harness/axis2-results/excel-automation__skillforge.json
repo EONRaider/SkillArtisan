@@ -1,0 +1,157 @@
+{
+  "skill_name": "excel-automation",
+  "description": "Use when building a polished or professional-looking Excel report with openpyxl (borders, number formats, header/freeze-pane styling \u2014 not general visual design like logos or custom fonts); when an openpyxl read of a large or complex .xlsm investment-banking or financial model chokes, hangs, or silently mangles data during extraction (not for repairing broken formula logic inside the model); or when scrolling to a cell, zooming, or selecting a range in the Excel window on macOS via AppleScript/osascript (not general Excel scripting or plain data entry on Mac). Covers a decision test for when raw zipfile+XML parsing is needed instead of openpyxl for pathological .xlsm files, and a timeout-safe AppleScript/osascript invocation pattern so window-control calls cannot hang indefinitely if Excel is not responding. The window-control piece is macOS-only.",
+  "results": [
+    {
+      "query": "Build me a formatted quarterly sales report as an Excel file, not just a raw data dump.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "This .xlsm investment-bank model throws an error in openpyxl \u2014 can you parse it anyway and pull out one sheet?",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Scroll the currently-open Excel window to cell B12 and zoom to 150%.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "I need a professional-looking spreadsheet \u2014 borders, header shading, currency formatting on the totals.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Extract just the 'Assumptions' sheet from this big xlsm financial model.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Automate control of the Excel window on my Mac via AppleScript \u2014 select a range, then zoom.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "The sheet names came out mangled after parsing this xlsm \u2014 fix the corrupted names.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": false
+    },
+    {
+      "query": "Create an .xlsx with a totals row and proper number formatting for these monthly figures.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": false
+    },
+    {
+      "query": "This xlsm is over a megabyte and openpyxl is choking on it \u2014 parse it a different way.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Export this pandas DataFrame to a plain CSV file.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "There's a broken formula in this Google Sheet \u2014 can you fix it?",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Write a VBA macro for this Excel workbook that auto-formats new rows on entry.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Read this 10-row CSV and tell me the column totals.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Convert this Word document into a PDF.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Control the open Numbers spreadsheet window on my Mac via AppleScript \u2014 scroll and zoom in.",
+      "should_trigger": false,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": false
+    },
+    {
+      "query": "Based on these numbers I'll type out here, what's driving the increase in Q3 revenue?",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Scroll the open PDF viewer to page 12 and zoom in on the chart.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Generate a PowerPoint deck summarizing this quarter's numbers.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 18,
+    "passed": 15,
+    "failed": 3,
+    "should_trigger_pass_rate": 0.7777777777777778,
+    "should_not_trigger_pass_rate": 0.8888888888888888
+  }
+}

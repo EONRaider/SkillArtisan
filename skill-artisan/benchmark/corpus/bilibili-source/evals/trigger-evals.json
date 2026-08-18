@@ -1,0 +1,19 @@
+[
+  {"query": "Get me the real view/like/favorite counts for this Bilibili video: BV17x411w7KC", "should_trigger": true},
+  {"query": "这个 B站 视频弹幕里大家都在说什么？我想了解真实反应", "should_trigger": true},
+  {"query": "Grab the subtitle transcript from this bilibili video so I can summarize it.", "should_trigger": true},
+  {"query": "帮我看看这个 b23.tv 短链视频有几个分P、每个分P的 cid 是多少", "should_trigger": true},
+  {"query": "I need to verify a creator's claimed view count on their B站 video before I cite it.", "should_trigger": true},
+  {"query": "What's the UP's follower count for av170001?", "should_trigger": true},
+  {"query": "Compare the like counts between these two Bilibili videos.", "should_trigger": true},
+  {"query": "I'm building a case study and need to cite this Bilibili video's real engagement numbers, not estimates.", "should_trigger": true},
+  {"query": "Pull the danmaku text for this Bilibili video's second part.", "should_trigger": true},
+  {"query": "Get me the view count and comment sentiment for this YouTube video.", "should_trigger": false},
+  {"query": "What kind of content tends to do well on Bilibili's recommendation algorithm?", "should_trigger": false},
+  {"query": "Watch this Bilibili video and summarize what it's actually about.", "should_trigger": false},
+  {"query": "Translate the Japanese danmaku on this video into English for me.", "should_trigger": false},
+  {"query": "Download this Bilibili video's video file so I can edit it locally.", "should_trigger": false},
+  {"query": "Post a comment on this Bilibili video on my behalf.", "should_trigger": false},
+  {"query": "What's a typical engagement rate for a mid-size YouTube channel?", "should_trigger": false},
+  {"query": "Get the follower count and stats for this Twitter/X account.", "should_trigger": false}
+]

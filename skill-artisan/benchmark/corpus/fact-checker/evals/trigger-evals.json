@@ -1,0 +1,18 @@
+[
+  {"query": "Fact-check this document and flag anything outdated or incorrect.", "should_trigger": true},
+  {"query": "Verify these AI model specifications are still accurate.", "should_trigger": true},
+  {"query": "Check if this statistic I cited two years ago is still current.", "should_trigger": true},
+  {"query": "Validate the technical claims in this README against official documentation.", "should_trigger": true},
+  {"query": "Is this pricing information in our docs still correct?", "should_trigger": true},
+  {"query": "Go through this report and confirm every factual claim is backed by a real source.", "should_trigger": true},
+  {"query": "This blog post has some numbers in it — verify they're accurate before I publish.", "should_trigger": true},
+  {"query": "Update the outdated version numbers in this document after checking what's current.", "should_trigger": true},
+  {"query": "Give me your honest opinion on whether this document's writing style is engaging.", "should_trigger": false},
+  {"query": "Write a research report summarizing the competitive landscape in this industry.", "should_trigger": false},
+  {"query": "Proofread this document for grammar and spelling errors.", "should_trigger": false},
+  {"query": "Summarize the key points of this technical document for me.", "should_trigger": false},
+  {"query": "Translate this document from English to Spanish.", "should_trigger": false},
+  {"query": "Rewrite this document's introduction to be more engaging.", "should_trigger": false},
+  {"query": "Find sources I could cite to support this argument I'm making.", "should_trigger": false},
+  {"query": "Write a persuasive essay arguing for this position, sources not required.", "should_trigger": false}
+]

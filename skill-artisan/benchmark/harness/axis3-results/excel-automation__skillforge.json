@@ -1,0 +1,29 @@
+{
+  "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/harness/workspace/excel-automation/skillforge/audited/excel-automation",
+  "gitleaks_findings": [],
+  "pattern_findings": [
+    {
+      "file": "references/xlsm-extraction.md",
+      "line": 59,
+      "severity": "MEDIUM",
+      "check": "insecure-http-url",
+      "detail": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+    },
+    {
+      "file": "references/xlsm-extraction.md",
+      "line": 101,
+      "severity": "MEDIUM",
+      "check": "insecure-http-url",
+      "detail": "http://openoffice.org/2001/registry"
+    },
+    {
+      "file": "references/xlsm-extraction.md",
+      "line": 179,
+      "severity": "MEDIUM",
+      "check": "insecure-http-url",
+      "detail": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+    }
+  ],
+  "critical_count": 0,
+  "high_count": 0
+}

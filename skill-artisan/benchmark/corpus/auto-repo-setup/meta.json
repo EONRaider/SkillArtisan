@@ -1,0 +1,11 @@
+{
+  "category": "dev-tooling",
+  "source": "daymade",
+  "origin_skill": "auto-repo-setup",
+  "origin_repo": "daymade/claude-code-skills",
+  "origin_commit": "d24f6d1",
+  "evals_reused": true,
+  "evals_reused_note": "Origin ships evals/evals.json with 4 real cases (mode-routing scenarios). Reused as the basis for this entry's task-success cases; extended to 8 to cover more of the origin's own entry-router table (git safety, hook diagnosis modes weren't covered by the original 4).",
+  "live_dependency": false,
+  "live_dependency_note": "Origin's own evals already operate against a local repository state (git status, remotes, hooks) rather than a live external service. No rewrite needed for self-containment."
+}

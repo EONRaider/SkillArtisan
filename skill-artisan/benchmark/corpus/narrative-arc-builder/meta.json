@@ -1,0 +1,7 @@
+{
+  "category": "creative-design",
+  "source": "scratch",
+  "scratch_rationale": "Built specifically for this benchmark rather than adapted. Distinct from the three adapted creative/design skills: frontend-visual-qa audits an already-rendered UI, design-style-picker generates visual style options, and ui-designer extracts a visual design system from images — none address narrative/structural coherence of a presentation's content itself (the difference between a bullet list and something with a throughline), which is a genuinely common and distinct creative-writing-adjacent need.",
+  "live_dependency": false,
+  "live_dependency_note": "Purely text-based structural analysis and restructuring of a provided outline. No live external service."
+}

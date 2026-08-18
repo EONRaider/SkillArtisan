@@ -1,0 +1,20 @@
+[
+  {"query": "Build me a formatted quarterly sales report as an Excel file, not just a raw data dump.", "should_trigger": true},
+  {"query": "This .xlsm investment-bank model throws an error in openpyxl — can you parse it anyway and pull out one sheet?", "should_trigger": true},
+  {"query": "Scroll the currently-open Excel window to cell B12 and zoom to 150%.", "should_trigger": true},
+  {"query": "I need a professional-looking spreadsheet — borders, header shading, currency formatting on the totals.", "should_trigger": true},
+  {"query": "Extract just the 'Assumptions' sheet from this big xlsm financial model.", "should_trigger": true},
+  {"query": "Automate control of the Excel window on my Mac via AppleScript — select a range, then zoom.", "should_trigger": true},
+  {"query": "The sheet names came out mangled after parsing this xlsm — fix the corrupted names.", "should_trigger": true},
+  {"query": "Create an .xlsx with a totals row and proper number formatting for these monthly figures.", "should_trigger": true},
+  {"query": "This xlsm is over a megabyte and openpyxl is choking on it — parse it a different way.", "should_trigger": true},
+  {"query": "Export this pandas DataFrame to a plain CSV file.", "should_trigger": false},
+  {"query": "There's a broken formula in this Google Sheet — can you fix it?", "should_trigger": false},
+  {"query": "Write a VBA macro for this Excel workbook that auto-formats new rows on entry.", "should_trigger": false},
+  {"query": "Read this 10-row CSV and tell me the column totals.", "should_trigger": false},
+  {"query": "Convert this Word document into a PDF.", "should_trigger": false},
+  {"query": "Control the open Numbers spreadsheet window on my Mac via AppleScript — scroll and zoom in.", "should_trigger": false},
+  {"query": "Based on these numbers I'll type out here, what's driving the increase in Q3 revenue?", "should_trigger": false},
+  {"query": "Scroll the open PDF viewer to page 12 and zoom in on the chart.", "should_trigger": false},
+  {"query": "Generate a PowerPoint deck summarizing this quarter's numbers.", "should_trigger": false}
+]

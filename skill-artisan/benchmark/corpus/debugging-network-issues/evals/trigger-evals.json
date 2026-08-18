@@ -1,0 +1,18 @@
+[
+  {"query": "This WebSocket connection drops at exactly the same interval every time, but only for one user — help me investigate.", "should_trigger": true},
+  {"query": "我们的批处理 job 间歇性失败，报 connection reset by peer，帮我系统性排查一下", "should_trigger": true},
+  {"query": "Our API error rate spikes every afternoon around the same time and self-resolves — I don't think 'just add more capacity' is the real fix.", "should_trigger": true},
+  {"query": "Review this SSE keepalive patch for risk before I ship it to production.", "should_trigger": true},
+  {"query": "Our health check says everything's green but customers are reporting an outage — how is that possible?", "should_trigger": true},
+  {"query": "A teammate wants to add blanket retries to paper over flaky API errors — how should we actually investigate first?", "should_trigger": true},
+  {"query": "This looks like the same Cloudflare 524 timeout as last month, but I want to confirm before just reapplying the old fix.", "should_trigger": true},
+  {"query": "I'm confident it's a DNS caching bug after 6 hours of debugging — should I ship the fix now?", "should_trigger": true},
+  {"query": "Write a function that establishes a WebSocket connection and sends a heartbeat every 30 seconds.", "should_trigger": false},
+  {"query": "Set up a new Cloudflare zone and configure DNS records for our domain.", "should_trigger": false},
+  {"query": "Explain how TCP's three-way handshake works.", "should_trigger": false},
+  {"query": "Fix this SQL query that's returning duplicate rows.", "should_trigger": false},
+  {"query": "Write unit tests for our WebSocket client reconnection logic.", "should_trigger": false},
+  {"query": "Recover a commit I accidentally lost during a rebase.", "should_trigger": false},
+  {"query": "Deploy our updated nginx config to production.", "should_trigger": false},
+  {"query": "Explain what a CDN is and how it reduces latency.", "should_trigger": false}
+]

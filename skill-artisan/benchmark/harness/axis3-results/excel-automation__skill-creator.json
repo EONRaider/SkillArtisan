@@ -1,0 +1,36 @@
+{
+  "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/harness/workspace/excel-automation/skill-creator/audited/excel-automation",
+  "gitleaks_findings": [],
+  "pattern_findings": [
+    {
+      "file": "scripts/applescript_run.py",
+      "line": 1,
+      "severity": "MEDIUM",
+      "check": "no-documented-cli",
+      "detail": "produces output but references no argument-parsing/--help convention (references/script-design.md)"
+    },
+    {
+      "file": "scripts/xlsx_extract.py",
+      "line": 38,
+      "severity": "MEDIUM",
+      "check": "insecure-http-url",
+      "detail": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+    },
+    {
+      "file": "scripts/xlsx_extract.py",
+      "line": 127,
+      "severity": "MEDIUM",
+      "check": "insecure-http-url",
+      "detail": "http://schemas.openxmlformats.org/package/2006/relationships"
+    },
+    {
+      "file": "scripts/xlsx_extract.py",
+      "line": 133,
+      "severity": "MEDIUM",
+      "check": "insecure-http-url",
+      "detail": "http://schemas.openxmlformats.org/officeDocument/2006/relationships}id"
+    }
+  ],
+  "critical_count": 0,
+  "high_count": 0
+}

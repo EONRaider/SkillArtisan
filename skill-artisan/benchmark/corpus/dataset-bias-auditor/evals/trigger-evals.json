@@ -1,0 +1,18 @@
+[
+  {"query": "This study only looked at successful companies — could that be skewing the conclusion?", "should_trigger": true},
+  {"query": "Is this survey sample actually representative of our whole user base before we act on it?", "should_trigger": true},
+  {"query": "Two things are correlated in this dataset — before I claim one causes the other, check for a possible confound.", "should_trigger": true},
+  {"query": "Audit this study's methodology before I cite its conclusion in a report.", "should_trigger": true},
+  {"query": "We're measuring performance with a proxy metric — is that a biased way to measure it?", "should_trigger": true},
+  {"query": "Only 2% of people we emailed responded to this survey — can we still trust the results?", "should_trigger": true},
+  {"query": "Does a huge sample size make this selection bias concern go away?", "should_trigger": true},
+  {"query": "Review how this dataset was collected and flag any statistical bias risks.", "should_trigger": true},
+  {"query": "Fact-check whether this specific statistic in our doc is still up to date.", "should_trigger": false},
+  {"query": "Write a competitive analysis report on this industry.", "should_trigger": false},
+  {"query": "Clean up this messy CSV export and fix the formatting.", "should_trigger": false},
+  {"query": "Calculate the average and standard deviation of this dataset.", "should_trigger": false},
+  {"query": "Build a dashboard chart visualizing this quarter's sales data.", "should_trigger": false},
+  {"query": "Verify this video's real view count before I cite it.", "should_trigger": false},
+  {"query": "Proofread this research paper for grammar issues.", "should_trigger": false},
+  {"query": "Format these survey results into a bar chart.", "should_trigger": false}
+]

@@ -1,0 +1,18 @@
+[
+  {"query": "I think I lost a commit after a bad rebase — can you recover it?", "should_trigger": true},
+  {"query": "Is it safe to delete this old worktree, or is something still unmerged?", "should_trigger": true},
+  {"query": "分支灾难，我怕误删了 commit，帮我看看还能不能找回来", "should_trigger": true},
+  {"query": "Audit this repo and tell me if anything is at risk of being lost before I clean up branches.", "should_trigger": true},
+  {"query": "Is everything actually merged onto main, or does commit count lie after a squash merge?", "should_trigger": true},
+  {"query": "只保留一个主分支，把其他的清理掉，但先确认不会丢东西", "should_trigger": true},
+  {"query": "Can I delete this stash, or is there something in it I'd regret losing?", "should_trigger": true},
+  {"query": "I have a dangling commit from a botched interactive rebase — is it still recoverable?", "should_trigger": true},
+  {"query": "Help me pull the latest changes from the remote before I start working.", "should_trigger": false},
+  {"query": "Clean sensitive data out of this repo's commit history before making it public.", "should_trigger": false},
+  {"query": "Set up branch protection rules requiring PR review before merge.", "should_trigger": false},
+  {"query": "Write a good commit message for these staged changes.", "should_trigger": false},
+  {"query": "Resolve this merge conflict in the current pull request.", "should_trigger": false},
+  {"query": "Configure a pre-commit hook that runs our linter.", "should_trigger": false},
+  {"query": "This repo won't install its dependencies — help me get it running.", "should_trigger": false},
+  {"query": "Squash these 5 commits into one before opening a pull request.", "should_trigger": false}
+]

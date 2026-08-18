@@ -384,11 +384,19 @@ def main() -> None:
     clean = not gitleaks_findings and not high_pattern_findings
     if clean:
         write_marker(skill_path, compute_content_hash(skill_path))
-        print(f"\nClean scan — wrote {MARKER_FILENAME}.")
-        print("Reminder: this is a keyword-based gate only. It does not catch real project/person names,")
-        print("non-English content (gitleaks does not cover CJK), or verbatim lines lifted from real")
-        print("transcripts — none of that has a secret signature to match. Before publishing to a public")
-        print("repo, read the skill yourself — see references/sanitization-checklist.md.")
+        # --json promises pure JSON on stdout (script-design.md's stdout/stderr
+        # split) — this human-readable confirmation was printing to stdout
+        # unconditionally, corrupting that contract on every clean scan.
+        # Found while aggregating 12 --json scans for the Best-in-Market
+        # Scorecard's Axis 3: 11 of 12 failed to parse for exactly this
+        # reason (the one dirty scan, with no clean-scan text appended,
+        # parsed fine — the signal that gave this away).
+        out = sys.stderr if args.json else sys.stdout
+        print(f"\nClean scan — wrote {MARKER_FILENAME}.", file=out)
+        print("Reminder: this is a keyword-based gate only. It does not catch real project/person names,", file=out)
+        print("non-English content (gitleaks does not cover CJK), or verbatim lines lifted from real", file=out)
+        print("transcripts — none of that has a secret signature to match. Before publishing to a public", file=out)
+        print("repo, read the skill yourself — see references/sanitization-checklist.md.", file=out)
         sys.exit(0)
 
     if critical:

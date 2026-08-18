@@ -1,0 +1,86 @@
+{
+  "skill_name": "dataset-bias-auditor",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We studied 500 startups that reached a $1B valuation and found 87% of their founders had a prior startup exit. Conclusion: a prior exit is a strong predictor of reaching unicorn status. Any concerns with this study?",
+      "expected_output": "Identifies survivorship bias as the core problem — the study only examines startups that succeeded, with no comparison against founders-with-prior-exits whose startups failed, so the 87% figure can't actually support the predictive claim being made.",
+      "expectations": [
+        "Names survivorship bias specifically (or its substance) as the issue",
+        "Explains concretely that the study has no failed-startup comparison group, not just a generic bias-textbook definition",
+        "States that the 87% figure alone cannot support the causal/predictive conclusion being drawn"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "We surveyed the 1,200 users who opted into our product beta-tester newsletter and found 91% satisfaction. We're planning to use this number in our general marketing.",
+      "expected_output": "Identifies selection bias — beta-newsletter opt-ins are not representative of the general user base (they're likely more engaged/enthusiastic already), so the 91% figure shouldn't be generalized to all users.",
+      "expectations": [
+        "Names selection bias (or its substance) as the issue",
+        "Explains specifically why newsletter opt-in users differ from the general user population",
+        "Recommends against generalizing this figure to the broader marketing claim without a representative sample"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Data shows cities with higher ice cream sales also have higher drowning rates. Someone wants to conclude ice cream consumption increases drowning risk.",
+      "expected_output": "Identifies this as confounding — a third variable (warm weather/summer season) plausibly drives both ice cream sales and swimming activity, so the correlation doesn't establish the causal claim.",
+      "expectations": [
+        "Identifies a confounding variable (specifically something like season/temperature) as the likely explanation",
+        "Explicitly states the data shows correlation, not causation",
+        "Names the confound concretely rather than just saying 'correlation isn't causation' with no specifics"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "We measure employee productivity by counting emails sent per day. Our top performer sends 40% more emails than average.",
+      "expected_output": "Identifies measurement bias — email volume is a weak, easily-gameable proxy for productivity that could reward busywork or communication overhead rather than actual output.",
+      "expectations": [
+        "Identifies the email-count metric as a biased/weak proxy for the actual thing being measured (productivity)",
+        "Explains a concrete way this proxy could mislead (e.g. rewards volume over quality, gameable, correlates with other roles' actual duties)",
+        "Does not simply accept the metric at face value"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "We emailed all 10,000 customers for feedback on the new checkout flow. 200 responded, and the responses were overwhelmingly negative. Should we roll back the change?",
+      "expected_output": "Identifies self-selection bias in the survey response — people with strong (often negative) opinions are disproportionately likely to respond, so 200 vocal responses out of 10,000 shouldn't be read as representative of overall sentiment.",
+      "expectations": [
+        "Identifies self-selection bias in who chose to respond to the survey",
+        "Explains that strong/negative opinions are disproportionately likely to prompt a response",
+        "Recommends caution before treating the 200 responses as representative of the full 10,000, without necessarily dismissing the feedback outright"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "We ran a randomized controlled trial: 2,000 participants randomly assigned to treatment and control groups, double-blinded, pre-registered analysis plan, 95% retention. Treatment group showed a statistically significant improvement. Any methodology concerns?",
+      "expected_output": "Recognizes this as a well-designed study and does not manufacture a spurious bias finding just to have something to say — may note genuinely minor caveats (e.g. generalizability to other populations) but doesn't claim a serious methodology flaw where none exists.",
+      "expectations": [
+        "Does not force a fabricated major bias finding onto a genuinely well-designed study",
+        "Acknowledges the study's actual methodological strengths (randomization, blinding, pre-registration, good retention)",
+        "Any caveats raised are proportionate and specific (e.g. external validity) rather than manufactured red flags"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "This study surveyed 2 million app users about a feature preference, so the huge sample size should make the selection-bias concern you raised earlier a non-issue, right?",
+      "expected_output": "Corrects the misconception directly — a large sample size reduces random/sampling error, but it does not fix selection bias if the sampling frame itself is non-representative; a huge biased sample is still biased.",
+      "expectations": [
+        "Explicitly states that a large N does not resolve a selection-bias problem",
+        "Distinguishes sampling error (which N does reduce) from selection bias (which it doesn't)",
+        "Does not walk back the earlier bias concern just because the sample size is large"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "A wellness app claims its meditation feature reduces stress, based on: users who kept the app installed for 90+ days and used the meditation feature reported lower self-assessed stress than when they started, self-reported via an in-app survey shown only to active users.",
+      "expected_output": "Identifies multiple distinct biases compounding here: survivorship/attrition bias (only users who stuck around 90+ days are counted, not those who quit), self-selection (the survey only reaches currently-active users), and measurement bias (self-reported stress with no control group, so regression to the mean or placebo effect isn't ruled out).",
+      "expectations": [
+        "Identifies the attrition/survivorship element (only long-term retained users are measured)",
+        "Identifies the self-selection element (survey only reaches currently-active users)",
+        "Identifies the lack of a control group / measurement-validity concern with self-reported stress",
+        "Reports these as multiple distinct issues rather than collapsing them into one vague 'this study has problems' statement"
+      ]
+    }
+  ]
+}

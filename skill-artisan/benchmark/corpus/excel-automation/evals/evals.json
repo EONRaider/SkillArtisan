@@ -1,0 +1,86 @@
+{
+  "skill_name": "excel-automation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Build me a formatted quarterly sales report in Excel — three regions as columns, monthly rows, a totals row, and it should actually look professional, not just raw numbers dumped in cells.",
+      "expected_output": "An .xlsx file created via openpyxl with header styling (bold/shaded header row), borders, and a numeric format applied to currency/quantity cells — not a bare unstyled data dump.",
+      "expectations": [
+        "Uses openpyxl (not a bare CSV writer) to produce a real .xlsx file",
+        "Applies explicit formatting: header row styling and/or cell borders, not default openpyxl output",
+        "Numeric cells use a number format (currency or thousands separator) rather than raw floats",
+        "Includes a totals row as requested, not just the raw monthly data"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "This .xlsm investment-bank DCF model won't open cleanly with openpyxl — it throws on load. I need the 'Assumptions' sheet's data pulled out anyway.",
+      "expected_output": "Recognizes openpyxl's failure as expected for this file class and falls back to the stdlib zipfile+XML parsing approach to extract the named sheet, rather than retrying openpyxl with different arguments or giving up.",
+      "expectations": [
+        "Explicitly falls back to zipfile/XML parsing rather than repeatedly retrying openpyxl",
+        "Extracts specifically the 'Assumptions' sheet, not the whole workbook indiscriminately",
+        "Does not claim the file is corrupted or unreadable — it correctly identifies this as a known openpyxl limitation with complex xlsm files"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Here's a 3MB xlsx export from our data warehouse, no macros, nothing fancy — I just want sheet 'Q3_Raw' pulled into a dataframe for analysis.",
+      "expected_output": "Follows the decision tree's size threshold (>1MB routes to zipfile+XML even without VBA/corruption) rather than defaulting to a plain openpyxl load that may be slow or fragile at this size.",
+      "expectations": [
+        "Recognizes file size (>1MB) as a routing signal on its own, not just VBA/corruption",
+        "Extracts the correct named sheet ('Q3_Raw')",
+        "Does not silently fall back to loading the entire multi-sheet workbook into memory via plain openpyxl without justification"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Scroll the open Excel window to cell 'DCF!Z50' and zoom to 150% so I can screenshot it.",
+      "expected_output": "An AppleScript/osascript call that performs the scroll-to-cell and zoom, wrapped in a timeout so a non-responsive Excel doesn't hang the session indefinitely.",
+      "expectations": [
+        "Uses AppleScript (osascript) to control the live Excel window rather than editing the file",
+        "The osascript invocation includes a timeout guard (e.g. `timeout 5 osascript ...`), not a bare blocking call",
+        "Targets the specific requested cell and zoom level, not a generic 'activate Excel' no-op"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Can you set up Excel window control for me on my Windows laptop the same way you'd do it on my Mac?",
+      "expected_output": "States plainly that the AppleScript-based window-control capability is macOS-only and does not attempt to fabricate a Windows equivalent (e.g. a PowerShell/COM approach) as if it were part of this skill.",
+      "expectations": [
+        "Explicitly states the window-control capability is macOS/AppleScript-specific, not cross-platform",
+        "Does not silently substitute an untested Windows automation approach and present it as equivalent",
+        "Does not claim or imply this skill supports Windows Excel automation"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "The sheet names in this parsed xlsm came out mangled — looks like some kind of encoding corruption. Can you get me clean sheet names?",
+      "expected_output": "Uses the parser's sheet-name repair path (a `--fix`-equivalent) rather than re-running the same extraction and returning the same corrupted names.",
+      "expectations": [
+        "Recognizes this as the known corrupted-sheet-name case, not a generic re-parse request",
+        "Applies a specific repair step for sheet names rather than repeating the identical extraction",
+        "Confirms the fixed names are actually clean before handing them back, not just claiming success"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "I just need a quick, no-frills list of these 40 rows in an .xlsx so I can eyeball it — don't spend time making it pretty.",
+      "expected_output": "Produces a plain .xlsx without unrequested heavy formatting (borders, shading, custom number formats) — respects the explicit 'no-frills' request instead of always applying the 'professional formatting' behavior from eval 1.",
+      "expectations": [
+        "Does not apply unrequested header styling, borders, or elaborate formatting given the explicit 'no-frills' instruction",
+        "Still produces a valid, correctly-structured .xlsx (not a degraded or broken output)",
+        "Recognizes the request's scope is narrower than the 'professional report' capability and doesn't over-deliver"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Build the formatted quarterly report like before, then scroll the Excel window to the totals row so I can see it live.",
+      "expected_output": "Correctly sequences both capabilities: create the formatted file first, then perform AppleScript window control against it (opening it if needed), rather than only doing one or conflating the two into a single malformed step.",
+      "expectations": [
+        "Performs the create-and-format step before the window-control step, in that order",
+        "The window-control step correctly targets the just-created file/totals row, not a stale or unrelated sheet",
+        "Both capabilities are visibly exercised, not just one with the other silently skipped"
+      ]
+    }
+  ]
+}

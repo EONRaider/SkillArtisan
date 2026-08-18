@@ -1,0 +1,18 @@
+[
+  {"query": "This repo won't run on my machine — help me get it set up.", "should_trigger": true},
+  {"query": "Sync me up with the latest remote changes before I start working.", "should_trigger": true},
+  {"query": "A new collaborator is onboarding and needs this repo working fast.", "should_trigger": true},
+  {"query": "The SessionStart hook is firing three times and I don't know why.", "should_trigger": true},
+  {"query": "I need a lifecycle hook that runs before the very first prompt in this repo.", "should_trigger": true},
+  {"query": "Missing dependencies on this fresh clone — figure out what's needed and install them.", "should_trigger": true},
+  {"query": "Audit our project instructions and hooks for anything stale or misconfigured.", "should_trigger": true},
+  {"query": "I want to commit and push but I'm worried about a merge conflict — walk me through it safely.", "should_trigger": true},
+  {"query": "Write a Python script that adds two numbers together.", "should_trigger": false},
+  {"query": "Review this pull request's code for correctness bugs.", "should_trigger": false},
+  {"query": "Deploy this application to our production Kubernetes cluster.", "should_trigger": false},
+  {"query": "Explain what this function does and suggest a better name for it.", "should_trigger": false},
+  {"query": "Debug this network connection that keeps resetting after 90 seconds.", "should_trigger": false},
+  {"query": "Recover a commit I think I lost after a bad rebase.", "should_trigger": false},
+  {"query": "Write unit tests for this new feature I just built.", "should_trigger": false},
+  {"query": "Optimize this slow database query.", "should_trigger": false}
+]

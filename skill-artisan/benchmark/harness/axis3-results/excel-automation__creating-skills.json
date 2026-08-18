@@ -1,0 +1,36 @@
+{
+  "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/harness/workspace/excel-automation/creating-skills/audited/building-excel-reports",
+  "gitleaks_findings": [],
+  "pattern_findings": [
+    {
+      "file": "references/xlsm-extraction.md",
+      "line": 101,
+      "severity": "MEDIUM",
+      "check": "insecure-http-url",
+      "detail": "http://schemas.openxmlformats.org/spreadsheetml/2006/main`"
+    },
+    {
+      "file": "scripts/xlsm_extract.py",
+      "line": 45,
+      "severity": "MEDIUM",
+      "check": "insecure-http-url",
+      "detail": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+    },
+    {
+      "file": "scripts/xlsm_extract.py",
+      "line": 100,
+      "severity": "MEDIUM",
+      "check": "insecure-http-url",
+      "detail": "http://schemas.openxmlformats.org/package/2006/relationships"
+    },
+    {
+      "file": "scripts/xlsm_extract.py",
+      "line": 104,
+      "severity": "MEDIUM",
+      "check": "insecure-http-url",
+      "detail": "http://schemas.openxmlformats.org/officeDocument/2006/relationships}id"
+    }
+  ],
+  "critical_count": 0,
+  "high_count": 0
+}
