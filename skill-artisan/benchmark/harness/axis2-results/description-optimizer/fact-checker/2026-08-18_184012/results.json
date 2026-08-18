@@ -1,0 +1,1150 @@
+{
+  "exit_reason": "max_iterations (5)",
+  "original_description": "Read a document (pasted text or a file) and check its verifiable factual claims \u2014 model specs, version numbers, pricing, statistics, API capabilities, release dates \u2014 against authoritative sources via live search, then report each as accurate, outdated (was true, now superseded), incorrect, or unverifiable, citing the source. Use when asked to fact-check a document, verify claims, check if info is still accurate/current, validate claims against official docs, confirm pricing or stats, or update stale data \u2014 even without the words \"fact-check\"/\"verify,\" e.g. \"is this still accurate,\" \"check these numbers before I publish,\" \"confirm this is backed by a real source.\" Always searches live instead of recalling from memory, never presents a guess as verified, proposes corrections with a citation, and asks approval before editing \u2014 never edits silently. Not for proofreading, style review, translation, or subjective content (opinions, architecture discussion, tutorial prose) \u2014 skips those.",
+  "best_description": "Read a document (pasted text or a file) and check its verifiable factual claims \u2014 model specs, version numbers, pricing, statistics, API capabilities, release dates \u2014 against authoritative sources via live search, then report each as accurate, outdated (was true, now superseded), incorrect, or unverifiable, citing the source. Use when asked to fact-check a document, verify claims, check if info is still accurate/current, validate claims against official docs, confirm pricing or stats, or update stale data \u2014 even without the words \"fact-check\"/\"verify,\" e.g. \"is this still accurate,\" \"check these numbers before I publish,\" \"confirm this is backed by a real source.\" Always searches live instead of recalling from memory, never presents a guess as verified, proposes corrections with a citation, and asks approval before editing \u2014 never edits silently. Not for proofreading, style review, translation, or subjective content (opinions, architecture discussion, tutorial prose) \u2014 skips those.",
+  "best_score": "4/6",
+  "best_train_score": "5/10",
+  "best_test_score": "4/6",
+  "final_description": "Apply this skill whenever the user hands over a document \u2014 spec sheet, README, pricing page, comparison table, blog post, report \u2014 and wants to know whether its factual claims still hold up against reality right now, rather than trusted from memory. Covers explicit fact-checking requests; requests to verify, confirm, or double-check that claims/specs/numbers are accurate; requests to check whether a stat, price, version, or date is still current; requests to confirm claims are backed by a real source; and requests to refresh or update stale values once checked. Applies to model specs, version numbers, pricing, statistics, API capabilities, and release dates, in pasted text or a file. Always searches live sources instead of recalling from training data, labels each claim accurate, outdated, incorrect, or unverifiable with a citation, proposes corrections, and asks before editing. Not for proofreading, grammar, style/tone, translation, or subjective content like opinions or tutorial prose.",
+  "iterations_run": 5,
+  "holdout": 0.4,
+  "train_size": 10,
+  "test_size": 6,
+  "history": [
+    {
+      "iteration": 1,
+      "description": "Read a document (pasted text or a file) and check its verifiable factual claims \u2014 model specs, version numbers, pricing, statistics, API capabilities, release dates \u2014 against authoritative sources via live search, then report each as accurate, outdated (was true, now superseded), incorrect, or unverifiable, citing the source. Use when asked to fact-check a document, verify claims, check if info is still accurate/current, validate claims against official docs, confirm pricing or stats, or update stale data \u2014 even without the words \"fact-check\"/\"verify,\" e.g. \"is this still accurate,\" \"check these numbers before I publish,\" \"confirm this is backed by a real source.\" Always searches live instead of recalling from memory, never presents a guess as verified, proposes corrections with a citation, and asks approval before editing \u2014 never edits silently. Not for proofreading, style review, translation, or subjective content (opinions, architecture discussion, tutorial prose) \u2014 skips those.",
+      "train_passed": 5,
+      "train_failed": 5,
+      "train_total": 10,
+      "train_results": [
+        {
+          "query": "Update the outdated version numbers in this document after checking what's current.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Check if this statistic I cited two years ago is still current.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Go through this report and confirm every factual claim is backed by a real source.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Fact-check this document and flag anything outdated or incorrect.",
+          "should_trigger": true,
+          "trigger_rate": 0.3333333333333333,
+          "triggers": 1,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Verify these AI model specifications are still accurate.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Give me your honest opinion on whether this document's writing style is engaging.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Translate this document from English to Spanish.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Find sources I could cite to support this argument I'm making.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Rewrite this document's introduction to be more engaging.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Write a research report summarizing the competitive landscape in this industry.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "test_passed": 4,
+      "test_failed": 2,
+      "test_total": 6,
+      "test_results": [
+        {
+          "query": "Validate the technical claims in this README against official documentation.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Is this pricing information in our docs still correct?",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "This blog post has some numbers in it \u2014 verify they're accurate before I publish.",
+          "should_trigger": true,
+          "trigger_rate": 0.6666666666666666,
+          "triggers": 2,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Summarize the key points of this technical document for me.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Write a persuasive essay arguing for this position, sources not required.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Proofread this document for grammar and spelling errors.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "passed": 5,
+      "failed": 5,
+      "total": 10,
+      "results": [
+        {
+          "query": "Update the outdated version numbers in this document after checking what's current.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Check if this statistic I cited two years ago is still current.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Go through this report and confirm every factual claim is backed by a real source.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Fact-check this document and flag anything outdated or incorrect.",
+          "should_trigger": true,
+          "trigger_rate": 0.3333333333333333,
+          "triggers": 1,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Verify these AI model specifications are still accurate.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Give me your honest opinion on whether this document's writing style is engaging.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Translate this document from English to Spanish.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Find sources I could cite to support this argument I'm making.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Rewrite this document's introduction to be more engaging.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Write a research report summarizing the competitive landscape in this industry.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "iteration": 2,
+      "description": "Use this skill any time a document's factual claims need to be checked against current reality instead of answered from memory or assumed still valid: fact-checking a document, verifying or confirming claims, checking whether stats, specs, pricing, version numbers, or dates are still accurate or current, confirming a claim is backed by a real authoritative source, or updating stale/outdated facts to their current values. Covers model specs, version numbers, pricing, statistics, API capabilities, and release dates in pasted text or a file. Always searches live sources rather than recalling from training data, classifies each claim as accurate, outdated (was true, now superseded), incorrect, or unverifiable, cites the source for each, and proposes corrections \u2014 but only asks approval before editing, never edits silently. Do not use for proofreading, style/tone review, translation, or subjective content such as opinions, architecture discussion, or tutorial prose \u2014 those aren't externally checkable facts.",
+      "train_passed": 5,
+      "train_failed": 5,
+      "train_total": 10,
+      "train_results": [
+        {
+          "query": "Update the outdated version numbers in this document after checking what's current.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Check if this statistic I cited two years ago is still current.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Go through this report and confirm every factual claim is backed by a real source.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Fact-check this document and flag anything outdated or incorrect.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Verify these AI model specifications are still accurate.",
+          "should_trigger": true,
+          "trigger_rate": 0.3333333333333333,
+          "triggers": 1,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Give me your honest opinion on whether this document's writing style is engaging.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Translate this document from English to Spanish.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Find sources I could cite to support this argument I'm making.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Rewrite this document's introduction to be more engaging.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Write a research report summarizing the competitive landscape in this industry.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "test_passed": 4,
+      "test_failed": 2,
+      "test_total": 6,
+      "test_results": [
+        {
+          "query": "Validate the technical claims in this README against official documentation.",
+          "should_trigger": true,
+          "trigger_rate": 0.6666666666666666,
+          "triggers": 2,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Is this pricing information in our docs still correct?",
+          "should_trigger": true,
+          "trigger_rate": 0.3333333333333333,
+          "triggers": 1,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "This blog post has some numbers in it \u2014 verify they're accurate before I publish.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Summarize the key points of this technical document for me.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Write a persuasive essay arguing for this position, sources not required.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Proofread this document for grammar and spelling errors.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "passed": 5,
+      "failed": 5,
+      "total": 10,
+      "results": [
+        {
+          "query": "Update the outdated version numbers in this document after checking what's current.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Check if this statistic I cited two years ago is still current.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Go through this report and confirm every factual claim is backed by a real source.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Fact-check this document and flag anything outdated or incorrect.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Verify these AI model specifications are still accurate.",
+          "should_trigger": true,
+          "trigger_rate": 0.3333333333333333,
+          "triggers": 1,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Give me your honest opinion on whether this document's writing style is engaging.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Translate this document from English to Spanish.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Find sources I could cite to support this argument I'm making.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Rewrite this document's introduction to be more engaging.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Write a research report summarizing the competitive landscape in this industry.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "iteration": 3,
+      "description": "TRIGGER: any request to fact-check, verify, confirm, or double-check a document's claims against current reality instead of trusting memory or assuming they're still valid \u2014 including checking whether stats, specs, prices, version numbers, or dates are still accurate/current, confirming a claim is backed by a real authoritative source, flagging what's outdated or incorrect, or updating stale facts to their current values. Covers model specs, version numbers, pricing, statistics, API capabilities, and release dates, whether in pasted text or a file. Always searches live sources instead of recalling from training data, labels each claim accurate / outdated (was true, now superseded) / incorrect / unverifiable, cites a source for each, proposes corrections, and asks approval before editing \u2014 never edits silently.\nSKIP for proofreading, style/tone review, translation, or subjective content (opinions, architecture discussion, tutorial prose) \u2014 those aren't externally checkable facts.",
+      "train_passed": 5,
+      "train_failed": 5,
+      "train_total": 10,
+      "train_results": [
+        {
+          "query": "Update the outdated version numbers in this document after checking what's current.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Check if this statistic I cited two years ago is still current.",
+          "should_trigger": true,
+          "trigger_rate": 0.3333333333333333,
+          "triggers": 1,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Go through this report and confirm every factual claim is backed by a real source.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Fact-check this document and flag anything outdated or incorrect.",
+          "should_trigger": true,
+          "trigger_rate": 0.3333333333333333,
+          "triggers": 1,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Verify these AI model specifications are still accurate.",
+          "should_trigger": true,
+          "trigger_rate": 0.3333333333333333,
+          "triggers": 1,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Give me your honest opinion on whether this document's writing style is engaging.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Translate this document from English to Spanish.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Find sources I could cite to support this argument I'm making.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Rewrite this document's introduction to be more engaging.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Write a research report summarizing the competitive landscape in this industry.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "test_passed": 4,
+      "test_failed": 2,
+      "test_total": 6,
+      "test_results": [
+        {
+          "query": "Validate the technical claims in this README against official documentation.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Is this pricing information in our docs still correct?",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "This blog post has some numbers in it \u2014 verify they're accurate before I publish.",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "triggers": 3,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Summarize the key points of this technical document for me.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Write a persuasive essay arguing for this position, sources not required.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Proofread this document for grammar and spelling errors.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "passed": 5,
+      "failed": 5,
+      "total": 10,
+      "results": [
+        {
+          "query": "Update the outdated version numbers in this document after checking what's current.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Check if this statistic I cited two years ago is still current.",
+          "should_trigger": true,
+          "trigger_rate": 0.3333333333333333,
+          "triggers": 1,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Go through this report and confirm every factual claim is backed by a real source.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Fact-check this document and flag anything outdated or incorrect.",
+          "should_trigger": true,
+          "trigger_rate": 0.3333333333333333,
+          "triggers": 1,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Verify these AI model specifications are still accurate.",
+          "should_trigger": true,
+          "trigger_rate": 0.3333333333333333,
+          "triggers": 1,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Give me your honest opinion on whether this document's writing style is engaging.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Translate this document from English to Spanish.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Find sources I could cite to support this argument I'm making.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Rewrite this document's introduction to be more engaging.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Write a research report summarizing the competitive landscape in this industry.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "iteration": 4,
+      "description": "Use this skill whenever a document's factual claims \u2014 model specs, version numbers, pricing, statistics, API capabilities, release dates \u2014 need checking or refreshing against current reality instead of being answered from memory. Trigger phrases include \"fact-check this,\" \"verify/confirm these claims or specs are accurate,\" \"check if this stat/number/date is still current,\" \"confirm this is backed by a real source,\" and \"update the outdated version numbers/prices after checking what's current\" \u2014 works on pasted text or a file. Always searches live sources rather than recalling from training data; never presents a guess as confirmed. Labels each claim accurate, outdated (was true, now superseded), incorrect, or unverifiable, cites a source per claim, proposes corrections, and asks approval before editing \u2014 never edits silently. Skip for proofreading, style/tone review, translation, or subjective content (opinions, architecture discussion, tutorial prose) \u2014 those aren't externally checkable facts.",
+      "train_passed": 5,
+      "train_failed": 5,
+      "train_total": 10,
+      "train_results": [
+        {
+          "query": "Update the outdated version numbers in this document after checking what's current.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Check if this statistic I cited two years ago is still current.",
+          "should_trigger": true,
+          "trigger_rate": 0.3333333333333333,
+          "triggers": 1,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Go through this report and confirm every factual claim is backed by a real source.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Fact-check this document and flag anything outdated or incorrect.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Verify these AI model specifications are still accurate.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Give me your honest opinion on whether this document's writing style is engaging.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Translate this document from English to Spanish.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Find sources I could cite to support this argument I'm making.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Rewrite this document's introduction to be more engaging.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Write a research report summarizing the competitive landscape in this industry.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "test_passed": 3,
+      "test_failed": 3,
+      "test_total": 6,
+      "test_results": [
+        {
+          "query": "Validate the technical claims in this README against official documentation.",
+          "should_trigger": true,
+          "trigger_rate": 0.3333333333333333,
+          "triggers": 1,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Is this pricing information in our docs still correct?",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "This blog post has some numbers in it \u2014 verify they're accurate before I publish.",
+          "should_trigger": true,
+          "trigger_rate": 0.3333333333333333,
+          "triggers": 1,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Summarize the key points of this technical document for me.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Write a persuasive essay arguing for this position, sources not required.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Proofread this document for grammar and spelling errors.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "passed": 5,
+      "failed": 5,
+      "total": 10,
+      "results": [
+        {
+          "query": "Update the outdated version numbers in this document after checking what's current.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Check if this statistic I cited two years ago is still current.",
+          "should_trigger": true,
+          "trigger_rate": 0.3333333333333333,
+          "triggers": 1,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Go through this report and confirm every factual claim is backed by a real source.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Fact-check this document and flag anything outdated or incorrect.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Verify these AI model specifications are still accurate.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Give me your honest opinion on whether this document's writing style is engaging.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Translate this document from English to Spanish.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Find sources I could cite to support this argument I'm making.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Rewrite this document's introduction to be more engaging.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Write a research report summarizing the competitive landscape in this industry.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "iteration": 5,
+      "description": "Apply this skill whenever the user hands over a document \u2014 spec sheet, README, pricing page, comparison table, blog post, report \u2014 and wants to know whether its factual claims still hold up against reality right now, rather than trusted from memory. Covers explicit fact-checking requests; requests to verify, confirm, or double-check that claims/specs/numbers are accurate; requests to check whether a stat, price, version, or date is still current; requests to confirm claims are backed by a real source; and requests to refresh or update stale values once checked. Applies to model specs, version numbers, pricing, statistics, API capabilities, and release dates, in pasted text or a file. Always searches live sources instead of recalling from training data, labels each claim accurate, outdated, incorrect, or unverifiable with a citation, proposes corrections, and asks before editing. Not for proofreading, grammar, style/tone, translation, or subjective content like opinions or tutorial prose.",
+      "train_passed": 5,
+      "train_failed": 5,
+      "train_total": 10,
+      "train_results": [
+        {
+          "query": "Update the outdated version numbers in this document after checking what's current.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Check if this statistic I cited two years ago is still current.",
+          "should_trigger": true,
+          "trigger_rate": 0.3333333333333333,
+          "triggers": 1,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Go through this report and confirm every factual claim is backed by a real source.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Fact-check this document and flag anything outdated or incorrect.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Verify these AI model specifications are still accurate.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Give me your honest opinion on whether this document's writing style is engaging.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Translate this document from English to Spanish.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Find sources I could cite to support this argument I'm making.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Rewrite this document's introduction to be more engaging.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Write a research report summarizing the competitive landscape in this industry.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "test_passed": 3,
+      "test_failed": 3,
+      "test_total": 6,
+      "test_results": [
+        {
+          "query": "Validate the technical claims in this README against official documentation.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Is this pricing information in our docs still correct?",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "This blog post has some numbers in it \u2014 verify they're accurate before I publish.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Summarize the key points of this technical document for me.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Write a persuasive essay arguing for this position, sources not required.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Proofread this document for grammar and spelling errors.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "passed": 5,
+      "failed": 5,
+      "total": 10,
+      "results": [
+        {
+          "query": "Update the outdated version numbers in this document after checking what's current.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Check if this statistic I cited two years ago is still current.",
+          "should_trigger": true,
+          "trigger_rate": 0.3333333333333333,
+          "triggers": 1,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Go through this report and confirm every factual claim is backed by a real source.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Fact-check this document and flag anything outdated or incorrect.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Verify these AI model specifications are still accurate.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "Give me your honest opinion on whether this document's writing style is engaging.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Translate this document from English to Spanish.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Find sources I could cite to support this argument I'm making.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Rewrite this document's introduction to be more engaging.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "Write a research report summarizing the competitive landscape in this industry.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ]
+    }
+  ]
+}

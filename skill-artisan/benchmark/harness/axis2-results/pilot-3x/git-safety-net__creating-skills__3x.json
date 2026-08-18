@@ -1,0 +1,141 @@
+{
+  "skill_name": "git-safety-net",
+  "description": "Recover git work that seems to have vanished, audit what's at risk before deleting anything, verify a branch is genuinely merged, and safely retire old worktrees/clones/stashes. Use whenever the user is panicking about lost work (\"I think I lost a commit\", \"my branch disappeared\", \"did I just lose my changes\", \"git reset --hard and now it's gone\", \"force-pushed over my work\", \"my stash vanished\"), wants to recover something via git reflog or git fsck, or asks whether a branch is safe to delete or \"is this actually merged\" \u2014 especially after a squash merge, where commit counts and `git diff branch...main` both give misleading answers. Also use before any destructive git command (`git branch -D`, `git worktree remove`, `git stash drop`, `rm -rf` on a repo dir), and even when only one checkout is mentioned, since a sibling clone or worktree elsewhere on disk is invisible to a single-checkout `git branch -a` / `git stash list` / `git fsck`.",
+  "results": [
+    {
+      "query": "I think I lost a commit after a bad rebase \u2014 can you recover it?",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 3,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Is it safe to delete this old worktree, or is something still unmerged?",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 3,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "\u5206\u652f\u707e\u96be\uff0c\u6211\u6015\u8bef\u5220\u4e86 commit\uff0c\u5e2e\u6211\u770b\u770b\u8fd8\u80fd\u4e0d\u80fd\u627e\u56de\u6765",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 3,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Audit this repo and tell me if anything is at risk of being lost before I clean up branches.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 3,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Is everything actually merged onto main, or does commit count lie after a squash merge?",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 3,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "\u53ea\u4fdd\u7559\u4e00\u4e2a\u4e3b\u5206\u652f\uff0c\u628a\u5176\u4ed6\u7684\u6e05\u7406\u6389\uff0c\u4f46\u5148\u786e\u8ba4\u4e0d\u4f1a\u4e22\u4e1c\u897f",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 3,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Can I delete this stash, or is there something in it I'd regret losing?",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 3,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "I have a dangling commit from a botched interactive rebase \u2014 is it still recoverable?",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 3,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Help me pull the latest changes from the remote before I start working.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Clean sensitive data out of this repo's commit history before making it public.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Set up branch protection rules requiring PR review before merge.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Write a good commit message for these staged changes.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Resolve this merge conflict in the current pull request.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Configure a pre-commit hook that runs our linter.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "This repo won't install its dependencies \u2014 help me get it running.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Squash these 5 commits into one before opening a pull request.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "passed": 16,
+    "failed": 0,
+    "should_trigger_pass_rate": 1.0,
+    "should_not_trigger_pass_rate": 1.0
+  }
+}

@@ -94,9 +94,13 @@ hit real cost/reliability limits (see the master spec's dated correction at the 
 - **Axis 2 trigger accuracy (Step 2): done.** All 16 corpus skills scored single-arm,
   sequential (`--num-workers 1` — see gotchas), via `axis2_trigger_scorer.py` /
   `run_axis2_full_sweep.sh`. Results in `axis2-results/<skill>__creating-skills.json`.
-  9 of 16 skills scored poorly on should-trigger rate (0-22%); a diagnostic pilot into
-  whether that's real or an artifact of the original single-run-per-query sampling is
-  in progress (`run_axis2_pilot_3x.sh`).
+  9 of 16 skills scored poorly on should-trigger rate (0-22%) at the original
+  `--runs-per-query 1`. A 3-skill diagnostic pilot at `--runs-per-query 3`
+  (`run_axis2_pilot_3x.sh`, results in `axis2-results/pilot-3x/`) found the picture was
+  mixed, not uniformly a real problem — see Findings below. The remaining 6 of the 9
+  (`dataset-bias-auditor`, `deep-research`, `excel-automation`, `narrative-arc-builder`,
+  `repomix-unmixer`, `structured-data-diff`) were never re-verified at 3x and should be
+  treated as unconfirmed, not as established real problems.
 - **Task-success (Step 3): minimal pass done, mostly open.** Given no clean token-cost
   estimate exists for the eval-loop-only cost (only authoring cost is tracked, via `cost`
   below), the user chose the cheapest option that still answered a real question over the
@@ -145,6 +149,28 @@ correctly prevented by the authored skill:
 regression effort (`skill-artisan/scripts/`) — see `CHANGELOG.md`'s `[2.2.2]`/`[2.2.3]`
 entries and the master spec's Confidence Notes for full detail, including confirmation
 that three of the four are also present, unfixed, in `skill-creator`'s own current source.
+
+**Trigger-accuracy diagnostic pilot on the 9 low-scoring skills** (3 of 9 tried,
+`axis2-results/pilot-3x/` and `axis2-results/description-optimizer/`):
+- **`git-safety-net`**: 12% at `--runs-per-query 1` → **100%** at `--runs-per-query 3`.
+  Confirmed pure single-run sampling noise, not a real problem. Dropped from the list.
+- **`bilibili-source`**: 22% at both 1x and 3x — identical, confirmed real and stable.
+  Ran the Stage 2 fix (`description_optimizer.py`'s iterative improve loop, 5 iterations)
+  anyway: **no improvement found** — the optimizer's own best-scoring description across
+  all 5 iterations was the original, unchanged. The same 3 should-trigger queries failed
+  on every one of 5 materially different description rewrites it tried, which rules out
+  wording as the bottleneck. None of the 3 name a concrete video ID, but neither do
+  several *passing* should-trigger queries in the same eval set, so this may be partly
+  an eval-query design issue rather than purely a skill-description gap. Not investigated
+  further — the user chose to stop and document rather than keep spending on it.
+- **`fact-checker`**: 0% at 1x → 12.5% at 3x — still poor, confirmed real but noisier than
+  `bilibili-source` (which queries fail shifts between iterations, no single query failing
+  every time). Also ran Stage 2: same result, no improvement found over the original
+  description.
+- **Net result**: Stage 2 (`description_optimizer.py`) did not produce a usable fix for
+  either skill tested. Both remain documented open gaps rather than forced "fixes" that
+  don't actually work. The other 6 of the original 9 low-scoring skills were never
+  re-verified at 3x, so treat their 1x scores as unconfirmed, not established.
 
 ## Operational gotchas learned the hard way
 

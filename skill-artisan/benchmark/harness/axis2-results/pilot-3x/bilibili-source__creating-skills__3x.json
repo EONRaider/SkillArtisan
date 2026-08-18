@@ -1,0 +1,149 @@
+{
+  "skill_name": "fetching-bilibili-video-data",
+  "description": "Fetch real, live Bilibili (B\u7ad9) video stats \u2014 view/like/coin/favorite/share/reply counts, uploader name and follower count, and time-synced danmaku (\u5f39\u5e55) \u2014 from Bilibili's API instead of estimating or recalling numbers from memory. Accepts a full bilibili.com URL, a bare BVID, an old-style av number, or a b23.tv short link. Use when the user pastes a Bilibili video link or ID, asks for a video's views/likes/coins/favorites/shares/replies/danmaku, wants to know how a B\u7ad9 video performed or how its audience reacted, is drafting an analysis piece citing B\u7ad9 numbers, or asks anything that would otherwise require guessing a Bilibili statistic. Also use to check an uploader's (UP\u4e3b) follower count, or to get a video's subtitles (ask for the user's own login cookie first \u2014 never fetch subtitles silently). Never estimate, round, or recall a Bilibili number from memory \u2014 always fetch it live, and say plainly when a number can't be retrieved instead of presenting a guess as fact.",
+  "results": [
+    {
+      "query": "Get me the real view/like/favorite counts for this Bilibili video: BV17x411w7KC",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 3,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "\u8fd9\u4e2a B\u7ad9 \u89c6\u9891\u5f39\u5e55\u91cc\u5927\u5bb6\u90fd\u5728\u8bf4\u4ec0\u4e48\uff1f\u6211\u60f3\u4e86\u89e3\u771f\u5b9e\u53cd\u5e94",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Grab the subtitle transcript from this bilibili video so I can summarize it.",
+      "should_trigger": true,
+      "trigger_rate": 0.3333333333333333,
+      "triggers": 1,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "\u5e2e\u6211\u770b\u770b\u8fd9\u4e2a b23.tv \u77ed\u94fe\u89c6\u9891\u6709\u51e0\u4e2a\u5206P\u3001\u6bcf\u4e2a\u5206P\u7684 cid \u662f\u591a\u5c11",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "I need to verify a creator's claimed view count on their B\u7ad9 video before I cite it.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "What's the UP's follower count for av170001?",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 3,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Compare the like counts between these two Bilibili videos.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "I'm building a case study and need to cite this Bilibili video's real engagement numbers, not estimates.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Pull the danmaku text for this Bilibili video's second part.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Get me the view count and comment sentiment for this YouTube video.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "What kind of content tends to do well on Bilibili's recommendation algorithm?",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Watch this Bilibili video and summarize what it's actually about.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Translate the Japanese danmaku on this video into English for me.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Download this Bilibili video's video file so I can edit it locally.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Post a comment on this Bilibili video on my behalf.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "What's a typical engagement rate for a mid-size YouTube channel?",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Get the follower count and stats for this Twitter/X account.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 17,
+    "passed": 10,
+    "failed": 7,
+    "should_trigger_pass_rate": 0.2222222222222222,
+    "should_not_trigger_pass_rate": 1.0
+  }
+}
