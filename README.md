@@ -13,6 +13,8 @@ This repo is the working home for **SkillArtisan** — a Claude Code plugin that
 ├── skill-artisan/              # the plugin itself — install/run this
 │   ├── creating-skills/        # the bundled skill (decision gate, SKILL.md)
 │   ├── agents/ eval-viewer/ assets/ scripts/
+│   ├── benchmark/               # regression/QA harness + corpus for testing
+│   │                             #   creating-skills itself — not part of the installed skill
 │   └── README.md CHANGELOG.md LICENSE   # the live, canonical copies
 ├── .claude/skills/              # project-local skills for maintaining this repo
 │   └── drafting-changelog-entries/   # dogfoods the plugin's own workflow
@@ -25,7 +27,9 @@ Two more files existed at the root during earlier development and were deliberat
 
 ## Status
 
-**v2.0.0** — both release stages of the master spec are built and shipped. v1 (Stages 1-4: eval engine, decision/dedup gate, five-surface matrix, security scanning) was verified against a live `claude -p` session and a real `gitleaks` install, then dogfooded on a real project skill before v2 began. v2 (Stages 5-6: lifecycle framing, audit mode) was verified against Anthropic's actual shipped `skill-creator` and a set of throwaway test skills, not just written and assumed correct. See [`skill-artisan/CHANGELOG.md`](skill-artisan/CHANGELOG.md) for what shipped, what's deliberately deferred (the Best-in-Market Scorecard hasn't been run — no "best in market" claim is made anywhere), and the master spec's Gap Table for the row-by-row comparison against `skill-creator` and other prior art.
+**Current version: `2.2.3`** (per [`skill-artisan/CHANGELOG.md`](skill-artisan/CHANGELOG.md) and `plugin.json`). Both release stages of the master spec (v1 `1.0.0` and v2 `2.0.0`) are built and shipped, followed by six patch/minor releases (`2.0.1` through `2.2.3`) fixing real bugs — four of them in the eval/description-optimization engine itself, caught through actual regression testing rather than left as theoretical risk. v1 (Stages 1-4: eval engine, decision/dedup gate, five-surface matrix, security scanning) was verified against a live `claude -p` session and a real `gitleaks` install, then dogfooded on a real project skill before v2 began. v2 (Stages 5-6: lifecycle framing, audit mode) was verified against Anthropic's actual shipped `skill-creator` and a set of throwaway test skills, not just written and assumed correct. See `CHANGELOG.md` for what shipped, what's deliberately deferred (the Best-in-Market Scorecard hasn't been run — no "best in market" claim is made anywhere), and the master spec's Gap Table for the row-by-row comparison against `skill-creator` and other prior art.
+
+**Note on the badge above**: it reflects the latest tagged GitHub Release (`v2.0.1`), not the latest CHANGELOG entry. Releases haven't been cut for `2.1.0` through `2.2.3` yet — those versions are real (committed, tagged in `plugin.json`, documented in `CHANGELOG.md`) but not yet published as GitHub Releases. Don't take the badge as the full picture of what's shipped; check `CHANGELOG.md` instead.
 
 ## License
 

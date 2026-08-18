@@ -79,8 +79,109 @@ complete, which is what actually informs pacing/concurrency decisions.
 
 ## Status
 
-Scaffolding built and smoke-tested (init/status/mark-complete round-trip verified against
-a throwaway workspace). Zero real authoring runs executed yet — that needs an explicit
-pilot-first decision (2-3 corpus skills across all 5 arms, per the plan's own conservative
-checkpoint given the scale) and the nested-subagent question above resolved, both pending
-user input.
+The nested-subagent question above resolved (subagents can spawn their own children, but
+completion notifications route to the top level, not back to the spawning parent — see
+Operational gotchas below). The original 5-arm comparative plan was piloted on 3 skills,
+hit real cost/reliability limits (see the master spec's dated correction at the top of
+"Best-in-Market Scorecard"), and was redirected to single-arm regression/QA testing of
+`creating-skills` alone. That's what actually ran:
+
+- **Authoring (Step 1): done.** All 25 tracked runs (12 pilot + 13 more, `creating-skills`
+  arm) show `complete` via `run_authoring.py status`. Total authoring spend: ~7.26M tokens
+  initial + ~2.9M tokens retesting 6 runs whose eval loops were interrupted mid-session —
+  ~10.1M tokens total. Each run got a full with-skill/baseline eval loop, grading, and
+  aggregation; results live under `workspace/<skill>/creating-skills/`.
+- **Axis 2 trigger accuracy (Step 2): done.** All 16 corpus skills scored single-arm,
+  sequential (`--num-workers 1` — see gotchas), via `axis2_trigger_scorer.py` /
+  `run_axis2_full_sweep.sh`. Results in `axis2-results/<skill>__creating-skills.json`.
+  9 of 16 skills scored poorly on should-trigger rate (0-22%); a diagnostic pilot into
+  whether that's real or an artifact of the original single-run-per-query sampling is
+  in progress (`run_axis2_pilot_3x.sh`).
+- **Task-success (Step 3): minimal pass done, mostly open.** Given no clean token-cost
+  estimate exists for the eval-loop-only cost (only authoring cost is tracked, via `cost`
+  below), the user chose the cheapest option that still answered a real question over the
+  full 28-run plan: retest just `deep-research`'s eval-3, which had regressed to -15% vs.
+  baseline. Confirmed real and fixed (see Findings). The 3 skills with zero task-success
+  data (`auto-repo-setup`, `design-style-picker`, `narrative-arc-builder`) remain open —
+  deliberately skipped as low expected value relative to cost, not an oversight.
+
+## Findings
+
+Real, concrete results from the single-arm regression run — not projections.
+
+**Bugs found and fixed in individual authored corpus skills** (not shipped SkillArtisan
+tooling — see the main `CHANGELOG.md` for that; these don't get a version bump):
+- `ui-designer` (`building-ui-design-systems`): did design-system extraction before
+  building the PRD, contradicting its own stated order. Fixed, re-tested (2/3 → 3/3).
+- `deep-research` (`conducting-deep-research`): silently produced an empty report under
+  budget pressure on deep-tier queries. Fixed with incremental registry checkpointing +
+  graceful degradation. **Confirmed via retest**: eval-3's with-skill delta flipped from
+  -15% (empty report, pre-fix) to +12% (full report, genuine counter-review, post-fix) —
+  full report and registry preserved under
+  `workspace/deep-research/creating-skills/eval-workspace/iteration-1/eval3-with-retest/`.
+  The first retest attempt (`eval3-with-retest-attempt1-invalid/`) is kept as a
+  methodology lesson — see Operational gotchas.
+- `github-sensitive-data-cleanup` (`cleaning-leaked-secrets-from-git-history`): its
+  bundled `scan_history.py` had a gitleaks-allowlist blind spot on AWS
+  documentation-placeholder-shaped keys. Fixed with an independent backstop regex.
+
+**Confirmed real value** — baseline (no-skill) behavior that was genuinely unsafe,
+correctly prevented by the authored skill:
+- `repomix-unmixer`: baseline *complied* with a path-traversal write instruction in its
+  own stated reasoning (only sandboxed by the harness, not by its own judgment). With-skill
+  refused via the bundled script's real traversal defense.
+- `repomix-safe-mixer`: baseline packed a project after auto-excluding leaked-credential
+  files instead of refusing outright (100% vs 38% pass rate — the largest delta measured).
+- `git-safety-net`: baseline ran an unconfirmed `git branch -d` immediately after its merge
+  check — only failed because git's own worktree guard blocked it, not because it asked
+  first.
+- `github-sensitive-data-cleanup`: baseline used a deprecated rewrite tool, didn't verify
+  its backup, silently performed the destructive rewrite while presenting it as pending
+  advice to the user, and separately said `--no-verify` was fine when it wasn't.
+- `bilibili-source` and `dataset-bias-auditor`'s eval-1: non-discriminating (clean sweep
+  both ways) — reported honestly as such, not forced into a false delta.
+
+**Four real bugs found and fixed in SkillArtisan's own shipped tooling** through this
+regression effort (`skill-artisan/scripts/`) — see `CHANGELOG.md`'s `[2.2.2]`/`[2.2.3]`
+entries and the master spec's Confidence Notes for full detail, including confirmation
+that three of the four are also present, unfixed, in `skill-creator`'s own current source.
+
+## Operational gotchas learned the hard way
+
+- **Nested subagent completion notifications route to the top-level session, not back to
+  the spawning parent subagent.** A parent that spawns child executors/graders and "waits
+  for their notifications" will wait forever unless the top-level session relays completion
+  back to it explicitly via `SendMessage`. Always check `ListAgents` + file timestamps on
+  disk before trusting a parent's self-reported "still waiting" status.
+- **2 parent subagents in flight at a time** has been the safe, established concurrency
+  convention for this Agent-tool-based orchestration (distinct from the `claude -p`
+  subprocess concurrency issue below).
+- **`claude -p` subprocess concurrency above 1 worker is unsafe for two independent
+  reasons**, confirmed separately: (1) resource contention — concurrent processes on one
+  machine slow each other down enough that the tool-call decision itself can miss the
+  timeout window (confirmed live at `--num-workers 4`: a 14/16 baseline dropped to 10/16,
+  unrelated to (2)); (2) a filesystem race in `description_optimizer.py`'s synthetic
+  skill-directory publish/teardown, fixed in `2.2.3` but not sufficient on its own to fix
+  (1). Always `--num-workers 1` for `axis2_trigger_scorer.py` until (1) is separately
+  investigated.
+- **Task-success and trigger-accuracy are different axes for a reason — don't let one
+  eval run answer both.** A task-success ("with-skill") run should deliberately hand the
+  skill to the executor rather than relying on organic triggering; conflating the two
+  produces a run that silently tests nothing (a skill with a low trigger rate just won't
+  fire on its own, and you'll grade the model's general ability instead of the skill).
+  Learned the hard way on the `deep-research` retest's first attempt.
+- **Don't directly edit a file a still-running background agent is actively writing to,
+  even to help it along** — a direct edit can race with the agent's own writes and
+  silently revert some of its concurrent progress. Relay information via `SendMessage`
+  and let the agent make its own edits instead.
+- **Eval-workspace directory naming is non-uniform per-skill** (`eval-workspace/iteration-1/`
+  vs `creating-skills/eval-workspace/iteration-1/` vs
+  `creating-skills/output/eval-workspace/iteration-1/` vs `_bench/` — each authoring agent
+  chose its own convention). Don't hardcode a path pattern when checking for
+  `grading.json`/activity across multiple skills — search the whole skill's workspace tree.
+- **A background monitor script checking file activity by a fixed subpath can produce
+  false "stalled" alarms** — always re-verify against the actual filesystem (broad `find`)
+  and `ListAgents` before concluding something is actually stuck, not just proxied wrong.
+- **Fixture repos for git-related skill testing should stay under the scratchpad or
+  workspace, not a general home-directory location** — verify and clean these up after
+  retests involving real git repos.

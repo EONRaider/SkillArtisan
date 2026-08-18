@@ -63,6 +63,8 @@ skill-artisan/
 ├── eval-viewer/               # HTML review UI for benchmark results
 ├── assets/
 ├── scripts/                  # validation, security scanning, dedup search, eval loop, audit
+├── benchmark/                 # regression/QA harness + corpus for testing creating-skills
+│                              #   itself — development tooling, not part of the installed skill
 ├── LICENSE
 ├── CHANGELOG.md
 ├── .skillignore
@@ -76,9 +78,11 @@ Full rationale in the project's [master specification](../skill-artisan-master-s
 SkillArtisan shipped in two deliberate stages, both now released:
 
 - **v1** (`1.0.0`) — eval engine, decision gate, surface matrix, security scanning. A complete, usable tool on its own.
-- **v2** (`2.0.0`) — lifecycle framing (capability-uplift vs. encoded-preference classification, `references/lifecycle.md`) and audit mode (`scripts/audit.py`: upgrade/rebuild existing skills, bulk mode across a whole skills directory, an optional additive-only contribution-plan mode for third-party repos). Shipped after v1 had been dogfooded on a real project skill, so the audit heuristics were informed by real usage (see `[1.0.1]` in the changelog) rather than designed in a vacuum.
+- **v2** (`2.0.0`) — lifecycle framing (capability-uplift vs. encoded-preference classification, `creating-skills/references/lifecycle.md`) and audit mode (`scripts/audit.py`: upgrade/rebuild existing skills, bulk mode across a whole skills directory, an optional additive-only contribution-plan mode for third-party repos). Shipped after v1 had been dogfooded on a real project skill, so the audit heuristics were informed by real usage (see `[1.0.1]` in the changelog) rather than designed in a vacuum.
 
-The one thing v2 deliberately did not do: claim "best in market." That requires the master spec's full Best-in-Market Scorecard — a 12-20 skill benchmark corpus, four other comparison arms actually run, three axes scored separately — and that hasn't been run yet. See [CHANGELOG.md](./CHANGELOG.md) for what's shipped, what's deferred, and why.
+These two stages mark deliberate scope boundaries, not the current version — six patch/minor releases (`2.0.1` through `2.2.3`) have shipped since v2.0.0, including a single-arm regression/QA effort (`benchmark/`) that found and fixed four real bugs in the eval engine itself, three of them also confirmed present and unfixed in `skill-creator`'s own current source. See [CHANGELOG.md](./CHANGELOG.md) for the current version and the full list.
+
+The one thing none of these releases did: claim "best in market." That requires the master spec's full Best-in-Market Scorecard — a 12-20 skill benchmark corpus, four other comparison arms actually run, three axes scored separately — and that hasn't been run yet. See [CHANGELOG.md](./CHANGELOG.md) for what's shipped, what's deferred, and why.
 
 ## Security
 
