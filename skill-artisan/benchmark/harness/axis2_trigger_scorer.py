@@ -39,9 +39,14 @@ def main() -> None:
         help="Concurrent claude -p launches. Default 1 (sequential) — verified directly "
              "that >1 causes real detection failures against the same project root here "
              "(0%% should-trigger pass rate at num-workers=4 vs. 75%% at num-workers=1 on "
-             "an identical query set), on top of description_optimizer.py's own documented "
-             "skill-discovery race risk. Raise only after re-verifying it's actually safe "
-             "in your environment.",
+             "an identical query set). description_optimizer.py's own skill-discovery "
+             "atomic-write race (2.2.3) has since been fixed and confirmed closed via a "
+             "dedicated stress test, but a live re-check at num-workers=4 post-fix still "
+             "dropped a 14/16 sequential baseline to 10/16, with every failure showing the "
+             "tool-call decision itself never happening within the timeout — consistent "
+             "with raw resource contention (concurrent claude -p processes competing for "
+             "CPU/network/API throughput on one machine), not the filesystem race. Raise "
+             "only after separately investigating that bottleneck.",
     )
     p.add_argument(
         "--timeout", type=int, default=180,

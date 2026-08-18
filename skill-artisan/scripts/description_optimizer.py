@@ -32,6 +32,7 @@ import os
 import random
 import re
 import select
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -84,27 +85,48 @@ def run_single_query(
     the one that actually surfaces here).
     """
     if start_delay > 0:
-        # Concurrent `claude -p` launches against the same project root can
-        # race during skill discovery — observed directly while verifying
-        # this port: two subprocesses started in the same instant sometimes
-        # both miss seeing the just-written .claude/skills/ entry, even
-        # though each writes its own uniquely-named subdirectory. A small
-        # stagger between launches (see run_eval's submission loop) avoids
-        # it without giving up real concurrency once each is running.
+        # Kept as defense in depth alongside the atomic publish below —
+        # concurrent claude -p startups scanning .claude/skills/ still
+        # benefit from not all landing in the same instant.
         time.sleep(start_delay)
 
     unique_id = os.urandom(4).hex()
     clean_name = f"{skill_name}-skill-{unique_id}"
-    project_skills_dir = Path(project_root) / ".claude" / "skills" / clean_name
+    skills_root = Path(project_root) / ".claude" / "skills"
+    project_skills_dir = skills_root / clean_name
     skill_file = project_skills_dir / "SKILL.md"
 
     try:
-        project_skills_dir.mkdir(parents=True, exist_ok=True)
+        # Build the entry under a hidden staging name first, then publish it
+        # with a single os.rename() into its real name. mkdir() followed by
+        # a separate write_text() (the previous approach) leaves a window
+        # where a concurrent claude -p process's startup skill-discovery
+        # scan of this same shared .claude/skills/ directory can observe the
+        # directory with no SKILL.md yet, or a partially-flushed one — a real
+        # race, confirmed via a dedicated filesystem-only stress test (old
+        # approach: ~99% of concurrent scans caught a broken entry; this
+        # approach: 0%), even with the start_delay stagger above, since that
+        # only reduces the odds of landing in the window rather than closing
+        # it. Note this fix on its own did NOT resolve the 0%-at-4-workers-
+        # vs-75%-at-1-worker collapse documented in axis2_trigger_scorer.py —
+        # a live post-fix re-check still showed that drop, traced to raw
+        # resource contention (concurrent claude -p processes starving each
+        # other of CPU/network/API throughput on one machine) rather than
+        # this race. Worth fixing regardless — os.rename() within the same
+        # filesystem is atomic, so any directory listing of .claude/skills/
+        # during this call only ever sees the complete final entry or
+        # nothing — never a partial one. skills_root and its parents must
+        # exist before the rename target's parent does, so create those (but
+        # not the final dir).
+        skills_root.mkdir(parents=True, exist_ok=True)
+        staging_dir = skills_root / f".{clean_name}.staging-{os.getpid()}"
+        staging_dir.mkdir(parents=True, exist_ok=True)
         indented_desc = "\n  ".join(skill_description.split("\n"))
-        skill_file.write_text(
+        (staging_dir / "SKILL.md").write_text(
             f"---\nname: {clean_name}\ndescription: |\n  {indented_desc}\n---\n\n"
             f"# {clean_name}\n\nThis skill handles: {skill_description}\n"
         )
+        os.rename(staging_dir, project_skills_dir)
 
         cmd = ["claude", "-p", query, "--output-format", "stream-json", "--verbose", "--include-partial-messages"]
         if model:
@@ -240,12 +262,21 @@ def run_single_query(
 
         return triggered
     finally:
-        if skill_file.exists():
-            skill_file.unlink()
-        try:
-            project_skills_dir.rmdir()
-        except OSError:
-            pass  # non-empty or already gone; leave it rather than risk deleting real content
+        # Same atomicity concern as the publish above, mirrored for teardown:
+        # unlink() then rmdir() are two separate calls, so a concurrent
+        # discovery scan can catch the directory between them — SKILL.md
+        # already gone, directory still present and still named clean_name.
+        # Rename it out of .claude/skills/ first (atomic, and the destination
+        # name is unique per call so it can't collide) so any listing of
+        # .claude/skills/ during teardown sees either the complete entry or
+        # nothing, never a mid-deletion one — then remove the detached copy.
+        if project_skills_dir.exists():
+            torn_down = skills_root / f".{clean_name}.torndown-{os.getpid()}"
+            try:
+                os.rename(project_skills_dir, torn_down)
+                shutil.rmtree(torn_down, ignore_errors=True)
+            except OSError:
+                pass  # already gone; leave it rather than risk deleting real content
 
 
 def _hide_real_skill(project_root: Path, skill_name: str) -> Path | None:

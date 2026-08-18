@@ -1,0 +1,141 @@
+{
+  "skill_name": "building-ui-design-systems",
+  "description": "Extract a design system (colors, typography, components, spacing, dark mode if shown) by looking at reference UI screenshots, not by guessing from a description. If the user lacks a PRD, help build a minimal one first (pitch, problem, audience, must-haves), then compose the design system and PRD into one implementation-ready prompt for a UI-generation step. Use when the user provides UI screenshots/mockups and wants a design system extracted, wants to match (not copy) an app's look, wants tokens pulled from visual examples, wants an MVP PRD before UI work, or wants implementation-ready UI prompts from references plus a rough idea. Use even without \"design system\" \u2014 \"pull the palette from these screenshots,\" \"match this app's vibe,\" \"turn these mockups into a style guide.\" Not for auditing a built UI for bugs, generating style directions with no references, or writing implementation code once the prompt exists.",
+  "results": [
+    {
+      "query": "Extract a design system from these reference UI screenshots for my new app.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "I have mockups I like the look of \u2014 pull out the color palette, typography, and spacing into documentation.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Build an MVP UI that matches the aesthetic of these reference screenshots.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": false
+    },
+    {
+      "query": "Generate implementation-ready UI prompts based on this design system and my product idea.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "I don't have a PRD yet, but I have reference images \u2014 help me build both before generating UI prompts.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "These screenshots are dark mode \u2014 extract the design tokens including dark mode variants.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": false
+    },
+    {
+      "query": "Create consistent UI variations for my app following the design language in these references.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": false
+    },
+    {
+      "query": "Turn these competitor app screenshots into a reusable design system doc for our team.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": false
+    },
+    {
+      "query": "Audit this already-built page for visual bugs and layout defects.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Generate multiple different visual style directions since I can't describe what I want.",
+      "should_trigger": false,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": false
+    },
+    {
+      "query": "Write the actual React components implementing this existing design spec.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Explain the difference between a design system and a component library.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Create a QA test plan for this application.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Fix the layout overflow bug on this page's mobile view.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Write a product requirements document for a new feature, no design work needed.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Compress and optimize these image files for faster page load.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "passed": 11,
+    "failed": 5,
+    "should_trigger_pass_rate": 0.5,
+    "should_not_trigger_pass_rate": 0.875
+  }
+}

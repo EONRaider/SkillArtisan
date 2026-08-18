@@ -1,0 +1,141 @@
+{
+  "skill_name": "setting-up-repos",
+  "description": "Get a repository into a working state safely \u2014 for a collaborator onboarding, a fresh clone on a new machine, or catching up an existing clone at the start of a session (\"sync me up,\" \"pull the latest,\" \"get this running\"). Detects the actual stack from lockfiles, manifests, and the repo's own documented setup commands instead of assuming Python or Node by default, then runs the real install/sync steps. Use also when a startup or session hook is firing more than once and needs diagnosing (not just re-registered), when the user asks to commit, push, or clean up git history and the request could touch shared history or discard work, or when deciding whether a lifecycle hook is genuinely needed for behavior that must happen before the first prompt. Never stashes, merges, rebases, force-pushes, or discards uncommitted work silently to make a setup step \"look\" successful \u2014 a dirty working tree always stops for a decision instead.",
+  "results": [
+    {
+      "query": "This repo won't run on my machine \u2014 help me get it set up.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Sync me up with the latest remote changes before I start working.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "A new collaborator is onboarding and needs this repo working fast.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "The SessionStart hook is firing three times and I don't know why.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "I need a lifecycle hook that runs before the very first prompt in this repo.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Missing dependencies on this fresh clone \u2014 figure out what's needed and install them.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Audit our project instructions and hooks for anything stale or misconfigured.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "I want to commit and push but I'm worried about a merge conflict \u2014 walk me through it safely.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Write a Python script that adds two numbers together.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Review this pull request's code for correctness bugs.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Deploy this application to our production Kubernetes cluster.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Explain what this function does and suggest a better name for it.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Debug this network connection that keeps resetting after 90 seconds.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Recover a commit I think I lost after a bad rebase.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Write unit tests for this new feature I just built.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Optimize this slow database query.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "passed": 16,
+    "failed": 0,
+    "should_trigger_pass_rate": 1.0,
+    "should_not_trigger_pass_rate": 1.0
+  }
+}

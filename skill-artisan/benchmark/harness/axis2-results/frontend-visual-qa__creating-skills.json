@@ -1,0 +1,173 @@
+{
+  "skill_name": "auditing-rendered-uis",
+  "description": "Audit a UI already built and rendered, not one being designed. Use when asked to check, verify, review, or QA an existing page/screen \u2014 \"does this look right,\" \"review this screenshot,\" \"check the deployed page,\" \"compare against the design,\" \"why did this break on refresh\" \u2014 or when handed a screenshot/image/live URL for visual review, even without the words \"audit\" or \"QA\" (\"does the build look OK,\" \"spot check this page\"). Treats a build succeeding or the DOM having the right elements as weak evidence \u2014 only actually looking at the rendered result counts as proof. Covers: toasts vanishing before a screenshot lands; measuring the gap against a reference design instead of \"looks worse\"; SPA view-switches that never update the URL, breaking refresh/deep-link/back; broken vs. not-yet-triggered lazy images; and staying honest about what a still image can't prove. Audit-only by default \u2014 no editing, installing, or fixing unless explicitly asked.",
+  "results": [
+    {
+      "query": "\u6211\u521a\u6539\u5b8c\u4e00\u4e2a\u540e\u53f0 dashboard\u3002\u8bf7\u4f60\u5728 Chrome \u91cc\u5b9e\u9645\u770b\u770b\u6709\u6ca1\u6709\u4f4e\u7ea7\u6392\u7248\u3001\u5947\u602a\u6362\u884c\u3001\u53cc\u6eda\u52a8\u6761\u548c\u79fb\u52a8\u7aef\u6ea2\u51fa\uff0c\u522b\u53ea\u8dd1 lint\u3002",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "PDF \u6309\u94ae\u7684\u5355\u6d4b\u901a\u8fc7\u4e86\uff0c\u4f46\u7528\u6237\u70b9\u5b8c\u4ee5\u540e Chrome \u6253\u5370\u9884\u89c8\u662f\u7a7a\u767d\u3002\u8bf7\u6309\u771f\u5b9e\u7528\u6237\u8def\u5f84\u68c0\u67e5\u5bfc\u51fa\u7ed3\u679c\u3002",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "\u5730\u56fe\u5de5\u4f5c\u53f0\u5728\u624b\u673a\u5bbd\u5ea6\u4e0b\u5f88\u96be\u70b9\uff0c\u7701\u4efd\u6807\u7b7e\u8fd8\u4f1a\u88ab\u53f3\u4fa7\u8be6\u60c5\u9762\u677f\u6321\u4f4f\u3002\u8bf7\u505a\u4e00\u6b21\u771f\u5b9e\u6d4f\u89c8\u5668\u89c6\u89c9\u548c\u4ea4\u4e92\u68c0\u67e5\u3002",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "\u5bf9\u7167\u6211\u7ed9\u7684\u53c2\u8003 dashboard\uff0c\u8fd9\u4e2a KPI \u9875\u9762\u660e\u663e\u4f4e\u4e00\u4e2a\u6863\u6b21\u3002\u5e2e\u6211\u68c0\u67e5\u6570\u5b57\u5c42\u7ea7\u3001\u56fe\u8868 token\u3001\u989c\u8272\u8bed\u4e49\u548c\u6574\u4f53\u89c6\u89c9\u5bc6\u5ea6\u3002",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "\u767b\u5f55\u5931\u8d25\u7684 toast \u4e00\u95ea\u5c31\u6ca1\u4e86\uff0c\u6211\u622a\u56fe\u6293\u4e0d\u5230\u3002\u8bf7\u786e\u8ba4\u5b83\u5230\u5e95\u6709\u6ca1\u6709\u51fa\u73b0\u3001\u6587\u6848\u662f\u5426\u53ef\u8bfb\u3001\u7528\u6237\u80fd\u4e0d\u80fd\u6062\u590d\u3002",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "\u53ea\u770b\u6211\u9644\u7684\u8fd9\u5f20\u9875\u9762\u622a\u56fe\uff0c\u6307\u51fa\u80fd\u76f4\u63a5\u89c2\u5bdf\u5230\u7684\u6784\u56fe\u3001\u5b57\u4f53\u3001\u6362\u884c\u548c\u89c6\u89c9\u5c42\u7ea7\u95ee\u9898\uff1b\u4e0d\u8981\u5047\u88c5\u77e5\u9053 DOM\u3002",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": false
+    },
+    {
+      "query": "\u8fd9\u4e09\u4e2a workspace \u70b9\u8d77\u6765\u90fd\u80fd\u6362\u5185\u5bb9\uff0c\u4f46\u5237\u65b0\u3001\u6df1\u94fe\u548c\u6d4f\u89c8\u5668\u540e\u9000\u4e0d\u5bf9\u3002\u8bf7\u5728\u771f\u5b9e\u9875\u9762\u91cc\u68c0\u67e5 route-state contract\u3002",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "\u8fd9\u4efd HTML slides \u8981\u5728 1920x1080 \u6295\u5f71\u3002\u8bf7\u6e32\u67d3\u6574\u5957\u9875\u9762\uff0c\u68c0\u67e5\u88c1\u5207\u3001\u5b57\u53f7\u3001\u957f\u9875\u548c\u6bcf\u4e00\u5c4f\u7684\u89c6\u89c9\u5bc6\u5ea6\u3002",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": false
+    },
+    {
+      "query": "\u5217\u8868\u91cc\u6709\u4e9b\u5c01\u9762\u50cf\u662f\u574f\u4e86\uff0c\u4f46\u9875\u9762\u7528\u4e86\u61d2\u52a0\u8f7d\uff0c\u800c\u4e14\u684c\u9762\u8868\u683c\u548c\u624b\u673a\u5361\u7247\u90fd\u7559\u5728 DOM \u91cc\u3002\u8bf7\u5728\u4e24\u4e2a\u5bbd\u5ea6\u5b9e\u9645\u6eda\u52a8\u68c0\u67e5\uff0c\u522b\u628a\u6ca1\u89e6\u53d1\u7684\u56fe\u7247\u5f53\u574f\u56fe\u3002",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "\u6e90\u7801\u548c 5173 \u5f00\u53d1\u9875\u90fd\u4fee\u597d\u4e86\uff0c\u4f46\u6211\u7ed9\u4f60\u7684 https://localhost:9443/login \u8fd8\u662f\u65e7\u6837\u5f0f\u3002\u8bf7\u67e5\u6e05\u8fd9\u4e2a\u7cbe\u786e UAT \u5730\u5740\u5b9e\u9645\u8dd1\u7684\u7248\u672c\uff0c\u5e76\u5728\u539f\u5730\u5740\u91cd\u65b0\u505a\u89c6\u89c9\u9a8c\u8bc1\u3002",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "\u6839\u636e\u8fd9\u4e94\u5f20\u7ade\u54c1\u622a\u56fe\u63d0\u53d6\u989c\u8272\u3001\u5b57\u4f53\u3001\u95f4\u8ddd\u548c\u7ec4\u4ef6\u98ce\u683c\uff0c\u6574\u7406\u6210\u4e00\u5957 implementation-ready design system prompt\u3002",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "\u4ece\u96f6\u8bbe\u8ba1\u4e00\u4e2a\u6709\u8fa8\u8bc6\u5ea6\u7684 SaaS \u767b\u5f55\u9875\uff0c\u5148\u7ed9\u89c6\u89c9\u65b9\u5411\u548c React \u5b9e\u73b0\uff0c\u4e0d\u9700\u8981\u5ba1\u67e5\u73b0\u6709\u9875\u9762\u3002",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "\u7ed9\u8fd9\u4e2a\u540e\u7aef API \u5efa\u4e00\u5957\u5b8c\u6574 QA \u6d41\u7a0b\uff0c\u5305\u62ec\u6d4b\u8bd5\u7528\u4f8b\u3001P0-P4 \u7f3a\u9677\u8868\u3001\u8986\u76d6\u7387\u548c\u53d1\u5e03\u95e8\u7981\u3002",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "React hydration failed because the server HTML differs from the client. \u5e2e\u6211\u6cbf\u5806\u6808\u5b9a\u4f4d\u4ee3\u7801\u6839\u56e0\u3002",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "\u89e3\u91ca\u4e00\u4e0b CSS Grid \u7684 minmax()\u3001auto-fit \u548c auto-fill \u6709\u4ec0\u4e48\u533a\u522b\uff0c\u7ed9\u4e09\u4e2a\u4ee3\u7801\u4f8b\u5b50\u3002",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "\u751f\u6210\u4e00\u5f20\u6d45\u8272\u79d1\u6280\u611f\u6d3b\u52a8\u6d77\u62a5\uff0c\u4e3b\u9898\u662f\u672c\u5730\u4f18\u5148 AI\u3002",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Chrome \u7684 LCP \u53d8\u6162\u4e86\uff0c\u5e2e\u6211\u5f55 performance trace\u3001\u5b9a\u4f4d main-thread long task \u548c\u7f51\u7edc\u7011\u5e03\uff0c\u4e0d\u9700\u8981\u505a\u89c6\u89c9\u5ba1\u67e5\u3002",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "\u5ba1\u67e5\u8fd9\u4e2a SwiftUI iPhone \u539f\u751f\u9875\u9762\u7684 ViewModel \u6570\u636e\u6d41\u548c async/await \u5e76\u53d1\u95ee\u9898\uff0c\u4e0d\u9700\u8981\u8fd0\u884c\u6216\u770b\u622a\u56fe\u3002",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "\u68c0\u67e5\u5408\u540c PDF \u7684\u9875\u7709\u9875\u811a\u3001\u5206\u9875\u548c\u4e2d\u6587\u5b57\u4f53\u662f\u5426\u6b63\u786e\u3002\u8fd9\u4e0d\u662f\u7f51\u9875\u6216\u684c\u9762 UI\u3002",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "\u53ea\u5ba1 Storybook \u7ec4\u4ef6\u7684 TypeScript props API\u3001\u6cdb\u578b\u548c\u5bfc\u51fa\u547d\u540d\uff0c\u4e0d\u6e32\u67d3 story\u3002",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 20,
+    "passed": 18,
+    "failed": 2,
+    "should_trigger_pass_rate": 0.8,
+    "should_not_trigger_pass_rate": 1.0
+  }
+}

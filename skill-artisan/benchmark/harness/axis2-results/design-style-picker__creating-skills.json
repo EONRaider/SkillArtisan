@@ -1,0 +1,141 @@
+{
+  "skill_name": "exploring-design-directions",
+  "description": "Break out of \"I don't know what I want it to look like, but I'll know it when I see it\" by generating a rendered batch of visibly different design options along explicit axes (color intensity, layout/organization strategy, or others the request names), grounded in existing design tokens/brand colors/screenshots, self-reviewed before showing, then implemented from the picked option's principles (color roles, density, hierarchy) rather than copying its pixels or markup. Use when the user can't put a visual style into words, says \"I'll know it when I see it,\" asks for design options/variants/directions/mockups to react to, wants to compare looks before committing, is stuck between vague descriptors like \"modern but not too corporate,\" or asks to redesign/restyle a screen, component, dashboard, or page with no clear spec. Also use once the user has pointed at a variant and wants it built for real.",
+  "results": [
+    {
+      "query": "I can't describe the style I want \u2014 just generate a bunch of visual options for me to react to.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Show me several different visual directions for this dashboard so I can pick the one closest to what I want.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": false
+    },
+    {
+      "query": "This design feels too colorful \u2014 give me some toned-down alternatives to compare.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "I rejected the last three mockups as too generic \u2014 batch-generate more options with clearer contrast between them.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Evolve our existing design system without throwing away the current components \u2014 show me a few visual directions.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Give me a color-intensity ladder for this UI, from muted to bold, so I can pick a level.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "I want to see multiple visual style options for this landing page before committing to one.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Batch-generate some UI style variations based on these reference screenshots I like.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": false
+    },
+    {
+      "query": "Extract the design system (colors, typography, spacing) from these screenshots into documentation.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Audit this already-built page for visual bugs like overlap and overflow.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Build a working React component from this design spec.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Generate a single polished hero image for our marketing page, I already know exactly what I want.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Write the CSS to implement this exact Figma design, pixel for pixel.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Create a full QA test plan for this application's UI.",
+      "should_trigger": false,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": false
+    },
+    {
+      "query": "Explain the difference between CSS Grid and Flexbox with code examples.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Write the backend API for saving a user's theme preference.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "passed": 13,
+    "failed": 3,
+    "should_trigger_pass_rate": 0.75,
+    "should_not_trigger_pass_rate": 0.875
+  }
+}

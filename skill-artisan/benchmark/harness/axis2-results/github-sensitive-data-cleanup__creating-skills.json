@@ -1,0 +1,141 @@
+{
+  "skill_name": "cleaning-leaked-secrets-from-git-history",
+  "description": "Handle the moment a secret or private internal detail \u2014 an API key, cloud credential, internal hostname/domain, internal IP, or PII \u2014 turns up committed into a Git repo's *history*, not just the working tree, especially if public or about to be pushed publicly. Use when the user says \"I found an API key in an old commit,\" \"there's a secret in git history,\" \"we committed a .env file years ago,\" \"this internal IP/hostname leaked into a public repo,\" \"how do I purge history before pushing,\" or \"someone found a credential in our commit log.\" Also use for a pre-publish history sweep before open-sourcing. Covers in order: scan full history and show findings before touching anything; verified backup before any rewrite; rewrite safely, never `--no-verify`; verify real repo visibility before any push, never guessed from the URL; re-scan after rewrite, not trusting a clean `git log`; and what a rewrite never fixes alone \u2014 rotate any credential that was ever live, and disclose that forks keep the old history regardless.",
+  "results": [
+    {
+      "query": "Scan this repo for sensitive data before I push it publicly.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "I accidentally committed an API key a few commits back \u2014 clean the git history.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "\u6e05\u7406\u8fd9\u4e2a\u4ed3\u5e93\u5386\u53f2\u91cc\u7684\u654f\u611f\u6570\u636e",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "I need to force-push to a public repo \u2014 verify it's safe first.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": false
+    },
+    {
+      "query": "Remove this internal domain name from every commit in our repo's history.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "We just realized PII leaked into git history months ago \u2014 help me sanitize it.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "\u5386\u53f2\u91cd\u5199\u4e4b\u540e\u600e\u4e48\u786e\u8ba4\u771f\u7684\u6e05\u7406\u5e72\u51c0\u4e86\uff1f",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "The pre-push hook is blocking me and I want to understand why before bypassing it.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": false
+    },
+    {
+      "query": "Review this pull request's diff for a hardcoded secret before merging.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Scan this codebase and pack it with repomix, removing any secrets first.",
+      "should_trigger": false,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": false
+    },
+    {
+      "query": "Rotate our production database password on a regular schedule.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Set up branch protection rules on our main GitHub branch.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Recover a commit I think I lost during an interactive rebase.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Write a .gitignore file for this Python project.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Merge this feature branch into main after CI passes.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Add a CODEOWNERS file to this repository.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "passed": 13,
+    "failed": 3,
+    "should_trigger_pass_rate": 0.75,
+    "should_not_trigger_pass_rate": 0.875
+  }
+}

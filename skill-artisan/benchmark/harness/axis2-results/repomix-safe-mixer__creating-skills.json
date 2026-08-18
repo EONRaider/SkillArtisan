@@ -1,0 +1,141 @@
+{
+  "skill_name": "repomix-safe-mixer",
+  "description": "Scan a directory for hardcoded credentials before packing it with repomix, refuse to pack if anything is found, cite each finding's exact file and line, and pack with repomix automatically once the scan is clean \u2014 scan and pack as one step, never \"scan now, run repomix yourself after.\" Use whenever the user wants to run repomix, pack or bundle a codebase into a single file, make a reference copy for a contractor or reviewer, or prep a project as LLM context \u2014 even if they only say \"repomix this\" or \"pack this directory\" without mentioning security. Also use as a standalone scanner when the user just wants to check a directory for leaked API keys, passwords, tokens, or DB credentials without packing anything. Distinguishes a CONFIRMED leak from a PATTERN MATCH that merely looks secret-shaped (may be a placeholder like \"your_api_key_here\") \u2014 never conflate the two.",
+  "results": [
+    {
+      "query": "Pack this codebase with repomix so I can share it with a contractor.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Before I distribute this reference package, check it for hardcoded API keys.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "I'm worried this repo has a leaked secret somewhere before I pack it up for an LLM.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Scan this directory for credentials and pack it with repomix if it's clean.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Is it safe to hand this codebase to someone as a repomix bundle?",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Create a shareable reference package of this project, but make sure there's nothing sensitive in it first.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Pack ./api-server for distribution \u2014 double check no .env secrets are baked in.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "I need a repomix bundle of this repo I can safely post publicly.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Scan and remove sensitive data from this repo's git commit history before I force-push.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Extract the individual files back out of this repomix-packed XML file.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Just run gitleaks on this repo and give me the raw report, no packaging needed.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Zip up my project folder so I can email it to a client.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Review this pull request for a hardcoded secret in the diff.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Rotate our production API key since it might have been exposed somewhere.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Convert this repomix Markdown output back into the original folder structure.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 1,
+      "pass": true
+    },
+    {
+      "query": "Compress this project folder into a .tar.gz archive.",
+      "should_trigger": false,
+      "trigger_rate": 1.0,
+      "triggers": 1,
+      "runs": 1,
+      "pass": false
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "passed": 15,
+    "failed": 1,
+    "should_trigger_pass_rate": 1.0,
+    "should_not_trigger_pass_rate": 0.875
+  }
+}
