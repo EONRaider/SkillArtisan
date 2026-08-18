@@ -18,3 +18,7 @@ __pycache__/
 /benchmark/vendored/daymade-claude-code-skills/
 /benchmark/vendored/tripleyak-skillforge/
 /benchmark/harness/workspace/
+
+# Session-scratch continuity note for resuming after a /clear — not project
+# documentation, shouldn't be versioned.
+/benchmark/SESSION_HANDOFF.md
