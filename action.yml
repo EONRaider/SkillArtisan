@@ -41,6 +41,13 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Configure git identity for fix-PR commits
+      if: inputs.anthropic-api-key != ''
+      shell: bash
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
     - name: Run SkillArtisan audit
       shell: bash
       env:
