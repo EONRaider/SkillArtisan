@@ -502,6 +502,44 @@ Respond with only the new description text in <new_description> tags, nothing el
 # ---------------------------------------------------------------------------
 
 
+MIN_MEANINGFUL_VAL_PER_CLASS = 5
+# improve_description() is deliberately never shown which validation queries
+# fail (blinded_history strips every test_-prefixed key) — that's correct
+# anti-overfitting design. But the split itself is computed once, with a
+# fixed seed, and never rotates. Confirmed directly on a real corpus
+# (bilibili-source, 9 should-trigger examples, default holdout=0.4): the
+# 3 should-trigger queries that landed in validation failed identically
+# across all 5 iterations, completely unmoved by materially different
+# description rewrites, because the optimizer had zero visibility into them
+# from iteration 1 onward. Below this many examples per class, a single
+# query flipping swings the reported validation score by 20+ percentage
+# points, and there's no mechanism in this tool to recover if the one-time
+# split happens to isolate a hard case — see split_validation_warning().
+
+
+def split_validation_warning(val_set: list[dict], eval_set_size: int, holdout: float) -> str | None:
+    """None if the validation split has enough examples per class to be a
+    meaningful generalization check; otherwise a message explaining why
+    best_test_score from this run should be treated as low-confidence."""
+    n_trigger_val = sum(1 for e in val_set if e["should_trigger"])
+    n_no_trigger_val = len(val_set) - n_trigger_val
+    thin = [n for n in (n_trigger_val, n_no_trigger_val) if 0 < n < MIN_MEANINGFUL_VAL_PER_CLASS]
+    if not thin:
+        return None
+    worst_swing = 100 / min(thin)
+    return (
+        f"validation set has only {n_trigger_val} should-trigger and {n_no_trigger_val} "
+        f"should-not-trigger example(s) (holdout={holdout} on {eval_set_size} total queries). "
+        f"With this few, a single query flipping changes the validation score by "
+        f"{worst_swing:.0f}+ percentage points. improve_description() never sees which "
+        f"validation queries are failing (by design, to avoid overfitting the description to "
+        f"visible examples) and the train/validation split is fixed for the whole run, so a "
+        f"query that lands in this small a holdout may be structurally unfixable within this "
+        f"run regardless of --max-iterations. Treat best_test_score as low-confidence; consider "
+        f"a larger eval set or a lower --holdout."
+    )
+
+
 def split_eval_set(eval_set: list[dict], holdout: float, seed: int = 42) -> tuple[list[dict], list[dict]]:
     """Stratified train/validation split, shuffled once with a fixed seed so
     the split stays identical across every iteration of a given run."""
@@ -538,10 +576,14 @@ def run_loop(
     name, original_description, content = parse_skill_md(skill_path)
     current_description = description_override or original_description
 
+    validation_warning = None
     if holdout > 0:
         train_set, val_set = split_eval_set(eval_set, holdout)
         if verbose:
             print(f"Split: {len(train_set)} train, {len(val_set)} validation (holdout={holdout})", file=sys.stderr)
+        validation_warning = split_validation_warning(val_set, len(eval_set), holdout)
+        if validation_warning:
+            print(f"WARNING: {validation_warning}", file=sys.stderr)
     else:
         train_set, val_set = eval_set, []
 
@@ -624,6 +666,7 @@ def run_loop(
         "best_test_score": f"{best['test_passed']}/{best['test_total']}" if val_set else None,
         "final_description": current_description, "iterations_run": len(history),
         "holdout": holdout, "train_size": len(train_set), "test_size": len(val_set), "history": history,
+        "validation_warning": validation_warning,
     }
 
 
@@ -696,12 +739,19 @@ def generate_html(data: dict, auto_refresh: bool = False, skill_name: str = "") 
 """]
 
     best_test_score = data.get("best_test_score")
+    validation_warning = data.get("validation_warning")
+    warning_html = (
+        f'<p class="score-bad" style="padding:8px;border-radius:4px;background:#fceaea;">'
+        f'<strong>⚠ Low-confidence validation:</strong> {html.escape(validation_warning)}</p>'
+        if validation_warning else ""
+    )
     parts.append(f"""
     <div class="summary">
         <p><strong>Original:</strong> {html.escape(data.get('original_description', 'N/A'))}</p>
         <p class="best"><strong>Best:</strong> {html.escape(data.get('best_description', 'N/A'))}</p>
         <p><strong>Best Score:</strong> {data.get('best_score', 'N/A')} {'(validation)' if best_test_score else '(train)'}</p>
         <p><strong>Iterations:</strong> {data.get('iterations_run', 0)} | <strong>Train:</strong> {data.get('train_size', '?')} | <strong>Validation:</strong> {data.get('test_size', '?')}</p>
+        {warning_html}
     </div>
     <div class="legend">
         <span style="font-weight:600">Query columns:</span>

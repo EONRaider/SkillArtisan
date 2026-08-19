@@ -1,9 +1,9 @@
 #!/bin/bash
-# Reproduces the four verified findings comparing SkillArtisan's row-15 eval
+# Reproduces the five verified findings comparing SkillArtisan's row-15 eval
 # engine against Anthropic's currently-shipped skill-creator (as of 2026-08-18).
 # See skill-artisan-master-spec.md's Confidence Notes for the full writeup and
-# skill-artisan/CHANGELOG.md's [2.2.2] and [2.2.3] entries for the fixes this
-# documents.
+# skill-artisan/CHANGELOG.md's [2.2.2], [2.2.3], and [2.2.4] entries for the
+# fixes this documents.
 #
 # Run this again before any README "best in market" / comparison claim to
 # reconfirm skill-creator hasn't since fixed these — do not cite the findings
@@ -13,7 +13,8 @@
 set -euo pipefail
 
 SC="$HOME/.claude/plugins/marketplaces/claude-plugins-official/plugins/skill-creator/skills/skill-creator/scripts"
-SA_EVAL_LOOP="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/eval_loop.py"
+SA_SCRIPTS="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts"
+SA_EVAL_LOOP="$SA_SCRIPTS/eval_loop.py"
 
 if [ ! -d "$SC" ]; then
   echo "skill-creator not found locally at: $SC"
@@ -25,7 +26,7 @@ if [ ! -d "$SC" ]; then
 fi
 
 echo "=== skill-creator source freshness ==="
-stat -c '%y  %n' "$SC"/run_eval.py "$SC"/aggregate_benchmark.py
+stat -c '%y  %n' "$SC"/run_eval.py "$SC"/aggregate_benchmark.py "$SC"/run_loop.py
 echo "(compare this date against today before trusting the findings below)"
 echo
 
@@ -211,6 +212,42 @@ def run(label, publish, teardown):
 
 run("skill-creator (mkdir+write_text)", skill_creator_publish, skill_creator_teardown)
 run("SkillArtisan (staging+os.rename)", skillartisan_publish, skillartisan_teardown)
+PYEOF
+echo
+
+echo "=== Finding 5: no warning on a too-small description-optimizer validation split ==="
+echo "Expect to see the identical split_eval_set() logic (fixed seed=42, same holdout math)"
+echo "and the identical test-score-blinding comment, with no minimum-size check anywhere:"
+grep -n "def split_eval_set\|seed: int = 42\|n_trigger_test\|Strip test scores" "$SC/run_loop.py"
+echo
+echo "SkillArtisan's equivalent (scripts/description_optimizer.py) has the same split logic"
+echo "and the same correct blinding of validation results from improve_description() --"
+echo "but as of 2.2.4 it also warns (stderr + JSON + HTML report) whenever a validation class"
+echo "has fewer than 5 examples, since a corpus that small can permanently trap the optimizer"
+echo "against a query it structurally can never see. Confirmed directly on a real corpus skill"
+echo "(bilibili-source, 9 should-trigger examples, default holdout=0.4): the 3-example"
+echo "validation split held exactly the 3 queries that failed identically across all 5"
+echo "description-rewrite iterations. skill-creator's run_loop.py has no such warning."
+echo
+echo "--- Live check: does SkillArtisan's split_validation_warning() actually fire on a thin split? ---"
+SA_SCRIPTS="$SA_SCRIPTS" python3 - << 'PYEOF'
+import os
+import sys
+sys.path.insert(0, os.environ["SA_SCRIPTS"])
+from description_optimizer import split_validation_warning
+
+thin_val = [{"should_trigger": True}] * 3 + [{"should_trigger": False}] * 3
+healthy_val = [{"should_trigger": True}] * 8 + [{"should_trigger": False}] * 8
+
+thin_result = split_validation_warning(thin_val, 9, 0.4)
+healthy_result = split_validation_warning(healthy_val, 40, 0.4)
+
+if thin_result and healthy_result is None:
+    print("CONFIRMED: warns on a 3/3 validation split, silent on an 8/8 split.")
+else:
+    print("UNEXPECTED: warning behavior doesn't match what's documented above.")
+    print("  thin split ->", thin_result)
+    print("  healthy split ->", healthy_result)
 PYEOF
 echo
 
