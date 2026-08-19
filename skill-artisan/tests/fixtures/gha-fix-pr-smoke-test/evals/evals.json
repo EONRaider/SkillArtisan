@@ -1,0 +1,10 @@
+{
+  "evals": [
+    {
+      "name": "smoke-test-fixture-loads",
+      "description": "Sanity check that this disposable fixture skill loads and is referenced correctly by the fix-PR self-test workflow.",
+      "input": "Confirm this skill exists and is used only by .github/workflows/self-test-action-fix-pr.yml",
+      "expected": "Acknowledges this is a disposable, non-user-facing test fixture for skill-artisan CI and takes no other action."
+    }
+  ]
+}

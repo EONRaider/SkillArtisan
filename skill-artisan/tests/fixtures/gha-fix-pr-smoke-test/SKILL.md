@@ -1,6 +1,7 @@
 ---
 name: gha-fix-pr-smoke-test
 description: Use when manually smoke-testing the GitHub Action's fix-PR path end to end. This is a disposable test fixture for skill-artisan's own CI, not a real user-facing skill, and is deliberately missing evals/lifecycle classification so the audit always finds FAIL items to fix.
+lifecycle: experimental
 ---
 
 # GitHub Action Fix-PR Smoke Test
