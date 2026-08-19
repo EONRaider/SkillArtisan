@@ -23,10 +23,10 @@ corpus/<skill-name>/
 
 ## Categories (4 per category, 16 total)
 
-- **Document/data processing**: `excel-automation`, `repomix-safe-mixer`, `repomix-unmixer`, `structured-data-diff` (from scratch)
+- **Document/data processing**: `excel-automation`, `repomix-safe-mixer`, `repomix-unmixer`, `structured-data-diff` (only the last is from scratch)
 - **Dev tooling**: `auto-repo-setup`, `debugging-network-issues`, `github-sensitive-data-cleanup`, `git-safety-net`
-- **Research/analysis**: `bilibili-source`, `fact-checker`, `deep-research`, `dataset-bias-auditor` (from scratch)
-- **Creative/design**: `frontend-visual-qa`, `design-style-picker`, `ui-designer`, `narrative-arc-builder` (from scratch)
+- **Research/analysis**: `bilibili-source`, `fact-checker`, `deep-research`, `dataset-bias-auditor` (only the last is from scratch)
+- **Creative/design**: `frontend-visual-qa`, `design-style-picker`, `ui-designer`, `narrative-arc-builder` (only the last is from scratch)
 
 13 adapted from `daymade/claude-code-skills` at commit `d24f6d1`, 3 built from scratch
 (`structured-data-diff`, `dataset-bias-auditor`, `narrative-arc-builder`). Each entry has
@@ -78,6 +78,17 @@ exactly what was synthesized and why.
 
 ## Status
 
-Phase 1 (corpus construction) complete: 16/16 entries, 4/4 per category, all JSON
-validated. See `skill-artisan/CHANGELOG.md` `[Unreleased]` and this session's task list
-for where Phase 2 onward stands.
+Corpus construction complete: 16/16 entries, 4/4 per category, all JSON validated. This
+was built for the original 5-arm comparative "Best-in-Market Scorecard" plan (Phases
+1-3 below refer to that methodology's own staging, not this project's actual build
+order) — **that comparative plan was abandoned partway through** after a 3-skill pilot
+hit real cost/reliability problems (concurrent `claude -p` calls above 1 worker caused
+near-total trigger-detection failure; per-arm costs projected into the tens of millions
+of tokens). See the dated correction at the top of `skill-artisan-master-spec.md`'s
+"Best-in-Market Scorecard" section for the full account.
+
+**This fixed 16-skill corpus itself remains in active use** — it's what the actual
+single-arm regression/QA effort that replaced the comparative plan runs against
+(`creating-skills` only, not the other 4 arms). See `skill-artisan/benchmark/harness/README.md`
+for what's actually been run against it and what was found — that file, not this one,
+tracks current status.
