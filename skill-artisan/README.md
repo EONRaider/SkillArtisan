@@ -102,7 +102,7 @@ Any repository can install SkillArtisan's audit as a GitHub Action to check its 
 
 ```yaml
 - uses: actions/checkout@v4
-- uses: EONRaider/SkillArtisan@master  # pin to a release tag once one exists
+- uses: EONRaider/SkillArtisan@v2.4.0
   with:
     skills-path: .                                    # default: whole workspace
     anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }} # optional — see below
