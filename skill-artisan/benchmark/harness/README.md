@@ -191,6 +191,54 @@ that three of the four are also present, unfixed, in `skill-creator`'s own curre
   (identical 1x/3x scores, so the bad score wasn't a sampling artifact at all). **Stopped
   here by user decision** — documented as open gaps, not pursued further this pass.
 
+**Update — root cause found for why Stage 2 found no fix (shipped as `2.2.4`); a
+follow-up attempt to actually fix these 2 skills was abandoned after a measurement
+mistake, and reverted.**
+Reading the actual iteration transcripts for `bilibili-source`'s Stage 2 run showed the
+same 3 should-trigger queries failing identically across all 5 materially-different
+description rewrites. Traced to the mechanism: `description_optimizer.py`'s train/validation
+split is computed once with a fixed `seed=42`, and `improve_description()` is deliberately
+never shown which validation queries fail. Confirmed directly (pulled `train_results`/
+`test_results` from the saved run) that the 3 stuck-failing queries were exactly the 3
+that landed in `bilibili-source`'s one-time, 3-example validation split (9 should-trigger
+examples total × the default `holdout=0.4`) — the optimizer had zero visibility into them
+from iteration 1 onward, no matter how many iterations ran. Fixed in `[2.2.4]`
+(`split_validation_warning()`, see the Findings entry above) — also confirmed present,
+unfixed, in `skill-creator`'s own `run_loop.py`.
+
+That fix explained the failure but didn't resolve it by itself, so as a workaround,
+`bilibili-source` and `fact-checker` were retried with `--holdout 0` (disables the split
+entirely, so every query is visible to the optimizer). The first attempt appeared to show
+real improvement (`fact-checker` 12.5%→37.5%, `bilibili-source` 22.2%→33.3%, both at 3
+runs/query) and the new descriptions were applied to both skills' `SKILL.md` files.
+
+**That result turned out to be a measurement artifact, not a real improvement — caught
+before anything was shipped, but only after the fact.** `description_optimizer.py`'s
+`run_loop()` calls `find_project_root()` unconditionally (walks up from cwd to the
+nearest `.claude/`), and the retry script ran from `skill-artisan/`, which has no
+`.claude/` of its own — so it picked up the **repo root's** `.claude/skills/`, which has
+a real installed skill (`drafting-changelog-entries`) sitting in `available_skills`
+alongside the synthetic test skill. That's a different, uncontrolled environment from
+`axis2_trigger_scorer.py`'s always-isolated scratch sandbox, so the two numbers were never
+actually comparable. Confirmed directly: re-testing the *applied* (new) descriptions in
+the correct isolated sandbox landed on the **exact original baseline** (0% and 22.2%,
+not something noisy-but-improved) — strong evidence the apparent gain was entirely a
+contamination artifact, not a property of the new description text.
+
+A properly isolated retry (bypassing `find_project_root()` via a direct `run_loop()` call
+with an explicit scratch project root) was started to get a trustworthy answer, but was
+killed partway through and **the applied descriptions were reverted to original** — by
+explicit decision, not because the isolated retry failed. Chasing a working trigger-rate
+fix for two benchmark-corpus test skills is low product value on its own (these aren't
+user-facing), the real value of this whole thread was already banked in finding and
+fixing the `2.2.4` bug itself, and a third re-verification cycle wasn't worth the further
+spend given the already-low odds of a clean win (the isolated re-check of the applied
+descriptions had already landed exactly on the original baseline, before the isolated
+retry was even killed). **Both skills are back to their original, unmodified
+descriptions**, and all result files from the contaminated run were deleted rather than
+kept — they documented a mistake, not a finding. The other 6 of the original 9 were never
+attempted with `--holdout 0` and this thread is now closed, not paused.
+
 ## Operational gotchas learned the hard way
 
 - **Nested subagent completion notifications route to the top-level session, not back to
