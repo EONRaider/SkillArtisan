@@ -63,7 +63,7 @@ Reproduce all five yourself: `bash benchmark/skill-creator-comparison-repro.sh` 
 
 ## Architecture
 
-SkillArtisan ships as a plugin, not a single skill, because its infrastructure genuinely needs more than one file:
+SkillArtisan ships as a plugin, not a single skill, because its infrastructure genuinely needs more than one file. `action.yml` at the repo root (alongside this directory) makes the audit installable as a GitHub Action in third-party repos — see "GitHub Action" below.
 
 ```
 skill-artisan/
@@ -95,6 +95,25 @@ SkillArtisan shipped in two deliberate stages, both now released:
 These two stages mark deliberate scope boundaries, not the current version — seven patch/minor releases (`2.0.1` through `2.2.4`) have shipped since v2.0.0, including a single-arm regression/QA effort (`benchmark/`) that found and fixed five real bugs in the eval engine itself (see "Verified against `skill-creator`'s current source" above). See [CHANGELOG.md](./CHANGELOG.md) for the current version and the full list.
 
 The one thing none of these releases did: claim "best in market." That requires the master spec's full Best-in-Market Scorecard — a 12-20 skill benchmark corpus, four other comparison arms actually run, three axes scored separately — and that hasn't been run yet. See [CHANGELOG.md](./CHANGELOG.md) for what's shipped, what's deferred, and why.
+
+## GitHub Action
+
+Any repository can install SkillArtisan's audit as a GitHub Action to check its own skills automatically, no local Claude Code session required:
+
+```yaml
+- uses: actions/checkout@v4
+- uses: EONRaider/SkillArtisan@master  # pin to a release tag once one exists
+  with:
+    skills-path: .                                    # default: whole workspace
+    anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }} # optional — see below
+```
+
+Behavior is gated on that one secret's presence, not a mode flag:
+
+- **No `ANTHROPIC_API_KEY`** — mechanical audit only (`scripts/audit.py`'s checklist: frontmatter, security, evals, lifecycle, etc.), written to the job's step summary. Free, safe to run on every push/PR.
+- **`ANTHROPIC_API_KEY` set** — same report, plus: every skill with FAIL items gets an additive-only fix authored by Claude and opened as a pull request for review (`scripts/pr_execute.py` — same hard-refusal on any delete/rename, same idempotent branch naming, whether invoked from a chat session or from this Action). Nothing is ever merged automatically. `max-skills` (default `10`) caps API spend per run.
+
+See `action.yml` for the full input list, and `.github/workflows/self-test-action.yml` / `self-test-action-fix-pr.yml` in this repo for working examples of both modes (the latter is manual/`workflow_dispatch`-only, since it spends real API tokens and opens a real PR every time it runs).
 
 ## Security
 

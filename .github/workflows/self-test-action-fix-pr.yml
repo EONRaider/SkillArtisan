@@ -1,0 +1,26 @@
+name: Self-test audit action (fix-PR path)
+
+# Manual, opt-in only — never runs on push/PR/schedule. Exercises the full
+# fix-PR pipeline (LLM-authored fix + real PR) against a disposable fixture
+# skill (skill-artisan/tests/fixtures/gha-fix-pr-smoke-test), so it costs API
+# tokens and opens a real PR against this repo every time it's run. Requires
+# the ANTHROPIC_API_KEY repo secret; its presence is what enables the fix-PR
+# path (see action.yml) — there is no separate flag to set.
+on:
+  workflow_dispatch:
+
+jobs:
+  audit-fix-pr-smoke-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run SkillArtisan audit (fix-PR path)
+        uses: ./
+        with:
+          skills-path: skill-artisan/tests/fixtures/gha-fix-pr-smoke-test
+          anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
+          max-skills: "1" # belt-and-suspenders: skills-path already scopes to exactly one fixture

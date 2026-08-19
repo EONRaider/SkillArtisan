@@ -1,0 +1,56 @@
+name: "SkillArtisan Audit"
+description: >-
+  Audit every Claude Agent Skill found in a repository against SkillArtisan's
+  checklist. With no API key supplied, produces a report only. With
+  ANTHROPIC_API_KEY supplied, additionally authors additive-only fixes for
+  skills with FAIL items and opens a pull request per skill for review.
+author: "EONRaider"
+branding:
+  icon: "check-circle"
+  color: "purple"
+
+inputs:
+  skills-path:
+    description: "Directory to search for skills (relative to the workspace)"
+    required: false
+    default: "."
+  repo-path:
+    description: "Git repository root, used for committing/pushing fix PRs"
+    required: false
+    default: "."
+  anthropic-api-key:
+    description: >-
+      Anthropic API key. Omit for a report-only run. Pass
+      secrets.ANTHROPIC_API_KEY to enable fix PRs — its presence is the only
+      opt-in required, no other configuration needed.
+    required: false
+    default: ""
+  github-token:
+    description: "Token used by `gh` to open pull requests (defaults to the workflow's GITHUB_TOKEN)"
+    required: false
+    default: ${{ github.token }}
+  model:
+    description: "Claude model used to author fixes"
+    required: false
+    default: "claude-sonnet-5"
+  max-skills:
+    description: "Cap on how many skills get fix-PR treatment in a single run (spend control)"
+    required: false
+    default: "10"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Run SkillArtisan audit
+      shell: bash
+      env:
+        ANTHROPIC_API_KEY: ${{ inputs.anthropic-api-key }}
+        GH_TOKEN: ${{ inputs.github-token }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+      run: |
+        python3 "${{ github.action_path }}/skill-artisan/scripts/gha_audit.py" \
+          --skills-path "${{ inputs.skills-path }}" \
+          --repo-path "${{ inputs.repo-path }}" \
+          --anthropic-api-key "${{ inputs.anthropic-api-key }}" \
+          --model "${{ inputs.model }}" \
+          --max-skills "${{ inputs.max-skills }}"

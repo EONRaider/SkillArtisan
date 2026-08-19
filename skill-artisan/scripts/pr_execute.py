@@ -18,12 +18,22 @@ second half, not both.
 has no interactive prompt (script-design.md: non-interactive only, no
 blocking input()) and no "--yes"/auto-confirm flag that could let a
 confirmation be skipped programmatically. `--execute` is the only thing that
-unlocks real side effects, and per creating-skills/SKILL.md's "Auditing
-existing skills" subsection 6, the orchestrator must obtain a separate,
-explicit human confirmation in chat before ever passing it — every time, not
-once per skill. This script cannot obtain that confirmation itself; it can
-only refuse to run without something already having decided to pass
-`--execute`, which is exactly why the decision has to happen one layer up.
+unlocks real side effects, and the decision to pass it always happens one
+layer up, in one of two contexts:
+
+- **Interactive chat**: per creating-skills/SKILL.md's "Auditing existing
+  skills" subsection 6, the orchestrator must obtain a separate, explicit
+  human confirmation in chat before ever passing `--execute` — every time,
+  not once per skill.
+- **The GitHub Action** (`../action.yml`, `scripts/gha_audit.py`): a target
+  repo's maintainer provisioning the `ANTHROPIC_API_KEY` secret is the
+  equivalent one-time authorization event for that context — installing the
+  workflow and setting the secret is the opt-in, so no further per-run
+  confirmation is expected once it's configured. Every other invariant below
+  (additive-only, idempotent, no `--yes` flag) still applies unchanged.
+
+Either way, this script cannot obtain that confirmation itself; it can only
+refuse to run without something already having decided to pass `--execute`.
 
 **Hard invariant, not a suggestion**: refuses (exit 4) if the working tree's
 changes include any deleted or renamed file relative to the base branch.
