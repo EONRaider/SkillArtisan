@@ -252,15 +252,32 @@ def create_branch_commit_push(repo_path: Path, branch: str, commit_message: str,
     if commit.returncode != 0:
         return False, commit.stderr.strip()
 
-    push = run_git(repo_path, ["push", "--set-upstream", "origin", branch])
-    if push.returncode != 0:
-        # origin might be the upstream repo itself (read-only for us) rather
-        # than the fork — retry against the fork's URL explicitly rather
-        # than assuming "origin" is always right.
+    # --force is correct, not just tolerated: branch_name_for is deterministic
+    # specifically so re-running finds and resets the same branch rather than
+    # piling up new ones (see its own docstring), and checkout -B above always
+    # rebuilds it fresh from the current base. A plain push only works on the
+    # branch's first-ever push — any second run (a genuinely different fix, or
+    # a retry after a downstream step like PR creation failed last time, which
+    # still leaves the branch pushed) is a guaranteed non-fast-forward without
+    # --force. Found live: a run that got past pushing but then failed at
+    # `gh pr create` (a since-fixed repo permission gap) left exactly that
+    # state, and the next run's plain push rejected as non-fast-forward —
+    # except the real error never surfaced, because it silently fell through
+    # to the SSH fallback below instead (fixed by only trying that fallback
+    # when we're not already pushing to the same repo, since retrying the
+    # exact same push over SSH can't succeed either, and its unrelated
+    # "Permission denied (publickey)" was masking the actual failure).
+    push = run_git(repo_path, ["push", "--force", "--set-upstream", "origin", branch])
+    if push.returncode != 0 and not is_same_repo(repo_path, f"{fork_owner}/{repo_name}"):
+        # origin is the upstream repo itself (read-only for us) rather than
+        # the fork — retry against the fork's URL explicitly rather than
+        # assuming "origin" is always right.
         fork_url = f"git@github.com:{fork_owner}/{repo_name}.git"
-        push = run_git(repo_path, ["push", "--set-upstream", fork_url, branch])
+        push = run_git(repo_path, ["push", "--force", "--set-upstream", fork_url, branch])
         if push.returncode != 0:
             return False, push.stderr.strip()
+    elif push.returncode != 0:
+        return False, push.stderr.strip()
     return True, ""
 
 
