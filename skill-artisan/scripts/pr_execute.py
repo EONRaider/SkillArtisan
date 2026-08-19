@@ -129,6 +129,38 @@ def get_current_remote_url(repo_path: Path) -> str:
     return result.stdout.strip()
 
 
+def normalize_repo_slug(value: str) -> str:
+    """owner/repo, whether given as a bare slug or a git remote URL (ssh or
+    https, with or without a trailing .git)."""
+    s = value.strip()
+    if s.endswith(".git"):
+        s = s[:-4]
+    for prefix in ("git@github.com:", "https://github.com/", "http://github.com/"):
+        if s.startswith(prefix):
+            s = s[len(prefix):]
+            break
+    return s.lower()
+
+
+def is_same_repo(repo_path: Path, upstream_repo: str) -> bool:
+    """True when repo_path's own `origin` remote already points at
+    upstream_repo — this isn't a third-party repo at all, it's a repo
+    running this against itself (e.g. the GitHub Action self-auditing its
+    own installer repo). Checked directly rather than inferred from
+    viewerPermission: found live, running the Action's fix-PR path in this
+    repo's own CI — the ephemeral GITHUB_TOKEN issued to a workflow can push
+    directly per the workflow's `permissions:` block, but isn't a
+    collaborator, so `gh repo view --json viewerPermission` legitimately
+    reports less than WRITE for it even though the token can push right
+    now. That misled has_push_access into treating a same-repo run as
+    fork-required, which then hard-failed — GitHub refuses to fork a repo
+    into an account that already owns it."""
+    remote = get_current_remote_url(repo_path)
+    if not remote:
+        return False
+    return normalize_repo_slug(remote) == normalize_repo_slug(upstream_repo)
+
+
 BRANCH_SAFE_RE = re.compile(r"[^a-z0-9._-]+")
 
 
@@ -164,16 +196,22 @@ def get_authenticated_login() -> str | None:
     return login or None
 
 
-def has_push_access(upstream_repo: str) -> bool:
-    """True if the authenticated user can already push to upstream_repo
-    directly (owner, or a collaborator with WRITE/MAINTAIN/ADMIN) — in which
-    case forking is both unnecessary and impossible (GitHub doesn't support
-    forking a repo into an account that already owns it). Found by actually
-    trying to test --execute against a disposable repo the user owns: a
-    genuinely third-party repo needs a fork, but a repo the user already has
-    write access to (their own scratch repo, or one they collaborate on)
-    doesn't, and treating every target as fork-required would hard-fail
-    exactly the case a live test needs."""
+def has_push_access(repo_path: Path, upstream_repo: str) -> bool:
+    """True if the current run can already push to upstream_repo directly
+    (same-repo CI run, owner, or a collaborator with WRITE/MAINTAIN/ADMIN) —
+    in which case forking is both unnecessary and impossible (GitHub doesn't
+    support forking a repo into an account that already owns it). Checks
+    is_same_repo first (cheap, reliable, no gh API call) before falling back
+    to viewerPermission — the latter reflects collaborator ACL, not what an
+    ephemeral CI token can actually do (see is_same_repo's docstring).
+    Non-same-repo case found by actually trying to test --execute against a
+    disposable repo the user owns: a genuinely third-party repo needs a
+    fork, but a repo the user already has write access to (their own
+    scratch repo, or one they collaborate on) doesn't, and treating every
+    target as fork-required would hard-fail exactly the case a live test
+    needs."""
+    if is_same_repo(repo_path, upstream_repo):
+        return True
     result = run_gh(["repo", "view", upstream_repo, "--json", "viewerPermission"])
     if result.returncode != 0:
         return False
@@ -182,18 +220,18 @@ def has_push_access(upstream_repo: str) -> bool:
         '"viewerPermission":"ADMIN"' in result.stdout
 
 
-def ensure_fork(upstream_repo: str) -> tuple[bool, str]:
-    """Returns (ok, push_target_owner_or_error). If the authenticated user
-    already has push access to upstream_repo, skips forking entirely and
-    pushes directly to it — forking would fail outright in that case.
-    Otherwise, gh repo fork is itself idempotent — safe to call whether or
-    not a fork already exists."""
+def ensure_fork(repo_path: Path, upstream_repo: str) -> tuple[bool, str]:
+    """Returns (ok, push_target_owner_or_error). If the current run already
+    has push access to upstream_repo (including the same-repo CI case),
+    skips forking entirely and pushes directly to it — forking would fail
+    outright in that case. Otherwise, gh repo fork is itself idempotent —
+    safe to call whether or not a fork already exists."""
+    if has_push_access(repo_path, upstream_repo):
+        return True, upstream_repo.split("/")[0]
+
     login = get_authenticated_login()
     if not login:
         return False, "could not determine authenticated gh user"
-
-    if has_push_access(upstream_repo):
-        return True, upstream_repo.split("/")[0]
 
     result = run_gh(["repo", "fork", upstream_repo, "--clone=false"], timeout=60)
     if result.returncode != 0 and "already exists" not in (result.stderr + result.stdout).lower():
@@ -285,11 +323,11 @@ def cmd(args: argparse.Namespace) -> int:
 
     branch = branch_name_for(args.skill_name)
     repo_name = args.upstream_repo.split("/")[-1]
+    direct_push = has_push_access(repo_path, args.upstream_repo)
     login = get_authenticated_login()
-    direct_push = has_push_access(args.upstream_repo) if login else False
     fork_owner = (args.upstream_repo.split("/")[0] if direct_push else login) or "<unknown>"
 
-    existing_pr = find_existing_pr(args.upstream_repo, fork_owner, branch, direct_push) if login else None
+    existing_pr = find_existing_pr(args.upstream_repo, fork_owner, branch, direct_push) if (direct_push or login) else None
     if existing_pr:
         print(f"Idempotent no-op: a PR already exists for {args.skill_name} against {args.upstream_repo}.", file=sys.stderr)
         print(existing_pr)
@@ -319,7 +357,7 @@ def cmd(args: argparse.Namespace) -> int:
     # when the caller has already passed --execute, which is the caller's
     # (the orchestrator's) job to gate on a separate, explicit human
     # confirmation obtained in chat — this script has no prompt of its own.
-    fork_ok, fork_result = ensure_fork(args.upstream_repo)
+    fork_ok, fork_result = ensure_fork(repo_path, args.upstream_repo)
     if not fork_ok:
         print(f"Error: fork failed — {fork_result}", file=sys.stderr)
         return 12

@@ -91,6 +91,80 @@ class TestFindExistingPr(unittest.TestCase):
         self.assertEqual(result, "https://github.com/owner/repo/pull/1")
 
 
+class TestNormalizeRepoSlug(unittest.TestCase):
+    def test_bare_slug_unchanged(self):
+        self.assertEqual(pr_execute.normalize_repo_slug("owner/repo"), "owner/repo")
+
+    def test_ssh_url(self):
+        self.assertEqual(pr_execute.normalize_repo_slug("git@github.com:owner/repo.git"), "owner/repo")
+
+    def test_https_url(self):
+        self.assertEqual(pr_execute.normalize_repo_slug("https://github.com/owner/repo.git"), "owner/repo")
+
+    def test_https_url_no_dotgit(self):
+        self.assertEqual(pr_execute.normalize_repo_slug("https://github.com/owner/repo"), "owner/repo")
+
+    def test_case_insensitive(self):
+        self.assertEqual(pr_execute.normalize_repo_slug("Owner/Repo"), "owner/repo")
+
+
+class TestIsSameRepo(unittest.TestCase):
+    def test_true_when_origin_matches_upstream(self):
+        with patch.object(pr_execute, "get_current_remote_url", return_value="git@github.com:EONRaider/SkillArtisan.git"):
+            self.assertTrue(pr_execute.is_same_repo(Path("/tmp/x"), "EONRaider/SkillArtisan"))
+
+    def test_false_when_origin_differs(self):
+        with patch.object(pr_execute, "get_current_remote_url", return_value="git@github.com:someone-else/other.git"):
+            self.assertFalse(pr_execute.is_same_repo(Path("/tmp/x"), "EONRaider/SkillArtisan"))
+
+    def test_false_when_no_remote(self):
+        with patch.object(pr_execute, "get_current_remote_url", return_value=""):
+            self.assertFalse(pr_execute.is_same_repo(Path("/tmp/x"), "EONRaider/SkillArtisan"))
+
+
+class TestHasPushAccess(unittest.TestCase):
+    def test_same_repo_short_circuits_without_gh_call(self):
+        with patch.object(pr_execute, "is_same_repo", return_value=True), \
+                patch.object(pr_execute, "run_gh") as mock_gh:
+            result = pr_execute.has_push_access(Path("/tmp/x"), "EONRaider/SkillArtisan")
+        self.assertTrue(result)
+        mock_gh.assert_not_called()
+
+    def test_falls_back_to_viewer_permission_for_third_party_repo(self):
+        with patch.object(pr_execute, "is_same_repo", return_value=False), \
+                patch.object(pr_execute, "run_gh") as mock_gh:
+            mock_gh.return_value.returncode = 0
+            mock_gh.return_value.stdout = '{"viewerPermission":"WRITE"}'
+            result = pr_execute.has_push_access(Path("/tmp/x"), "someone-else/other")
+        self.assertTrue(result)
+
+    def test_read_only_permission_is_false(self):
+        with patch.object(pr_execute, "is_same_repo", return_value=False), \
+                patch.object(pr_execute, "run_gh") as mock_gh:
+            mock_gh.return_value.returncode = 0
+            mock_gh.return_value.stdout = '{"viewerPermission":"READ"}'
+            result = pr_execute.has_push_access(Path("/tmp/x"), "someone-else/other")
+        self.assertFalse(result)
+
+
+class TestEnsureFork(unittest.TestCase):
+    def test_same_repo_skips_fork_entirely(self):
+        with patch.object(pr_execute, "has_push_access", return_value=True) as mock_access, \
+                patch.object(pr_execute, "run_gh") as mock_gh:
+            ok, owner = pr_execute.ensure_fork(Path("/tmp/x"), "EONRaider/SkillArtisan")
+        self.assertTrue(ok)
+        self.assertEqual(owner, "EONRaider")
+        mock_access.assert_called_once()
+        mock_gh.assert_not_called()
+
+    def test_third_party_without_login_fails_clearly(self):
+        with patch.object(pr_execute, "has_push_access", return_value=False), \
+                patch.object(pr_execute, "get_authenticated_login", return_value=None):
+            ok, error = pr_execute.ensure_fork(Path("/tmp/x"), "someone-else/other")
+        self.assertFalse(ok)
+        self.assertIn("could not determine", error)
+
+
 class TestGetChangeStatus(unittest.TestCase):
     def test_parses_porcelain_output(self):
         with patch.object(pr_execute, "run_git") as mock_git:
