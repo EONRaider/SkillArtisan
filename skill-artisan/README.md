@@ -49,6 +49,17 @@ SkillArtisan's decision gate will first confirm a skill is actually the right to
 
 See the full [Gap Table](../skill-artisan-master-spec.md#gap-table) (40 rows) for the complete comparison, including against other community tools (`daymade/claude-code-skills`, `tripleyak/SkillForge`).
 
+## Verified against `skill-creator`'s current source
+
+This isn't a "best in market" claim — that requires the full Best-in-Market Scorecard (see Release scope below), which hasn't run. It's narrower and more concrete: the one piece of `skill-creator` this project explicitly kept "fully intact" — its evaluation/description-optimization engine, ported wholesale rather than rebuilt — turned out to need four real fixes that actual regression testing caught, not code review. All four were checked directly against Anthropic's own currently-shipped `skill-creator` source (not a stale snapshot); three are present and unfixed there today, one of them worse than SkillArtisan's pre-fix version was.
+
+1. **Premature-return trigger-detection bug.** `run_eval.py`'s `run_single_query()` returns on the first non-Skill/Read tool call, before the conversation reaches its final `result` event — a false-negative trigger-detection bug. Confirmed still present, unfixed, in `skill-creator`'s current source (`run_eval.py` lines 141/168). Fixed in SkillArtisan's `description_optimizer.py`, `[2.2.2]`.
+2. **Timeout too short for real `claude -p` calls.** `skill-creator`'s `--timeout` defaults to 30 seconds in both `run_eval.py` and `run_loop.py` — confirmed unchanged, and worse than SkillArtisan's own pre-fix 60s. Raised to 180s in `[2.2.2]`, based on directly observed real call durations.
+3. **Crash on explicit JSON `null` (not just a missing key).** `aggregate_benchmark.py` crashes with `AttributeError` on a `grading.json` containing explicit `"timing": null` — exactly the pattern SkillArtisan's own graders wrote whenever timing data was genuinely unrecoverable. Live-reproduced against skill-creator's actual current source; the identical fixture runs clean through SkillArtisan's `eval_loop.py`. Fixed in `[2.2.2]`.
+4. **Non-atomic skill-directory publish race.** `run_eval.py`'s `run_single_query()` publishes its synthetic test-skill directory via `mkdir()` then a separate `write_text()` — a real window where a concurrent `claude -p` process's discovery scan can observe a broken entry. Confirmed present in skill-creator's current source, with a wider vulnerable window than SkillArtisan had even before its own fix. A dedicated concurrency stress test found the old approach exposed a broken entry in ~99% of concurrent scans; SkillArtisan's atomic `os.rename()`-based fix (`[2.2.3]`) brought that to 0%.
+
+Reproduce all four yourself: `bash benchmark/skill-creator-comparison-repro.sh` (requires the official `skill-creator` plugin installed locally). Re-run it before trusting these as current — `skill-creator` may have fixed some of them upstream since.
+
 ## Architecture
 
 SkillArtisan ships as a plugin, not a single skill, because its infrastructure genuinely needs more than one file:
@@ -80,7 +91,7 @@ SkillArtisan shipped in two deliberate stages, both now released:
 - **v1** (`1.0.0`) — eval engine, decision gate, surface matrix, security scanning. A complete, usable tool on its own.
 - **v2** (`2.0.0`) — lifecycle framing (capability-uplift vs. encoded-preference classification, `creating-skills/references/lifecycle.md`) and audit mode (`scripts/audit.py`: upgrade/rebuild existing skills, bulk mode across a whole skills directory, an optional additive-only contribution-plan mode for third-party repos). Shipped after v1 had been dogfooded on a real project skill, so the audit heuristics were informed by real usage (see `[1.0.1]` in the changelog) rather than designed in a vacuum.
 
-These two stages mark deliberate scope boundaries, not the current version — six patch/minor releases (`2.0.1` through `2.2.3`) have shipped since v2.0.0, including a single-arm regression/QA effort (`benchmark/`) that found and fixed four real bugs in the eval engine itself, three of them also confirmed present and unfixed in `skill-creator`'s own current source. See [CHANGELOG.md](./CHANGELOG.md) for the current version and the full list.
+These two stages mark deliberate scope boundaries, not the current version — six patch/minor releases (`2.0.1` through `2.2.3`) have shipped since v2.0.0, including a single-arm regression/QA effort (`benchmark/`) that found and fixed four real bugs in the eval engine itself (see "Verified against `skill-creator`'s current source" above). See [CHANGELOG.md](./CHANGELOG.md) for the current version and the full list.
 
 The one thing none of these releases did: claim "best in market." That requires the master spec's full Best-in-Market Scorecard — a 12-20 skill benchmark corpus, four other comparison arms actually run, three axes scored separately — and that hasn't been run yet. See [CHANGELOG.md](./CHANGELOG.md) for what's shipped, what's deferred, and why.
 
