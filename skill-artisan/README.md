@@ -37,8 +37,8 @@ SkillArtisan's decision gate will first confirm a skill is actually the right to
 
 | | `skill-creator` (Anthropic) | SkillArtisan |
 |---|---|---|
-| Frontmatter validation | None | Wraps the official `skills-ref` validator + Claude-specific checks |
-| Naming guidance | None | Gerund-form enforcement, parent-directory matching |
+| Frontmatter validation | `scripts/quick_validate.py` exists (kebab-case, length limits, required fields) but is never referenced by `SKILL.md`'s own documented process — unused in practice | Wraps the official `skills-ref` validator + Claude-specific checks |
+| Naming guidance | Same unused script covers kebab-case/hyphen rules; no gerund-form guidance anywhere | Gerund-form enforcement (warning, not a hard fail — `skills-ref` itself accepts non-gerund names), parent-directory matching |
 | Decision gate | None — jumps straight to authoring | Skill vs. CLAUDE.md vs. AGENTS.md vs. MCP vs. subagent vs. plugin, plus a dedup/compose check |
 | Security | "Don't build malware" (one line) | Gitleaks-based scan, pattern checks, content-hash tamper detection, AI semantic read-through |
 | Surfaces covered | Claude Code, Claude.ai, Cowork | + Claude Tag, Messages API, generic cross-vendor |
@@ -51,7 +51,7 @@ See the full [Gap Table](../skill-artisan-master-spec.md#gap-table) (40 rows) fo
 
 ## Verified against `skill-creator`'s current source
 
-This isn't a "best in market" claim — that requires the full Best-in-Market Scorecard (see Release scope below), which hasn't run. It's narrower and more concrete: the one piece of `skill-creator` this project explicitly kept "fully intact" — its evaluation/description-optimization engine, ported wholesale rather than rebuilt — turned out to need five real fixes that actual regression testing caught, not code review. All five were checked directly against Anthropic's own currently-shipped `skill-creator` source (not a stale snapshot); four are present and unfixed there today, one of them worse than SkillArtisan's pre-fix version was.
+This isn't a "best in market" claim — that requires the full Best-in-Market Scorecard (see Release scope below), which hasn't run. It's narrower and more concrete: the one piece of `skill-creator` this project explicitly kept "fully intact" — its evaluation/description-optimization engine, ported wholesale rather than rebuilt — turned out to need five real fixes that actual regression testing caught, not code review. All five were checked directly against Anthropic's own currently-shipped `skill-creator` source (not a stale snapshot); **all five are present and unfixed there today**, two of them worse than SkillArtisan's own pre-fix versions were.
 
 1. **Premature-return trigger-detection bug.** `run_eval.py`'s `run_single_query()` returns on the first non-Skill/Read tool call, before the conversation reaches its final `result` event — a false-negative trigger-detection bug. Confirmed still present, unfixed, in `skill-creator`'s current source (`run_eval.py` lines 141/168). Fixed in SkillArtisan's `description_optimizer.py`, `[2.2.2]`.
 2. **Timeout too short for real `claude -p` calls.** `skill-creator`'s `--timeout` defaults to 30 seconds in both `run_eval.py` and `run_loop.py` — confirmed unchanged, and worse than SkillArtisan's own pre-fix 60s. Raised to 180s in `[2.2.2]`, based on directly observed real call durations.
