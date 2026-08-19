@@ -110,10 +110,10 @@ Any repository can install SkillArtisan's audit as a GitHub Action to check its 
 
 Behavior is gated on that one secret's presence, not a mode flag:
 
-- **No `ANTHROPIC_API_KEY`** — mechanical audit only (`scripts/audit.py`'s checklist: frontmatter, security, evals, lifecycle, etc.), written to the job's step summary. Free, safe to run on every push/PR.
+- **No `ANTHROPIC_API_KEY`** — mechanical audit only (`scripts/audit.py`'s checklist: frontmatter, security, evals, lifecycle, etc.), written to the job's step summary. Free — a consuming repo can safely wire this to `on: push` / `on: pull_request` if it wants continuous auditing.
 - **`ANTHROPIC_API_KEY` set** — same report, plus: every skill with FAIL items gets an additive-only fix authored by Claude and opened as a pull request for review (`scripts/pr_execute.py` — same hard-refusal on any delete/rename, same idempotent branch naming, whether invoked from a chat session or from this Action). Nothing is ever merged automatically. `max-skills` (default `10`) caps API spend per run.
 
-See `action.yml` for the full input list, and `.github/workflows/self-test-action.yml` / `self-test-action-fix-pr.yml` in this repo for working examples of both modes (the latter is manual/`workflow_dispatch`-only, since it spends real API tokens and opens a real PR every time it runs).
+See `action.yml` for the full input list, and `.github/workflows/self-test-action.yml` / `self-test-action-fix-pr.yml` in this repo for working examples of both modes. Both are `workflow_dispatch`-only (manual trigger) *in this repo* — SkillArtisan deliberately doesn't audit its own skills automatically on every push here — regardless of how a consuming repo chooses to trigger the report-only mode for itself.
 
 ## Security
 

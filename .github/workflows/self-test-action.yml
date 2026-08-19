@@ -1,9 +1,11 @@
 name: Self-test audit action
 
+# Manual only — deliberately does NOT trigger on push/PR. This repo doesn't
+# want SkillArtisan auditing itself automatically on every push to master;
+# run this by hand (Actions tab, or `gh workflow run self-test-action.yml`)
+# whenever action.yml or gha_audit.py changes and you want to confirm the
+# report-only path still works end to end.
 on:
-  push:
-    branches: [master]
-  pull_request:
   workflow_dispatch:
 
 jobs:
