@@ -13,6 +13,8 @@ The six fields portable across every agentskills.io-compliant client (Claude Cod
 
 ## The description field, in full
 
+**Applies to model-triggered skills only.** If the skill sets `disable-model-invocation: true` (Claude Code extended field, `references/surface-matrix.md`), none of this subsection applies — the model never decides whether to invoke it, so there's nothing to optimize trigger accuracy for. Write a plain description that accurately states what the skill does for a human or slash-command reader, and skip straight to the rest of authoring; don't run the worked example below through the description optimizer.
+
 This is the primary triggering mechanism — Claude decides whether to invoke a skill based on its name and description alone, before reading anything else. Two techniques, used *together*, not as alternatives:
 
 1. **Imperative "Use when..." framing.** Write it as an instruction to the model, not a feature description. "Use when the user asks for X, mentions Y, or wants to Z" reads as a directive; "This skill does X" reads as documentation the model can take or leave.

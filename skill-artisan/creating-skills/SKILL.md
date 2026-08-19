@@ -76,9 +76,9 @@ Getting this wrong in either direction has a real cost: inline-when-it-should-fo
 
 Once the gate says "create new" (or "improve existing"):
 
-1. **Capture intent.** If the current conversation already demonstrates the workflow (the user just did the thing manually and said "turn this into a skill"), extract the steps, corrections, and input/output formats from that transcript first — don't make the user re-explain what already happened. Otherwise ask: what should this enable, when should it trigger, what's the output format, and whether test cases make sense (skills with objectively verifiable output benefit from them; skills with subjective output like writing style often don't).
+1. **Capture intent.** If the current conversation already demonstrates the workflow (the user just did the thing manually and said "turn this into a skill"), extract the steps, corrections, and input/output formats from that transcript first — don't make the user re-explain what already happened. Otherwise ask: what should this enable, when should it trigger (or: is it user-invoked only, e.g. a slash command that must never auto-trigger — that's `disable-model-invocation: true`, decided now rather than discovered mid-workflow), what's the output format, and whether test cases make sense (skills with objectively verifiable output benefit from them; skills with subjective output like writing style often don't).
 2. **Interview and research.** Ask about edge cases and dependencies before drafting. Check `scripts/dedup_search.py` results again if research turns up something new.
-3. **Write the frontmatter.** See `references/frontmatter-spec.md` for the full field table and constraints. Keep the description pushy *and* imperative — list concrete trigger contexts explicitly, including ones that don't name the domain directly, **and** phrase it as "Use when..." — these are complementary techniques, not alternatives (see the frontmatter spec's worked example). Name it in gerund form (`creating-x`, `reviewing-x`) — `scripts/validate.py` checks this and suggests alternatives.
+3. **Write the frontmatter.** See `references/frontmatter-spec.md` for the full field table and constraints. If this is a `disable-model-invocation: true` skill, write a plain, accurate description of what it does and stop there — skip the pushy/trigger-context treatment below entirely, there's no auto-trigger to optimize for. Otherwise, keep the description pushy *and* imperative — list concrete trigger contexts explicitly, including ones that don't name the domain directly, **and** phrase it as "Use when..." — these are complementary techniques, not alternatives (see the frontmatter spec's worked example). Name it in gerund form (`creating-x`, `reviewing-x`) — `scripts/validate.py` checks this and suggests alternatives.
 4. **Write the body.** Match instruction specificity to task fragility using the three degrees-of-freedom tiers in `references/writing-philosophy.md`, and scope the skill as one coherent unit of work (same file, separate section — it's a different check from degrees of freedom, don't conflate them). Imperative voice, explain the *why*, keep it lean. Bundle a script rather than let every invocation reinvent the same helper.
 5. **Validate frontmatter and structure:**
    ```bash
@@ -135,7 +135,7 @@ Pass `--previous-workspace <workspace>/iteration-<N-1>` from iteration 2 onward 
 
 Before committing to the full eval loop above, a cheap sanity check (prior art: `mgechev/skills-best-practices`) catches obvious problems in a handful of chat turns, no subagents required:
 
-1. **Discovery** — paste just the frontmatter into a fresh context; ask for 3 should-trigger + 3 should-not-trigger prompts and whether the description is too broad.
+1. **Discovery** — skip this step for `disable-model-invocation: true` skills (no auto-trigger to probe; just eyeball that the description is accurate). Otherwise, paste just the frontmatter into a fresh context; ask for 3 should-trigger + 3 should-not-trigger prompts and whether the description is too broad.
 2. **Logic** — feed the full SKILL.md + directory tree; have it simulate executing the skill against a specific request and flag "Execution Blockers" — points where it has to guess.
 3. **Edge Case** — have it adversarially generate failure-state questions without fixing them.
 4. **Architecture Refinement** — have it rewrite for progressive disclosure based on what surfaced.
@@ -144,7 +144,7 @@ Optional, not a Stage 2 requirement — use it when a quick gut-check is worth m
 
 ### Description optimization
 
-After the skill itself is in good shape, optimize the frontmatter description for triggering accuracy:
+Skip this entire stage for `disable-model-invocation: true` skills — the model never decides whether to invoke it, so there's no triggering accuracy to measure or tune. Otherwise, after the skill itself is in good shape, optimize the frontmatter description for triggering accuracy:
 
 1. Generate ~20 eval queries: 8-10 should-trigger, 8-10 should-not-trigger. Should-trigger queries need real coverage — different phrasings, cases where the user doesn't name the skill's domain directly. Should-not-trigger queries need to be genuine near-misses (share vocabulary, need something different) — not obviously-irrelevant negatives; those test nothing.
 2. Let the user review the set before running anything: read `assets/eval_review.html`, replace `__EVAL_DATA_PLACEHOLDER__`/`__SKILL_NAME_PLACEHOLDER__`/`__SKILL_DESCRIPTION_PLACEHOLDER__`, write to a temp file, open it. They can edit, toggle, add/remove, then export `eval_set.json`.

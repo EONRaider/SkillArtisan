@@ -107,9 +107,20 @@ def check_frontmatter_and_paths(skill_path: Path) -> list[dict]:
     return items
 
 
+def is_user_invoked_only(frontmatter: dict[str, str]) -> bool:
+    return frontmatter.get("disable-model-invocation", "").strip().lower() == "true"
+
+
 def check_description_quality(frontmatter: dict[str, str]) -> dict:
     desc = frontmatter.get("description", "")
-    if not desc or len(desc) < 40:
+    if not desc:
+        return {"id": "description-pushy-imperative", "status": "FAIL", "detail": "description missing"}
+    if is_user_invoked_only(frontmatter):
+        status = "PASS" if len(desc) >= 20 else "WARN"
+        detail = ("disable-model-invocation: true — pushy/'Use when...' triggering framing doesn't apply; description just needs to accurately state what the skill does"
+                  if status == "PASS" else "description too short to be useful even for a plain, non-triggering description")
+        return {"id": "description-pushy-imperative", "status": status, "detail": detail}
+    if len(desc) < 40:
         return {"id": "description-pushy-imperative", "status": "FAIL",
                 "detail": f"description missing or under 40 chars ({len(desc)} chars) — likely fails to trigger reliably"}
     has_use_when = "use when" in desc.lower()
@@ -263,7 +274,12 @@ def run_checklist(skill_path: Path) -> list[dict]:
     items.append(check_degrees_of_freedom_proxy(body))
     context_value = frontmatter.get("context", "inline (default)")
     items.append({"id": "architecture-declared", "status": "PASS", "detail": f"context: {context_value}"})
-    items += [dict(i) for i in MANUAL_ONLY_ITEMS]
+    for item in MANUAL_ONLY_ITEMS:
+        if item["id"] == "description-optimizer-run" and is_user_invoked_only(frontmatter):
+            items.append({"id": "description-optimizer-run", "status": "PASS",
+                           "detail": "disable-model-invocation: true — skill is user-invoked only, description-optimizer is not applicable"})
+        else:
+            items.append(dict(item))
     return items
 
 

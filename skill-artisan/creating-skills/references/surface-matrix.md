@@ -19,7 +19,7 @@ The full-capability surface: subagents, a browser (for the eval viewer), the `cl
 
 | Field | Purpose |
 |---|---|
-| `disable-model-invocation` | Skill is user-invocable only (e.g. via a slash command), never auto-triggered from a description match. |
+| `disable-model-invocation` | Skill is user-invocable only (e.g. via a slash command), never auto-triggered from a description match. Setting this **skips** — not merely makes optional — the description-optimization stage and the pushy-description technique in the main SKILL.md and `references/frontmatter-spec.md`: there's no trigger accuracy to tune when the model never decides whether to invoke it. |
 | `user-invocable` | Explicitly controls whether a human can invoke the skill directly, independent of model auto-triggering. |
 | `context: fork` | Runs the skill in an isolated subagent context rather than inline. See the main SKILL.md's "Inline or fork?" decision guide — this is the field that implements that decision. |
 | `paths` | Restricts which project paths the skill's auto-triggering considers relevant (monorepo scoping). |
