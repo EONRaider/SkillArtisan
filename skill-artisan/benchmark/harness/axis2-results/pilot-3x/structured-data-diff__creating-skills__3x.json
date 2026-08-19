@@ -1,0 +1,141 @@
+{
+  "skill_name": "diffing-structured-data",
+  "description": "Compare two versions of structured tabular or record data \u2014 CSV exports, JSON API responses, or similar \u2014 and produce a categorized, human-readable report of what actually changed, not a raw text/line diff. Matches rows by an identifying column (id, sku, uuid, or a composite key), not by row position, so a reordered or inserted row doesn't cascade into false changes. Treats type differences (42 vs \"42\") and floating-point rounding noise (19.999999999 vs 20.0) as non-changes by default. Use when the user has two CSVs, two JSON files, an \"old\" and \"new\" export, a \"before\" and \"after\" snapshot, or two API responses and asks what changed, what's different, what was added/removed/modified, or wants a diff \u2014 especially when they mention row order changing, columns being reordered, or that a plain text/unified diff isn't useful because of reordering or noise.",
+  "results": [
+    {
+      "query": "Compare these two CSV exports and tell me what rows were added, removed, or changed.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Diff this week's JSON API response against last week's and summarize the actual changes.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "These two data files have the same rows in a different order \u2014 tell me if anything actually changed.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "I need to know which records were modified between these two dataset snapshots, matched by their ID column.",
+      "should_trigger": true,
+      "trigger_rate": 0.6666666666666666,
+      "triggers": 2,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Compare these two spreadsheet exports for real changes, ignoring floating-point rounding noise.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "What's different between v1.json and v2.json, categorized by added/removed/modified?",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Diff these two CSVs but treat a number and its string form as equal unless I say otherwise.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Compare this week's inventory export to last month's and show me a readable change report.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Run a plain text diff between these two log files.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Compare these two Word documents and show me the tracked changes.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Merge these two CSV files into one combined file.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Validate this CSV file against a schema and report any malformed rows.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Sort this spreadsheet by the price column, descending.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Convert this JSON file into a CSV.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Compare two images pixel-by-pixel and highlight the differences.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Deduplicate the rows in this single CSV file.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "passed": 9,
+    "failed": 7,
+    "should_trigger_pass_rate": 0.125,
+    "should_not_trigger_pass_rate": 1.0
+  }
+}

@@ -1,0 +1,141 @@
+{
+  "skill_name": "conducting-deep-research",
+  "description": "Produce rigorous, citation-backed research reports \u2014 market analyses, literature reviews, competitive landscapes, technical briefs, due-diligence memos, or any \"research X and write it up\" request. Use when the user asks to research a topic, write a market analysis, compare competitors, summarize the state of a technology or field, produce a literature review, or wants a deep dive into a subject, including phrasings that don't name the domain directly: \"what's the landscape for X,\" \"how mature is Y technology,\" \"who are the main players in Z,\" \"write me a brief on W.\" Also use for a single-fact lookup needing a traceable, dated source. Parallelizes research across subagents so raw search results don't flood the main thread, builds a real citation registry with per-source freshness tracking instead of loose inline links, and runs a mandatory adversarial counter-review pass before any report is done. Never invents a URL, number, or citation \u2014 unverifiable claims are marked as such instead.",
+  "results": [
+    {
+      "query": "\u5e2e\u6211\u8c03\u7814\u4e00\u4e0b\u8fd9\u4e2a\u884c\u4e1a\u7684\u7ade\u4e89\u683c\u5c40\uff0c\u5199\u4e00\u4efd\u6df1\u5ea6\u62a5\u544a",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Write a literature review on recent advances in this research area.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Give me a competitive analysis of the top players in this market.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "\u6280\u672f\u9009\u578b\u5206\u6790\uff1a\u5e2e\u6211\u5bf9\u6bd4\u8fd9\u51e0\u4e2a\u6846\u67b6\u7684\u4f18\u52a3",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Produce a policy brief on this proposed regulation with citations.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "\u7efc\u8ff0\u4e00\u4e0b\u8fd9\u4e2a\u9886\u57df\u6700\u8fd1\u7684\u7814\u7a76\u8fdb\u5c55",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Research this company's market position and write a report with sources.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "I need a survey of the current state of the art on this technical topic.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Fact-check this one specific sentence in my document against official sources.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Summarize this single article in three bullet points.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "What's the weather like today?",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Write a short opinion piece about why I think remote work is better.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Debug why this API call keeps returning a 500 error.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Translate this paragraph from French to English.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Extract the real engagement stats for this video from the platform's API.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Proofread this essay for grammar and clarity.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "passed": 8,
+    "failed": 8,
+    "should_trigger_pass_rate": 0.0,
+    "should_not_trigger_pass_rate": 1.0
+  }
+}

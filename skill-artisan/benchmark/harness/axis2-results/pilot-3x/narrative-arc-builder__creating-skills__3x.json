@@ -1,0 +1,141 @@
+{
+  "skill_name": "building-narrative-arcs",
+  "description": "Restructures a rough presentation/talk/deck outline around a real narrative arc (setup, tension, resolution) instead of rewording the same bullets onto slides in the same order. Finds the throughline the material resolves and flags problems by name \u2014 a buried lede (key point mid-deck, not near the front), no throughline connecting sections, a data-heavy section dropped into a story flow with no transition, or a conclusion that summarizes instead of resolving the opening's tension. Use when someone hands over a rough bullet outline, agenda, or slide list and asks to find the story in it, fix the pacing, explain why a deck \"falls flat,\" reorder sections, or state the throughline \u2014 even without the word \"narrative.\" Also covers \"does this deck's order make sense,\" \"the ending feels weak,\" \"too much setup before the point,\" \"what's my through-line.\" Leaves a well-paced outline alone rather than forcing an unneeded reshuffle. Not for line-editing copy, visual design, speaker notes, or screenplay structure.",
+  "results": [
+    {
+      "query": "This is just a bullet-point outline right now \u2014 help me turn it into something with a real narrative arc for my presentation.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "My pitch deck's key point is buried on slide 8 \u2014 help me restructure so it lands earlier.",
+      "should_trigger": true,
+      "trigger_rate": 1.0,
+      "triggers": 3,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "This deck's sections don't connect to each other at all \u2014 find the throughline or tell me there isn't one.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "My conclusion slide just repeats the problem statement instead of resolving it \u2014 fix the ending.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "There's too much background before the interesting part in this outline \u2014 fix the pacing.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "This section has a data table dropped into a story-driven flow with no transition \u2014 smooth that out.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Does this outline already have a good narrative structure, or does it need restructuring?",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Restructure this rough outline around a setup-tension-resolution arc.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Extract a color palette and typography system from these reference screenshots.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Generate several different visual style options for this deck's slide design.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Audit this already-built slide deck's rendering for layout bugs and overflow.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Write the actual slide content and speaker notes for each bullet point, no restructuring needed.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Fact-check the statistics cited in this presentation against current sources.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Format this outline into a properly indented Markdown document.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Translate this presentation outline from English into Japanese.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Count how many slides this deck has and list their titles.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "passed": 9,
+    "failed": 7,
+    "should_trigger_pass_rate": 0.125,
+    "should_not_trigger_pass_rate": 1.0
+  }
+}

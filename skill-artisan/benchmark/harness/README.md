@@ -167,10 +167,29 @@ that three of the four are also present, unfixed, in `skill-creator`'s own curre
   `bilibili-source` (which queries fail shifts between iterations, no single query failing
   every time). Also ran Stage 2: same result, no improvement found over the original
   description.
-- **Net result**: Stage 2 (`description_optimizer.py`) did not produce a usable fix for
-  either skill tested. Both remain documented open gaps rather than forced "fixes" that
-  don't actually work. The other 6 of the original 9 low-scoring skills were never
-  re-verified at 3x, so treat their 1x scores as unconfirmed, not established.
+- **Net result on the first 3**: Stage 2 (`description_optimizer.py`) did not produce a
+  usable fix for either skill it ran against. Both remain documented open gaps rather than
+  forced "fixes" that don't actually work.
+- **The remaining 6 were re-verified at 3x too** (results also in `axis2-results/pilot-3x/`,
+  Stage 2 not attempted given the 0-for-2 track record above). Full 9-skill picture:
+
+  | Skill | 1x | 3x | Verdict |
+  |---|---|---|---|
+  | `git-safety-net` | 12% | 100% | Noise — dropped |
+  | `dataset-bias-auditor` | 12.5% | 50% | Borderline — landed right at the pass/fail threshold |
+  | `excel-automation` | 11% | 56% | Borderline — landed right at the pass/fail threshold |
+  | `repomix-unmixer` | 0% | 12.5% | Still poor — mild move, likely real |
+  | `structured-data-diff` | 0% | 12.5% | Still poor — mild move, likely real |
+  | `narrative-arc-builder` | 12.5% | 12.5% | Identical — confirmed real, stable |
+  | `bilibili-source` | 22% | 22% | Identical — confirmed real, stable |
+  | `fact-checker` | 0% | 12.5% | Confirmed real (Stage 2 attempted, no fix found) |
+  | `deep-research` | 0% | 0% | Identical — confirmed real, stable, worst in the corpus |
+
+  Of the original 9: 1 was pure sampling noise, 2 landed exactly on the pass/fail boundary
+  (genuinely ambiguous, not a clean flip either way), and 6 are confirmed or likely-real —
+  `deep-research`, `bilibili-source`, and `narrative-arc-builder` show the cleanest signal
+  (identical 1x/3x scores, so the bad score wasn't a sampling artifact at all). **Stopped
+  here by user decision** — documented as open gaps, not pursued further this pass.
 
 ## Operational gotchas learned the hard way
 
