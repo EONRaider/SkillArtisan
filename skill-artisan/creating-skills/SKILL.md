@@ -7,7 +7,7 @@ compatibility: Claude Code, for the full workflow (subagents for parallel eval r
 
 # Creating Skills
 
-Author, validate, secure, and evaluate Claude Skills — superseding Anthropic's shipped `skill-creator` with frontmatter validation, a combined decision/dedup gate, five-surface compatibility guidance, and gitleaks-based security scanning, while keeping `skill-creator`'s evaluation engine intact (it's the strongest thing about it).
+Author, validate, secure, and evaluate Claude Skills — superseding Anthropic's shipped `skill-creator` with frontmatter validation, a combined decision/dedup gate, five-surface compatibility guidance, and gitleaks-based security scanning, while keeping `skill-creator`'s evaluation engine as its architectural basis (it's the strongest thing about it) — ported wholesale rather than redesigned, then hardened with five real bug fixes real regression testing found, all still present unfixed in `skill-creator`'s own code today.
 
 **Before drafting anything, run the Decision Gate below.** Everything after it assumes the gate concluded "yes, build (or improve) a skill."
 

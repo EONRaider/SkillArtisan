@@ -6,7 +6,7 @@ SkillArtisan bundles a main skill named **`creating-skills`** along with an eval
 
 ## Why this exists
 
-Anthropic's own `skill-creator` is a good starting point, but has real gaps: no frontmatter validation, no gerund-naming guidance, no multi-model testing, no security scanning beyond a one-line "don't build malware" principle, and no way to audit or upgrade an existing skill. SkillArtisan closes all of these, while keeping the one thing `skill-creator` already does well — its evaluation and description-optimization engine — fully intact.
+Anthropic's own `skill-creator` is a good starting point, but has real gaps: no frontmatter validation, no gerund-naming guidance, no multi-model testing, no security scanning beyond a one-line "don't build malware" principle, and no way to audit or upgrade an existing skill. SkillArtisan closes all of these, while keeping the one thing `skill-creator` already does well — its evaluation and description-optimization engine — as its architectural basis: ported wholesale rather than redesigned from scratch, then hardened with five real bug fixes actual regression testing found (see "Verified against `skill-creator`'s current source" below) — all five still present, unfixed, in `skill-creator`'s own code today.
 
 The design is grounded in the canonical, cross-vendor [agentskills.io](https://agentskills.io) specification (not just Claude-specific conventions), so skills built with SkillArtisan are portable across Claude Code, Cursor, GitHub Copilot, Codex, Gemini CLI, and 40+ other agent products by default.
 
@@ -45,7 +45,7 @@ SkillArtisan's decision gate will first confirm a skill is actually the right to
 | Multi-model testing | Not mentioned | Explicit Haiku/Sonnet/Opus pass |
 | Existing-skill audit | Path-handling advice only | Full audit mode (`scripts/audit.py`): checklist scoring, upgrade-vs-rebuild decision, institutional-knowledge preservation, regression benchmarking, bulk mode |
 | Lifecycle tracking | Not mentioned | Capability-uplift vs. encoded-preference classification with a scored timelessness threshold (`references/lifecycle.md`) |
-| Eval engine | Strong — with/without-skill runs, description optimizer | Same engine, ported intact — this is the one thing kept unchanged |
+| Eval engine | Strong — with/without-skill runs, description optimizer | Same architecture, ported wholesale rather than rebuilt — since hardened with five real bug fixes (`[2.2.2]`–`[2.2.4]`) that regression testing found; no longer literally unchanged from the original port |
 
 See the full [Gap Table](../skill-artisan-master-spec.md#gap-table) (40 rows) for the complete comparison, including against other community tools (`daymade/claude-code-skills`, `tripleyak/SkillForge`).
 
