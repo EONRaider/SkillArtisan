@@ -13,8 +13,8 @@ The design is grounded in the canonical, cross-vendor [agentskills.io](https://a
 ## Install
 
 ```
-claude plugin marketplace add <owner>/skill-artisan
-claude plugin install skill-artisan
+claude plugin marketplace add eonraider/SkillArtisan
+claude plugin install skillartisan@eonraider
 ```
 
 Requirements: Python 3.8+, [gitleaks](https://github.com/gitleaks/gitleaks) (for security scanning), `claude` CLI (for evaluation runs and description optimization), and Node.js (`npx`, for the `skills-ref` frontmatter validator — `validate.py` falls back to a pinned `npx` run if `skills-ref` isn't already installed locally). `git` and the GitHub CLI (`gh`, authenticated) are required only for `scripts/pr_execute.py`'s real-effects path (`audit.py pr-execute`) — everything else works without either.
