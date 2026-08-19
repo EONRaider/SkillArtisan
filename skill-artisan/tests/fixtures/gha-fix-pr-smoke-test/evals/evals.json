@@ -1,0 +1,10 @@
+{
+  "evals": [
+    {
+      "name": "smoke-test-fixture-loads",
+      "description": "Sanity check that this disposable fixture skill is discoverable and its SKILL.md is well-formed for the fix-PR smoke test workflow.",
+      "prompt": "Describe the purpose of the gha-fix-pr-smoke-test skill.",
+      "expected": "The response should explain that this is a disposable, CI-only fixture used to smoke-test the GitHub Action's fix-PR path and should not be treated as a real user-facing skill."
+    }
+  ]
+}
