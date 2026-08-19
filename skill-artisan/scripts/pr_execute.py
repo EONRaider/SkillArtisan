@@ -179,11 +179,24 @@ def find_existing_pr(upstream_repo: str, fork_owner: str, branch: str, direct_pu
     nothing in the same-repo case. Found live: a second run against a
     disposable repo the author already had push access to fell through this
     check entirely and attempted a real push that then failed on an
-    unrelated non-fast-forward error, rather than being caught here first."""
+    unrelated non-fast-forward error, rather than being caught here first.
+
+    Only OPEN PRs count as "already exists" — not `--state all`. A closed
+    (unmerged) PR means the fix never landed, so the underlying finding is
+    presumably still true and a later run should get a fresh attempt, not a
+    permanent no-op citing a dead PR. Found live: closing a smoke-test PR as
+    cleanup, then re-running against the same skill+repo, silently
+    short-circuited to that same closed PR's URL every time afterward — the
+    deterministic branch name means the head-branch match never changes, so
+    with `--state all` this skill could never be proposed again. A merged PR
+    isn't specifically excluded either, on the same reasoning: if the audit
+    still finds the item failing after a merge, something about the merge
+    didn't actually fix it, and a fresh attempt is the right response, not a
+    silent no-op."""
     head_filter = branch if direct_push else f"{fork_owner}:{branch}"
     result = run_gh([
         "pr", "list", "--repo", upstream_repo,
-        "--head", head_filter, "--state", "all",
+        "--head", head_filter, "--state", "open",
         "--json", "url", "--jq", ".[0].url",
     ])
     url = result.stdout.strip()

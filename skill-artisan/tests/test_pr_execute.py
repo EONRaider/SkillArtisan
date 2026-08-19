@@ -78,6 +78,16 @@ class TestFindExistingPr(unittest.TestCase):
         head_index = args.index("--head")
         self.assertEqual(args[head_index + 1], "forker:skillartisan-audit-fix-x")
 
+    def test_only_queries_open_prs_not_all_states(self):
+        with patch.object(pr_execute, "run_gh") as mock_gh:
+            mock_gh.return_value.stdout = ""
+            pr_execute.find_existing_pr("owner/repo", "owner", "branch", direct_push=True)
+        args = mock_gh.call_args[0][0]
+        state_index = args.index("--state")
+        self.assertEqual(args[state_index + 1], "open",
+                          "a closed PR must not count as 'already exists' — the fix never landed, "
+                          "so a later run should get a fresh attempt, not a permanent no-op")
+
     def test_returns_none_for_empty_result(self):
         with patch.object(pr_execute, "run_gh") as mock_gh:
             mock_gh.return_value.stdout = "  "
