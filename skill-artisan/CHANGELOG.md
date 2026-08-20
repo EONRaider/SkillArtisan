@@ -6,6 +6,11 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.5.2] - 2026-08-20
+
+### Fixed
+- **`creating-skills` failed its own `frontmatter-valid` check** — found by a live end-to-end check: `claude plugin marketplace add EONRaider/claude-plugins` → `claude plugin install skillartisan@eonraider` against the real marketplace, then running `audit.py report` on the installed skill exactly the way `SKILL.md` tells Claude to audit any skill. `frontmatter-valid` FAILed: the skill's own `compatibility` field was 530 characters, over skills-ref's 500-character hard limit. This had shipped since `ac282ce` (2026-08-19) with zero coverage — nothing in the 119-test suite ever ran `validate.py`'s real skills-ref check against `creating-skills/SKILL.md` itself, only against fixtures standing in for it. Trimmed the field to 491 chars (dropped redundant wording, no information lost — the surfaces/requirements list is unchanged). Regression test added: `tests/test_creating_skills_self_validates.py`, which calls `validate.validate()` against the real shipped skill directory, closing the exact "only tested via fixtures" gap that let this through.
+
 ## [2.5.1] - 2026-08-20
 
 ### Fixed
