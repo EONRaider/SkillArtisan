@@ -178,6 +178,23 @@ class TestFindSkillDirsSymlinks(unittest.TestCase):
             found = find_skill_dirs([root])
             self.assertNotIn(fixture, found)
 
+    def test_bundled_template_skill_in_assets_dir_matching_a_root_skills_pattern_is_not_discovered(self):
+        """mims-harvard/tooluniverse (Phase 10): a fill-in-the-blanks skill-creation
+        template at skills/create-tooluniverse-skill/assets/skill_template/SKILL.md
+        structurally matches the Phase 9 skills/*/*/*/SKILL.md pattern (unlike the
+        two assets/tests-fixtures cases above, which sit at a depth no pattern
+        reaches) — the intermediate-directory exclusion is what catches this one."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            real = root / "skills" / "create-tooluniverse-skill"
+            make_skill(real, "create-tooluniverse-skill")
+            template = real / "assets" / "skill_template"
+            make_skill(template, "tooluniverse-[domain-name]")
+
+            found = find_skill_dirs([root])
+            self.assertIn(real, found)
+            self.assertNotIn(template, found)
+
 
 if __name__ == "__main__":
     unittest.main()

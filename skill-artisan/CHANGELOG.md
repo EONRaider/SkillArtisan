@@ -6,6 +6,14 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.5.6] - 2026-08-20
+
+### Fixed
+- **`_common.find_skill_dirs` had a real false-positive collision with its own Phase 9 pattern**: `mims-harvard/ToolUniverse`'s `skills/create-tooluniverse-skill/assets/skill_template/SKILL.md` — a fill-in-the-blanks skill-creation template (`name: tooluniverse-[domain-name]`) — structurally matched the `skills/*/*/*/SKILL.md` pattern added in v2.5.5, even though it's bundled reference content, not a real skill. This is the same false-positive class first suspected in v2.5.4 (`alirezarezvani`'s `assets/sample-skill/`, `skillforge`'s `tests/fixtures/sample-skill/`) — both already excluded by accident (no pattern reached their depth), not by design. Now confirmed a third time and reachable by a real pattern, so it needed one. Fixed with a general rule: `find_skill_dirs` now excludes any match whose path passes through a directory literally named `assets`, `tests`, or `fixtures` — justified by three confirmed instances across three corpora, checked against every vendored corpus before landing (exactly one real false positive fixed, zero legitimate discoveries excluded anywhere). Regression test added to `tests/test_common_find_skill_dirs.py`.
+
+### Notes
+- Phase 10 of the real-world audit pilot: 327 skills audited in `mims-harvard/ToolUniverse` (Harvard's Zitnik Lab), the academic/research authorship corpus, largest single repo in the current roadmap. Also documented (not code-fixed, by design): a genuine content-drift finding in the source repo itself (41 skill names have two non-identical surviving copies across its three packaging layers, one missing a real `disable-model-invocation: true` field), and a third independent corroboration of the `triggers:` field on [#8](https://github.com/EONRaider/SkillArtisan/issues/8). Full narrative: `skill-artisan/benchmark/audit-pilot/RESULTS.md`'s Phase 10 section.
+
 ## [2.5.5] - 2026-08-20
 
 ### Fixed

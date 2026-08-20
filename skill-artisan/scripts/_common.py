@@ -222,7 +222,23 @@ def find_skill_dirs(search_paths: list[Path]) -> list[Path]:
     a single instance; left as a documented, known gap rather than a fifth pattern
     justified by one example (see `../vendored/README.md`'s
     `aws-agent-toolkit-for-aws` entry).
+
+    Excludes any match whose path (between the search root and the skill's own
+    directory, exclusive of that directory's own name) passes through a directory
+    named `assets`, `tests`, or `fixtures` — found via the audit pilot's Phase 10
+    (mims-harvard/tooluniverse, 2026-08-20): a fill-in-the-blanks skill-creation
+    template, `skills/create-tooluniverse-skill/assets/skill_template/SKILL.md`
+    (literal `[domain-name]` placeholders in its own frontmatter), matched the new
+    Phase 9 `skills/*/*/*/SKILL.md` pattern above and was discovered as if it were a
+    real, independent skill. This confirms, not merely guesses at, a pattern already
+    suspected in Phase 8: `alirezarezvani-claude-skills`' `assets/sample-skill/` and
+    `tripleyak-skillforge`'s `tests/fixtures/sample-skill/` are the same class of
+    bundled non-skill content, just not reachable by any pattern that existed before
+    Phase 9's root-anchored additions. Checked against every vendored corpus before
+    adding this: exactly one real false positive fixed (this one), zero legitimate
+    discoveries anywhere excluded by it.
     """
+    EXCLUDED_INTERMEDIATE_DIRS = {"assets", "tests", "fixtures"}
     found = []
     for base in search_paths:
         if not base.is_dir():
@@ -246,5 +262,9 @@ def find_skill_dirs(search_paths: list[Path]) -> list[Path]:
                     continue
                 if any(p.is_symlink() for p in skill_md.parents if p != base and base in p.parents):
                     continue
-                found.append(skill_md.parent)
+                skill_dir = skill_md.parent
+                intermediate_parts = skill_dir.relative_to(base).parts[:-1]
+                if any(part in EXCLUDED_INTERMEDIATE_DIRS for part in intermediate_parts):
+                    continue
+                found.append(skill_dir)
     return sorted(set(found))

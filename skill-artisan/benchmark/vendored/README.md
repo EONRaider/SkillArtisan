@@ -360,3 +360,55 @@ Approved Phase 8–14 roadmap for the skills.sh-sourced expansion:
   resilience, security). One `rebuild`-decision skill (`amazon-dynamodb`, 631 lines).
 - **Runnability confirmed**: same Python-only dependency chain as the rest of
   `scripts/`; no repo-specific tooling needed to audit it.
+
+### `mims-harvard-tooluniverse/`
+
+- **Repo**: `https://github.com/mims-harvard/ToolUniverse`
+- **Pinned commit**: `1aaaf00d1a9a91c21ae09d014fe19bf46fa82917` (`main` HEAD,
+  2026-08-20T03:21:03Z) — fetched live immediately before cloning (2026-08-20).
+- **License**: Apache-2.0 — raw `LICENSE` file read directly, standard text.
+- **Character-checked before cloning**: fetched a sample skill
+  (`tooluniverse-admet-prediction`) via the GitHub API first, per the plan's specific
+  flag for this repo — confirmed genuine, dense domain-expert content (real ADMET
+  pharmacokinetics reasoning, tool-quirk caveats), not a mechanically-generated
+  tool-registry stub. Proceeded to clone only after this passed.
+- **Structure — a one-file count discrepancy, resolved (not a discovery gap)**: local
+  discovery found 464, one short of the candidates doc's 465. Root cause:
+  `skills/tooluniverse-cs-setup/templates/router_SKILL.md` — a real template file
+  whose name merely *ends with* "SKILL.md" as a substring (`endswith()`, the check
+  both the candidates doc's original verification and this project's own pre-vendor
+  check used), not a file literally named `SKILL.md`. `find_skill_dirs`'s
+  exact-filename glob patterns correctly never matched it — the tool's own discovery
+  was right; the GitHub-API-based sizing check upstream of it has a real, now-fixed
+  blind spot for future phases to watch for.
+- **A genuine `find_skill_dirs` false positive, fixed**: `find_skill_dirs` *did*
+  discover one real false positive —
+  `skills/create-tooluniverse-skill/assets/skill_template/SKILL.md`, a
+  fill-in-the-blanks skill-creation template (`name: tooluniverse-[domain-name]`),
+  reachable by Phase 9's new `skills/*/*/*/SKILL.md` pattern even though it's bundled
+  reference content. Same false-positive class first suspected in Phase 8
+  (`alirezarezvani`'s `assets/sample-skill/`, `skillforge`'s
+  `tests/fixtures/sample-skill/`), now confirmed a third time and reachable by a real
+  pattern. Fixed with a general rule (exclude any match passing through a directory
+  named `assets`, `tests`, or `fixtures`), justified by three confirmed instances
+  across three corpora, checked against every vendored corpus before landing: exactly
+  one real false positive fixed, zero legitimate discoveries excluded anywhere.
+  Regression test added. **463 real skills discovered.**
+- **Content-level dedup — three packaging layers, one pair diverged**: 136
+  content-duplicate groups. Unusually, this repo ships **three** top-level copies of
+  many skills (`skills/`, `plugin/skills/`, `plugins/tooluniverse/skills/`), not two
+  — and 41 skill names have two *non-identical* surviving copies after
+  `dedup_by_content` (which only ever collapses exact byte matches, by design).
+  Investigated one (`tooluniverse-cancer-genomics-tcga`): `plugins/tooluniverse/`'s
+  copy is missing a real `disable-model-invocation: true` field present in the other
+  two — genuine content drift in the source repo (most plausibly a stale sync
+  snapshot), not a SkillArtisan-side issue. Documented, not fixed — see
+  `../audit-pilot/RESULTS.md`'s Phase 10 section. **327 unique auditable skills**
+  after dedup.
+- **Distinct**: academic/research authorship (Harvard Medical School's Zitnik Lab),
+  the largest single repo in the roadmap, broad biomedical/scientific domain (drug
+  discovery, genomics, clinical analysis, protein interpretation). Lowest hit rate of
+  any corpus since mattpocock (30%), consistent with careful, expert-curated
+  authorship.
+- **Runnability confirmed**: same Python-only dependency chain as the rest of
+  `scripts/`; no repo-specific tooling needed to audit it.

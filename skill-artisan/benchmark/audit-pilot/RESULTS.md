@@ -1003,3 +1003,148 @@ documented (not a SkillArtisan fix), one new `audit-gap` issue opened covering t
 field families. Total wall-clock including the discovery-logic investigation, the
 doca-family root-cause confirmation, and this write-up: roughly 60–75 minutes.
 **2,464 skills now audited across eight independently-sourced corpora.**
+
+## Phase 10: mims-harvard/tooluniverse (327 skills)
+
+Third phase of the Phase 8–14 roadmap — the academic/generated-authorship corpus, the
+largest single repo in the roadmap by raw count and the one flagged for the worst
+sitemap-count discrepancy (7x) in planning. Pinned `1aaaf00d` (`main` HEAD,
+2026-08-20T03:21:03Z), fetched live immediately before cloning.
+
+### Character check, done before cloning: real, curated content, not tool-registry stubs
+
+The plan flagged this repo specifically for a pre-clone character check (curated
+skills corpus vs. a tool-registry mechanically emitting `SKILL.md` stubs from a tool
+schema). Fetched one sample skill via the GitHub API before committing to a full
+clone: `tooluniverse-admet-prediction` contains genuine, dense domain-expert
+reasoning (specific ADMET pharmacokinetics guidance, tool-quirk caveats like expected
+PyTorch console noise, real trigger phrases) — clearly curated, reviewed content, not
+a templated wrapper. Passed; proceeded to clone.
+
+### A one-file count discrepancy, resolved: a template file, not a missed skill
+
+Local discovery found 464 skills, one short of the candidates doc's 465 (itself
+matching a fresh live re-check via the GitHub tree API at clone time). Diffed the
+exact path lists rather than assuming either number was right:
+`skills/tooluniverse-cs-setup/templates/router_SKILL.md` accounts for the gap — a
+literal file named `router_SKILL.md` (a prefix, not the plain filename), which
+`endswith("SKILL.md")` (the substring check both the candidates doc's original
+verification *and* this repo's own earlier pre-vendor check used) matches, but
+`find_skill_dirs`'s exact-filename glob patterns correctly don't. The file itself is
+real content — a router-skill template with `[placeholder]`-shaped fields, bundled as
+reference material inside another skill's own directory, not meant to be discovered
+as an independent skill. **Not a `find_skill_dirs` gap** — the tool's own discovery
+was correct; the GitHub-API-based verification step upstream of it (used across this
+whole roadmap for pre-vendor sizing) has a real, now-documented blind spot:
+`endswith()` on a git-tree path list will over-count any file whose name merely ends
+in `SKILL.md` as a substring, not just files literally named `SKILL.md`. Worth
+carrying into Phases 11–14's own pre-vendor checks.
+
+### Bug #7 (fixed): a new false-positive collision from Phase 9's own fix
+
+`find_skill_dirs` did discover one real false positive:
+`skills/create-tooluniverse-skill/assets/skill_template/SKILL.md` — a
+fill-in-the-blanks skill-creation template (`name: tooluniverse-[domain-name]`,
+bracketed placeholders throughout), structurally matching Phase 9's new
+`skills/*/*/*/SKILL.md` pattern (added for `aws-agent-toolkit-for-aws`'s legitimate
+category-nested skills) even though this is bundled reference content, not a real
+skill. This is the same false-positive *class* first suspected in Phase 8
+(`alirezarezvani`'s `assets/sample-skill/`, `tripleyak-skillforge`'s
+`tests/fixtures/sample-skill/`) — both already correctly excluded, but only because
+no existing pattern happened to reach their depth, not because of any deliberate
+exclusion rule. This third instance is reachable by a real pattern, so it needed one.
+**Fixed**: `find_skill_dirs` now excludes any match whose path between the search
+root and the skill's own directory passes through a directory literally named
+`assets`, `tests`, or `fixtures` — a general rule, not a one-off patch, justified by
+three confirmed real instances across three corpora rather than a single guess.
+Checked against every vendored corpus before landing it: exactly one real false
+positive fixed (this one), zero legitimate discoveries anywhere excluded. Regression
+test added to `tests/test_common_find_skill_dirs.py`. Full 130-test suite passes.
+**463 of 464 structurally-real skills now correctly discovered** (the template stays
+excluded, correctly).
+
+### Content-level dedup: three packaging layers, not two, and one pair has genuinely diverged
+
+136 content-duplicate groups (272 of 464 pre-fix discovered skills) — the same
+dual-packaging mechanism as Phases 6/9, but this repo actually ships **three**
+top-level copies of many skills (`skills/`, `plugin/skills/`, and
+`plugins/tooluniverse/skills/`), not two. `dedup_by_content` correctly collapses
+whichever pairs are byte-identical and, since it only ever makes an exact-match
+judgment, correctly leaves alone any pair that isn't — which surfaced a genuine,
+reportable finding: **41 skill names have two surviving, non-identical copies** after
+dedup (`plugin/skills/X` vs. `plugins/tooluniverse/skills/X`, in every case checked).
+Investigated one directly (`tooluniverse-cancer-genomics-tcga`): the two copies
+differ in YAML formatting (unquoted vs. quoted description) and, more substantively,
+`plugins/tooluniverse/skills/X` is **missing** the `disable-model-invocation: true`
+field present in the other copy — real content drift, most plausibly a stale
+snapshot in one of the three sync targets, not a SkillArtisan-side issue. Not fixed
+(nothing to fix here — `dedup_by_content`'s exact-match-only design is correct;
+collapsing near-but-not-exact duplicates would be a content judgment beyond what it's
+built to make safely). Documented as a genuine packaging-hygiene finding in the
+source repo, the kind of thing worth flagging to the upstream author directly rather
+than something SkillArtisan's own tooling should paper over. **327 unique auditable
+skills** after dedup (463 structurally discovered − 136 dropped as exact duplicates).
+
+### Flagged, not fixed: `triggers:` corroborated a third time, from a third independent authorship model
+
+7 more `triggers:` instances (`tooluniverse-cancer-genomics-tcga`,
+`-drug-mechanism-research`, `-drug-regulatory`, `-epigenomics-chromatin`,
+`-kegg-disease-drug`, `-population-genetics-1000genomes`, `-rare-disease-genomics`) —
+now confirmed across Anthropic first-party (Phase 8), NVIDIA first-party (Phase 9),
+and this independent academic project, three different authorship models, not one
+author's habit. Commented on
+[#8](https://github.com/EONRaider/SkillArtisan/issues/8) rather than opening a new
+issue — same field, stronger corroboration, no new mechanism.
+
+### A genuine, low-stakes nuance on the reserved-word corroboration streak
+
+`tooluniverse-claude-code-plugin` FAILed `frontmatter-valid` on the reserved word
+"claude" — correctly, per `skills-ref`'s own rule. But unlike every prior corpus in
+this pilot, this repo's `plugin.json` has no explicit per-skill enumeration at all
+(no `skills` allowlist field the way mattpocock's or SkillArtisan's own manifests
+have) — it auto-discovers everything under the plugin directory, so the skill still
+ships despite the reserved word. **Not a counter-example to the underlying rule**
+(the file genuinely is spec-invalid per `agentskills.io`'s portability layer,
+independent of whether this particular repo's own packaging happens to still
+distribute it) — just a corpus where the "reserved word predicts real-world
+exclusion" *consequence* doesn't have a clean mechanism to test against, the same
+kind of honest "not applicable" result as Phase 7's zero-instance corpus, just
+shaped differently (a hit with no allowlist to check, rather than no hits at all).
+
+### Corroborated, not new
+
+- **`security-pattern-checks` — `dangerous-code-pattern`** (`setup-tooluniverse`):
+  a real `subprocess.check_output(cmd, shell=True, ...)` call in a bundled
+  troubleshooting diagnostic script — genuinely risky code, correctly flagged, same
+  class as Phase 5's `gmail_search.py` `pickle.load` finding.
+- **`security-pattern-checks` — `absolute-user-path`/`blocking-interactive-input`**:
+  real setup/installation paths and a real interactive skill-creation walkthrough
+  (`create-tooluniverse-skill`) — both already-understood classes.
+- **`references-toc-for-long-files`** (30, sampled), **`body-size-limits`** (13,
+  sampled), **`no-time-sensitive-info`** (14, sampled),
+  **`degrees-of-freedom-writing-style`** (9, sampled),
+  **`description-pushy-imperative`** (11, sampled — further corroboration of
+  [#6](https://github.com/EONRaider/SkillArtisan/issues/6)),
+  **`forward-slash-paths-only`** (4): all genuine, all already-established check
+  shapes across 9 prior phases — no new mechanism in any sample checked.
+- **`frontmatter-valid`** description-length FAILs (5 skills, e.g. `tooluniverse`
+  itself at 1711 chars against skills-ref's 1024-char limit): genuine — these
+  skills' descriptions really do exceed the hard spec limit, a real authoring
+  defect in the source repo, not a check false positive.
+- **No `rebuild`-decision skills** — 327/327 `upgrade-in-place`, the cleanest
+  decision distribution of any phase so far.
+
+### Cost — a ninth hit-rate data point, and the lowest since mattpocock
+
+Review-queue hit rate: **97 of 327 (30%)** — the second-lowest of the whole pilot
+(mattpocock's 11% remains lowest), consistent with a carefully-curated,
+domain-expert-authored academic corpus rather than a large heterogeneous or
+security-education one. Execution: unchunked, **33 seconds total wall-clock**
+(327 skills, local `skills-ref` still holding). One real `find_skill_dirs` false
+positive found and fixed (a general, evidence-backed exclusion rule, not a one-off
+patch), one genuine upstream packaging-hygiene finding documented (not fixed, by
+design), one new corroboration added to an existing tracked issue. Total wall-clock
+including the character check, the count-discrepancy investigation, the
+false-positive fix, the three-way-duplication investigation, and this write-up:
+roughly 60–75 minutes. **2,791 skills now audited across nine independently-sourced
+corpora.**
