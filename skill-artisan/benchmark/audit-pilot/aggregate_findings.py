@@ -25,12 +25,27 @@ Usage:
     python aggregate_findings.py <source-dir> --json out.json
     python aggregate_findings.py <source-dir> --boilerplate-threshold 0.9
 
+    # Chunked mode, for a large single source (hundreds of skills) — audits
+    # only skill-dirs [start, end) of the sorted discovery list, so a crash
+    # or interruption only costs one chunk's worth of re-work, not the whole
+    # corpus, and each chunk's results are safely on disk before the next
+    # chunk starts:
+    python aggregate_findings.py <source-dir> --start 0 --end 100 --json chunk-00.json
+    python aggregate_findings.py <source-dir> --start 100 --end 200 --json chunk-01.json
+    ...
+    # Then combine every chunk's output into one final aggregate/review-queue:
+    python aggregate_findings.py --merge chunk-*.json --json combined.json
+
 Each <source-dir> is searched for skills the same way `audit.py bulk` does
 (_common.find_skill_dirs) — pass one directory per source repo/corpus so
 the per-source breakdown means something (e.g. one for mattpocock-skills,
-one for daymade/claude-code-skills, etc.). Exit codes: 0 always (this is a
-report, not a gate, same convention as audit.py/dedup_search.py) unless a
-given path doesn't exist (2).
+one for daymade/claude-code-skills, etc.). A single skill that raises any
+exception (not just the two originally anticipated) is caught and recorded
+as an error entry rather than crashing the whole run — found the hard way
+in Phase 3, where an uncaught AttributeError on one skill's evals.json shape
+would otherwise have taken down the entire aggregation. Exit codes: 0 always
+(this is a report, not a gate, same convention as audit.py/dedup_search.py)
+unless a given path doesn't exist (2).
 """
 
 from __future__ import annotations
@@ -64,17 +79,35 @@ KNOWN_BOILERPLATE_IDS = {
 }
 
 
-def audit_source(label: str, root: Path, timelessness: int | None, lifecycle: str | None) -> list[dict]:
+def audit_source(
+    label: str,
+    root: Path,
+    timelessness: int | None,
+    lifecycle: str | None,
+    start: int = 0,
+    end: int | None = None,
+) -> list[dict]:
     skill_dirs = find_skill_dirs([root])
+    total_found = len(skill_dirs)
+    skill_dirs = skill_dirs[start:end]
+    if start or end is not None:
+        print(f"[{label}] chunk [{start}:{end if end is not None else total_found}] "
+              f"of {total_found} discovered skill(s)", file=sys.stderr)
     reports = []
     for skill_dir in skill_dirs:
         try:
             report = audit.audit_skill(skill_dir, timelessness, lifecycle)
-        except (ValueError, OSError) as e:
-            report = {"skill_name": skill_dir.name, "skill_path": str(skill_dir), "error": str(e)}
+        except Exception as e:  # noqa: BLE001 — a single skill's crash must never sink the whole run (Phase 3's Bug #3)
+            report = {"skill_name": skill_dir.name, "skill_path": str(skill_dir),
+                      "error": f"{type(e).__name__}: {e}"}
         report["source_label"] = label
         reports.append(report)
     return reports
+
+
+def load_reports_from_json(path: Path) -> list[dict]:
+    data = json.loads(path.read_text())
+    return data["reports"]
 
 
 def aggregate(all_reports: list[dict], boilerplate_threshold: float) -> dict:
@@ -155,7 +188,7 @@ def print_summary(agg: dict, boilerplate_threshold: float) -> None:
 
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("source_dirs", nargs="+", help="One directory per source corpus/repo to audit and aggregate")
+    p.add_argument("source_dirs", nargs="*", help="One directory per source corpus/repo to audit and aggregate")
     p.add_argument("--label", action="append", default=[], metavar="NAME=PATH",
                     help="Explicit label for a source dir (default: the directory's own basename)")
     p.add_argument("--timelessness", type=int, default=None, metavar="0-10")
@@ -163,7 +196,33 @@ def main() -> None:
     p.add_argument("--boilerplate-threshold", type=float, default=0.95,
                     help="Dominant-status rate above which a checklist item is flagged as likely boilerplate (default 0.95)")
     p.add_argument("--json", metavar="FILE", default=None, help="Write full structured output to FILE as JSON")
+    p.add_argument("--start", type=int, default=0,
+                    help="Chunked mode: audit only skill-dirs starting at this 0-based index (of the sorted discovery list)")
+    p.add_argument("--end", type=int, default=None,
+                    help="Chunked mode: audit only skill-dirs before this 0-based index (exclusive)")
+    p.add_argument("--merge", nargs="+", metavar="CHUNK.json", default=None,
+                    help="Skip auditing entirely; load and combine previously-written chunk JSON files instead")
     args = p.parse_args()
+
+    if args.merge:
+        all_reports = []
+        for chunk_path in args.merge:
+            reports = load_reports_from_json(Path(chunk_path))
+            print(f"[merge] {len(reports)} report(s) loaded from {chunk_path}", file=sys.stderr)
+            all_reports.extend(reports)
+        agg = aggregate(all_reports, args.boilerplate_threshold)
+        if args.json:
+            Path(args.json).write_text(json.dumps({"reports": all_reports, "aggregate": agg}, indent=2))
+            print(f"Wrote merged JSON to {args.json}", file=sys.stderr)
+        print_summary(agg, args.boilerplate_threshold)
+        return
+
+    if not args.source_dirs:
+        print("Error: at least one source-dir is required (unless using --merge)", file=sys.stderr)
+        sys.exit(2)
+    if len(args.source_dirs) > 1 and (args.start or args.end is not None):
+        print("Error: --start/--end only make sense with a single source-dir (chunking one large corpus)", file=sys.stderr)
+        sys.exit(2)
 
     label_overrides = {}
     for entry in args.label:
@@ -180,8 +239,8 @@ def main() -> None:
             print(f"Error: not a directory: {root}", file=sys.stderr)
             sys.exit(2)
         label = label_overrides.get(str(root), root.name)
-        reports = audit_source(label, root, args.timelessness, args.lifecycle)
-        print(f"[{label}] {len(reports)} skill(s) found under {root}", file=sys.stderr)
+        reports = audit_source(label, root, args.timelessness, args.lifecycle, args.start, args.end)
+        print(f"[{label}] {len(reports)} skill(s) audited under {root}", file=sys.stderr)
         all_reports.extend(reports)
 
     agg = aggregate(all_reports, args.boilerplate_threshold)

@@ -52,7 +52,7 @@ real, skill-specific findings:
 | Skill | Finding | Verdict |
 |---|---|---|
 | `wayfinder` | FAIL `path-references-exist`: "Missing referenced files: link" | **false positive — root-caused and fixed, see Bug #2 below** |
-| `setup-ts-deep-modules` | FAIL `path-references-exist`: "Missing referenced files: ./src/packages/README.md" | **false positive, same check, different mechanism — not fixed, see Bug #2** |
+| `setup-ts-deep-modules` | FAIL `path-references-exist`: "Missing referenced files: ./src/packages/README.md" | **false positive — actually fixed as a side effect of Bug #2's Round 2 fix; originally mis-documented as unfixed, corrected below** |
 | `claude-handoff` | FAIL `frontmatter-valid`: reserved word "claude" in `name` | **true positive, third corroborating instance** — all 3 of 3 "claude"-named skills across the full 35-skill repo landed in `misc/`/`in-progress/`, none shipped |
 | `resolving-merge-conflicts` | WARN `description-pushy-imperative`: "missing 'Use when...' framing or short" | **true positive, message imprecise** — description does start with "Use when," but is only ~72 chars, under the 100-char threshold the check actually wants for reliable triggering; the OR-phrased detail message doesn't say which condition applied, so it reads as if the framing itself is missing when it's actually just short |
 
@@ -134,15 +134,17 @@ link". Investigated directly:
   `[  PASS] path-references-exist — every relative link resolves`. Regression test added:
   `tests/test_validate.py` (link-shaped text inside a fenced example is ignored; a real
   broken link outside a fence is still caught; a real valid link still resolves).
-- **Not fixed**: `setup-ts-deep-modules` hit the *same underlying check* through a
-  different mechanism — an inline (non-fenced) sentence telling the user what line to add
-  to *their own* `CLAUDE.md`/`AGENTS.md`: `` [src/packages/README.md](./src/packages/README.md) ``.
-  This isn't inside a code fence, so the fix above doesn't touch it, and reliably
-  distinguishing "an example of a link to put in someone else's file" from "a real
-  reference into this skill's own directory" from prose alone is a genuine judgment call,
-  not a pattern a regex can safely make — a fix attempted here risks *suppressing* real
-  broken links instead. Left as a known, structural limitation rather than force a
-  speculative fix.
+- **Originally reported as unresolved, corrected below**: `setup-ts-deep-modules` hit the
+  *same underlying check* through what I first described as "an inline (non-fenced)
+  sentence" needing a judgment call the fenced-block fix couldn't make. That description
+  was wrong — the sentence is `` `Packages are deep modules — see [src/packages/README.md](./src/packages/README.md) before adding or importing one.` ``,
+  wrapped in a single-backtick inline code span, not bare prose. I missed that at the time.
+  It turned out to be the exact same mechanism as Round 2's fix below, and got fixed as a
+  side effect of that fix without me noticing — caught only while smoke-testing
+  `aggregate_findings.py`'s new chunking mode against this corpus during Phase 4 prep and
+  seeing the review queue come back one skill short of the documented count. Verified
+  directly: `setup-ts-deep-modules` now reports `path-references-exist — every relative
+  link resolves`. No further code change needed — this entry exists to correct the record.
 
 **Round 2, found in Phase 3**: a *third* independent mechanism for the same check, found
 across 3 skills in `daymade-claude-code-skills` — `docs-cleaner`, `meeting-minutes-taker`,
