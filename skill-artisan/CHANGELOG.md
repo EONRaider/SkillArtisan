@@ -6,6 +6,11 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.4.3] - 2026-08-20
+
+### Fixed
+- **GitHub reported `licenseInfo: null` for the repo** — the only `LICENSE` file lived at `skill-artisan/LICENSE`, not the repo root, and GitHub's license detection (plus GitHub Marketplace's Action-publishing eligibility check) reads the root copy specifically. Added a root-level `LICENSE` (identical MIT text). This is a deliberate exception to the README/CHANGELOG "no duplication" policy: license text is static boilerplate with no drift risk, and the two copies now serve genuinely different consumers — root for GitHub's own tooling, `skill-artisan/` for what ships with the installed plugin. Verified: `gh repo view` now reports `{"key":"mit","name":"MIT License"}` instead of `null`. Also verified live, end to end, against the `v2.4.2` tag ahead of Marketplace publishing: both the report-only and fix-PR paths ran clean (report-only audited all 3 fixtures correctly; fix-PR opened a real additive-only PR from a genuine audit finding, then closed/cleaned up as a smoke test).
+
 ## [2.4.2] - 2026-08-20
 
 ### Fixed
