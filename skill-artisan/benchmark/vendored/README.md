@@ -673,3 +673,97 @@ Approved Phase 8–14 roadmap for the skills.sh-sourced expansion:
   confirmed-genuine classes — no new mechanism.
 - **Runnability confirmed**: same Python-only dependency chain as the rest of
   `scripts/`; no repo-specific tooling needed to audit it.
+
+## Phase 15 pilot cohort: 28 low-sitemap-count repos (deliberately lower-quality population)
+
+One shared entry for the whole cohort — 28 repos vendored at once for the Phase 15
+pilot (see `../audit-pilot/RESULTS.md`'s Phase 15 section for the full methodology
+and findings). Selection: a fresh `skills.sh` sitemap crawl (2026-08-20, 20,000 URLs,
+2,445 owner/repo pairs), all 25 held repos excluded, restricted to the
+1–3-sitemap-listed-skills tier (1,730 candidates), license/star pre-screened via
+batched GraphQL (18 calls), then a seeded random draw (`random.Random(15)`)
+stratified across four star bins (8/8/6/6 from 0–2★ / 3–49★ / 50–499★ / ≥500★),
+excluding only literal aggregator/awesome-list-shaped repos, forks, and empty repos.
+All pins fetched live at clone time (2026-08-20); every LICENSE file read raw from
+the actual clone; zero exact-content duplicates against any held corpus (all 980
+pilot SKILL.mds hashed against all 4,386 held ones).
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `0xindiebruh/openclaw-mission-control-skill` | `3a0257c39e84` | 2026-02-07 | MIT | 1 | 1 | 0 |
+| `5dive-ai/skills` | `5c1a075f1cba` | 2026-08-20 | MIT | 14 | 3 | 1 |
+| `agentix-cloud/skills` | `9c768f4677a2` | 2026-03-21 | MIT | 1 | 1 | 0 |
+| `apetta/agent-xlsx` | `5656a77e7e6b` | 2026-02-25 | Apache-2.0 | 1 | 1 | 8 |
+| `byheaven/byheaven-skills` | `ca5bb493c4dc` | 2026-08-01 | MIT | 2 | 1 | 2 |
+| `claude-dev-suite/claude-dev-suite` | `feb48b75aef7` | 2026-07-17 | MIT | 717 | 1 | 28 |
+| `daytona/skills` | `ad4d8e088582` | 2026-08-18 | Apache-2.0 | 1 | 1 | 12 |
+| `delexw/claude-code-misc` | `c729be07588f` | 2026-03-28 | MIT | 9 | 1 | 1 |
+| `dnvriend/pdf-to-pptx-tool` | `8f5ff116b07b` | 2025-12-05 | MIT | 1 | 1 | 2 |
+| `dominikmartn/nothing-design-skill` | `74affbb786af` | 2026-04-01 | MIT | 1 | 1 | 2,738 |
+| `ecomfe/tempad-dev` | `7cfcb877d673` | 2026-07-21 | MIT | 2 | 1 | 492 |
+| `fredm00n/framerlabs` | `3f51e5c9ac52` | 2026-07-13 | MIT | 2 | 1 | 134 |
+| `hardhackerlabs/podwise-cli` | `496ee3a1fefa` | 2026-05-31 | MIT | 1 | 1 | 406 |
+| `heroui-inc/heroui` | `7b33a66ab687` | 2026-08-19 | Apache-2.0 | 3 | 3 | 30,421 |
+| `htmlstreamofficial/preline` | `1cd96367fea9` | 2026-05-10 | MIT (dual)* | 1 | 1 | 6,389 |
+| `hueyexe/opencode-ensemble` | `5cb44fa16cde` | 2026-08-15 | MIT | 1 | 1 | 202 |
+| `jackal092927/obsidian-official-cli-skills` | `ab6533943454` | 2026-02-13 | MIT | 1 | 1 | 39 |
+| `jetbrains/go-modern-guidelines` | `40781f167719` | 2026-08-19 | Apache-2.0 | 1 | 1 | 816 |
+| `kkoppenhaver/cc-nano-banana` | `3b136993b121` | 2026-02-18 | MIT | 1 | 1 | 366 |
+| `lucifer1004/claude-skill-typst` | `4779c8e8b7bb` | 2026-08-17 | MIT | 1 | 1 | 119 |
+| `nangohq/skills` | `496985d6fdc3` | 2026-08-20 | Elastic-2.0* | 8 | 1 | 2 |
+| `naoterumaker/openclaw-gog-skills` | `4d089b1a2564` | 2026-02-16 | MIT | 9 | 2 | 4 |
+| `nickcrew/claude-cortex` | `bb47af79ad3b` | 2026-06-28 | MIT | 156 | 3 | 34 |
+| `one-box-u/openclaw-daily-hot-news` | `93aa62ab874c` | 2026-02-06 | MIT | 1 | 1 | 13 |
+| `shoootyou/get-shit-done-multi` | `ec87275278ca` | 2026-03-20 | MIT | 34 | 1 | 22 |
+| `vercel-labs/dev3000` | `5abe4f5cab00` | 2026-07-31 | MIT | 3 | 1 | 1,564 |
+| `wihy/hermes-agent-skill` | `02d238da2eaa` | 2026-04-12 | MIT-0 | 1 | 1 | 0 |
+| `yamadashy/repomix` | `c898ff0b3612` | 2026-08-19 | MIT | 6 | 2 | 27,979 |
+
+**License notes (the two `*` rows, both resolved by raw read, plus the NOASSERTION
+screen results):**
+
+- `nangohq/skills` — **Elastic License 2.0 (ELv2)**, source-available, not
+  OSI-approved. Same standing policy as `trailofbits-skills/`'s CC-BY-SA call:
+  vendoring is a local clone only (not redistribution) and auditing (reading +
+  reporting findings with short attributed quotes) is fine, but **never copy or
+  adapt its content into SkillArtisan's shipped MIT-licensed material**.
+- `htmlstreamofficial/preline` — dual-licensed "MIT and Preline UI Fair Use
+  License"; the MIT arm covers auditing outright.
+- Both were the cohort's two NOASSERTION screen results; both resolved favorably
+  on raw read, consistent with the original top-44 screening's NOASSERTION
+  experience.
+
+**Structure notes (the discrepancy rows — sitemap counts are a floor, proven here
+at a new extreme):**
+
+- `claude-dev-suite/claude-dev-suite` — **717 skills found vs. 1 sitemap-listed**,
+  the worst sitemap undercount ever observed in this pilot (tooluniverse's 7x was
+  the prior record; this is 717x). A real, domain-organized dedicated suite
+  (`skills/<domain>/<skill>/`), not an aggregator: median 833 words/skill, real
+  per-domain content. 15 of its 717 skills have no YAML frontmatter at all
+  (structured "USE WHEN:" blockquotes instead) — each errored individually per
+  `audit.py`'s documented exit-code-4 contract, batch unaffected.
+- `nickcrew/claude-cortex` — 156 found vs. 3 listed. Personal mega-collection;
+  **bundles adapted copies of at least 4 obra/superpowers skills**
+  (`brainstorming`, `systematic-debugging`, `using-git-worktrees`,
+  `writing-skills` — `/Users/jesse` still present in one), modified enough that
+  exact-content hashing doesn't match the held `obra-superpowers/` copies.
+  Documented as near-duplicate adjacency, not excluded (obra is MIT).
+- `shoootyou/get-shit-done-multi` — 34 found vs. 1 listed; per-platform variant
+  packaging (`templates/skills/<name>/{claude,codex,copilot}`) of the "Get Shit
+  Done" workflow system, re-uploaded rather than forked (GitHub `isFork` false).
+- `5dive-ai/skills` — 14 found vs. 3 listed. **Two of its skills carry
+  `evals/evals.json` files in the Anthropic/daymade skill-creator lineage schema**
+  — the trigger for this phase's one real bug fix (see RESULTS.md Phase 15).
+- `ecomfe/tempad-dev` — 2 found, 1 exact-content duplicate skipped by
+  `dedup_by_content` (the only dedup hit in the whole cohort).
+
+**Distinct**: the first cohort sourced from the population the original top-44
+screening deliberately excluded — real projects' incidental skills (heroui,
+repomix, preline, dev3000, jetbrains, daytona: 6 repos ≥500★ whose skill is a
+bolt-on to a larger product) alongside near-zero-star solo repos, per the approved
+Phase 15 plan. Also the pilot's first OpenClaw-ecosystem skills (4 repos) and
+first Elastic-licensed corpus.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.

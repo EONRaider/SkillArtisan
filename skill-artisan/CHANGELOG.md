@@ -6,6 +6,14 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.5.10] - 2026-08-20
+
+### Fixed
+- **`audit.py`'s first-party auto-detection collided with the Anthropic/daymade skill-creator lineage's evals schema.** `detect_source()` accepted any `{"evals": [...]}` wrapper in `evals/evals.json` as proof a skill entered this repo's own pipeline — but that wrapper is also the skill-creator tool family's documented schema (`skill_name`/`evals[]` with per-eval `assertions` and `files`; this pipeline's schema in `creating-skills/references/schemas.md` writes `expectations` instead). Found in the wild during audit-pilot Phase 15: two skills in `5dive-ai/skills` (a random low-star draw) carried skill-creator-authored evals, flipped to first-party, and drew three bogus pipeline-artifact FAILs each — the same collision class the `.security-scan-passed` marker check already guarded against (85 daymade skills ship a same-named plain-text marker), now proven for the second artifact type. Fixed: an eval entry set carrying `assertions` with no `expectations` anywhere is another pipeline's artifact → third-party; a prompts-first draft with neither field is byte-identical in both pipelines and still counts as first-party, preserving issue #4's anti-unfalsifiability design for fresh drafts. Regression test added (`tests/test_third_party_mode.py`); 136-test suite passes; the affected corpus re-audited clean (all 14 5dive skills third-party, 0 bogus FAILs).
+
+### Notes
+- Phase 15 (pilot) of the real-world audit pilot: 979 skills audited across 28 repos drawn from skills.sh's low-sitemap-count tier — the deliberately lower-quality population the original screening excluded, selected by a live-measured funnel (fresh 20,000-URL sitemap crawl → 1,730-candidate tier → batched GraphQL license/star screen → seeded stratified draw across four star bins). 100% verification survival; the funnel's license projections held (69% viable vs. ~72% projected); the tier definition itself leaks (two hidden mega-collections supplied 89% of the skills, incl. a 717x sitemap undercount — the pilot's worst ever); and the cohort's quality gradient inverted the plan's expectation: high-star projects' incidental skills were the *cleanest* slice, hobbyist collections the worst. Content-as-data discipline stated and applied throughout; nothing manipulative found. **5,142 skills now audited across the whole pilot.** Full narrative: `skill-artisan/benchmark/audit-pilot/RESULTS.md`'s Phase 15 section.
+
 ## [2.5.9] - 2026-08-20
 
 ### Fixed

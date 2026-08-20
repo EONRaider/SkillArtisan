@@ -330,8 +330,20 @@ def detect_source(skill_path: Path) -> str:
             data = None
         # Only the {"evals": [...]} wrapper is this pipeline's shape — a bare
         # list is a documented third-party shape (see check_evals_present).
+        # The wrapper alone is not unique either: the Anthropic/daymade
+        # skill-creator lineage writes the same {"skill_name", "evals": [...]}
+        # wrapper but with per-eval "assertions", where this pipeline writes
+        # "expectations" (creating-skills/references/schemas.md). An entry set
+        # with "assertions" and no "expectations" anywhere is another
+        # pipeline's artifact; a prompts-first draft with neither is identical
+        # in both pipelines and still counts as ours, so the gate stays
+        # falsifiable for fresh first-party drafts.
         if isinstance(data, dict) and "evals" in data:
-            return "first-party"
+            entries = [e for e in data["evals"] if isinstance(e, dict)] if isinstance(data["evals"], list) else []
+            has_ours = any("expectations" in e for e in entries)
+            has_foreign = any("assertions" in e for e in entries)
+            if has_ours or not has_foreign:
+                return "first-party"
     body, frontmatter = get_body(skill_path)
     if has_lifecycle_markers(body, frontmatter):
         return "first-party"

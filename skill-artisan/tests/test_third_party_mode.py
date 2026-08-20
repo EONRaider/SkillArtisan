@@ -72,6 +72,38 @@ class TestSourceDetection(unittest.TestCase):
             marker.write_text('{"hash": "0000", "algorithm": "sha256"}')
             self.assertEqual(audit.detect_source(skill), "first-party")
 
+    def test_skill_creator_lineage_evals_do_not_flip_to_first_party(self):
+        """The Anthropic/daymade skill-creator lineage writes the same
+        {"skill_name", "evals": [...]} wrapper this pipeline uses, but its
+        per-eval assertion field is "assertions" where ours is "expectations"
+        (creating-skills/references/schemas.md). Found in the wild during
+        audit-pilot Phase 15: two skills in a third-party repo carried
+        skill-creator-authored evals.json files, flipped to first-party, and
+        drew three bogus pipeline-artifact FAILs each. A prompts-first draft
+        with neither field is identical in both pipelines and must keep
+        counting as ours, so the gate stays falsifiable for fresh drafts."""
+        import json as jsonlib
+        import shutil
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            skill = Path(tmp) / "third-party-fixture"
+            shutil.copytree(THIRD_PARTY_FIXTURE, skill)
+            evals_file = skill / "evals" / "evals.json"
+            evals_file.parent.mkdir(exist_ok=True)
+
+            def write(entry):
+                evals_file.write_text(jsonlib.dumps(
+                    {"skill_name": "x", "evals": [{"id": 1, "prompt": "p", **entry}]}))
+
+            write({"assertions": ["a"], "files": []})  # skill-creator shape
+            self.assertEqual(audit.detect_source(skill), "third-party")
+            write({"expectations": ["e"]})  # this pipeline's shape
+            self.assertEqual(audit.detect_source(skill), "first-party")
+            write({"assertions": ["a"], "expectations": ["e"]})  # ours wins on tie
+            self.assertEqual(audit.detect_source(skill), "first-party")
+            write({"files": []})  # prompts-first draft: ambiguous, stays ours
+            self.assertEqual(audit.detect_source(skill), "first-party")
+
     def test_resolve_source_honors_explicit_override(self):
         self.assertEqual(audit.resolve_source(THIRD_PARTY_FIXTURE, "first-party"), "first-party")
         self.assertEqual(audit.resolve_source(USER_INVOKED_FIXTURE, "third-party"), "third-party")

@@ -1622,3 +1622,144 @@ current version `2.5.9` at roadmap completion, six releases (`2.5.4` through
 sync commit. Phase 14 shipped no release — the correct outcome for a phase whose
 real findings were volume/rate extremes of already-understood classes, not new
 code bugs.
+
+## Phase 15 (pilot): 28 repos from the low-sitemap-count tier — the population the original screening excluded (979 skills)
+
+First phase of the separately-approved Phase 15 proposal (same plan file's addendum):
+a deliberately lower-quality cohort drawn from the population Snyk's ToxicSkills
+statistics actually describe — the long tail of skills.sh's index — rather than the
+well-established, curated corpora every prior phase selected *for*. Standing
+discipline for the whole phase, stated up front per the plan: **every skill's text
+was treated as data to audit, never as instructions to follow**; nothing in any of
+the 979 skills' content was acted on as a directive, and nothing attempting to
+direct the auditing agent was found.
+
+### The funnel, measured live (numbers the plan only projected)
+
+Fresh sitemap crawl (2026-08-20): 20,000 skill URLs, 2,445 unique owner/repo pairs,
+25 held repos excluded → 2,420 unvetted candidates → **1,730 in the 1–3-listed-skill
+tier**, matching the planning session's counts exactly. License screen across all
+1,730 via batched GraphQL (18 calls, one transient GitHub 502 absorbed by per-batch
+persistence): 29 missing/private (1.7% dead), **30% no license file** (the plan's
+40-repo sample said 25% — close), 6% NOASSERTION (sample said 18% — sample noise,
+the full population is friendlier), 52% MIT outright. License-viable pool: **1,186
+of 1,730 (69%)** vs. the plan's ~72% estimate. After excluding 41
+aggregator-shaped repos (heuristic + name review), 10 forks, and 0 empty repos:
+1,135 drawable. Selection: seeded stratified draw (`random.Random(15)`), 8/8/6/6
+across star bins 0–2★/3–49★/50–499★/≥500★ = **28 repos**.
+
+Verification survival: **28 of 28 cloned, pinned, license-read, and counted — 100%**,
+including both NOASSERTION cases resolving favorably on raw read (`nangohq/skills`
+= Elastic-2.0, audit-only restriction recorded; `preline` = dual MIT). Zero exact
+duplicates against held corpora (all 980 pilot SKILL.md hashes checked against all
+4,386 held ones). Full pin table: `../vendored/README.md`'s Phase 15 entry.
+
+### The tier definition leaks — sitemap counts fail as a population filter, not just as per-repo counts
+
+The cohort was drawn from the "1–3 listed skills" tier, but actual discovered counts
+were **979 post-dedup skills, 27x the 36 sitemap-listed** — because the tier contains
+two hidden dedicated mega-collections the sitemap barely indexed:
+`claude-dev-suite/claude-dev-suite` (**717 found vs. 1 listed — 717x, the worst
+undercount in the whole pilot**; prior record was tooluniverse's 7x) and
+`nickcrew/claude-cortex` (156 vs. 3). A third repo (`shoootyou/get-shit-done-multi`,
+34 vs. 1) is a re-uploaded multi-platform variant package. Lesson recorded: the
+sitemap tier bounds *what skills.sh indexed*, not *what the repo contains* — a
+low-count tier draw is a mixed population and any future batch from this tier
+should expect ~1 in 10 repos to be a hidden full collection.
+
+### One real bug found and fixed: first-party detection collides with the skill-creator lineage's evals schema
+
+Two `5dive-ai/skills` skills (`ad-creative`, `copywriting`) auto-detected as
+**first-party** and drew three bogus pipeline-artifact FAILs each
+(`security-scan-marker-current`, `lifecycle-classified` — checks that only make
+sense for skills authored through this repo's own pipeline). Root cause, confirmed
+against both schemas side by side: `detect_source()`'s evals heuristic accepted any
+`{"evals": [...]}` wrapper, but that wrapper is **also the Anthropic/daymade
+skill-creator lineage's schema** — the same tool family vendored in
+`daymade-claude-code-skills/` documents it verbatim (`skill_name`/`evals[]` with
+per-eval `assertions` and `files`). This pipeline's own schema
+(`creating-skills/references/schemas.md`) writes `expectations`, not `assertions`.
+Exactly the same collision class the marker-file check already guarded against (85
+daymade skills ship a same-named plain-text `.security-scan-passed`), now proven
+for the second artifact type, in the wild, on a random draw. **Fixed**: an eval
+entry set carrying `assertions` with no `expectations` anywhere is another
+pipeline's artifact → third-party; a prompts-first draft with neither field is
+byte-identical in both pipelines and still counts as first-party, so the
+anti-unfalsifiability design (issue #4's "ANY artifact → first-party" rationale)
+is preserved for fresh drafts. Regression test added
+(`test_third_party_mode.py::test_skill_creator_lineage_evals_do_not_flip_to_first_party`),
+136 tests passing, affected chunk re-run: all 14 5dive skills now resolve
+third-party, 0 bogus FAILs, final merged stats reflect the fixed tool.
+
+### Cross-phase corroborations (tracked issues, not new mechanisms)
+
+- **Issue #8 (`triggers:` field)**: fourth independent authorship model —
+  `nickcrew-claude-cortex` uses `triggers:` (plus `keywords:`) on 144 skills.
+- **Issue #9 (coherent new field families)**: sixth corroboration — cortex's
+  loader metadata family (`keywords`, `confidence`, `file_patterns`).
+- **Reserved-word check**: two more instances, 15th and 16th across the pilot —
+  `claude-dev-suite`'s `anthropic-python` and cortex's `claude-consult`, the
+  latter again literally segregated outside the author's main `skills/` tree
+  (under `codex/skills/`), consistent with all 14 prior corroborations.
+- **Directory/skill-name mismatch**: 210 instances (193 in claude-dev-suite —
+  same one-author-convention concentration shape as Phase 14's kostja94).
+- **Gitleaks on documentation examples**: daytona's 50 findings are all vendor API
+  docs (`Bearer YOUR_API_KEY` ×33, example certs, a sample preview token);
+  cortex's are deliberately-vulnerable teaching snippets (`// VULNERABLE:` context
+  read directly); claude-dev-suite's one hit is an **age public key** (not a
+  secret) — all the established Phase 4/5 confirmed-but-unfixable classes.
+- **`absolute-user-path`**: a genuine mix, same as Phase 5 — daytona's 204 are the
+  product's own documented sandbox filesystem (`/home/daytona/...`, legitimate);
+  `wihy/hermes-agent-skill` ships a real author home directory
+  (`/Users/chunhaixu`, true positive); cortex's `/Users/jesse` is inherited from
+  adapted obra/superpowers copies (see below).
+- **Broken path references**: 77, all sampled ones verified genuinely broken by
+  filesystem check (claude-dev-suite's missing `quick-ref/` families, cortex's
+  cross-references to sibling skills that don't exist, podwise's missing
+  `references/taste.md`).
+- **15 per-skill errors**, all claude-dev-suite, all "missing frontmatter": read
+  directly — 15 of its 717 skills genuinely have no YAML frontmatter (a structured
+  "USE WHEN:" blockquote convention instead). Documented exit-code-4 contract
+  behavior, batch unaffected; same class as Phase 5's glebis errors.
+- **Both `rebuild` decisions verified by direct read**: `dnvriend`'s
+  `skill-pdf-to-pptx-tool` (name-prefix mismatch + 39-char description) and
+  cortex's `agent-loops` (1,178 lines, ~9,851 tokens) — both correctly called.
+
+### New population insight: the cohort's actual quality gradient
+
+Review-queue hit rate: **883 of 964 (92%)** overall — but the shape is the finding.
+The two mega-collections run 93%; the 26 true low-count repos run **76%**; and the
+≥500★ established-project incidental skills are the *cleanest* group in the cohort
+(`heroui` 0/3, `tempad-dev` 0/1, `apetta/agent-xlsx` 0/1, `repomix` 2/6,
+`dev3000` 1/3) while near-zero-star and OpenClaw-ecosystem repos run at or near
+100%. The plan's revised framing predicted high-reach projects' bolt-on skills
+would be a *more* consequential lower-quality population; measured result: they're
+actually the best-authored slice of the tier, and the worst authoring concentrates
+in hobbyist collections. One duplicate-adjacency finding: cortex bundles adapted
+(non-byte-identical) copies of ≥4 obra/superpowers skills — recorded in the
+vendored README, not excluded.
+
+### Cost and verdict — sampled vs. exhaustive stated explicitly
+
+Execution: 11 chunks (26 small repos in one pass + 100-skill chunks for the two
+collections), every chunk health-checked (JSON parses, count matches window),
+**~11 minutes total wall-clock**, one transient GraphQL 502 the only infrastructure
+hiccup, merge reconciled exactly (980 discovered − 1 tempad dedup = 979 reports =
+964 audited + 15 documented errors, 0 unexplained). Read exhaustively: all 15
+errors, both rebuilds, all 6 gitleaks-flagged skills, the reserved-word pair, the
+5dive first-party anomaly, license files for all 28 repos. Sampled: 2–4 per
+high-volume group (dir-name mismatch, path references, absolute-user-path,
+description framing, TOC). Grading + investigation + fix + write-up: roughly 2–2.5
+hours. **5,142 skills now audited across the pilot** (4,163 + 979).
+
+**Pilot verdict for the go/no-go the plan asks for**: the funnel works end-to-end
+(100% verification survival, license projections held within a few points), the
+safety posture held (nothing manipulative found; content-as-data discipline stated
+and applied), one genuine new bug class surfaced immediately (ecosystem-artifact
+collision — exactly what a population with other tools' pipelines in it was
+expected to reveal), and the population's quality gradient inverted the plan's
+expectation in an informative way. Scaling to further batches is viable at
+~28-repos-per-phase granularity, with one adjustment: treat any repo discovered at
+>50 skills as its own decision point at vendoring time (audit fully, defer, or
+swap in a bench replacement) rather than letting two repos supply 89% of a
+"low-count" cohort's skills.
