@@ -166,3 +166,25 @@ Approved roadmap for further sources: `~/.claude/plans/home-eonraider-desktop-ve
   (large, many-contributor, heterogeneous), and mukul975 (community security corpus).
 - **Runnability confirmed**: same Python-only dependency chain as the rest of `scripts/`;
   no repo-specific tooling needed to audit it.
+
+### `obra-superpowers/`
+
+- **Repo**: `https://github.com/obra/superpowers`
+- **Pinned tag**: `v6.3.0` (`b36e0829c6d0140e93cfef2ca599b1b07d4a7797`) — reconfirmed live
+  immediately before cloning (2026-08-20); unchanged since planning.
+- **License**: MIT — raw `LICENSE` file read directly, "Copyright (c) 2025 Jesse Vincent."
+- **Structure**: uniform `skills/<name>/SKILL.md`, one repo-wide `skills/` collection, no
+  nesting or dual-packaging quirks. 14 skill directories discovered locally, exactly
+  matching both the planning-session figure and the live GitHub tree API count — the one
+  source in this whole roadmap where the planning-session number needed no correction
+  once actually checked against the clone (per the standing rule Phase 6 established: 1
+  harmless symlink exists in the repo, `AGENTS.md -> CLAUDE.md`, unrelated to skill
+  discovery).
+- **Distinct from the other four sources**: company-backed (Jesse Vincent, Prime
+  Radiant), the most-starred and most externally-contributed-to of any source in this
+  roadmap, a mandatory-workflow-methodology framing rather than a reference/how-to one.
+  Smallest and lowest-priority by design (14 skills, some overlap with mattpocock's
+  engineering-workflow focus) — included for completeness of the approved roadmap, not
+  because it was expected to be a major source of new findings.
+- **Runnability confirmed**: same Python-only dependency chain as the rest of `scripts/`;
+  no repo-specific tooling needed to audit it.

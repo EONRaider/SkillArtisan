@@ -21,6 +21,7 @@ __pycache__/
 /benchmark/vendored/mukul975-anthropic-cybersecurity-skills/
 /benchmark/vendored/glebis-claude-skills/
 /benchmark/vendored/alirezarezvani-claude-skills/
+/benchmark/vendored/obra-superpowers/
 /benchmark/harness/workspace/
 
 # Session-scratch continuity note for resuming after a /clear — not project
