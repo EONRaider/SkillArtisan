@@ -48,6 +48,16 @@ made on real data, not a guess — see `RESULTS.md`'s cost-data sections.
   this repo — zero new sourcing/licensing decisions needed to reach it, per `SCALING.md`'s
   readiness assessment.
 
+**Phase 4 — `mukul975-anthropic-cybersecurity-skills`**:
+- **Repo**: `https://github.com/mukul975/Anthropic-Cybersecurity-Skills`
+- **Actually audited from**: `benchmark/vendored/mukul975-anthropic-cybersecurity-skills/`,
+  cloned specifically for this phase. See `../vendored/README.md` for the pin record.
+- **Pinned commit**: `4c0b700ac5d280ba46695062077f0fe922ce3602` (`main` HEAD, 2026-08-08).
+- **Coverage**: all 817 skill directories discovered — a security/cybersecurity-focused
+  corpus, structurally uniform (`skills/<name>/SKILL.md`), chosen first among the four
+  Phases 4–7 candidates for having zero structural surprises after independent
+  verification (see the Phases 4–7 plan) and the largest single-domain skill count.
+
 ## Coverage
 
 Phase 1 (8 skills, deliberately spread across maturity tiers) ran first as a pilot; see
@@ -108,14 +118,18 @@ a skill lives in, and whether it's wired into `plugin.json`'s shipped `skills` l
 
 ## Status
 
-Full coverage across two independently-sourced corpora: 35/35 `mattpocock-skills` +
-92/92 `daymade-claude-code-skills` = 127 real-world skills audited. Four confirmed bugs
-found in SkillArtisan's own tooling (two in `security_scan.py`, two in `validate.py`),
-all fixed with regression tests; two systematic gaps identified and documented, not yet
-fixed by design (a third-party-mode scope decision, and an unrecognized `agent:`
-frontmatter field). Shipped as `v2.4.6` (Phase 1/2) and a follow-up release (Phase 3 —
-see `CHANGELOG.md` for the exact version). See `RESULTS.md` for the full findings and
-cost data, and `SCALING.md` for the readiness assessment and `aggregate_findings.py`, the
-tool that made Phase 3's scale practical. Next: the user is having candidate third-plus
-source repos researched separately, to feed into a future expansion of this same
-methodology.
+Full coverage across three independently-sourced corpora: 35/35 `mattpocock-skills` +
+92/92 `daymade-claude-code-skills` + 817/817 `mukul975-anthropic-cybersecurity-skills` =
+**944 real-world skills audited**. Six confirmed bugs found in SkillArtisan's own tooling
+(two in `security_scan.py`, three in `validate.py`/`audit.py` combined across all
+phases — see `CHANGELOG.md` for the exact breakdown), all fixed with regression tests;
+deferred gaps tracked as GitHub issues (`gh issue list --label audit-gap`), not just
+CHANGELOG prose. Phase 4 also validated `aggregate_findings.py`'s chunked/resumable
+execution mode under a real shell timeout — zero results lost. Shipped as `v2.4.6`
+(Phase 1/2) and follow-up releases for Phases 3 and 4 (see `CHANGELOG.md` for exact
+versions). See `RESULTS.md` for the full findings and cost data, and `SCALING.md` for the
+readiness assessment, including Phase 4's finding that a high review-queue hit rate isn't
+always "more bugs to fix" — sometimes it's a corpus whose genre legitimately triggers
+portability/secret-shaped checks throughout. Next: Phases 5–7 (`glebis`, `alirezarezvani`,
+`obra`) per the approved roadmap
+(`~/.claude/plans/home-eonraider-desktop-verified-candida-imperative-thompson.md`).

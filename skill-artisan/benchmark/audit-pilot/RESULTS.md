@@ -329,6 +329,91 @@ larger, more heterogeneous second corpus found *more* real tooling defects per s
 audited, not fewer. That's the strongest evidence yet that this methodology scales:
 `SCALING.md`'s prediction (execution stays cheap, grading needs sampling past a few dozen
 skills, a second differently-sourced corpus adds real signal) held on all three counts.
-Per the user's plan going forward: candidate repos for a third-plus source, to push
-toward "hundreds" from more than two corpora, are being researched separately and will be
-fed into a future run of this same methodology.
+
+## Phase 4: mukul975/Anthropic-Cybersecurity-Skills (817 skills)
+
+Third corpus, part of the approved Phases 4–7 roadmap
+(`~/.claude/plans/home-eonraider-desktop-verified-candida-imperative-thompson.md`). Pinned
+`4c0b700a` (main HEAD, 2026-08-08) — see `../vendored/README.md` for the full pin record.
+817 real skill directories, 817/817 fully discoverable by the existing `find_skill_dirs`
+(uniform `skills/<name>/SKILL.md` depth), matching the live count verified before pinning.
+
+### Chunked execution — resilience actually exercised, not just planned
+
+Ahead of this phase, `aggregate_findings.py` was hardened per the user's explicit request
+to evaluate resiliency: catch *any* exception per-skill (not just the two originally
+anticipated), and support `--start`/`--end` chunked runs plus a `--merge` mode to
+recombine them. Smoke-testing that against known-good mattpocock/daymade data also
+surfaced and fixed a real documentation error (`setup-ts-deep-modules` was mis-documented
+as an unfixed false positive; it was actually already fixed as a side effect of Bug #2's
+Round 2 — corrected above).
+
+The hardening paid off immediately: this corpus runs meaningfully slower per skill
+(~0.8s vs. sub-second for the first two corpora — real `gitleaks` invocations against
+larger reference content, not a hang), and the first unchunked attempt hit a shell-level
+timeout partway through. Because execution was already split into nine ~100-skill chunks,
+each writing its own JSON immediately on completion, **zero results were lost** — the
+timeout only cost re-running one chunk, not the whole corpus. Final run: 9/9 chunks
+succeeded, 817/817 skills audited, **0 errors** (no crash-style bug this phase, unlike
+Phase 3's Bug #3).
+
+### Headline: not every false positive should be fixed — this phase is why
+
+Phase 4's dominant lesson isn't a new bug — it's a boundary case for the *four already-fixed*
+checks that Phase 1–3 could fix cleanly (checks that were unambiguously matching the wrong
+thing: a comment, a template example, a crash). This corpus is security-education content,
+and it stress-tests exactly the class of check that's supposed to catch something risky:
+absolute paths, non-portable syntax, secret-shaped strings, dangerous-function-shaped
+code. Investigated four high-volume categories directly; all four are **real, confirmed
+matches on genuinely present text — not bugs — and deliberately left unfixed**, because a
+fix would mean teaching the checks to recognize "this looks fake" or "this looks like
+teaching content," which is exactly the kind of semantic judgment a pattern-matcher can't
+safely make without risking a worse failure mode: silently missing a real leaked secret or
+a real dangerous call dressed up to look like an example.
+
+| Check | Skills | What's actually there | Why not fixed |
+|---|---|---|---|
+| `security-gitleaks-clean` | 27 | A crafted-fake AWS key (`AKIAEXPOSEDKEY123456`), the canonical jwt.io tutorial token, placeholder tokens (`USER_TOKEN`, `YOUR_API_KEY`) | Some of these (the fake AWS key, the JWT) have moderate-to-*high* entropy specifically because they're built to look realistic for teaching — entropy-based filtering would also silently suppress real leaked secrets shaped the same way. This is exactly the limitation the project's own README already discloses ("a clean scan is a gate, not a guarantee"). |
+| `security-pattern-checks` — `absolute-user-path` | 34 | Fictional forensic evidence paths (`C:\Users\suspect\Documents\...`, `C:\Users\jsmith\Downloads`) in digital-forensics teaching content | No reliable signal distinguishes "fictional example evidence path" from "author's real leaked path" — a real leak could just as easily use a plausible-looking username. |
+| `security-pattern-checks` — `forward-slash-paths-only` | 84 | Real Windows-native tool command syntax (`SharpDPAPI.exe /target:C:\Users\bob\AppData\...`) | This *is* the correct, required syntax for the actual Windows tools being taught (SharpDPAPI, SharpChrome) — there's no forward-slash equivalent to teach instead. Unambiguously legitimate content, not a portability mistake. |
+| `security-pattern-checks` — `dangerous-code-pattern` | 7 | A malware-scanning tool's own pattern-definition metadata, e.g. `(r"os\.system\(", "os.system() execution")` — the match is the human-readable *label* describing what the pattern detects, not a real call | Low volume (7 of 817) and genuinely hard to fix safely: distinguishing "this occurrence is a descriptive label" from "this occurrence is a real invocation" via regex risks new false negatives on the very thing this check exists to catch. |
+
+### What *is* new: a corpus-defining frontmatter gap
+
+Unlike the false positives above, `frontmatter-valid` FAILed **817 of 817** skills on a
+genuinely new, structured pattern: a consistent family of framework-mapping metadata
+fields (`author`, `domain`, `mitre_attack`, `nist_csf`, `subdomain`, `tags`, `version`,
+plus optionally `d3fend_techniques`, `mitre_f3`, `atlas_techniques`, `nist_ai_rmf`
+depending on which security frameworks a skill maps to) — not sloppy authoring, a real,
+coherent taxonomy used uniformly across the whole corpus, none of it recognized by
+`validate.py`. Same class of gap as the `agent:` field (issue #5), but 817x the scale and
+a coherent field family rather than one isolated field — tracked as its own issue:
+[#7](https://github.com/EONRaider/SkillArtisan/issues/7).
+
+### Corroborated, not new
+
+- **`description-pushy-imperative`**: 668 of 817 (82%) — the same "use for"/"use during"
+  vs. literal "use when" gap already tracked as
+  [#6](https://github.com/EONRaider/SkillArtisan/issues/6), now at much higher incidence
+  than Phase 3's sampled ~40%. Commented on the existing issue rather than opening a new
+  one — same root cause, stronger evidence it's a real, common, legitimate convention.
+- **`references-toc-for-long-files`**: 194 FAILs, sampled — every one checked genuinely
+  lacks any Contents/TOC/Index heading. Bug #4's fix (Phase 3) remains correctly
+  calibrated: no false positives reintroduced by this corpus's very different reference-doc
+  style (many short, topic-focused reference files rather than a few long ones).
+- **1 `rebuild`-decision skill** (`detecting-command-and-control-over-dns`, 1,379 lines) —
+  confirmed genuinely oversized, correct verdict.
+
+### Cost and hit rate — a third data point
+
+Review-queue hit rate: **817 of 817 (100%)** — higher than daymade's 91%, far higher than
+mattpocock's 11%. Consistent with `SCALING.md`'s already-corrected prediction (hit rate is
+corpus-dependent, not a constant) rather than a new surprise, and the *reason* is now
+concrete rather than abstract: security/forensics content inherently contains large
+volumes of the exact shapes (paths, credential-like strings, dangerous-sounding function
+names) these checks are built to catch, whether or not anything is actually wrong.
+Execution: 9 chunks, ~70–90s each (real `gitleaks` cost, not a hang), no subagents, no
+crash after hardening. Total wall-clock for Phase 4 including chunking, triage across
+~2,300 individual findings (grouped into 9 checklist-item categories, sampled per the
+established methodology — not read individually), and this write-up: roughly 45–60
+minutes. **944 skills now audited across three independently-sourced corpora.**

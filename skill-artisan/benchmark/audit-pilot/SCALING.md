@@ -105,12 +105,27 @@ needed before a "hundreds" run:
    repo (mattpocock) and a large, heterogeneous, many-contributor-style repo (daymade,
    financial/audio/docs/dev-tooling all mixed) produced wildly different rates. **Don't
    plan a third source's grading budget off mattpocock's 11%** — assume it could be
-   anywhere from ~10% to ~90% depending on the source's homogeneity and maturity, and
-   budget conservatively (closer to daymade's number) until a third data point exists.
-   What still held: grouping by checklist-item and sampling within high-volume groups
-   (used for Phase 3's 84-skill queue) kept the actual reading load manageable even at a
-   91% hit rate — full exhaustive reads, not sampling, would be the thing that doesn't
-   scale, not the review-queue mechanism itself.
+   anywhere from ~10% to 100% depending on the source's homogeneity and maturity, and
+   budget conservatively (closer to daymade's number, or higher) until a third data point
+   exists. What still held: grouping by checklist-item and sampling within high-volume
+   groups (used for Phase 3's 84-skill queue) kept the actual reading load manageable even
+   at a 91% hit rate — full exhaustive reads, not sampling, would be the thing that
+   doesn't scale, not the review-queue mechanism itself.
+
+   **Third data point, Phase 4 (`mukul975-anthropic-cybersecurity-skills`, 817 skills):
+   100% hit rate** — every single skill had at least one non-boilerplate finding. Unlike
+   Phase 3, most of that volume wasn't false positives found and fixed — it was **real,
+   confirmed matches genuinely present in the text, deliberately left unfixed** (see
+   `RESULTS.md`'s Phase 4 "Headline" table): security-education content is *adversarial*
+   to path/secret/dangerous-pattern checks by its very nature (real Windows paths, real
+   credential-shaped example strings, real dangerous-sounding function names, all
+   legitimately part of the teaching content). This is a genuinely different shape of
+   "high hit rate" than daymade's — daymade's 91% was mostly signal *worth fixing*;
+   mukul975's 100% is mostly signal that's *correctly firing on the right kind of content
+   but not actionable as a code fix*. Budgeting a future source's grading pass needs to
+   account for both possibilities, not just raw hit-rate percentage — a security- or
+   compliance-adjacent corpus should be expected to produce a high rate of "confirmed, not
+   fixed" findings rather than "confirmed, fixed" ones.
 4. **Parallel subagent grading, still unused so far.** Both Phase 1/2 (35 skills, full
    reads) and Phase 3 (92 skills, sampled reads) ran entirely inline, no subagents spawned
    — cheaper in practice than expected, so this was never actually needed yet. Stays a
@@ -123,12 +138,14 @@ needed before a "hundreds" run:
 
 ## Recommendation
 
-Mechanically ready, proven across two independently-sourced corpora (127 skills total,
-four real tool bugs found and fixed as a direct result — see `RESULTS.md`). Not ready to
-unilaterally pick a third source — per the user (2026-08-20), candidate repos for that are
-being researched separately (via a dedicated research request) and will be fed into this
-same methodology once chosen. When that happens: budget the grading pass assuming a
-daymade-like hit rate (correction above), not mattpocock's lower one, until the new
-source's actual rate is known; reuse `aggregate_findings.py` as-is (add the new source
-directory as another `--label`); and expect it to keep finding real things — the marginal
-finding rate did not taper off between Phase 1/2 and Phase 3, it went up.
+Mechanically proven across three independently-sourced corpora now (944 skills total, six
+real tool bugs found and fixed — see `RESULTS.md`). Phase 4 also validated the chunked/
+resumable execution mode added ahead of it: a real shell timeout hit mid-run, and zero
+results were lost because each ~100-skill chunk persists to disk immediately. Phases 5–7
+(glebis, alirezarezvani, obra) are approved and next; budget each one's grading pass
+expecting a hit rate anywhere from ~10% to 100%, and expect the *shape* of the findings to
+vary by domain the way Phase 4's did (a corpus's genre can produce a high rate of
+"confirmed, correctly firing, not fixable" findings rather than "confirmed, fixed" ones —
+budget review time for both, not just for finding new bugs). Reuse
+`aggregate_findings.py`'s chunking for any single source past a couple hundred skills, not
+just the largest one.
