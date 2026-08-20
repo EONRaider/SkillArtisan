@@ -5,6 +5,11 @@ User asked (2026-08-20, after the 35-skill mattpocock run) to expand this method
 readiness first. This is that readiness check: what already scales, what didn't exist
 yet and now does, and what's still a real decision rather than an engineering task.
 
+**Update, same day, after Phase 3 actually ran** (92 more skills from
+`daymade-claude-code-skills` — see `RESULTS.md`): the predictions below were tested
+against real data, not left as untested theory. Two held exactly; one didn't and is
+corrected in place rather than quietly left wrong — see the marked update below.
+
 ## What already scales without changes
 
 - **Audit execution itself.** `audit.py`/`aggregate_findings.py` (new, see below) are
@@ -38,6 +43,12 @@ part:
   hand, and correctly shows `wayfinder` now clean post-fix. Not a new untested tool —
   validated against ground truth from the run just completed.
 
+**Confirmed working in Phase 3**: `aggregate_findings.py` ran clean across all 92
+`daymade-claude-code-skills` (after Bug #3's crash was fixed) and its checklist-item
+dominant-rate flagging correctly re-surfaced `path-references-exist` and other items as
+newly-100%-PASS after each fix was applied, without any change to the tool itself —
+exactly the "verify a fix by rerunning the aggregator" workflow this was built for.
+
 **What it deliberately does not automate**: MANUAL items (e.g. `code-review`'s
 inline-vs-fork judgment call, one of this pilot's genuine finds) aren't FAIL/WARN, so they
 don't enter the review queue. At scale, a sample of MANUAL items still needs a human read
@@ -45,24 +56,24 @@ don't enter the review queue. At scale, a sample of MANUAL items still needs a h
 grade true-positive vs. false-positive itself — that's still a source read, by design (see
 README.md's anti-circularity principle). It only tells you *where* to spend that read.
 
-## What's ready right now: a second source, zero new sourcing decisions
+## Done: the second source (`daymade-claude-code-skills`, 92 skills, Phase 3)
 
-`benchmark/vendored/daymade-claude-code-skills/` is already cloned, already pinned
-(`d24f6d1`, user-confirmed 2026-08-16), already used as this project's corpus source, and
-already has a Credits-section attribution in the README. Running
-`_common.find_skill_dirs` against it directly (the same discovery `audit.py bulk` uses)
-finds **92 real skill directories** — 13 already used as corpus seeds, so **~79 unaudited
-skills** available immediately, no new clone, no new license check, no new pin decision.
-Combined with the 35 already done, that's ~114 without touching a new repo at all — most
-of the way to "hundreds" from one already-vetted source.
+**Correction to what this section originally said**: it predicted needing to curate the
+92 discovered directories down (excluding `daymade-skill/skill-creator` as "a tool, not a
+skill", and expecting `demos`/`tests` fixture noise). That curation step turned out to be
+unnecessary — `_common.find_skill_dirs` doesn't pick up `demos`/`tests` directories at
+all (no `SKILL.md` at a discoverable depth there), and `skill-creator` genuinely does have
+a valid `SKILL.md` and is a legitimate skill in its own right (just also serving a special
+role as a comparison-arm entry point elsewhere in this project) — auditing it isn't wrong.
+All 92 discovered directories were audited as-is, no exclusions needed. Left here,
+corrected rather than deleted, because the original prediction was wrong in a way worth
+remembering: "this looks like it needs curation" isn't the same as "it does" — check
+before assuming.
 
-Caveat, matching how `corpus/README.md` already treated this same repo: not every
-discovered directory is a real, intended skill to grade — the tree includes
-`daymade-skill/skill-creator` (a tool/fork, not a skill), and likely `demos`/`tests`-style
-fixture content mixed in among the 92. Curating that list (same judgment call
-`corpus/README.md` already made when it said "not the repo's other 68 pre-built skills")
-is a short, mechanical pass before running this at scale — not a blocker, but not "just
-run it on all 92" either.
+Result: 92/92 audited, four real tool bugs found and fixed (see `RESULTS.md`), the
+`claude`-reserved-word true positive corroborated 10 more times (13/13 total across both
+corpora now), and 127 skills audited in total. The "second data point before committing
+to a third repo" plan this section originally proposed is complete.
 
 ## What's a real decision, not an engineering task
 
@@ -83,22 +94,41 @@ needed before a "hundreds" run:
 2. **License/attribution check per new source**, same as the two already vendored —
    confirm MIT/Apache-compatible before pinning, add to the README's Credits section if
    material is adapted, not just audited.
-3. **Grading budget at hundreds-scale.** Even with the review-queue narrowing, if the hit
-   rate holds near the ~11% seen in this run (4/35), a 300-skill run implies roughly
-   30-40 skills needing an actual source read — that's a multi-session effort, not a
-   single turn. Worth deciding up front whether that's done inline (as this pilot was) or
-   via parallel subagents reading one skill each (this repo already has a proven pattern
-   for chat-orchestrated subagent dispatch in `benchmark/harness/run_authoring.py` — the
-   same script-tracks-state/chat-spawns-agents division of labor would apply here, with
-   the added rule that a grading agent must read the *source skill* directly, never just
-   re-ask `audit.py`'s own reasoning about itself).
+3. **Grading budget at hundreds-scale — corrected with real data, not the original
+   estimate.** This section originally predicted the ~11% review-queue hit rate seen on
+   mattpocock (4/35) would roughly hold, implying ~30-40 skills needing a read per 300.
+   **Wrong, and wrong in an important direction**: `daymade-claude-code-skills` hit rate
+   was 91% before fixes (84/92), and still 91% after — the fixes didn't shrink the queue
+   because most of the 84 findings were genuine, not false positives (the false positives
+   were concentrated but not the majority; see `RESULTS.md`'s Phase 3 sections). Hit rate
+   is corpus-dependent, not a fixed constant — a single-author, mature, engineering-focused
+   repo (mattpocock) and a large, heterogeneous, many-contributor-style repo (daymade,
+   financial/audio/docs/dev-tooling all mixed) produced wildly different rates. **Don't
+   plan a third source's grading budget off mattpocock's 11%** — assume it could be
+   anywhere from ~10% to ~90% depending on the source's homogeneity and maturity, and
+   budget conservatively (closer to daymade's number) until a third data point exists.
+   What still held: grouping by checklist-item and sampling within high-volume groups
+   (used for Phase 3's 84-skill queue) kept the actual reading load manageable even at a
+   91% hit rate — full exhaustive reads, not sampling, would be the thing that doesn't
+   scale, not the review-queue mechanism itself.
+4. **Parallel subagent grading, still unused so far.** Both Phase 1/2 (35 skills, full
+   reads) and Phase 3 (92 skills, sampled reads) ran entirely inline, no subagents spawned
+   — cheaper in practice than expected, so this was never actually needed yet. Stays a
+   real option for a third source if its hit rate and size combine into a genuinely
+   large reading load: this repo already has a proven pattern for chat-orchestrated
+   subagent dispatch in `benchmark/harness/run_authoring.py` (script tracks state, chat
+   spawns agents) that would transfer directly, with the same rule Phase 1-3 already
+   followed — a grading agent must read the *source skill* directly, never just re-ask
+   `audit.py`'s own reasoning about itself.
 
 ## Recommendation
 
-Ready to scale mechanically; not ready to unilaterally pick new sources. Concrete next
-step I can take immediately on your go-ahead: curate and audit the ~79 unaudited
-`daymade-claude-code-skills` skills using `aggregate_findings.py` (zero new sourcing
-decisions, reuses an already-pinned, already-credited source) as a second data point
-before committing to a third, unvetted repo. That alone gets real coverage past 110
-skills across two independently-sourced corpora, which is a meaningfully stronger claim
-than one corpus, before any new licensing/sourcing decision is needed.
+Mechanically ready, proven across two independently-sourced corpora (127 skills total,
+four real tool bugs found and fixed as a direct result — see `RESULTS.md`). Not ready to
+unilaterally pick a third source — per the user (2026-08-20), candidate repos for that are
+being researched separately (via a dedicated research request) and will be fed into this
+same methodology once chosen. When that happens: budget the grading pass assuming a
+daymade-like hit rate (correction above), not mattpocock's lower one, until the new
+source's actual rate is known; reuse `aggregate_findings.py` as-is (add the new source
+directory as another `--label`); and expect it to keep finding real things — the marginal
+finding rate did not taper off between Phase 1/2 and Phase 3, it went up.

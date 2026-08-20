@@ -147,17 +147,22 @@ def classify_extended_fields(frontmatter: dict[str, str]) -> tuple[list[str], li
 
 LINK_RE = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
 FENCED_CODE_BLOCK_RE = re.compile(r"```.*?```", re.DOTALL)
+INLINE_CODE_SPAN_RE = re.compile(r"`[^`\n]*`")
 SKIP_PREFIXES = ("http://", "https://", "mailto:", "#")
 
 
 def check_path_references(skill_path: Path, body: str) -> list[str]:
     """Every relative markdown link/image target in the body must resolve to
-    a real file under the skill directory. Fenced code blocks are stripped
-    first — a ```markdown example showing what a template file should
-    contain (e.g. a worked-example link like `[title](link)`) isn't a real
-    reference into this skill's own directory, and matching it produces a
-    false "missing file" finding."""
+    a real file under the skill directory. Fenced code blocks and inline
+    code spans are stripped first — a ```markdown example showing what a
+    template file should contain (e.g. a worked-example link like
+    `[title](link)`), or prose demonstrating markdown link syntax inline
+    (e.g. "do NOT create links like `[doc.md](reviewed-document)`" — a
+    daymade/claude-code-skills skill's actual cautionary example, ironically
+    about this exact mistake), isn't a real reference into this skill's own
+    directory, and matching it produces a false "missing file" finding."""
     body = FENCED_CODE_BLOCK_RE.sub("", body)
+    body = INLINE_CODE_SPAN_RE.sub("", body)
     missing = []
     for match in LINK_RE.finditer(body):
         target = match.group(1).strip()

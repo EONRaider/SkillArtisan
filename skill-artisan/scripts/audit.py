@@ -143,6 +143,9 @@ def check_body_size(body: str) -> dict:
             "detail": f"{lines} lines, ~{approx_tokens} tokens (approx — word count x1.3, not a real tokenizer)"}
 
 
+TOC_HEADING_RE = re.compile(r"^#{1,6}\s*(table of contents|contents|toc|index)\s*$", re.IGNORECASE | re.MULTILINE)
+
+
 def check_references_depth_and_toc(skill_path: Path) -> list[dict]:
     ref_dir = skill_path / "references"
     items = []
@@ -158,7 +161,12 @@ def check_references_depth_and_toc(skill_path: Path) -> list[dict]:
             nested_violations.append(str(ref_file.relative_to(skill_path)))
         text = ref_file.read_text(errors="replace")
         line_count = text.count("\n") + 1
-        if line_count > 100 and "table of contents" not in text.lower():
+        # A real TOC doesn't have to be spelled "table of contents" — a
+        # "## Contents"/"## Index" heading is just as real. Found via the
+        # daymade/claude-code-skills audit: this exact-phrase check flagged
+        # 59 of 92 skills, and most of those had a genuine, working
+        # "## Contents" heading with anchor links right there.
+        if line_count > 100 and "table of contents" not in text.lower() and not TOC_HEADING_RE.search(text):
             toc_violations.append(str(ref_file.relative_to(skill_path)))
 
     items.append({
@@ -186,7 +194,16 @@ def check_evals_present(skill_path: Path) -> dict:
         data = json.loads(evals_file.read_text())
     except json.JSONDecodeError as e:
         return {"id": "evals-present", "status": "FAIL", "detail": f"evals.json invalid JSON: {e}"}
-    count = len(data.get("evals", []))
+    if isinstance(data, list):
+        # A bare list of eval cases, not this project's {"evals": [...]} wrapper —
+        # a real shape found in the wild (daymade/claude-code-skills'
+        # github-sensitive-data-cleanup), not hypothetical.
+        count = len(data)
+    elif isinstance(data, dict):
+        count = len(data.get("evals", []))
+    else:
+        return {"id": "evals-present", "status": "FAIL",
+                "detail": f"evals.json is a bare {type(data).__name__}, expected an object with an 'evals' list or a bare list of cases"}
     if count >= 3:
         return {"id": "evals-present", "status": "PASS", "detail": f"{count} eval case(s)"}
     return {"id": "evals-present", "status": "WARN", "detail": f"only {count} eval case(s) — spec recommends starting with >=3"}

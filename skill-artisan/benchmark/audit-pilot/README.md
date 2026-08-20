@@ -1,4 +1,4 @@
-# Audit-mode real-world pilot — mattpocock/skills
+# Audit-mode real-world pilot
 
 Validates `scripts/audit.py` itself — its checklist findings and upgrade-vs-rebuild
 judgment — against skills that already exist in the wild, authored by someone else,
@@ -11,11 +11,16 @@ Table's row 31/32 status and the master spec's "Auditing existing skills" sectio
 User-initiated 2026-08-20: pick skills from `github.com/mattpocock/skills`, run
 `audit.py report` against them as-is, and — critically — grade the audit's own findings
 independently (true-positive / false-positive / missed-issue) rather than trusting the
-tool's self-report. Also explicitly asked to track pilot cost so a later decision about
-expanding from 8 skills to a larger set is made on real data, not a guess.
+tool's self-report (Phase 1/2). After reviewing those results, the user asked to expand
+to `benchmark/vendored/daymade-claude-code-skills`, an already-vendored second corpus
+(Phase 3), and separately asked to research further candidate repos for a future third
+source, to keep pushing this methodology toward "hundreds" of skills across multiple
+independently-authored corpora. Cost was tracked throughout so each expansion decision is
+made on real data, not a guess — see `RESULTS.md`'s cost-data sections.
 
-## Source and pin
+## Sources and pins
 
+**Phase 1/2 — `mattpocock-skills`**:
 - **Repo**: `https://github.com/mattpocock/skills`
 - **Actually audited from**: the locally cached `mattpocock-skills` Claude Code plugin
   release, not a fresh clone — this machine already has it installed
@@ -28,6 +33,20 @@ expanding from 8 skills to a larger set is made on real data, not a guess.
   and actively maintained, which makes it a meaningful false-positive test (does the
   audit invent problems on skills that are already decent?), not just a true-positive
   test on obviously-rough material.
+
+**Phase 3 — `daymade-claude-code-skills`**:
+- **Repo**: `https://github.com/daymade/claude-code-skills`
+- **Actually audited from**: `benchmark/vendored/daymade-claude-code-skills/`, already
+  cloned and pinned in this repo for the existing 16-skill corpus — no new clone, license
+  check, or pinning decision needed. See `../vendored/README.md` for the pin's own history.
+- **Pinned commit**: `d24f6d13f57688d8436b78647519f0ae49b37adf`, user-confirmed 2026-08-16.
+- **Coverage**: all 92 skill directories `_common.find_skill_dirs` discovers under this
+  root — including the 13 already used as authoring seeds for `../corpus/`, since
+  `audit.py` had never been run against any of them directly (the corpus work only ever
+  used their `seed.md`/adapted evals, never audited the origin skill's own SKILL.md).
+  Chosen as the second corpus specifically because it's already vetted and credited in
+  this repo — zero new sourcing/licensing decisions needed to reach it, per `SCALING.md`'s
+  readiness assessment.
 
 ## Coverage
 
@@ -77,17 +96,26 @@ a skill lives in, and whether it's wired into `plugin.json`'s shipped `skills` l
 5. Explicitly avoid circularity: grading is done by reading the source skill directly,
    not by asking `creating-skills`'/`audit.py`'s own reasoning to check its own output.
 6. Log wall-clock time and rough read volume (lines/files per skill) as the cost signal
-   for the scale-up decision — no per-token instrumentation exists for this kind of
-   inline work, so this is a proxy, same "advisory only" caveat the harness's own
-   `cost` subcommand carries.
+   for scale-up decisions — no per-token instrumentation exists for this kind of inline
+   work, so this is a proxy, same "advisory only" caveat the harness's own `cost`
+   subcommand carries.
+7. **Phase 3 addition, once the corpus grew past a few dozen skills**: use
+   `aggregate_findings.py` to group findings by checklist item and narrow to a review
+   queue, then sample representatively within each group rather than reading every
+   flagged skill — see `RESULTS.md`'s "Phase 3 methodology note" for exactly how this
+   traded some rigor for scale, and what stayed exhaustive (every low-volume/high-stakes
+   finding) versus what was sampled (high-volume WARN categories).
 
 ## Status
 
-Full repo coverage complete (35/35 skills, both phases). Two confirmed bugs found in
-SkillArtisan's own tooling (`security_scan.py`, `validate.py`), both fixed with
-regression tests (`tests/test_security_scan.py`, `tests/test_validate.py`); one
-identified false-positive mechanism left unfixed by design (see `RESULTS.md`'s Bug #2).
-Shipped as `v2.4.6`. See `RESULTS.md` for the full findings, cost data, and
-`SCALING.md` for the readiness assessment behind scaling this methodology to hundreds of
-skills across multiple source repos, including `aggregate_findings.py` — a new tool
-that mechanically reproduces this run's own review-queue triage.
+Full coverage across two independently-sourced corpora: 35/35 `mattpocock-skills` +
+92/92 `daymade-claude-code-skills` = 127 real-world skills audited. Four confirmed bugs
+found in SkillArtisan's own tooling (two in `security_scan.py`, two in `validate.py`),
+all fixed with regression tests; two systematic gaps identified and documented, not yet
+fixed by design (a third-party-mode scope decision, and an unrecognized `agent:`
+frontmatter field). Shipped as `v2.4.6` (Phase 1/2) and a follow-up release (Phase 3 —
+see `CHANGELOG.md` for the exact version). See `RESULTS.md` for the full findings and
+cost data, and `SCALING.md` for the readiness assessment and `aggregate_findings.py`, the
+tool that made Phase 3's scale practical. Next: the user is having candidate third-plus
+source repos researched separately, to feed into a future expansion of this same
+methodology.

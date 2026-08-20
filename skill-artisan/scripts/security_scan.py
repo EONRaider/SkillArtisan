@@ -232,6 +232,24 @@ def classify_gitleaks_severity(rule_id: str) -> str:
 # --- Pattern checks (tier 2, --verbose) -------------------------------------
 
 
+def docstring_line_numbers(text: str) -> set[int]:
+    """1-indexed line numbers that fall inside a triple-quoted Python string
+    literal (a docstring, most often). Used to keep the interactive-input
+    check from matching ordinary English prose written inside one — found
+    via real-world testing (daymade/claude-code-skills' excel-automation:
+    a docstring reading "Style a cell as user input (blue font, green
+    fill)" matched \\binput\\s*\\( even though it's not a real input() call,
+    the same false-positive shape already fixed once for a bash comment —
+    it recurs here in a different, non-comment context a single
+    #-line-skip doesn't cover)."""
+    lines = set()
+    for m in re.finditer(r'("""|\'\'\').*?\1', text, re.DOTALL):
+        start_line = text.count("\n", 0, m.start()) + 1
+        end_line = text.count("\n", 0, m.end()) + 1
+        lines.update(range(start_line, end_line + 1))
+    return lines
+
+
 def run_pattern_checks(skill_path: Path) -> list[dict]:
     patterns = load_skillignore(skill_path)
     findings = []
@@ -243,6 +261,7 @@ def run_pattern_checks(skill_path: Path) -> list[dict]:
         except OSError:
             continue
         lines = text.split("\n")
+        docstring_lines = docstring_line_numbers(text) if path.suffix.lower() == ".py" else set()
 
         for lineno, line in enumerate(lines, start=1):
             for abs_pattern in ABS_PATH_PATTERNS:
@@ -267,7 +286,9 @@ def run_pattern_checks(skill_path: Path) -> list[dict]:
                 if ui_pattern.search(line):
                     findings.append({"file": str(rel), "line": lineno, "severity": "HIGH", "check": "unsafe-command-interpolation", "detail": line.strip()[:160]})
 
-            if path.suffix.lower() in (".py", ".sh", ".bash") and not line.lstrip().startswith("#"):
+            if (path.suffix.lower() in (".py", ".sh", ".bash")
+                    and not line.lstrip().startswith("#")
+                    and lineno not in docstring_lines):
                 for interactive_pattern in INTERACTIVE_INPUT_PATTERNS:
                     if interactive_pattern.search(line):
                         findings.append({"file": str(rel), "line": lineno, "severity": "HIGH", "check": "blocking-interactive-input", "detail": line.strip()[:160]})

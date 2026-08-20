@@ -45,6 +45,16 @@ class TestBlockingInteractiveInput(unittest.TestCase):
         checks = [f["check"] for f in findings]
         self.assertNotIn("blocking-interactive-input", checks)
 
+    def test_prose_mentioning_input_in_a_docstring_is_not_flagged(self):
+        content = (
+            "def apply_input_cell(ws, row, col, value):\n"
+            '    """Style a cell as user input (blue font, green fill)."""\n'
+            "    pass\n"
+        )
+        findings = findings_for("format_cell.py", content)
+        checks = [f["check"] for f in findings]
+        self.assertNotIn("blocking-interactive-input", checks)
+
     def test_real_python_input_call_is_still_flagged(self):
         content = "value = input('Enter your API key: ')\n"
         findings = findings_for("collect.py", content)

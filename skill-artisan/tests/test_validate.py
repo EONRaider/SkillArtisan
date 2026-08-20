@@ -36,6 +36,14 @@ class TestCheckPathReferences(unittest.TestCase):
         missing = validate.check_path_references(Path("/nonexistent"), body)
         self.assertEqual(missing, [])
 
+    def test_link_shaped_text_inside_an_inline_code_span_is_ignored(self):
+        body = (
+            "Do NOT create markdown links to files that don't exist "
+            "(e.g., `[doc.md](reviewed-document)`); use plain text instead.\n"
+        )
+        missing = validate.check_path_references(Path("/nonexistent"), body)
+        self.assertEqual(missing, [])
+
     def test_real_broken_link_outside_a_fenced_block_is_still_caught(self):
         body = "See [the reference doc](references/does-not-exist.md) for details.\n"
         missing = validate.check_path_references(Path("/nonexistent"), body)
