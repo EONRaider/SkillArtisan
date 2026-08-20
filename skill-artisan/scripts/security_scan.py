@@ -267,7 +267,7 @@ def run_pattern_checks(skill_path: Path) -> list[dict]:
                 if ui_pattern.search(line):
                     findings.append({"file": str(rel), "line": lineno, "severity": "HIGH", "check": "unsafe-command-interpolation", "detail": line.strip()[:160]})
 
-            if path.suffix.lower() in (".py", ".sh", ".bash"):
+            if path.suffix.lower() in (".py", ".sh", ".bash") and not line.lstrip().startswith("#"):
                 for interactive_pattern in INTERACTIVE_INPUT_PATTERNS:
                     if interactive_pattern.search(line):
                         findings.append({"file": str(rel), "line": lineno, "severity": "HIGH", "check": "blocking-interactive-input", "detail": line.strip()[:160]})

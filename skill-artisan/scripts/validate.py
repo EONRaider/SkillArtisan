@@ -146,12 +146,18 @@ def classify_extended_fields(frontmatter: dict[str, str]) -> tuple[list[str], li
 
 
 LINK_RE = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
+FENCED_CODE_BLOCK_RE = re.compile(r"```.*?```", re.DOTALL)
 SKIP_PREFIXES = ("http://", "https://", "mailto:", "#")
 
 
 def check_path_references(skill_path: Path, body: str) -> list[str]:
     """Every relative markdown link/image target in the body must resolve to
-    a real file under the skill directory."""
+    a real file under the skill directory. Fenced code blocks are stripped
+    first — a ```markdown example showing what a template file should
+    contain (e.g. a worked-example link like `[title](link)`) isn't a real
+    reference into this skill's own directory, and matching it produces a
+    false "missing file" finding."""
+    body = FENCED_CODE_BLOCK_RE.sub("", body)
     missing = []
     for match in LINK_RE.finditer(body):
         target = match.group(1).strip()

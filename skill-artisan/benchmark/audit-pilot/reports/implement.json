@@ -1,0 +1,126 @@
+{
+  "skill_name": "implement",
+  "skill_path": "/home/eonraider/.claude/plugins/cache/claude-plugins-official/mattpocock-skills/1.2.3/skills/engineering/implement",
+  "items": [
+    {
+      "id": "frontmatter-valid",
+      "status": "PASS",
+      "detail": "skills-ref + Claude-specific checks pass"
+    },
+    {
+      "id": "path-references-exist",
+      "status": "PASS",
+      "detail": "every relative link resolves"
+    },
+    {
+      "id": "gerund-naming",
+      "status": "WARN",
+      "detail": "name 'implement' isn't in gerund form (verb+-ing). Official recommendation, not a hard requirement \u2014 consider a form like 'implementing-...' if there's a natural verb for what this skill does."
+    },
+    {
+      "id": "description-pushy-imperative",
+      "status": "PASS",
+      "detail": "disable-model-invocation: true \u2014 pushy/'Use when...' triggering framing doesn't apply; description just needs to accurately state what the skill does"
+    },
+    {
+      "id": "body-size-limits",
+      "status": "PASS",
+      "detail": "11 lines, ~65 tokens (approx \u2014 word count x1.3, not a real tokenizer)"
+    },
+    {
+      "id": "references-one-level-deep",
+      "status": "PASS",
+      "detail": "no references/ directory"
+    },
+    {
+      "id": "references-toc-for-long-files",
+      "status": "PASS",
+      "detail": "no references/ directory"
+    },
+    {
+      "id": "no-human-docs-in-skill-dir",
+      "status": "PASS",
+      "detail": "clean"
+    },
+    {
+      "id": "evals-present",
+      "status": "FAIL",
+      "detail": "no evals/evals.json"
+    },
+    {
+      "id": "security-scan-marker-current",
+      "status": "FAIL",
+      "detail": "No .security-scan-passed found \u2014 run a clean security scan before packaging"
+    },
+    {
+      "id": "security-gitleaks-clean",
+      "status": "PASS",
+      "detail": "clean"
+    },
+    {
+      "id": "security-pattern-checks",
+      "status": "PASS",
+      "detail": "no pattern findings"
+    },
+    {
+      "id": "no-time-sensitive-info",
+      "status": "PASS",
+      "detail": "none found"
+    },
+    {
+      "id": "forward-slash-paths-only",
+      "status": "PASS",
+      "detail": "none found"
+    },
+    {
+      "id": "lifecycle-classified",
+      "status": "FAIL",
+      "detail": "no lifecycle classification found \u2014 add one per references/lifecycle.md"
+    },
+    {
+      "id": "degrees-of-freedom-writing-style",
+      "status": "PASS",
+      "detail": "0 bare MUST/ALWAYS/NEVER \u2014 low, likely explained elsewhere"
+    },
+    {
+      "id": "architecture-declared",
+      "status": "PASS",
+      "detail": "context: inline (default)"
+    },
+    {
+      "id": "coherent-unit-scoping",
+      "status": "MANUAL",
+      "detail": "read the skill's one-sentence job description \u2014 does it need 'and' to join two unrelated verbs? (references/writing-philosophy.md)"
+    },
+    {
+      "id": "multi-model-tested",
+      "status": "MANUAL",
+      "detail": "cannot verify from files alone \u2014 confirm a smoke-preset pass exists for Haiku, Sonnet, and Opus"
+    },
+    {
+      "id": "description-optimizer-run",
+      "status": "PASS",
+      "detail": "disable-model-invocation: true \u2014 skill is user-invoked only, description-optimizer is not applicable"
+    },
+    {
+      "id": "inline-vs-fork-decision-correct",
+      "status": "MANUAL",
+      "detail": "presence of `context: fork` is checkable, but whether it's the *right* call needs the worked examples in SKILL.md's Decision Gate section"
+    }
+  ],
+  "summary": {
+    "passed": 14,
+    "failed": 3,
+    "warned": 1,
+    "manual": 3,
+    "total_scored": 17,
+    "pass_rate": 0.824
+  },
+  "decision": {
+    "decision": "upgrade-in-place",
+    "reasons": [
+      "failures found are structural (naming, frontmatter details, missing security/evals) \u2014 additive fixes, not a rewrite"
+    ]
+  },
+  "institutional_knowledge_candidates": []
+}

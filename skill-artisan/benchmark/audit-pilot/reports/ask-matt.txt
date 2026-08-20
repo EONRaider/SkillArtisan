@@ -1,0 +1,38 @@
+Audit: ask-matt (/home/eonraider/.claude/plugins/cache/claude-plugins-official/mattpocock-skills/1.2.3/skills/engineering/ask-matt)
+Checklist: 14/17 pass (82%), 1 warning(s), 3 item(s) need a manual/LLM read
+
+  [  PASS] frontmatter-valid — skills-ref + Claude-specific checks pass
+  [  PASS] path-references-exist — every relative link resolves
+  [  WARN] gerund-naming — name 'ask-matt' isn't in gerund form (verb+-ing). Official recommendation, not a hard requirement — consider a form like 'asking-...' if there's a natural verb for what this skill does.
+  [  PASS] description-pushy-imperative — disable-model-invocation: true — pushy/'Use when...' triggering framing doesn't apply; description just needs to accurately state what the skill does
+  [  PASS] body-size-limits — 86 lines, ~2311 tokens (approx — word count x1.3, not a real tokenizer)
+  [  PASS] references-one-level-deep — no references/ directory
+  [  PASS] references-toc-for-long-files — no references/ directory
+  [  PASS] no-human-docs-in-skill-dir — clean
+  [  FAIL] evals-present — no evals/evals.json
+  [  FAIL] security-scan-marker-current — No .security-scan-passed found — run a clean security scan before packaging
+  [  PASS] security-gitleaks-clean — clean
+  [  PASS] security-pattern-checks — no pattern findings
+  [  PASS] no-time-sensitive-info — none found
+  [  PASS] forward-slash-paths-only — none found
+  [  FAIL] lifecycle-classified — no lifecycle classification found — add one per references/lifecycle.md
+  [  PASS] degrees-of-freedom-writing-style — 0 bare MUST/ALWAYS/NEVER — low, likely explained elsewhere
+  [  PASS] architecture-declared — context: inline (default)
+  [MANUAL] coherent-unit-scoping — read the skill's one-sentence job description — does it need 'and' to join two unrelated verbs? (references/writing-philosophy.md)
+  [MANUAL] multi-model-tested — cannot verify from files alone — confirm a smoke-preset pass exists for Haiku, Sonnet, and Opus
+  [  PASS] description-optimizer-run — disable-model-invocation: true — skill is user-invoked only, description-optimizer is not applicable
+  [MANUAL] inline-vs-fork-decision-correct — presence of `context: fork` is checkable, but whether it's the *right* call needs the worked examples in SKILL.md's Decision Gate section
+
+Decision: UPGRADE-IN-PLACE
+  - failures found are structural (naming, frontmatter details, missing security/evals) — additive fixes, not a rewrite
+
+Institutional-knowledge safeguard — sections with no obvious checklist counterpart (keep, fold in, or discard? never drop silently):
+  - The main flow: idea → ship
+  - On-ramps
+  - Codebase health
+  - Vocabulary underneath
+  - Phase boundaries
+  - Standalone
+  - Precondition
+
+Regression benchmarking is not run by this script (needs the Task tool to spawn subagents). Before/after: snapshot the skill, run scripts/eval_loop.py aggregate on both, and only accept changes that don't regress the pre-change baseline — see SKILL.md's "Auditing existing skills".
