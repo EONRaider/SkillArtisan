@@ -182,25 +182,32 @@ def classify_extended_fields(frontmatter: dict[str, str]) -> tuple[list[str], di
 LINK_RE = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
 FENCED_CODE_BLOCK_RE = re.compile(r"```.*?```", re.DOTALL)
 INLINE_CODE_SPAN_RE = re.compile(r"`[^`\n]*`")
+HTML_COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
 SKIP_PREFIXES = ("http://", "https://", "mailto:", "#", "~")
 
 
 def check_path_references(skill_path: Path, body: str) -> list[str]:
     """Every relative markdown link/image target in the body must resolve to
-    a real file under the skill directory. Fenced code blocks and inline
-    code spans are stripped first — a ```markdown example showing what a
-    template file should contain (e.g. a worked-example link like
-    `[title](link)`), or prose demonstrating markdown link syntax inline
+    a real file under the skill directory. Fenced code blocks, inline code
+    spans, and HTML comments are stripped first — a ```markdown example
+    showing what a template file should contain (e.g. a worked-example link
+    like `[title](link)`), prose demonstrating markdown link syntax inline
     (e.g. "do NOT create links like `[doc.md](reviewed-document)`" — a
     daymade/claude-code-skills skill's actual cautionary example, ironically
-    about this exact mistake), isn't a real reference into this skill's own
-    directory, and matching it produces a false "missing file" finding. A
-    `~/`-prefixed target is skipped too — it names another skill's expected
-    *installed* location (e.g. `[calendar-sync](~/.claude/skills/calendar-sync)`,
-    a real cross-skill dependency reference found in glebis/claude-skills),
-    never a relative path within this skill's own bundle."""
+    about this exact mistake), or an author-facing authoring note inside
+    `<!-- -->` showing what optional collateral links should look like
+    (e.g. `<!-- ... "Watch the [intro](URL)..." -->` — a real, literal
+    placeholder found 12 times across anthropics/claude-for-legal's
+    cold-start-interview, Phase 8 of the audit pilot) isn't a real reference
+    into this skill's own directory, and matching it produces a false
+    "missing file" finding. A `~/`-prefixed target is skipped too — it names
+    another skill's expected *installed* location (e.g.
+    `[calendar-sync](~/.claude/skills/calendar-sync)`, a real cross-skill
+    dependency reference found in glebis/claude-skills), never a relative
+    path within this skill's own bundle."""
     body = FENCED_CODE_BLOCK_RE.sub("", body)
     body = INLINE_CODE_SPAN_RE.sub("", body)
+    body = HTML_COMMENT_RE.sub("", body)
     missing = []
     for match in LINK_RE.finditer(body):
         target = match.group(1).strip()

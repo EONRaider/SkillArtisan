@@ -704,3 +704,171 @@ methodological correction (the git-tree-API blob/symlink conflation) applied to 
 pilot's own verification discipline, not just to SkillArtisan's shipped tooling. See
 `SCALING.md` for the full readiness-assessment history and what would carry forward if
 this methodology is ever pointed at a seventh source.
+
+## Phase 8: anthropics/knowledge-work-plugins, claude-for-legal, financial-services (430 skills)
+
+First phase of the approved Phase 8–14 skills.sh-sourced expansion roadmap
+(`~/.claude/plans/i-maintain-skillartisan-a-velvety-possum.md`), and the pilot's first
+first-party-Anthropic-authored source — none of the prior six corpora were vendor- or
+Anthropic-authored. Three repos, pinned live immediately before cloning (see
+`../vendored/README.md` for exact SHAs): `anthropics-knowledge-work-plugins` (212 raw),
+`anthropics-claude-for-legal` (151 raw), `anthropics-financial-services` (118 raw).
+
+### Two genuine `find_skill_dirs` coverage gaps, found and fixed before a trustworthy audit could run
+
+Same standing discipline as Phase 6: verify local discovery against the actual clone,
+not the candidates doc's git-tree count. Two of three repos didn't match:
+`claude-for-legal` discovered 151/151 exactly; `knowledge-work-plugins` initially found
+185/212 (27 missing); `financial-services` initially found just **1 of 118** — both real,
+both fixed in the same commit as `_common.find_skill_dirs`'s discovery patterns.
+
+- **`financial-services`**: wraps the already-supported `category/plugin/skills/<skill>`
+  convention in one more top-level `plugins/` directory
+  (`plugins/partner-built/spglobal/skills/earnings-preview/SKILL.md`) — 117 of 118 skills
+  live at exactly this depth.
+- **`knowledge-work-plugins`**: `zoom-plugin` nests platform/surface *sub-skills* one or
+  two levels beneath an already-discovered skill directory
+  (`.../skills/contact-center/android/SKILL.md`,
+  `.../skills/meeting-sdk/web/client-view/SKILL.md`) — each a real, independently
+  frontmattered skill, explicitly routed to from the parent skill's own body text
+  (`contact-center/SKILL.md` literally links `[android/SKILL.md](android/SKILL.md)`),
+  not example or test content. Before adding the pattern, checked it wouldn't collide
+  with two known false-positive shapes already present in *other* vendored corpora —
+  `alirezarezvani`'s `assets/sample-skill/` and `skillforge`'s
+  `tests/fixtures/sample-skill/`, both bundled example/test content nested inside an
+  unrelated skill's own directory — confirmed neither has `skills` as a path component
+  at the depth the new patterns require, so both stay correctly excluded.
+
+**Fixed**: three new patterns added to `find_skill_dirs`. All 481 raw skills now
+structurally discovered (212 + 151 + 118). Regression tests added to
+`tests/test_common_find_skill_dirs.py`, including two negative tests reproducing the
+`alirezarezvani`/`skillforge` false-positive shapes to guard against ever re-introducing
+them. Full 127-test suite passes.
+
+### Content-level dedup: a new *reason* for the same mechanism `dedup_by_content` already handles
+
+`financial-services` has 31 content-duplicate groups (51 of 118 skills) — but for a
+different reason than `alirezarezvani`'s flat-vs-nested install duplication (Phase 6):
+this repo bundles shared utility skills (`audit-xls`, `xlsx-author`, `break-trace`,
+`gl-recon`, etc.) **by value** into multiple independently-installable plugins, so each
+plugin works standalone without depending on another being present — e.g. `audit-xls`
+appears byte-identical in 7 separate plugins. `dedup_by_content` (built in Phase 6)
+already handles this correctly with no code change: it operates on content hash
+regardless of *why* the duplication happened. **67 unique auditable skills** after
+dedup, for a **430-skill final total** across the three repos (212 + 151 + 67).
+
+### Bug #6 (fixed): `check_path_references`' fifth false-positive mechanism
+
+`cold-start-interview` (`claude-for-legal`, present in 5 plugin-specific copies) FAILed
+`path-references-exist` with "Missing referenced files: URL" — 12 times total. Root
+cause: an author-facing authoring note inside an HTML comment, showing what an optional
+collateral link should look like when it exists:
+`<!-- ... "Want a walkthrough? [Watch the intro](URL) or [read the guide](URL)." -->` —
+a literal `URL` placeholder, not a real path. Same root-cause family as the four
+mechanisms already fixed across Phases 2, 3, and 5 (fenced code blocks, inline code
+spans, `~/`-prefixed cross-skill references) — link-syntax examples that aren't live
+prose. **Fixed**: HTML comments (`<!-- ... -->`) are now stripped before the link scan
+runs, alongside the existing fenced-block and inline-span stripping. Verified: all 5
+copies of `cold-start-interview` now report `path-references-exist — every relative
+link resolves`; rerunning the aggregator across the full 430-skill batch afterward
+showed `path-references-exist` at 100% PASS — no other skill in this batch had a real
+broken link masked by this. Regression test added to `tests/test_validate.py`, whose
+docstring now describes all five mechanisms as one family.
+
+### A stray marker file, self-inflicted during investigation — not a tool bug
+
+While investigating two `security-pattern-checks` findings, running `security_scan.py`
+directly as its own CLI (rather than through `audit.py report`, which only calls its
+read-only functions) wrote a `.security-scan-passed` marker into two vendored skill
+directories as a side effect — a real violation of this project's "vendored: cloned
+read-only, none modified in place" convention, and it silently flipped those two
+skills' third-party/first-party classification on a subsequent individual audit call.
+Confirmed `audit.py`'s own `check_security` never calls the marker-writing path (only
+`verify_marker`/`run_gitleaks`/`run_pattern_checks`, all read-only) — so the full
+430-skill aggregator run itself was never at risk of this. Both stray markers deleted,
+classification reverified correct. Noted here as an operational lesson for future
+phases (use `audit.py report <path>` to investigate a finding, never
+`security_scan.py <path>` directly against vendored content), not as a SkillArtisan
+defect.
+
+### Corroborated, not new
+
+- **Directory/skill-name mismatch** (the packaging-defect class first found in Phase 3,
+  corroborated in Phase 6): ~40 instances in `zoom-plugin` alone — every skill's `name:`
+  differs from its directory name by design (e.g. directory `cobrowse-sdk`, `name:
+  zoom-cobrowse-sdk`). The platform sub-skills compound this with a second,
+  distinct `skills-ref` error: slash-namespaced names (`contact-center/android`) also
+  trip "Skill name contains invalid characters." Real, largest single-corpus instance
+  of this class so far, not a new mechanism.
+- **`security-gitleaks-clean`** (7 skills, up to 19 findings in one): all investigated
+  matches are truncated, placeholder-shaped OAuth tokens in SDK tutorial documentation
+  (e.g. `"eyJhbGciOiJIUzI1NiJ9..."`) — the same confirmed-but-unfixable tutorial-token
+  class established in Phases 4/5, not new.
+- **`forward-slash-paths-only`** (2 skills, `zoom-meeting-sdk-windows`,
+  `video-sdk/windows`): real Windows-native SDK path syntax in legitimate platform
+  documentation — the same confirmed-correct-content class Phase 4 established for
+  Windows security tooling, now corroborated in a completely different domain
+  (consumer video SDK docs, not forensics).
+- **`security-pattern-checks` — `blocking-interactive-input`** (1 skill,
+  `nextflow-development`): a genuine, real interactive bioinformatics-pipeline CLI
+  workflow — same already-understood class as Phase 1's `wizard` and Phase 5's
+  `llm-cli`, not new.
+- **`references-toc-for-long-files`** (38 FAILs, sampled): genuine absence of any
+  Contents/TOC/Index heading in every sample checked — Bug #4 (Phase 3) remains
+  correctly calibrated on a seventh, structurally distinct corpus.
+- **`description-pushy-imperative`** (142 of 430, 33%): further corroboration of
+  [#6](https://github.com/EONRaider/SkillArtisan/issues/6)'s "use for"/"use during"
+  phrasing gap, in the same mid-range band as several prior corpora.
+- **`references-one-level-deep`** (2 FAILs) and **`no-human-docs-in-skill-dir`**
+  (1 FAIL): both genuine, both low-volume, both already-understood check shapes.
+- **4 `rebuild`-decision skills**: three Zoom platform-SDK reference docs
+  (`zoom-meeting-sdk-web`, `zoom-meeting-sdk-windows`, `video-sdk/windows`) and one
+  financial model (`dcf-model`) — all confirmed genuinely oversized technical
+  reference content, correct verdict.
+- **No reserved-word "claude"/"anthropic" hits at all** in any of the 430 skills — a
+  legitimate negative result (Anthropic's own shipped content simply doesn't name
+  skills that way), not a gap in the check. The 14/14 corroboration streak from prior
+  corpora has nothing to test against here, same honest framing as Phase 7's
+  "nothing new" result.
+
+### Flagged, not fixed: `triggers:` — new first-party corroboration of a previously-deferred field
+
+Every one of `zoom-plugin`'s ~43 skills declares a `triggers:` frontmatter field, and
+the plugin's own `CONTRIBUTING.md` documents it explicitly, in the same breath as two
+fields `validate.py` already recognizes as legitimate Claude Code extensions
+(`argument-hint`, `user-invocable`). This is materially stronger evidence than the
+Phase 5/6 characterization that kept `triggers` out of `THIRD_PARTY_FIELD_FAMILIES` as
+a "bespoke one-off convention" — first-party Anthropic content, not a third-party
+author's habit, and used systematically, not sporadically. Checked directly against the
+official docs (`https://code.claude.com/docs/en/skills.md`) before drawing any
+conclusion: `triggers` is confirmed **not** a Claude-Code-native field (the docs have
+`when_to_use`, already allowlisted, serving a similar purpose under a different name) —
+ruling out the #5-style fix and pointing toward the #7-style one (a new
+`THIRD_PARTY_FIELD_FAMILIES` entry) instead. Not fixed speculatively — tracked:
+[#8](https://github.com/EONRaider/SkillArtisan/issues/8).
+
+### Cost — a sixth hit-rate data point, and a real operational lesson
+
+Review-queue hit rate: **230 of 430 (53%)** — between mattpocock's 11% and the
+mid-to-high band most other corpora have landed in, consistent with the plan's prior
+expectation that a professional/vendor-authored corpus would land low-to-mid.
+Execution: unchunked, unbuffered by chunking since well under the ~200-skill single-run
+comfort zone established in Phase 5. **A real, non-code operational cost showed up
+this phase for the first time**: the first full run took over 12 minutes (vs.
+seconds-to-low-minutes for comparable prior corpus sizes) because `validate.py`
+resolves `skills-ref` via `npx` per skill by default — real npm-registry resolution
+overhead repeated 430 times, not a hang (confirmed via process inspection:
+`do_poll`-blocked on a child process, not idle). **Fixed for all future phases**:
+installed `skills-ref@0.1.5` (the pinned version) to a user-local npm prefix
+(`~/.npm-global`), which `validate.py`'s own `find_skills_ref_cmd()` already prefers
+over `npx` when present — re-running the identical 430-skill batch after this dropped
+total wall-clock to **40 seconds**. This is a one-time local-environment fix, not a
+code or vendored-content change; noted here since it materially changes the cost
+profile for Phases 9–14 (a ~2,500-skill remaining scope that would otherwise have
+carried real npx-overhead cost at that volume). Two real bugs found and fixed
+(a shared-code discovery gap, a validate.py false-positive mechanism), one new
+`audit-gap` issue opened. Total wall-clock including the two discovery-logic
+investigations, the HTML-comment fix, the stray-marker cleanup, and this write-up:
+roughly 90–110 minutes — the second-most expensive phase after Phase 6, for a similar
+reason (real discovery-logic work, not just grading). **1,848 skills now audited
+across seven independently-sourced corpora.**

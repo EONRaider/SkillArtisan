@@ -5,15 +5,20 @@ Run: python3 -m unittest skill-artisan/tests/test_validate.py -v
 (or `python3 -m unittest discover -s skill-artisan/tests` from anywhere)
 
 Found via the real-world audit pilot (2026-08-20, see
-benchmark/audit-pilot/RESULTS.md), across three phases and the same root
+benchmark/audit-pilot/RESULTS.md), across four phases and the same root
 cause each time: `check_path_references` treats anything link-shaped as a
 real reference into the skill's own directory, when it's sometimes a
 worked example (`wayfinder`, fenced), a cautionary example
-(daymade skills, inline code span), or — most recently — a cross-skill
-dependency reference naming another skill's expected installed location
-(`glebis/claude-skills`' `agency-docs-updater`, a bare `~/`-prefixed
-path). Each mechanism fixed as found; this test file guards all of them
-plus real broken/valid links to make sure the fixes never regress.
+(daymade skills, inline code span), a cross-skill dependency reference
+naming another skill's expected installed location (`glebis/claude-skills`'
+`agency-docs-updater`, a bare `~/`-prefixed path), or — most recently — an
+author-facing authoring note inside an HTML comment showing what an
+optional collateral link should look like
+(`anthropics/claude-for-legal`'s `cold-start-interview`, Phase 8, a literal
+`[intro](URL)` placeholder inside `<!-- -->`, found 12 times across five
+plugin-specific copies of the same skill). Each mechanism fixed as found;
+this test file guards all of them plus real broken/valid links to make
+sure the fixes never regress.
 """
 import sys
 import unittest
@@ -48,6 +53,15 @@ class TestCheckPathReferences(unittest.TestCase):
 
     def test_tilde_prefixed_cross_skill_reference_is_ignored(self):
         body = "See [calendar-sync](~/.claude/skills/calendar-sync) for the companion skill.\n"
+        missing = validate.check_path_references(Path("/nonexistent"), body)
+        self.assertEqual(missing, [])
+
+    def test_link_shaped_text_inside_an_html_comment_is_ignored(self):
+        body = (
+            "Wait for the user's pick.\n\n"
+            "<!-- COLLATERAL LINKS: when onboarding collateral exists, prepend:\n"
+            '     "Want a walkthrough? [Watch the intro](URL) or [read the guide](URL)." -->\n'
+        )
         missing = validate.check_path_references(Path("/nonexistent"), body)
         self.assertEqual(missing, [])
 

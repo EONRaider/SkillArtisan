@@ -167,6 +167,95 @@ Approved roadmap for further sources: `~/.claude/plans/home-eonraider-desktop-ve
 - **Runnability confirmed**: same Python-only dependency chain as the rest of `scripts/`;
   no repo-specific tooling needed to audit it.
 
+Approved Phase 8–14 roadmap for the skills.sh-sourced expansion:
+`~/.claude/plans/i-maintain-skillartisan-a-velvety-possum.md`. First entries below.
+
+### `anthropics-knowledge-work-plugins/`
+
+- **Repo**: `https://github.com/anthropics/knowledge-work-plugins`
+- **Pinned commit**: `6e2cf60a525763fcf54dfb4ce704a989f2b722c7` (`main` HEAD,
+  2026-08-19T18:32:38Z) — fetched live immediately before cloning (2026-08-20).
+- **License**: Apache-2.0 — raw `LICENSE` file read directly, standard text.
+- **Structure — found a genuine `find_skill_dirs` coverage gap, fixed**: raw git-tree
+  count (212) matched the candidates doc exactly, but local discovery initially found
+  only 185. Root cause: `zoom-plugin`'s partner-built plugin nests platform/surface
+  *sub-skills* one or two levels beneath an already-discovered skill directory
+  (`.../skills/contact-center/android/SKILL.md`, `.../skills/meeting-sdk/web/client-view/SKILL.md`)
+  — each a real, independently-frontmattered skill, explicitly routed to from the
+  parent skill's own body text (`contact-center/SKILL.md` literally links
+  `[android/SKILL.md](android/SKILL.md)`), not example or test content. Confirmed this
+  pattern doesn't collide with two known false-positive shapes already present in
+  other vendored corpora (`alirezarezvani`'s `assets/sample-skill/`, `skillforge`'s
+  `tests/fixtures/sample-skill/`) before adding two new discovery patterns to
+  `_common.find_skill_dirs`; regression tests in
+  `tests/test_common_find_skill_dirs.py`. All 212 now discovered, 0 content-duplicate
+  groups.
+- **Also found via this repo, fixed in `validate.py`**: `check_path_references` had a
+  fifth false-positive mechanism — link-syntax placeholders inside HTML comments
+  (`<!-- ... "Watch the [intro](URL)..." -->`), a real authoring-note pattern found in
+  a sibling repo, `anthropics-claude-for-legal` (see below), not this one. Documented
+  here since the fix lives in the same shared check this repo's structural gap also
+  touched.
+- **Distinct from all prior sources**: first-party Anthropic content (specifically a
+  named partner integration, Zoom), the first vendored corpus with a genuinely new
+  metadata field — `triggers:` — used by every zoom-plugin skill and explicitly
+  documented in the plugin's own `CONTRIBUTING.md` alongside two fields
+  SkillArtisan's `validate.py` already recognizes (`argument-hint`,
+  `user-invocable`) as equivalent-status optional frontmatter. Stronger evidence than
+  the Phase 5/6 "bespoke one-off convention" characterization that originally kept
+  `triggers` off `THIRD_PARTY_FIELD_FAMILIES` — not yet acted on, see `RESULTS.md`'s
+  Phase 8 section and the tracked issue.
+- **Runnability confirmed**: same Python-only dependency chain as the rest of
+  `scripts/`; no repo-specific tooling needed to audit it.
+
+### `anthropics-claude-for-legal/`
+
+- **Repo**: `https://github.com/anthropics/claude-for-legal`
+- **Pinned commit**: `4a6c651889c97cc9140580363c73e0eb17379c2b` (`main` HEAD,
+  2026-07-23T00:46:01Z) — fetched live immediately before cloning (2026-08-20).
+- **License**: Apache-2.0 — raw `LICENSE` file read directly, standard text.
+- **Structure**: 151 skill directories discovered, exactly matching the candidates
+  doc's raw git-tree count — no correction needed, one of the two Phase 8 repos where
+  planning-session figures held exactly.
+- **Distinct**: first-party Anthropic content, legal-workflow domain (litigation,
+  commercial, AI-governance, regulatory, corporate, employment sub-domains). One
+  colon-namespaced skill name found (`cocounsel-legal:deep-research`, under
+  `external_plugins/` — a vendored third-party partner integration inside this repo,
+  not this repo's own convention), flagged by `skills-ref` for invalid characters —
+  real, low-volume (1 of 151), not escalated to a field-family decision.
+- **Runnability confirmed**: same Python-only dependency chain as the rest of
+  `scripts/`; no repo-specific tooling needed to audit it.
+
+### `anthropics-financial-services/`
+
+- **Repo**: `https://github.com/anthropics/financial-services`
+- **Pinned commit**: `38652224c10610fa52eee2acee3ac712dcff01f2` (`main` HEAD,
+  2026-08-04T14:41:29Z) — fetched live immediately before cloning (2026-08-20).
+- **License**: Apache-2.0 — raw `LICENSE` file read directly, standard text.
+- **Structure — a second genuine `find_skill_dirs` gap, fixed**: raw git-tree count
+  (118) matched the candidates doc, but local discovery initially found only 1. Root
+  cause: this repo wraps the already-supported `category/plugin/skills/<skill>`
+  convention in one more top-level `plugins/` directory
+  (`plugins/partner-built/spglobal/skills/earnings-preview/SKILL.md`) — 117 of 118
+  skills live at exactly this depth. Fixed alongside the sub-skill gap above (same
+  commit, same regression-test file). All 118 now structurally discovered.
+- **Content-level dedup**: 51 of the 118 are byte-identical to another already-kept
+  skill (31 duplicate-content groups) — this repo bundles shared utility skills
+  (`audit-xls`, `xlsx-author`, `break-trace`, `gl-recon`, etc.) by value into
+  multiple independently-installable plugins (e.g. `audit-xls` appears verbatim in 7
+  separate plugins) so each plugin works standalone without depending on another
+  being installed — a different provenance from `alirezarezvani`'s
+  flat-vs-nested-install duplication, but the same *outcome* `dedup_by_content`
+  (Phase 6) already handles correctly with no code change needed. **67 unique
+  auditable skills** after dedup.
+- **Distinct**: first-party Anthropic content, financial-services domain (equity
+  research, IB, PE, wealth management, fund admin — vertical- and agent-plugin
+  shaped). 4 of the audit pilot's `rebuild`-decision skills across this Phase 8 batch
+  are technical SDK/model-reference docs from this repo and its sibling
+  (`dcf-model` here; three Zoom platform-SDK docs in `knowledge-work-plugins`).
+- **Runnability confirmed**: same Python-only dependency chain as the rest of
+  `scripts/`; no repo-specific tooling needed to audit it.
+
 ### `obra-superpowers/`
 
 - **Repo**: `https://github.com/obra/superpowers`

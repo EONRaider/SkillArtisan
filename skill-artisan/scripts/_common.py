@@ -165,7 +165,25 @@ def find_skill_dirs(search_paths: list[Path]) -> list[Path]:
     mini-plugin one level deeper. Checked exhaustively, not sampled, before
     adding this: 113 of 125 skills at this depth have *no* flat counterpart
     at all — genuinely unique content this discovery previously missed
-    entirely, not redundant packaging of something already found).
+    entirely, not redundant packaging of something already found), or one of
+    two shapes found via the audit pilot's Phase 8 (anthropics/*, 2026-08-20):
+    a `plugins/` wrapper directory adding one more level ahead of the
+    existing category/plugin/skills/<skill> shape
+    (`plugins/category/plugin/skills/<skill>` — anthropics/financial-services,
+    117 of 118 skills live at exactly this depth, missed entirely before this
+    fix), and platform/surface *sub-skills* nested one or two levels beneath
+    an already-discovered skill's own directory
+    (`.../skills/<skill>/<variant>/SKILL.md` and one level deeper still —
+    anthropics/knowledge-work-plugins' zoom-plugin: a parent skill
+    (`contact-center/SKILL.md`) explicitly routes to `android/SKILL.md`,
+    `ios/SKILL.md`, `web/SKILL.md` as distinct, individually-loadable
+    sub-skills via its own body text, not example/test content — confirmed
+    by checking the parent's actual prose before adding this pattern, and by
+    confirming neither pattern collides with two known false-positive shapes
+    already present in other vendored corpora at different depths
+    (`assets/sample-skill/SKILL.md`, `tests/fixtures/sample-skill/SKILL.md` —
+    both intentionally excluded since neither has "skills" as a path
+    component at the depth these new patterns require).
 
     Shared by dedup_search.py (searching for prior art) and audit.py's bulk
     mode (auditing a whole skills directory) — one implementation per the
@@ -197,7 +215,15 @@ def find_skill_dirs(search_paths: list[Path]) -> list[Path]:
         if (base / "SKILL.md").exists():
             found.append(base)
             continue
-        for pattern in ("*/SKILL.md", "*/*/SKILL.md", "*/skills/*/SKILL.md", "*/*/skills/*/SKILL.md"):
+        for pattern in (
+            "*/SKILL.md",
+            "*/*/SKILL.md",
+            "*/skills/*/SKILL.md",
+            "*/*/skills/*/SKILL.md",
+            "*/*/*/skills/*/SKILL.md",
+            "*/*/skills/*/*/SKILL.md",
+            "*/*/skills/*/*/*/SKILL.md",
+        ):
             for skill_md in base.glob(pattern):
                 if skill_md.is_symlink():
                     continue

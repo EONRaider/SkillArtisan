@@ -6,6 +6,15 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.5.4] - 2026-08-20
+
+### Fixed
+- **`_common.find_skill_dirs` missed 79 real skills across two new first-party corpora** (Phase 8 of the audit pilot, `anthropics/knowledge-work-plugins` and `anthropics/financial-services`) — two genuine discovery-pattern gaps, not previously seen: `financial-services` wraps the already-supported `category/plugin/skills/<skill>` convention in one more top-level `plugins/` directory (117 of 118 skills missed entirely); `knowledge-work-plugins`' `zoom-plugin` nests real, independently-frontmattered platform-variant *sub-skills* one or two levels beneath an already-discovered skill directory, explicitly routed to from the parent skill's own body text. Verified the new patterns don't collide with two known false-positive shapes already present in other vendored corpora (`alirezarezvani`'s `assets/sample-skill/`, `skillforge`'s `tests/fixtures/sample-skill/`) before adding them. Regression tests added to `tests/test_common_find_skill_dirs.py`, including negative tests for both false-positive shapes.
+- **`check_path_references`' fifth false-positive mechanism**: link-syntax examples inside HTML comments (`<!-- ... [intro](URL) ... -->`) — an author-facing authoring note, not a real reference — found 12 times across five plugin-specific copies of `anthropics/claude-for-legal`'s `cold-start-interview`. Same root-cause family as the four mechanisms already fixed (fenced code blocks, inline code spans, `~/`-prefixed cross-skill references). Fixed by stripping HTML comments before the link scan runs, alongside the existing fenced-block/inline-span stripping. Regression test added to `tests/test_validate.py`.
+
+### Notes
+- Phase 8 of the real-world audit pilot: 430 skills audited across three first-party Anthropic repos (`anthropics/knowledge-work-plugins`, `anthropics/claude-for-legal`, `anthropics/financial-services`) — the pilot's first vendor/first-party-authored source. One new `audit-gap` issue opened ([#8](https://github.com/EONRaider/SkillArtisan/issues/8), reconsidering the `triggers:` frontmatter field for `THIRD_PARTY_FIELD_FAMILIES` given new first-party corroboration). Full narrative: `skill-artisan/benchmark/audit-pilot/RESULTS.md`'s Phase 8 section.
+
 ## [2.5.3] - 2026-08-20
 
 ### Fixed
