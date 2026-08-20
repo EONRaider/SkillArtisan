@@ -1,10 +1,15 @@
-# Vendored comparison-arm repositories
+# Vendored repositories
 
-Pinned, user-confirmed clones of the two external codebases run as live comparison arms
-(arms 3 and 4 of the Best-in-Market Scorecard's 5 arms). Both cloned read-only for local
-execution during the benchmark; neither is modified in place.
+Pinned, user-confirmed clones of external codebases vendored into this project for two
+distinct purposes — kept in one file since they share a directory and the same pinning
+discipline, split into sections below since the purposes differ. All cloned read-only;
+none are modified in place.
 
-## `daymade-claude-code-skills/`
+## Comparison-arm repositories
+
+Run as live comparison arms (arms 3 and 4 of the Best-in-Market Scorecard's 5 arms).
+
+### `daymade-claude-code-skills/`
 
 - **Repo**: `https://github.com/daymade/claude-code-skills`
 - **Pinned commit**: `d24f6d13f57688d8436b78647519f0ae49b37adf` ("chore(ci): upgrade GitHub
@@ -23,7 +28,7 @@ execution during the benchmark; neither is modified in place.
   `gitleaks` 8.21.2, Python 3.10.12, PyYAML importable). The `claude` CLI is only
   blocking when a verification tier runs live agent evals; also present.
 
-## `tripleyak-skillforge/`
+### `tripleyak-skillforge/`
 
 - **Repo**: `https://github.com/tripleyak/SkillForge`
 - **Pinned tag**: `v6.0.0` — an annotated tag; the tag object's own SHA is
@@ -38,7 +43,7 @@ execution during the benchmark; neither is modified in place.
 - **Runnability confirmed**: README states Python 3.8+, stdlib only, PyYAML used if
   present. Python 3.10.12 present; PyYAML importable.
 
-### Important finding: SkillForge v6 changed its rigor model from what the master spec describes
+#### Important finding: SkillForge v6 changed its rigor model from what the master spec describes
 
 The master spec's Comparison Arms section frames SkillForge as *review-based* — "a panel
 of subagents evaluates a generated skill against distinct criteria and must unanimously
@@ -60,9 +65,49 @@ correction note once that's confirmed (matching this document's own pattern of c
 earlier passes when a primary source is actually read) — flagged here so it isn't lost
 before Phase 8.
 
-## Status
+### Status
 
 Both repos cloned and pinned 2026-08-16, user-confirmed. Dependency runnability confirmed
 for both. Neither has been executed yet — that's Phase 3 (cross-arm orchestration
 harness), which still needs its own separate confirmation before either codebase is
 actually run as a live arm, per the plan's human-confirmation strategy.
+
+## Audit-pilot source repositories
+
+Real, published third-party skill corpora audited by `scripts/audit.py` via
+`benchmark/audit-pilot/aggregate_findings.py` — see `../audit-pilot/README.md` for the
+full pilot methodology. Two sources already done and fully documented in
+`../audit-pilot/RESULTS.md`: `mattpocock-skills` (audited from the locally cached plugin
+install, not vendored here — see `../audit-pilot/README.md`'s own "Sources and pins")
+and `daymade-claude-code-skills` above (dual-purpose: comparison arm *and* audit-pilot
+source — 92 skills audited in Phase 3, on top of the 13 used as `../corpus/` seeds).
+Approved roadmap for further sources: `~/.claude/plans/home-eonraider-desktop-verified-candida-imperative-thompson.md`
+(Phases 4–7).
+
+### `mukul975-anthropic-cybersecurity-skills/`
+
+- **Repo**: `https://github.com/mukul975/Anthropic-Cybersecurity-Skills`
+- **Pinned commit**: `4c0b700ac5d280ba46695062077f0fe922ce3602` (`main` HEAD,
+  2026-08-08T14:55:19Z) — chosen over the latest tagged release (`v1.3.0`,
+  `101ca0bd887a295e39cc20a100efa571937ca969`, 2026-06-22) because `main` had grown past
+  the tag by the time of pinning and this SHA's 817-skill count was directly verified
+  live (GitHub tree API) before pinning, not assumed from the tag. **User-approved
+  2026-08-20** as part of the Phases 4–7 plan (research request → independent
+  re-verification → plan approval), not a separate one-off confirmation.
+- **License**: Apache-2.0 — confirmed via GitHub's license-detection API (parses actual
+  file content) at planning time; re-confirm by reading `LICENSE` directly if this pin
+  is ever revisited far from 2026-08-20.
+- **Structure**: flat `skills/<skill-name>/SKILL.md`, uniform depth, 817 of 817 real
+  skill directories fully discoverable by the existing `find_skill_dirs` — no code change
+  needed. Single deep domain (cybersecurity) with framework-mapped frontmatter (MITRE
+  ATT&CK, NIST CSF, ATLAS, D3FEND, F3).
+- **Caveat carried into the audit**: README states "an independent, community-created
+  project... Not affiliated with Anthropic PBC" despite the repo name, and content is
+  security-education material (attack techniques, dual-use tooling described for
+  defensive/educational purposes) — audited exactly like any other skill (static
+  text/pattern analysis only, `audit.py` never executes a skill's own bundled scripts),
+  but expect a genuinely different false-positive profile than the first two corpora (see
+  `../audit-pilot/RESULTS.md`'s Phase 4 section for what that turned out to be).
+- **Runnability confirmed**: same Python-only dependency chain as the rest of `scripts/`;
+  no repo-specific tooling needed to audit it (this is a read-only skill corpus, not a
+  comparison-arm codebase with its own pipeline to run).
