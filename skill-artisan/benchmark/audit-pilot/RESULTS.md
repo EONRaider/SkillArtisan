@@ -1148,3 +1148,109 @@ including the character check, the count-discrepancy investigation, the
 false-positive fix, the three-way-duplication investigation, and this write-up:
 roughly 60–75 minutes. **2,791 skills now audited across nine independently-sourced
 corpora.**
+
+## Phase 11: nomadamas/k-skill, trailofbits/skills (197 skills)
+
+Fourth phase of the Phase 8–14 roadmap — language diversity and professional
+security, deliberately placed before vendor wave 2 so two high-character-density
+sources aren't crowded out by repeats. Pinned live immediately before cloning:
+`nomadamas-k-skill` (118), `trailofbits-skills` (79) — both exact matches against
+the candidates doc using the corrected exact-filename tree check (Phase 10's
+lesson: `endswith("SKILL.md")` over-counts; `.path.split("/")[-1] == "SKILL.md"`
+doesn't). Both discovered 100% clean: no discovery gaps, no content duplicates, 0
+errors. `trailofbits-skills` has 2 harmless shell-shim symlinks
+(`pip3 -> pip`, `python3 -> python` in a plugin's hooks directory) unrelated to
+skill discovery — same non-issue pattern as `obra-superpowers`' Phase 7 symlink.
+
+### The headline finding: `description-pushy-imperative` is English-only, confirmed on a real Korean corpus
+
+`nomadamas/k-skill` is the pilot's first non-English source, included specifically
+to stress-test every text-pattern check's English assumptions. It found one: 91 of
+118 skills (77%) FAIL/WARN `description-pushy-imperative`, verified directly against
+the actual Korean text, not assumed from the aggregate rate. Two distinct, confirmed
+causes:
+
+1. `TRIGGER_FRAMING_RE` only matches literal English phrases (`use
+   when/whenever/if/for/during`) — structurally cannot match a pure-Korean
+   description regardless of whether it has equivalent trigger framing in Korean
+   (it plausibly does: `assembly-bill-vote-search`'s description reads as a
+   concise, purpose-stating sentence, just not in English).
+2. **A second, independent fairness problem in the same check**: the 100-character
+   length threshold. 32 of 118 Korean descriptions are under 100 characters, even
+   though Hangul's information density means much shorter Korean text conveys
+   equivalent content — `daangn-cars-search` at 61 characters is a complete,
+   information-dense sentence about search scope and downstream actions.
+
+**Not fixed in this session** — a genuine design decision, not a narrow regex
+addition like the five `check_path_references` mechanisms fixed across this pilot.
+A real fix needs to decide which languages/scripts to support, how to detect them,
+what "equivalent trigger framing" looks like in each (guessing at non-English regex
+patterns without linguistic verification risks false confidence, worse than the
+current honest gap), and how to recalibrate length fairly across scripts. Documented
+with full data (both mechanisms, concrete examples, exact counts) and a recommended
+shape of fix (detect non-Latin-script content, downgrade to an honest "cannot
+verify" status rather than a confident FAIL/WARN — the same principle as issue #4's
+third-party-mode fix) rather than guessed at. Tracked:
+[#10](https://github.com/EONRaider/SkillArtisan/issues/10).
+
+### Bug #8 (fixed): `check_path_references`' sixth mechanism — a genuinely resolvable one, not another skip
+
+`trailofbits-skills` FAILed `path-references-exist` on 7 skills with targets like
+`{baseDir}/references/quick-reference.md`. Investigated directly rather than
+assumed: `{baseDir}` is a real, cross-platform template-variable convention (not
+Claude Code's own `${CLAUDE_SKILL_DIR}` syntax — a different, dollar-less
+convention, plausibly for portability across multiple agent tools) meant to resolve
+to the skill's own directory root at runtime. **Verified exhaustively, not
+sampled**: all 41 `{baseDir}`-prefixed references across the 7 flagged skills
+resolve to a real file once the prefix is stripped — 100%. Unlike the four existing
+`SKIP_PREFIXES` entries (`http://`, `https://`, `mailto:`, `#`, `~` — none of which
+can ever be verified as a local path), this one *can* be verified, so it's the first
+mechanism in this family to be **stripped and re-checked** rather than skipped
+outright — a genuinely broken `{baseDir}/nonexistent.md` reference would still be
+correctly caught. Regression tests added to `tests/test_validate.py` covering both
+directions. Full 132-test suite passes.
+
+### Flagged, not fixed: `type` field — a fourth corroboration of the field-family pattern
+
+14 `trailofbits-skills` skills (all fuzzing tools: `cargo-fuzz`, `aflpp`, `atheris`,
+`libfuzzer`, etc.) declare `type: fuzzer` — a real, simple, single-value
+categorization tag. Smaller in scope than the `owner`/`service`/`reviewed` triplet
+or `tools` (Phase 9) and carries no security nuance, but the same underlying
+pattern. Commented on [#9](https://github.com/EONRaider/SkillArtisan/issues/9)
+rather than opening a new issue.
+
+### Corroborated, not new
+
+- **`security-gitleaks-clean`** (`firebase-apk-scanner`, 4 findings): confirmed
+  classic security-education tutorial content — a documented example Firebase
+  auth-token response with `"attacker@evil.com"` and truncated example tokens,
+  teaching what a real exploit response looks like. Same confirmed-but-unfixable
+  class as Phase 4/5/9, expected and appropriate for a professional security firm's
+  content, not new.
+- **`security-pattern-checks`**: 29 findings (mostly MEDIUM/informational, a few
+  HIGH `dangerous-code-pattern`), all in security-tooling reference content — same
+  already-understood class as every prior security-adjacent corpus.
+- **`references-toc-for-long-files`** (33, sampled), **`body-size-limits`** (10,
+  sampled), **`no-time-sensitive-info`** (4, sampled),
+  **`no-human-docs-in-skill-dir`** (4), **`forward-slash-paths-only`** (2): all
+  genuine, all already-established check shapes across 10 prior phases — no new
+  mechanism in any sample checked.
+- **No `rebuild`-decision skills** — 197/197 `upgrade-in-place`.
+
+### Cost — a tenth hit-rate data point, and the pilot's first genuinely new bug class outside path-references/discovery
+
+Review-queue hit rate: **154 of 197 (78%)** — driven almost entirely by
+`nomadamas-k-skill`'s language-fairness finding (91 of its 118) rather than a
+generally noisy corpus; `trailofbits-skills` alone would land closer to the
+mid-range. Execution: unchunked, **18 seconds total wall-clock** for both repos
+combined. One real `check_path_references` mechanism found and fixed (the first
+mechanism in that check's family to be *repaired* rather than *skipped*), one
+genuinely new, well-evidenced bug class documented and tracked for a future
+deliberate fix rather than guessed at, two field-family corroborations added to
+existing issues. Total wall-clock including the language-fairness investigation
+(both mechanisms, verified against real text), the `{baseDir}` exhaustive
+verification, the fix, and this write-up: roughly 75–90 minutes — the most
+expensive phase since Phase 6, proportionate to genuinely new investigative ground
+(first non-English corpus, first check-repair-not-skip fix) rather than repeated
+discovery-logic work. **2,988 skills now audited across ten independently-sourced
+corpora.**

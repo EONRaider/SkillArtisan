@@ -5,20 +5,24 @@ Run: python3 -m unittest skill-artisan/tests/test_validate.py -v
 (or `python3 -m unittest discover -s skill-artisan/tests` from anywhere)
 
 Found via the real-world audit pilot (2026-08-20, see
-benchmark/audit-pilot/RESULTS.md), across four phases and the same root
+benchmark/audit-pilot/RESULTS.md), across five phases and the same root
 cause each time: `check_path_references` treats anything link-shaped as a
 real reference into the skill's own directory, when it's sometimes a
 worked example (`wayfinder`, fenced), a cautionary example
 (daymade skills, inline code span), a cross-skill dependency reference
 naming another skill's expected installed location (`glebis/claude-skills`'
-`agency-docs-updater`, a bare `~/`-prefixed path), or — most recently — an
-author-facing authoring note inside an HTML comment showing what an
-optional collateral link should look like
-(`anthropics/claude-for-legal`'s `cold-start-interview`, Phase 8, a literal
-`[intro](URL)` placeholder inside `<!-- -->`, found 12 times across five
-plugin-specific copies of the same skill). Each mechanism fixed as found;
-this test file guards all of them plus real broken/valid links to make
-sure the fixes never regress.
+`agency-docs-updater`, a bare `~/`-prefixed path), an author-facing
+authoring note inside an HTML comment showing what an optional collateral
+link should look like (`anthropics/claude-for-legal`'s `cold-start-interview`,
+Phase 8, a literal `[intro](URL)` placeholder inside `<!-- -->`, found 12
+times across five plugin-specific copies of the same skill), or — most
+recently — a `{baseDir}`-prefixed template variable
+(`trailofbits/skills`, Phase 11): unlike every mechanism above, this one
+IS a real, checkable reference (verified 41 of 41 resolve to real files
+before fixing), so it's stripped and re-checked, not skipped outright — a
+genuinely broken `{baseDir}/...` reference is still caught. Each mechanism
+fixed as found; this test file guards all of them plus real broken/valid
+links to make sure the fixes never regress.
 """
 import sys
 import unittest
@@ -64,6 +68,16 @@ class TestCheckPathReferences(unittest.TestCase):
         )
         missing = validate.check_path_references(Path("/nonexistent"), body)
         self.assertEqual(missing, [])
+
+    def test_base_dir_prefixed_reference_to_a_real_file_resolves(self):
+        body = "See [validate.py]({baseDir}/scripts/validate.py) for the check itself.\n"
+        missing = validate.check_path_references(PLUGIN_ROOT, body)
+        self.assertEqual(missing, [])
+
+    def test_base_dir_prefixed_reference_to_a_missing_file_is_still_caught(self):
+        body = "See [ghost]({baseDir}/references/does-not-exist.md) for details.\n"
+        missing = validate.check_path_references(Path("/nonexistent"), body)
+        self.assertEqual(missing, ["references/does-not-exist.md"])
 
     def test_real_broken_link_outside_a_fenced_block_is_still_caught(self):
         body = "See [the reference doc](references/does-not-exist.md) for details.\n"

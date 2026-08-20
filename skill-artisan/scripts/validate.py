@@ -184,6 +184,7 @@ FENCED_CODE_BLOCK_RE = re.compile(r"```.*?```", re.DOTALL)
 INLINE_CODE_SPAN_RE = re.compile(r"`[^`\n]*`")
 HTML_COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
 SKIP_PREFIXES = ("http://", "https://", "mailto:", "#", "~")
+BASE_DIR_PREFIXES = ("{baseDir}/", "{baseDir}")
 
 
 def check_path_references(skill_path: Path, body: str) -> list[str]:
@@ -204,7 +205,20 @@ def check_path_references(skill_path: Path, body: str) -> list[str]:
     another skill's expected *installed* location (e.g.
     `[calendar-sync](~/.claude/skills/calendar-sync)`, a real cross-skill
     dependency reference found in glebis/claude-skills), never a relative
-    path within this skill's own bundle."""
+    path within this skill's own bundle.
+
+    A `{baseDir}/`-prefixed target (trailofbits/skills, Phase 11) is different
+    from the skip cases above: it's a real, checkable, skill-relative
+    reference under a cross-platform template-variable convention (not
+    Claude Code's own `${CLAUDE_SKILL_DIR}` substitution syntax — a different,
+    dollar-less convention this repo's skills use, presumably for portability
+    across multiple agent tools), meant to resolve to the skill's own
+    directory root at runtime. Verified directly before fixing: every one of
+    41 `{baseDir}`-prefixed references across 7 skills in that repo resolves
+    to a real file once the prefix is stripped — 100%, not a sample. Unlike
+    the SKIP_PREFIXES targets (which can never be locally verified), this
+    prefix is stripped, not skipped, so a genuinely broken
+    `{baseDir}/nonexistent.md` reference is still correctly caught."""
     body = FENCED_CODE_BLOCK_RE.sub("", body)
     body = INLINE_CODE_SPAN_RE.sub("", body)
     body = HTML_COMMENT_RE.sub("", body)
@@ -213,6 +227,8 @@ def check_path_references(skill_path: Path, body: str) -> list[str]:
         target = match.group(1).strip()
         if not target or target.startswith(SKIP_PREFIXES) or "://" in target:
             continue
+        if target.startswith(BASE_DIR_PREFIXES):
+            target = target[len("{baseDir}"):].lstrip("/")
         target = target.split("#")[0].split(" ")[0]  # drop anchors and markdown title text
         if not target:
             continue

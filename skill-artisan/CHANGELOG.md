@@ -6,6 +6,14 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.5.7] - 2026-08-20
+
+### Fixed
+- **`check_path_references`' sixth false-positive mechanism, the first to be repaired rather than skipped**: `trailofbits/skills` uses a `{baseDir}`-prefixed template-variable convention (`{baseDir}/references/quick-reference.md`) for cross-skill-relative links — a real, cross-platform convention (not Claude Code's own `${CLAUDE_SKILL_DIR}` syntax), verified exhaustively (41 of 41 instances across 7 skills resolve to real files once the prefix is stripped, not sampled). Unlike the existing `SKIP_PREFIXES` entries (`http://`, `https://`, `mailto:`, `#`, `~` — none locally verifiable), `{baseDir}` references are real and checkable, so the fix strips the prefix and re-checks existence rather than skipping validation outright — a genuinely broken `{baseDir}/nonexistent.md` reference is still correctly caught. Regression tests added to `tests/test_validate.py` covering both directions.
+
+### Notes
+- Phase 11 of the real-world audit pilot: 197 skills audited across `nomadamas/k-skill` (the pilot's first non-English corpus, Korean) and `trailofbits/skills` (a named professional security-research firm, CC-BY-SA-4.0 licensed — audited under an "audit yes, adapt no" policy). Found and documented (not code-fixed, by design) a genuine, two-dimensional English-bias bug in `description-pushy-imperative` — a literal-English-phrase regex and a length threshold calibrated for English text density, both confirmed against real Korean descriptions, FAILing/WARNing 77% of the corpus. Tracked as [#10](https://github.com/EONRaider/SkillArtisan/issues/10), left for a deliberate design decision rather than a speculative regex guess. Full narrative: `skill-artisan/benchmark/audit-pilot/RESULTS.md`'s Phase 11 section.
+
 ## [2.5.6] - 2026-08-20
 
 ### Fixed

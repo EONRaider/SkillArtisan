@@ -412,3 +412,54 @@ Approved Phase 8–14 roadmap for the skills.sh-sourced expansion:
   authorship.
 - **Runnability confirmed**: same Python-only dependency chain as the rest of
   `scripts/`; no repo-specific tooling needed to audit it.
+
+### `nomadamas-k-skill/`
+
+- **Repo**: `https://github.com/NomaDamas/k-skill`
+- **Pinned commit**: `1a6469192e2deb44de05b7fa462e27070f156b58` (`main` HEAD,
+  2026-08-19T18:58:18Z) — fetched live immediately before cloning (2026-08-20).
+- **License**: MIT — raw `LICENSE` file read directly, standard text (no named
+  copyright holder, "Copyright (c) 2026" — still valid MIT text).
+- **Structure**: 118 skill directories discovered, exactly matching the candidates
+  doc's raw count. 0 content-duplicate groups, 0 symlinks, 0 errors.
+- **Distinct**: the pilot's first non-English corpus (Korean, `locale: ko-KR` in
+  every skill's `metadata` block) — included specifically for language/cultural
+  diversity and to stress-test every text-pattern check's English assumptions. It
+  found one real gap: `description-pushy-imperative` FAILs/WARNs 91 of 118 skills
+  (77%), confirmed as a genuine English-bias problem (a literal-English-phrase regex
+  plus a length threshold calibrated for English text density), not a real
+  authoring-quality signal — see `../audit-pilot/RESULTS.md`'s Phase 11 section and
+  tracked issue [#10](https://github.com/EONRaider/SkillArtisan/issues/10).
+- **Runnability confirmed**: same Python-only dependency chain as the rest of
+  `scripts/`; no repo-specific tooling needed to audit it.
+
+### `trailofbits-skills/`
+
+- **Repo**: `https://github.com/trailofbits/skills`
+- **Pinned commit**: `7be90d6e55e6b5e1607b519e97d0019b32b2656a` (`main` HEAD,
+  2026-08-20T16:26:56Z) — fetched live immediately before cloning (2026-08-20).
+- **License — CC-BY-SA-4.0, a real policy distinction from every other source in
+  this roadmap**: raw `LICENSE` file read directly, confirmed ShareAlike, not a
+  bare-permissive license like every other vendored corpus (MIT/Apache-2.0). Approved
+  policy (see the Phase 8–14 roadmap plan): **audit yes, adapt no** — vendoring and
+  auditing this corpus (reading + reporting findings, short attributed quotes) is not
+  redistribution or adaptation, so it's treated exactly like any other corpus for
+  audit purposes. The one standing restriction: never copy or adapt this repo's
+  content into SkillArtisan's own shipped MIT-licensed material (corpus seeds, skill
+  bodies, templates, docs beyond brief attributed quotes in `RESULTS.md`) — that's
+  where ShareAlike would bite.
+- **Structure**: 79 skill directories discovered, exactly matching the candidates
+  doc's raw count. 0 content-duplicate groups, 0 errors. 2 harmless symlinks
+  (`pip3 -> pip`, `python3 -> python`, shell shims in a plugin's `hooks/` directory)
+  unrelated to skill discovery.
+- **Distinct**: a named professional security-research firm (Trail of Bits), a
+  useful contrast to `mukul975`'s community-authored cybersecurity corpus (Phase 4)
+  — same domain character (confirmed-but-unfixable tutorial-token gitleaks findings,
+  real risky-code patterns in reference material), different authorship model.
+  Surfaced a genuine, exhaustively-verified sixth `path-references-exist` mechanism
+  (a `{baseDir}` template-variable prefix, fixed by stripping rather than skipping —
+  see `../audit-pilot/RESULTS.md`'s Phase 11 section) and a `type` field family
+  corroboration (commented on
+  [#9](https://github.com/EONRaider/SkillArtisan/issues/9)).
+- **Runnability confirmed**: same Python-only dependency chain as the rest of
+  `scripts/`; no repo-specific tooling needed to audit it.
