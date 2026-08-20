@@ -6,6 +6,11 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.5.1] - 2026-08-20
+
+### Fixed
+- **The self-hosted marketplace declaration is gone — distribution moved to the dedicated `EONRaider/claude-plugins` repo.** `[2.3.0]` introduced a root `.claude-plugin/marketplace.json` naming this repo the `eonraider` marketplace, explicitly "chosen as a shared distribution channel for future plugins beyond this one" — but when that future plugin arrived (`EONRaider/foreman`), it self-declared the SAME marketplace name from its own repo, and only one `eonraider` marketplace can be registered per Claude Code install. The canonical manifest now lives in `EONRaider/claude-plugins`, which lists both plugins by external `git-subdir` reference (this repo: path `skill-artisan`, ref `master`); this repo keeps only the plugin-level `skill-artisan/.claude-plugin/plugin.json`. `README.md`'s install line changed accordingly: `claude plugin marketplace add EONRaider/claude-plugins` (the `claude plugin install skillartisan@eonraider` line is unchanged — the marketplace *name* is the same, only its host repo moved). Release-mechanics consequence: the version now lives in **two** files (plugin.json + README's two pins), not three, and every release must also bump the `sha` pin in `claude-plugins`' entry for installs to pick it up. `tests/test_marketplace_manifest.py` is replaced by `tests/test_plugin_manifest.py` — the cross-repo half of the old sync invariant can't be tested from here, so the successor guards what remains local: plugin.json validity, the README version pins, that the install instructions point at the unified marketplace, and that a root marketplace.json never silently comes back to recreate the collision.
+
 ## [2.5.0] - 2026-08-20
 
 ### Added
