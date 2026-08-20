@@ -6,6 +6,21 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.4.10] - 2026-08-20
+
+### Added
+- **Fifth real-world audit corpus: 349 skills in `alirezarezvani/claude-skills`** (Phase 6 of the approved Phases 4-7 roadmap). **1,404 real-world skills now audited across five independently-sourced corpora.** This phase's own required extra verification step (an exhaustive, not sampled, check of a flat-vs-nested duplicate-content pattern found during planning) surfaced two real discovery-logic problems and one real audit finding, all documented in `benchmark/audit-pilot/RESULTS.md`'s Phase 6 section.
+- **A fourteenth reserved-word "claude" instance** (`claude-coach`), a genuine YAML syntax error caught correctly in a third-party skill's own frontmatter, a third `directory name must match skill name` instance, and 12 confirmed-broken cross-references — all real, all correctly flagged, none requiring a tool fix.
+
+### Fixed
+- **`_common.find_skill_dirs` (shared by `audit.py bulk` and `dedup_search.py`, not just this pilot) silently followed symlinks** — a previously-latent bug, first exposed by this corpus, which symlink-mirrors every skill into four cross-tool directories (`.codex/`, `.gemini/`, `.hermes/`, `.vibe/`) for compatibility with other agent products. Unfixed, discovery inflated from ~350 real skills to 1,140+, the same skill re-counted once per mirror. Fixed by skipping any match reached through a symlink at any level. Also extended with a fifth discovery pattern (`category/plugin/skills/name/SKILL.md`) after an exhaustive check found 113 of 125 skills at that depth have no flat-layer counterpart at all — genuinely unique content, not redundant packaging. Regression tests added: `tests/test_common_find_skill_dirs.py`.
+- **A new content-hash dedup step in `aggregate_findings.py`** (`dedup_by_content`) — 12 of the 125 nested-layer skills found above turned out to be byte-identical repackagings of a flat-layer sibling; auditing both would silently double-count them without changing a single finding. Deliberately kept out of `find_skill_dirs` itself (a content judgment, not a structural one).
+- **This project's own planning-session skill-count estimate for this repo was wrong, independently of the symlink bug above.** A GitHub tree-API check (used before cloning, to plan Phase 6) filtered tracked paths by `.path | endswith("SKILL.md")`, which doesn't distinguish a real file (git blob mode `100644`) from a tracked symlink (mode `120000`) — inflating the estimate to "~672 real skills" when the true count, verified against the actual local clone, is 349, close to the repo's own self-reported "362." Corrected in `benchmark/vendored/README.md` and everywhere the stale figure had propagated. New standing lesson for Phases 4-7 (now just Phase 7): an API-based verification pass is not the same claim as checking against the real, cloned filesystem — re-verify headline numbers locally once a repo is actually cloned.
+
+### Deferred, not forgotten
+- [#6](https://github.com/EONRaider/SkillArtisan/issues/6) (use-when phrasing) gained a fifth data point, reported honestly as *lower* incidence (8.6%) rather than escalating further — confirms the gap's magnitude is corpus-dependent.
+- [#5](https://github.com/EONRaider/SkillArtisan/issues/5) (unrecognized fields) gained corroboration from a different angle: several distinct custom-metadata clusters in this corpus, none as large as #7's pattern, but strengthening the case that "skills carry custom non-portable metadata" is a common pattern worth a general answer.
+
 ## [2.4.9] - 2026-08-20
 
 ### Added

@@ -69,6 +69,21 @@ made on real data, not a guess — see `RESULTS.md`'s cost-data sections.
   bug) — a solo-maintainer, knowledge-work/personal-automation corpus, the smallest and
   structurally simplest of the four Phases 4–7 candidates.
 
+**Phase 6 — `alirezarezvani-claude-skills`**:
+- **Repo**: `https://github.com/alirezarezvani/claude-skills`
+- **Actually audited from**: `benchmark/vendored/alirezarezvani-claude-skills/`, cloned
+  specifically for this phase. See `../vendored/README.md` for the pin record and the
+  full story behind the corrected skill count.
+- **Pinned commit**: `aa8d778811a557a2c28ccadda4cf3d0bd028a4cc` (`main` HEAD,
+  2026-07-17).
+- **Coverage**: **349** real, unique skills — corrected significantly from this project's
+  own planning-session estimate (~672) after this phase's required extra verification
+  step found two real problems: a symlink-following bug in `find_skill_dirs` (fixed) and
+  a git-tree-API blob/symlink conflation in the planning-session's own count (corrected).
+  The structurally messiest and most business/enterprise-focused of the four Phases 4–7
+  candidates — the corpus that most stress-tested this pilot's own verification
+  discipline, not just the audit tool.
+
 ## Coverage
 
 Phase 1 (8 skills, deliberately spread across maturity tiers) ran first as a pilot; see
@@ -129,18 +144,20 @@ a skill lives in, and whether it's wired into `plugin.json`'s shipped `skills` l
 
 ## Status
 
-Full coverage across four independently-sourced corpora: 35/35 `mattpocock-skills` +
+Full coverage across five independently-sourced corpora: 35/35 `mattpocock-skills` +
 92/92 `daymade-claude-code-skills` + 817/817 `mukul975-anthropic-cybersecurity-skills` +
-111/111 `glebis-claude-skills` = **1,055 real-world skills audited**. Seven confirmed bugs
-found in SkillArtisan's own tooling, all fixed with regression tests; deferred gaps
-tracked as GitHub issues (`gh issue list --label audit-gap`), not just CHANGELOG prose.
-Phase 4 validated `aggregate_findings.py`'s chunked/resumable execution mode under a real
-shell timeout — zero results lost; Phase 5 validated the same tool's per-skill exception
-handling against 3 skills with no frontmatter at all, and found a fourth mechanism for
-the `path-references-exist` false-positive class (fixed). Shipped as `v2.4.6` (Phase 1/2)
-and follow-up releases for Phases 3, 4, and 5 (see `CHANGELOG.md` for exact versions). See
+111/111 `glebis-claude-skills` + 349/349 `alirezarezvani-claude-skills` = **1,404
+real-world skills audited**. Nine confirmed bugs found and fixed with regression tests —
+seven in the audit checks themselves, two in `_common.find_skill_dirs`, the shared
+discovery utility `audit.py bulk` and `dedup_search.py` also depend on (a real,
+previously-latent symlink-following bug Phase 6 was the first corpus to expose); deferred
+gaps tracked as GitHub issues (`gh issue list --label audit-gap`), not just CHANGELOG
+prose. Phase 6 also corrected this project's own planning-session skill-count estimate
+for that repo (a GitHub tree-API check had counted tracked symlinks as if they were real
+files) — a reminder that this pilot's own "verify live" discipline has to extend to the
+real cloned filesystem, not stop at an API cross-check. Shipped as `v2.4.6` (Phase 1/2)
+and follow-up releases for Phases 3 through 6 (see `CHANGELOG.md` for exact versions). See
 `RESULTS.md` for the full findings and cost data, and `SCALING.md` for the readiness
-assessment, including the finding that review-queue hit rate and finding *shape* (fixable
-bug vs. correct-but-unfixable signal vs. genuine true positive) vary independently by
-corpus genre. Next: Phases 6–7 (`alirezarezvani`, `obra`) per the approved roadmap
+assessment. Next: Phase 7 (`obra/superpowers`, 14 skills, optional/lowest priority) per
+the approved roadmap
 (`~/.claude/plans/home-eonraider-desktop-verified-candida-imperative-thompson.md`).

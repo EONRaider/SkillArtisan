@@ -138,6 +138,21 @@ needed before a "hundreds" run:
    signal vs. genuine true positive) varies by corpus genre independently of hit-rate
    *magnitude*, and a personal/real-world-tooling corpus tends toward true positives on
    checks that fired as false positives on deliberately-crafted teaching content.
+   **Fifth data point, Phase 6 (`alirezarezvani-claude-skills`, 349 skills): 76% hit
+   rate** — in the same band as Phase 5, but this phase's real cost wasn't grading at
+   all. Two discovery-logic bugs had to be found and fixed before a trustworthy audit
+   could even run (see `RESULTS.md`'s Phase 6): `find_skill_dirs` silently followed
+   symlinks (a latent bug in shared code, not new to this phase — this corpus was just
+   the first of six to symlink-mirror its skills into cross-tool directories), and this
+   project's own planning-session skill count for this repo was itself wrong, for an
+   unrelated reason — a GitHub tree-API check that filtered by path suffix rather than
+   git blob mode, so it counted tracked symlinks as if they were real files. **New
+   lesson**: this project's own "verify live before trusting a number" discipline is not
+   automatically satisfied by a GitHub API cross-check — an API-based verification pass
+   is not the same claim as checking against the real, cloned filesystem. Once a repo is
+   actually cloned, re-verify the headline numbers against local reality before trusting
+   the planning-session figures for anything consequential (chunk sizing, cost estimates,
+   README claims).
 4. **Parallel subagent grading, still unused so far.** Both Phase 1/2 (35 skills, full
    reads) and Phase 3 (92 skills, sampled reads) ran entirely inline, no subagents spawned
    — cheaper in practice than expected, so this was never actually needed yet. Stays a
@@ -150,15 +165,18 @@ needed before a "hundreds" run:
 
 ## Recommendation
 
-Mechanically proven across four independently-sourced corpora now (1,055 skills total,
-seven real tool bugs found and fixed — see `RESULTS.md`). Phase 4 validated the chunked/
-resumable execution mode added ahead of it (a real shell timeout hit mid-run, zero results
-lost); Phase 5 validated that a small corpus (111 skills) doesn't need chunking at all,
-and that a personal/real-world-tooling corpus can land at any hit rate with any mix of
-fixable-bug/correct-but-unfixable/genuine-true-positive shapes — don't assume Phase 4's
-"high hit rate mostly means unfixable noise" pattern generalizes; Phase 5's high-ish rate
-(77%) was mostly genuine true positives instead. Phases 6–7 (alirezarezvani, obra) are
-approved and next; budget each one's grading pass expecting a hit rate anywhere from ~10%
-to 100%, with the finding *shape* varying by corpus genre independently of the rate
-itself. Reuse `aggregate_findings.py`'s chunking for any single source past a couple
-hundred skills, not just the largest one.
+Mechanically proven across five independently-sourced corpora now (1,404 skills total,
+nine real bugs found and fixed across the audit tooling and its own shared discovery
+utility — see `RESULTS.md`). Phase 4 validated the chunked/resumable execution mode
+added ahead of it (a real shell timeout hit mid-run, zero results lost); Phase 5 validated
+small corpora don't need chunking; Phase 6 validated something more important than either:
+this pilot's own verification discipline has to extend past "checked live via an API"
+once a repo is actually cloned — re-check headline numbers against the real filesystem,
+because API-based checks can be wrong in ways a local check would catch (git tracks
+symlinks as opaque blobs; a naive filesystem walk follows them). Only Phase 7 (`obra`,
+14 skills, optional/lowest priority) remains on the approved roadmap; given its size and
+already-confirmed-clean structure, it's unlikely to need anything like Phase 6's extra
+diligence, but the standing rule now is: re-verify against the actual clone regardless of
+size, not just for the large or structurally-suspicious sources. Reuse
+`aggregate_findings.py`'s chunking and `dedup_by_content` for any future source past a
+couple hundred skills or with any hint of duplicate/mirrored packaging.

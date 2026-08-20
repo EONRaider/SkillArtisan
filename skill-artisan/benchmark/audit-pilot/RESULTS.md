@@ -516,3 +516,110 @@ resilience issue this time — 111 skills stayed well under the threshold where 
 needed chunking). One real bug found and fixed. Total wall-clock including triage and
 write-up: roughly 30–40 minutes. **1,055 skills now audited across four independently-
 sourced corpora.**
+
+## Phase 6: alirezarezvani/claude-skills (349 skills)
+
+Fifth corpus, and the one that stress-tested this pilot's own verification discipline the
+hardest. Pinned `aa8d7788` (`main` HEAD, 2026-07-17) — see `../vendored/README.md`. The
+plan required one extra step before trusting this corpus's size: a broader sample check of
+the flat-vs-nested duplicate-content pattern the planning session had found (one sample,
+`kubernetes-operator`, confirmed a byte-identical duplicate). Doing that check exhaustively
+instead of on a larger sample — cheap to script, so no reason not to — found the planning
+session's conclusion didn't generalize: only 12 of 125 nested-layer skills are exact
+duplicates; **113 have no flat-layer counterpart at all**, genuinely unique content that
+was invisible to `find_skill_dirs` entirely.
+
+### The real discovery-logic bug this phase found: symlinks
+
+Extending `find_skill_dirs` with a fifth pattern to reach that nested depth
+(`category/plugin/skills/name/SKILL.md`) should have brought total discovery to roughly
+785 (669 flat + 125 nested − duplicates). It didn't — it returned **1,140+**. The cause
+wasn't the new pattern: `alirezarezvani/claude-skills` symlink-mirrors every skill into
+four cross-tool directories (`.codex/`, `.gemini/`, `.hermes/`, `.vibe/`) for compatibility
+with other agent products, and `Path.glob()` follows symlinks for ordinary path
+components — every one of those four mirrors was being independently rediscovered as if
+it were new content. This was always a latent bug in `find_skill_dirs` (used by
+`audit.py bulk` and `dedup_search.py` too, not just this pilot's tooling); this is simply
+the first of six corpora built with a symlink-mirroring convention, so the first time it
+manifested. **Fixed**: skip any match reached through a symlink at any level — the file
+itself or any directory between the search root and it. Regression tests added to a new
+`tests/test_common_find_skill_dirs.py`.
+
+That fix alone dropped the count to 361 — still not matching a clean expectation, which
+led to the second correction below.
+
+### The second correction: the planning-session skill count was itself wrong, for a different reason
+
+Going back to reconcile 361 against the expected ~785 turned up a second, independent
+methodology problem — this time in *my own verification process* from planning, not in
+`find_skill_dirs`. The planning session's "≈669 flat skills, 125 nested" breakdown came
+from GitHub's tree API, filtered by `.path | endswith("SKILL.md")`. That filter doesn't
+distinguish a real file (git blob mode `100644`) from a tracked symlink (mode `120000`) —
+and a meaningful fraction of the paths counted as "flat skills" were themselves symlinks
+into other parts of the same tree, not distinct real files. Recounting directly against
+the actual local checkout, with symlinks properly excluded throughout: **233 real flat
+skills**, not 669. Combined with the 113 genuinely-new nested skills (confirmed
+exhaustively, not by sample) and the small root/two-level counts, and after deduplicating
+12 exact-content pairs (added as a new `dedup_by_content` step in
+`aggregate_findings.py`, since this is a content judgment `find_skill_dirs` deliberately
+doesn't make): **349 real, unique, auditable skills** — close to the repo's own
+self-reported "362," not the "~672" this project's own supposedly-more-rigorous
+cross-check had concluded. The lesson, stated plainly: a git-API-based verification pass
+is not a substitute for checking against the real, cloned filesystem once one exists, and
+"I double-checked this against an API" isn't the same claim as "I double-checked this
+against the actual content." Corrected in `vendored/README.md`, `SCALING.md`, and the
+running skill-count tally everywhere else in this project.
+
+### The audit itself: 349/349, 0 errors, and a rich set of confirmed true positives
+
+- **A genuine YAML syntax error, correctly caught**: `md-slides`' description contains an
+  unescaped `<!-- notes: ... -->` — the bare colon inside an unquoted YAML scalar is
+  invalid syntax (confirmed directly with `yaml.safe_load`: "mapping values are not
+  allowed here"). Not a SkillArtisan defect — the skill's own frontmatter is genuinely
+  broken and would likely fail other YAML consumers too, not just `skills-ref`.
+- **A second and third `[skills-ref] Directory name ... must match skill name ...`
+  instance** (`playwright-pro`'s nested copy lives in a directory literally named `pw`) —
+  the same real packaging-defect class Phase 3 first found in daymade, now corroborated a
+  third time.
+- **A fourteenth reserved-word "claude" instance** (`claude-coach` — fittingly, a skill
+  that teaches users to be better at using Claude specifically). Running total: 14 of 14
+  across five corpora, still zero exceptions.
+- **12 genuinely broken references**, all following the same shape:
+  `../../../../megaprompts/NN-<name>-megaprompt.md`. Confirmed by direct search: no
+  `megaprompts/` directory exists anywhere in the repo. Real, not a `path-references-exist`
+  false-positive mechanism — the fifth phase running that check without finding a new one.
+- **Real interactive scripts** (`executive-mentor`'s `decision_matrix_scorer.py`: genuine
+  `input()` calls building a weighted decision matrix interactively) and **real
+  placeholder secrets in test fixtures** (`skill-tester`'s `test_security_scorer.py`,
+  sequential fake keys like `sk-1234567890abcdef`) — both corroborating already-understood,
+  already-decided-not-to-fix patterns from Phases 4/5, not new findings.
+- **`references-toc-for-long-files`**: 177 FAILs (the highest count of any phase),
+  sampled and confirmed genuine — business/enterprise reference docs in this corpus
+  consistently skip a Contents heading. Bug #4 remains correctly calibrated on a fifth,
+  yet again structurally different corpus.
+- **`frontmatter-valid`**: several distinct unrecognized-field clusters
+  (`author`/`compatible_tools`/`tags`/`version`; `triggers`; `command`;
+  `agents`/`author`/`tags`/`version`) — real, but none as large or uniform as #7's
+  817/817 pattern. Commented on [#5](https://github.com/EONRaider/SkillArtisan/issues/5)
+  rather than opening a new issue: three independent corpora now show "skills carry
+  custom, non-portable metadata beyond the 6 portable fields" as a common pattern, which
+  is worth a general answer rather than one-field-at-a-time allowlisting.
+- **`description-pushy-imperative`**: only 30 of 349 (8.6%) — notably *lower* than every
+  other corpus so far (Phase 3 ~40%, Phase 4 82%, Phase 5 55%). Reported honestly on
+  [#6](https://github.com/EONRaider/SkillArtisan/issues/6) as evidence the gap's
+  *magnitude* is corpus-dependent, not as further escalation — this corpus's authors
+  mostly do use literal "use when" framing.
+
+### Cost — a fifth hit-rate data point, and the most expensive phase to get right
+
+Review-queue hit rate: **266 of 349 (76%)**, in the same band as Phase 5. But the more
+important cost signal this phase is upstream of grading entirely: two real, non-trivial
+discovery-logic bugs had to be found and fixed *before* a trustworthy audit could even
+run, one of which was in shared, previously-shipped code (`_common.find_skill_dirs`), and
+one of which was a correction to this pilot's own earlier verification methodology, not
+to any of SkillArtisan's shipped tooling. Execution: 4 chunks of ~90, ~70–90s each, 0
+errors. Total wall-clock for Phase 6 — including the exhaustive duplicate-content
+re-check, both discovery-logic fixes and their regression tests, the full audit, triage,
+and this write-up — was the longest of any phase so far, roughly 90–120 minutes,
+proportionate to being the structurally messiest corpus encountered. **1,404 skills now
+audited across five independently-sourced corpora.**
