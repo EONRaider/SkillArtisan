@@ -68,31 +68,6 @@ independently-observable authoring decision without being told about it — this
 strongest single piece of evidence from this pilot that the tool's checks track something
 that actually matters to skill quality, not just internal-convention conformance.
 
-## The systematic issue: three checklist items are FAIL on every third-party skill
-
-`evals-present`, `security-scan-marker-current`, and `lifecycle-classified` FAILed on
-**all 35 of 35** skills, with zero exceptions. Each is checking for a SkillArtisan-specific
-artifact (its own `evals/evals.json` schema, its own packaging tamper marker, its own
-lifecycle-classification frontmatter convention) that no skill authored outside
-SkillArtisan's own pipeline will ever have, regardless of how good it actually is. Two
-notes on severity, not identical:
-
-- `security-scan-marker-current` is close to pure noise for a third-party audit — it's a
-  packaging-step artifact, not a property of the skill's actual security (the *next* item,
-  `security-gitleaks-clean`, already independently re-scans and correctly passed all 35).
-- `evals-present` and `lifecycle-classified` gesture at something substantively real (no
-  regression tests exist; has anyone thought about whether this skill ages as models
-  improve) even though the specific artifact they look for is SkillArtisan's own.
-
-**Recommendation**: give `audit.py report`/`bulk` a third-party-source mode (or infer it —
-e.g. no `.claude-plugin/` ownership marker in the tree) that reports these three
-differently: still informative, but not counted as a checklist FAIL against a skill that
-was never meant to go through this pipeline. As shipped today, an outside author reading
-this report would reasonably conclude the tool doesn't understand their skill wasn't
-authored for it — which undercuts trust in the *other*, real findings alongside it. Not
-fixed yet (unlike the two bugs below, this is a design/scope decision, not a one-line
-patch) — flagging for a decision.
-
 ## Bug #1 (fixed): `scripts/security_scan.py`
 
 `wizard`'s `template.sh` FAILed `security-pattern-checks` with a HIGH-severity
@@ -250,7 +225,8 @@ bugs above, this isn't fixed: I don't have confirmation this is an actual Claude
 Code-recognized field (vs. a bespoke convention specific to this skill's own author) that
 would justify allowlisting it, and guessing wrong risks quietly accepting a field Claude
 Code itself doesn't act on either. Flagged for the same kind of decision as the
-third-party-mode gap below, not code-fixed speculatively.
+third-party-mode gap below, not code-fixed speculatively. Tracked:
+[#5](https://github.com/EONRaider/SkillArtisan/issues/5).
 
 ## The systematic issue: three checklist items are FAIL on nearly every third-party skill
 
@@ -274,7 +250,8 @@ differently: still informative, but not counted as a checklist FAIL against a sk
 was never meant to go through this pipeline. As shipped today, an outside author reading
 this report would reasonably conclude the tool doesn't understand their skill wasn't
 authored for it — which undercuts trust in the *other*, real findings alongside it. Not
-fixed yet — a design/scope decision, not a one-line patch.
+fixed yet — a design/scope decision, not a one-line patch. Tracked:
+[#4](https://github.com/EONRaider/SkillArtisan/issues/4).
 
 ## Phase 3 methodology note: sampling, not exhaustive reads
 
@@ -295,7 +272,7 @@ phrasing instead of the literal "use when" it checks for — roughly 16 of 39 su
 have this kind of equivalent-but-differently-phrased trigger language. Judged a real but
 softer case than the four fixed bugs (no evidence either phrasing performs differently in
 actual trigger-accuracy testing, only that they're semantically similar) — documented, not
-code-changed.
+code-changed. Tracked: [#6](https://github.com/EONRaider/SkillArtisan/issues/6).
 
 ## Cost data (127 skills, three phases)
 
