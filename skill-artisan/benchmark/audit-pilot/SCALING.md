@@ -163,20 +163,30 @@ needed before a "hundreds" run:
    followed — a grading agent must read the *source skill* directly, never just re-ask
    `audit.py`'s own reasoning about itself.
 
-## Recommendation
+## Recommendation — roadmap complete
 
-Mechanically proven across five independently-sourced corpora now (1,404 skills total,
-nine real bugs found and fixed across the audit tooling and its own shared discovery
-utility — see `RESULTS.md`). Phase 4 validated the chunked/resumable execution mode
-added ahead of it (a real shell timeout hit mid-run, zero results lost); Phase 5 validated
-small corpora don't need chunking; Phase 6 validated something more important than either:
-this pilot's own verification discipline has to extend past "checked live via an API"
-once a repo is actually cloned — re-check headline numbers against the real filesystem,
-because API-based checks can be wrong in ways a local check would catch (git tracks
-symlinks as opaque blobs; a naive filesystem walk follows them). Only Phase 7 (`obra`,
-14 skills, optional/lowest priority) remains on the approved roadmap; given its size and
-already-confirmed-clean structure, it's unlikely to need anything like Phase 6's extra
-diligence, but the standing rule now is: re-verify against the actual clone regardless of
-size, not just for the large or structurally-suspicious sources. Reuse
-`aggregate_findings.py`'s chunking and `dedup_by_content` for any future source past a
-couple hundred skills or with any hint of duplicate/mirrored packaging.
+The approved Phases 4–7 roadmap is done: six corpora, 1,418 skills, nine real bugs found
+and fixed across the audit checklist itself *and* its shared discovery utility (see
+`RESULTS.md`'s closing tally). Phase 7 (`obra`, 14 skills) closed it out cleanly — applying
+the Phase 6 standing rule (re-verify against the real clone, not just an API check) found
+nothing to correct this time, which is itself useful confirmation the rule isn't
+overkill: it costs almost nothing to apply even when there's nothing wrong, and the one
+time it mattered (Phase 6) it caught two real problems before they could silently corrupt
+a much larger audit.
+
+**What would carry forward to a seventh source, if one is ever added**:
+1. Re-verify every headline number (license, pin, skill count, structure) against the
+   *actual local clone* after cloning, not just an API-based check — do this every time,
+   regardless of source size or how clean it looks on paper.
+2. Reuse `aggregate_findings.py`'s chunking (past ~200 skills) and `dedup_by_content`
+   (any hint of duplicate/mirrored packaging) as-is.
+3. Budget grading assuming hit rate could land anywhere from ~9% to 100%, and that the
+   *shape* of what's found (fixable bug / correct-but-unfixable signal / genuine true
+   positive / nothing new at all) varies by corpus genre independently of the rate.
+4. Track every new deferred gap as its own `audit-gap`-labeled GitHub issue immediately,
+   cross-linked from `RESULTS.md`/`CHANGELOG.md` in both directions — this worked well
+   across Phases 4–7 and kept the four open items (`#4`, `#5`, `#6`, `#7`) visibly
+   corroborated or tempered by real data from each new corpus, rather than going stale.
+5. Don't expect every phase to find a new bug. Two of six phases (4 and 7) found zero
+   new code defects and that was the correct, honestly-reported outcome both times —
+   evidence the known classes are well-covered, not a failed search.

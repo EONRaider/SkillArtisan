@@ -84,6 +84,17 @@ made on real data, not a guess — see `RESULTS.md`'s cost-data sections.
   candidates — the corpus that most stress-tested this pilot's own verification
   discipline, not just the audit tool.
 
+**Phase 7 — `obra-superpowers`** (final phase, roadmap complete):
+- **Repo**: `https://github.com/obra/superpowers`
+- **Actually audited from**: `benchmark/vendored/obra-superpowers/`, cloned specifically
+  for this phase. See `../vendored/README.md` for the pin record.
+- **Pinned tag**: `v6.3.0` (`b36e0829c6d0140e93cfef2ca599b1b07d4a7797`).
+- **Coverage**: 14 skills — the smallest, cleanest, and lowest-priority of the four
+  Phases 4–7 candidates by design. Applying Phase 6's re-verify-against-the-clone rule
+  found nothing to correct here, the one source in the whole roadmap that needed no
+  correction. Zero new bugs, zero new gaps — the exact outcome the approved plan itself
+  called a legitimate result, not a failed search.
+
 ## Coverage
 
 Phase 1 (8 skills, deliberately spread across maturity tiers) ran first as a pilot; see
@@ -142,22 +153,27 @@ a skill lives in, and whether it's wired into `plugin.json`'s shipped `skills` l
    traded some rigor for scale, and what stayed exhaustive (every low-volume/high-stakes
    finding) versus what was sampled (high-volume WARN categories).
 
-## Status
+## Status — roadmap complete
 
-Full coverage across five independently-sourced corpora: 35/35 `mattpocock-skills` +
+Full coverage across **six** independently-sourced corpora: 35/35 `mattpocock-skills` +
 92/92 `daymade-claude-code-skills` + 817/817 `mukul975-anthropic-cybersecurity-skills` +
-111/111 `glebis-claude-skills` + 349/349 `alirezarezvani-claude-skills` = **1,404
-real-world skills audited**. Nine confirmed bugs found and fixed with regression tests —
-seven in the audit checks themselves, two in `_common.find_skill_dirs`, the shared
-discovery utility `audit.py bulk` and `dedup_search.py` also depend on (a real,
-previously-latent symlink-following bug Phase 6 was the first corpus to expose); deferred
-gaps tracked as GitHub issues (`gh issue list --label audit-gap`), not just CHANGELOG
-prose. Phase 6 also corrected this project's own planning-session skill-count estimate
-for that repo (a GitHub tree-API check had counted tracked symlinks as if they were real
-files) — a reminder that this pilot's own "verify live" discipline has to extend to the
-real cloned filesystem, not stop at an API cross-check. Shipped as `v2.4.6` (Phase 1/2)
-and follow-up releases for Phases 3 through 6 (see `CHANGELOG.md` for exact versions). See
-`RESULTS.md` for the full findings and cost data, and `SCALING.md` for the readiness
-assessment. Next: Phase 7 (`obra/superpowers`, 14 skills, optional/lowest priority) per
-the approved roadmap
-(`~/.claude/plans/home-eonraider-desktop-verified-candida-imperative-thompson.md`).
+111/111 `glebis-claude-skills` + 349/349 `alirezarezvani-claude-skills` + 14/14
+`obra-superpowers` = **1,418 real-world skills audited**. Nine confirmed bugs found and
+fixed with regression tests — seven in the audit checks themselves, two in
+`_common.find_skill_dirs`, the shared discovery utility `audit.py bulk` and
+`dedup_search.py` also depend on (a real, previously-latent symlink-following bug Phase 6
+was the first corpus to expose); four deferred gaps tracked as GitHub issues
+(`gh issue list --label audit-gap`: `#4`, `#5`, `#6`, `#7`), each corroborated or tempered
+by real data from multiple corpora rather than sitting as a single unconfirmed claim.
+Phase 6 also corrected this project's own planning-session skill-count estimate for that
+repo (a GitHub tree-API check had counted tracked symlinks as if they were real files) —
+a reminder that this pilot's own "verify live" discipline has to extend to the real
+cloned filesystem, not stop at an API cross-check; Phase 7 then confirmed that rule holds
+up even when there's nothing to find (zero corrections needed). Shipped as `v2.4.6`
+(Phase 1/2) through `v2.4.10` (Phase 6), with Phase 7 as the closing release (see
+`CHANGELOG.md` for exact versions). See `RESULTS.md`'s closing tally for the full
+findings and cost data across all six phases, and `SCALING.md` for the complete
+readiness-assessment history and what would carry forward to a seventh source, if one is
+ever added — the approved roadmap
+(`~/.claude/plans/home-eonraider-desktop-verified-candida-imperative-thompson.md`) is
+otherwise complete.

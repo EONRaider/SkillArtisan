@@ -6,6 +6,13 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.4.11] - 2026-08-20
+
+### Added
+- **Sixth and final real-world audit corpus: all 14 skills in `obra/superpowers`** (Phase 7, closing the approved Phases 4-7 roadmap). **1,418 real-world skills now audited across six independently-sourced corpora, with the roadmap complete.** Applied Phase 6's re-verify-against-the-real-clone rule even though nothing suspicious was expected — found nothing to correct, the one source in the whole roadmap that needed no correction, which is itself a useful confirmation that the rule costs little to apply even when everything is already right.
+- **Zero new bugs, zero new gaps** — every flagged item in this corpus was either an already-tracked pattern (issue #6's phrasing gap) or a correctly-calibrated low-severity WARN. Reported as the legitimate, expected outcome the approved plan's own cost-expectations section anticipated ("don't expect a new bug every phase... evidence the known classes are now well-covered"), not a failed search.
+- **Closing tally for the whole real-world audit pilot** (Phases 1-7): 1,418 skills audited across six corpora, nine confirmed bugs found and fixed with regression tests (91 tests passing), a reserved-name true positive corroborated 14 times with zero exceptions, and four deferred gaps tracked as GitHub issues with cross-phase corroboration. Full breakdown: `benchmark/audit-pilot/RESULTS.md`'s closing section; forward-looking guidance for any future seventh source: `benchmark/audit-pilot/SCALING.md`'s "Recommendation — roadmap complete".
+
 ## [2.4.10] - 2026-08-20
 
 ### Added

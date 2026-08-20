@@ -1,0 +1,2244 @@
+{
+  "reports": [
+    {
+      "skill_name": "brainstorming",
+      "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/vendored/obra-superpowers/skills/brainstorming",
+      "items": [
+        {
+          "id": "frontmatter-valid",
+          "status": "PASS",
+          "detail": "skills-ref + Claude-specific checks pass"
+        },
+        {
+          "id": "path-references-exist",
+          "status": "PASS",
+          "detail": "every relative link resolves"
+        },
+        {
+          "id": "gerund-naming",
+          "status": "PASS",
+          "detail": "name is gerund-form"
+        },
+        {
+          "id": "description-pushy-imperative",
+          "status": "WARN",
+          "detail": "missing 'Use when...' framing or short \u2014 read against references/frontmatter-spec.md's worked example"
+        },
+        {
+          "id": "body-size-limits",
+          "status": "PASS",
+          "detail": "247 lines, ~2980 tokens (approx \u2014 word count x1.3, not a real tokenizer)"
+        },
+        {
+          "id": "references-one-level-deep",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "references-toc-for-long-files",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "no-human-docs-in-skill-dir",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "evals-present",
+          "status": "FAIL",
+          "detail": "no evals/evals.json"
+        },
+        {
+          "id": "security-scan-marker-current",
+          "status": "FAIL",
+          "detail": "No .security-scan-passed found \u2014 run a clean security scan before packaging"
+        },
+        {
+          "id": "security-gitleaks-clean",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "security-pattern-checks",
+          "status": "WARN",
+          "detail": "3 MEDIUM (informational) finding(s)"
+        },
+        {
+          "id": "no-time-sensitive-info",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "forward-slash-paths-only",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "lifecycle-classified",
+          "status": "FAIL",
+          "detail": "no lifecycle classification found \u2014 add one per references/lifecycle.md"
+        },
+        {
+          "id": "degrees-of-freedom-writing-style",
+          "status": "PASS",
+          "detail": "2 bare MUST/ALWAYS/NEVER \u2014 low, likely explained elsewhere"
+        },
+        {
+          "id": "architecture-declared",
+          "status": "PASS",
+          "detail": "context: inline (default)"
+        },
+        {
+          "id": "coherent-unit-scoping",
+          "status": "MANUAL",
+          "detail": "read the skill's one-sentence job description \u2014 does it need 'and' to join two unrelated verbs? (references/writing-philosophy.md)"
+        },
+        {
+          "id": "multi-model-tested",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm a smoke-preset pass exists for Haiku, Sonnet, and Opus"
+        },
+        {
+          "id": "description-optimizer-run",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm the 20-query/60-40-split optimizer was run, not just a hand-written description"
+        },
+        {
+          "id": "inline-vs-fork-decision-correct",
+          "status": "MANUAL",
+          "detail": "presence of `context: fork` is checkable, but whether it's the *right* call needs the worked examples in SKILL.md's Decision Gate section"
+        }
+      ],
+      "summary": {
+        "passed": 12,
+        "failed": 3,
+        "warned": 2,
+        "manual": 4,
+        "total_scored": 15,
+        "pass_rate": 0.8
+      },
+      "decision": {
+        "decision": "upgrade-in-place",
+        "reasons": [
+          "failures found are structural (naming, frontmatter details, missing security/evals) \u2014 additive fixes, not a rewrite"
+        ]
+      },
+      "institutional_knowledge_candidates": [
+        "Three Paths",
+        "Anti-Pattern: \"Too Simple To Need Approval\"",
+        "Red Flags",
+        "Checklist",
+        "Process Flow",
+        "The Process",
+        "After the Design (architectural path)",
+        "Visual Companion"
+      ],
+      "source_label": "obra-superpowers"
+    },
+    {
+      "skill_name": "dispatching-parallel-agents",
+      "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/vendored/obra-superpowers/skills/dispatching-parallel-agents",
+      "items": [
+        {
+          "id": "frontmatter-valid",
+          "status": "PASS",
+          "detail": "skills-ref + Claude-specific checks pass"
+        },
+        {
+          "id": "path-references-exist",
+          "status": "PASS",
+          "detail": "every relative link resolves"
+        },
+        {
+          "id": "gerund-naming",
+          "status": "PASS",
+          "detail": "name is gerund-form"
+        },
+        {
+          "id": "description-pushy-imperative",
+          "status": "PASS",
+          "detail": "has 'Use when...' framing and real length"
+        },
+        {
+          "id": "body-size-limits",
+          "status": "PASS",
+          "detail": "164 lines, ~1095 tokens (approx \u2014 word count x1.3, not a real tokenizer)"
+        },
+        {
+          "id": "references-one-level-deep",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "references-toc-for-long-files",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "no-human-docs-in-skill-dir",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "evals-present",
+          "status": "FAIL",
+          "detail": "no evals/evals.json"
+        },
+        {
+          "id": "security-scan-marker-current",
+          "status": "FAIL",
+          "detail": "No .security-scan-passed found \u2014 run a clean security scan before packaging"
+        },
+        {
+          "id": "security-gitleaks-clean",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "security-pattern-checks",
+          "status": "PASS",
+          "detail": "no pattern findings"
+        },
+        {
+          "id": "no-time-sensitive-info",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "forward-slash-paths-only",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "lifecycle-classified",
+          "status": "FAIL",
+          "detail": "no lifecycle classification found \u2014 add one per references/lifecycle.md"
+        },
+        {
+          "id": "degrees-of-freedom-writing-style",
+          "status": "PASS",
+          "detail": "0 bare MUST/ALWAYS/NEVER \u2014 low, likely explained elsewhere"
+        },
+        {
+          "id": "architecture-declared",
+          "status": "PASS",
+          "detail": "context: inline (default)"
+        },
+        {
+          "id": "coherent-unit-scoping",
+          "status": "MANUAL",
+          "detail": "read the skill's one-sentence job description \u2014 does it need 'and' to join two unrelated verbs? (references/writing-philosophy.md)"
+        },
+        {
+          "id": "multi-model-tested",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm a smoke-preset pass exists for Haiku, Sonnet, and Opus"
+        },
+        {
+          "id": "description-optimizer-run",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm the 20-query/60-40-split optimizer was run, not just a hand-written description"
+        },
+        {
+          "id": "inline-vs-fork-decision-correct",
+          "status": "MANUAL",
+          "detail": "presence of `context: fork` is checkable, but whether it's the *right* call needs the worked examples in SKILL.md's Decision Gate section"
+        }
+      ],
+      "summary": {
+        "passed": 14,
+        "failed": 3,
+        "warned": 0,
+        "manual": 4,
+        "total_scored": 17,
+        "pass_rate": 0.824
+      },
+      "decision": {
+        "decision": "upgrade-in-place",
+        "reasons": [
+          "failures found are structural (naming, frontmatter details, missing security/evals) \u2014 additive fixes, not a rewrite"
+        ]
+      },
+      "institutional_knowledge_candidates": [
+        "Overview",
+        "When to Use",
+        "The Pattern",
+        "Agent Prompt Structure",
+        "Common Mistakes",
+        "When NOT to Use",
+        "Real Example from Session",
+        "Verification"
+      ],
+      "source_label": "obra-superpowers"
+    },
+    {
+      "skill_name": "executing-plans",
+      "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/vendored/obra-superpowers/skills/executing-plans",
+      "items": [
+        {
+          "id": "frontmatter-valid",
+          "status": "PASS",
+          "detail": "skills-ref + Claude-specific checks pass"
+        },
+        {
+          "id": "path-references-exist",
+          "status": "PASS",
+          "detail": "every relative link resolves"
+        },
+        {
+          "id": "gerund-naming",
+          "status": "PASS",
+          "detail": "name is gerund-form"
+        },
+        {
+          "id": "description-pushy-imperative",
+          "status": "PASS",
+          "detail": "has 'Use when...' framing and real length"
+        },
+        {
+          "id": "body-size-limits",
+          "status": "PASS",
+          "detail": "61 lines, ~418 tokens (approx \u2014 word count x1.3, not a real tokenizer)"
+        },
+        {
+          "id": "references-one-level-deep",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "references-toc-for-long-files",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "no-human-docs-in-skill-dir",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "evals-present",
+          "status": "FAIL",
+          "detail": "no evals/evals.json"
+        },
+        {
+          "id": "security-scan-marker-current",
+          "status": "FAIL",
+          "detail": "No .security-scan-passed found \u2014 run a clean security scan before packaging"
+        },
+        {
+          "id": "security-gitleaks-clean",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "security-pattern-checks",
+          "status": "PASS",
+          "detail": "no pattern findings"
+        },
+        {
+          "id": "no-time-sensitive-info",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "forward-slash-paths-only",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "lifecycle-classified",
+          "status": "FAIL",
+          "detail": "no lifecycle classification found \u2014 add one per references/lifecycle.md"
+        },
+        {
+          "id": "degrees-of-freedom-writing-style",
+          "status": "PASS",
+          "detail": "0 bare MUST/ALWAYS/NEVER \u2014 low, likely explained elsewhere"
+        },
+        {
+          "id": "architecture-declared",
+          "status": "PASS",
+          "detail": "context: inline (default)"
+        },
+        {
+          "id": "coherent-unit-scoping",
+          "status": "MANUAL",
+          "detail": "read the skill's one-sentence job description \u2014 does it need 'and' to join two unrelated verbs? (references/writing-philosophy.md)"
+        },
+        {
+          "id": "multi-model-tested",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm a smoke-preset pass exists for Haiku, Sonnet, and Opus"
+        },
+        {
+          "id": "description-optimizer-run",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm the 20-query/60-40-split optimizer was run, not just a hand-written description"
+        },
+        {
+          "id": "inline-vs-fork-decision-correct",
+          "status": "MANUAL",
+          "detail": "presence of `context: fork` is checkable, but whether it's the *right* call needs the worked examples in SKILL.md's Decision Gate section"
+        }
+      ],
+      "summary": {
+        "passed": 14,
+        "failed": 3,
+        "warned": 0,
+        "manual": 4,
+        "total_scored": 17,
+        "pass_rate": 0.824
+      },
+      "decision": {
+        "decision": "upgrade-in-place",
+        "reasons": [
+          "failures found are structural (naming, frontmatter details, missing security/evals) \u2014 additive fixes, not a rewrite"
+        ]
+      },
+      "institutional_knowledge_candidates": [
+        "Overview",
+        "The Process",
+        "When to Stop and Ask for Help",
+        "When to Revisit Earlier Steps",
+        "Remember"
+      ],
+      "source_label": "obra-superpowers"
+    },
+    {
+      "skill_name": "finishing-a-development-branch",
+      "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/vendored/obra-superpowers/skills/finishing-a-development-branch",
+      "items": [
+        {
+          "id": "frontmatter-valid",
+          "status": "PASS",
+          "detail": "skills-ref + Claude-specific checks pass"
+        },
+        {
+          "id": "path-references-exist",
+          "status": "PASS",
+          "detail": "every relative link resolves"
+        },
+        {
+          "id": "gerund-naming",
+          "status": "PASS",
+          "detail": "name is gerund-form"
+        },
+        {
+          "id": "description-pushy-imperative",
+          "status": "PASS",
+          "detail": "has 'Use when...' framing and real length"
+        },
+        {
+          "id": "body-size-limits",
+          "status": "PASS",
+          "detail": "222 lines, ~1619 tokens (approx \u2014 word count x1.3, not a real tokenizer)"
+        },
+        {
+          "id": "references-one-level-deep",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "references-toc-for-long-files",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "no-human-docs-in-skill-dir",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "evals-present",
+          "status": "FAIL",
+          "detail": "no evals/evals.json"
+        },
+        {
+          "id": "security-scan-marker-current",
+          "status": "FAIL",
+          "detail": "No .security-scan-passed found \u2014 run a clean security scan before packaging"
+        },
+        {
+          "id": "security-gitleaks-clean",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "security-pattern-checks",
+          "status": "PASS",
+          "detail": "no pattern findings"
+        },
+        {
+          "id": "no-time-sensitive-info",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "forward-slash-paths-only",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "lifecycle-classified",
+          "status": "FAIL",
+          "detail": "no lifecycle classification found \u2014 add one per references/lifecycle.md"
+        },
+        {
+          "id": "degrees-of-freedom-writing-style",
+          "status": "PASS",
+          "detail": "0 bare MUST/ALWAYS/NEVER \u2014 low, likely explained elsewhere"
+        },
+        {
+          "id": "architecture-declared",
+          "status": "PASS",
+          "detail": "context: inline (default)"
+        },
+        {
+          "id": "coherent-unit-scoping",
+          "status": "MANUAL",
+          "detail": "read the skill's one-sentence job description \u2014 does it need 'and' to join two unrelated verbs? (references/writing-philosophy.md)"
+        },
+        {
+          "id": "multi-model-tested",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm a smoke-preset pass exists for Haiku, Sonnet, and Opus"
+        },
+        {
+          "id": "description-optimizer-run",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm the 20-query/60-40-split optimizer was run, not just a hand-written description"
+        },
+        {
+          "id": "inline-vs-fork-decision-correct",
+          "status": "MANUAL",
+          "detail": "presence of `context: fork` is checkable, but whether it's the *right* call needs the worked examples in SKILL.md's Decision Gate section"
+        }
+      ],
+      "summary": {
+        "passed": 14,
+        "failed": 3,
+        "warned": 0,
+        "manual": 4,
+        "total_scored": 17,
+        "pass_rate": 0.824
+      },
+      "decision": {
+        "decision": "upgrade-in-place",
+        "reasons": [
+          "failures found are structural (naming, frontmatter details, missing security/evals) \u2014 additive fixes, not a rewrite"
+        ]
+      },
+      "institutional_knowledge_candidates": [
+        "Overview",
+        "Step 1: Verify Tests",
+        "Step 2: Detect Environment",
+        "Step 3: Determine Base Branch",
+        "Step 4: Present Options",
+        "Step 5: Execute Choice",
+        "Step 6: Cleanup Workspace",
+        "Common Rationalizations"
+      ],
+      "source_label": "obra-superpowers"
+    },
+    {
+      "skill_name": "receiving-code-review",
+      "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/vendored/obra-superpowers/skills/receiving-code-review",
+      "items": [
+        {
+          "id": "frontmatter-valid",
+          "status": "PASS",
+          "detail": "skills-ref + Claude-specific checks pass"
+        },
+        {
+          "id": "path-references-exist",
+          "status": "PASS",
+          "detail": "every relative link resolves"
+        },
+        {
+          "id": "gerund-naming",
+          "status": "PASS",
+          "detail": "name is gerund-form"
+        },
+        {
+          "id": "description-pushy-imperative",
+          "status": "PASS",
+          "detail": "has 'Use when...' framing and real length"
+        },
+        {
+          "id": "body-size-limits",
+          "status": "PASS",
+          "detail": "202 lines, ~1142 tokens (approx \u2014 word count x1.3, not a real tokenizer)"
+        },
+        {
+          "id": "references-one-level-deep",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "references-toc-for-long-files",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "no-human-docs-in-skill-dir",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "evals-present",
+          "status": "FAIL",
+          "detail": "no evals/evals.json"
+        },
+        {
+          "id": "security-scan-marker-current",
+          "status": "FAIL",
+          "detail": "No .security-scan-passed found \u2014 run a clean security scan before packaging"
+        },
+        {
+          "id": "security-gitleaks-clean",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "security-pattern-checks",
+          "status": "PASS",
+          "detail": "no pattern findings"
+        },
+        {
+          "id": "no-time-sensitive-info",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "forward-slash-paths-only",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "lifecycle-classified",
+          "status": "FAIL",
+          "detail": "no lifecycle classification found \u2014 add one per references/lifecycle.md"
+        },
+        {
+          "id": "degrees-of-freedom-writing-style",
+          "status": "PASS",
+          "detail": "1 bare MUST/ALWAYS/NEVER \u2014 low, likely explained elsewhere"
+        },
+        {
+          "id": "architecture-declared",
+          "status": "PASS",
+          "detail": "context: inline (default)"
+        },
+        {
+          "id": "coherent-unit-scoping",
+          "status": "MANUAL",
+          "detail": "read the skill's one-sentence job description \u2014 does it need 'and' to join two unrelated verbs? (references/writing-philosophy.md)"
+        },
+        {
+          "id": "multi-model-tested",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm a smoke-preset pass exists for Haiku, Sonnet, and Opus"
+        },
+        {
+          "id": "description-optimizer-run",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm the 20-query/60-40-split optimizer was run, not just a hand-written description"
+        },
+        {
+          "id": "inline-vs-fork-decision-correct",
+          "status": "MANUAL",
+          "detail": "presence of `context: fork` is checkable, but whether it's the *right* call needs the worked examples in SKILL.md's Decision Gate section"
+        }
+      ],
+      "summary": {
+        "passed": 14,
+        "failed": 3,
+        "warned": 0,
+        "manual": 4,
+        "total_scored": 17,
+        "pass_rate": 0.824
+      },
+      "decision": {
+        "decision": "upgrade-in-place",
+        "reasons": [
+          "failures found are structural (naming, frontmatter details, missing security/evals) \u2014 additive fixes, not a rewrite"
+        ]
+      },
+      "institutional_knowledge_candidates": [
+        "Overview",
+        "The Response Pattern",
+        "Forbidden Responses",
+        "Handling Unclear Feedback",
+        "Source-Specific Handling",
+        "YAGNI Check for \"Professional\" Features",
+        "Implementation Order",
+        "When To Push Back",
+        "Acknowledging Correct Feedback",
+        "Gracefully Correcting Your Pushback",
+        "Common Mistakes",
+        "Real Examples",
+        "GitHub Thread Replies"
+      ],
+      "source_label": "obra-superpowers"
+    },
+    {
+      "skill_name": "requesting-code-review",
+      "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/vendored/obra-superpowers/skills/requesting-code-review",
+      "items": [
+        {
+          "id": "frontmatter-valid",
+          "status": "PASS",
+          "detail": "skills-ref + Claude-specific checks pass"
+        },
+        {
+          "id": "path-references-exist",
+          "status": "PASS",
+          "detail": "every relative link resolves"
+        },
+        {
+          "id": "gerund-naming",
+          "status": "PASS",
+          "detail": "name is gerund-form"
+        },
+        {
+          "id": "description-pushy-imperative",
+          "status": "PASS",
+          "detail": "has 'Use when...' framing and real length"
+        },
+        {
+          "id": "body-size-limits",
+          "status": "PASS",
+          "detail": "92 lines, ~521 tokens (approx \u2014 word count x1.3, not a real tokenizer)"
+        },
+        {
+          "id": "references-one-level-deep",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "references-toc-for-long-files",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "no-human-docs-in-skill-dir",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "evals-present",
+          "status": "FAIL",
+          "detail": "no evals/evals.json"
+        },
+        {
+          "id": "security-scan-marker-current",
+          "status": "FAIL",
+          "detail": "No .security-scan-passed found \u2014 run a clean security scan before packaging"
+        },
+        {
+          "id": "security-gitleaks-clean",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "security-pattern-checks",
+          "status": "PASS",
+          "detail": "no pattern findings"
+        },
+        {
+          "id": "no-time-sensitive-info",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "forward-slash-paths-only",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "lifecycle-classified",
+          "status": "FAIL",
+          "detail": "no lifecycle classification found \u2014 add one per references/lifecycle.md"
+        },
+        {
+          "id": "degrees-of-freedom-writing-style",
+          "status": "PASS",
+          "detail": "0 bare MUST/ALWAYS/NEVER \u2014 low, likely explained elsewhere"
+        },
+        {
+          "id": "architecture-declared",
+          "status": "PASS",
+          "detail": "context: inline (default)"
+        },
+        {
+          "id": "coherent-unit-scoping",
+          "status": "MANUAL",
+          "detail": "read the skill's one-sentence job description \u2014 does it need 'and' to join two unrelated verbs? (references/writing-philosophy.md)"
+        },
+        {
+          "id": "multi-model-tested",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm a smoke-preset pass exists for Haiku, Sonnet, and Opus"
+        },
+        {
+          "id": "description-optimizer-run",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm the 20-query/60-40-split optimizer was run, not just a hand-written description"
+        },
+        {
+          "id": "inline-vs-fork-decision-correct",
+          "status": "MANUAL",
+          "detail": "presence of `context: fork` is checkable, but whether it's the *right* call needs the worked examples in SKILL.md's Decision Gate section"
+        }
+      ],
+      "summary": {
+        "passed": 14,
+        "failed": 3,
+        "warned": 0,
+        "manual": 4,
+        "total_scored": 17,
+        "pass_rate": 0.824
+      },
+      "decision": {
+        "decision": "upgrade-in-place",
+        "reasons": [
+          "failures found are structural (naming, frontmatter details, missing security/evals) \u2014 additive fixes, not a rewrite"
+        ]
+      },
+      "institutional_knowledge_candidates": [
+        "When to Request Review",
+        "How to Request",
+        "Example",
+        "Common Rationalizations",
+        "Red Flags"
+      ],
+      "source_label": "obra-superpowers"
+    },
+    {
+      "skill_name": "subagent-driven-development",
+      "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/vendored/obra-superpowers/skills/subagent-driven-development",
+      "items": [
+        {
+          "id": "frontmatter-valid",
+          "status": "PASS",
+          "detail": "skills-ref + Claude-specific checks pass"
+        },
+        {
+          "id": "path-references-exist",
+          "status": "PASS",
+          "detail": "every relative link resolves"
+        },
+        {
+          "id": "gerund-naming",
+          "status": "WARN",
+          "detail": "name 'subagent-driven-development' isn't in gerund form (verb+-ing). Official recommendation, not a hard requirement \u2014 consider a form like 'subagenting-...' if there's a natural verb for what this skill does."
+        },
+        {
+          "id": "description-pushy-imperative",
+          "status": "WARN",
+          "detail": "missing 'Use when...' framing or short \u2014 read against references/frontmatter-spec.md's worked example"
+        },
+        {
+          "id": "body-size-limits",
+          "status": "WARN",
+          "detail": "565 lines, ~6247 tokens (approx \u2014 word count x1.3, not a real tokenizer)"
+        },
+        {
+          "id": "references-one-level-deep",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "references-toc-for-long-files",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "no-human-docs-in-skill-dir",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "evals-present",
+          "status": "FAIL",
+          "detail": "no evals/evals.json"
+        },
+        {
+          "id": "security-scan-marker-current",
+          "status": "FAIL",
+          "detail": "No .security-scan-passed found \u2014 run a clean security scan before packaging"
+        },
+        {
+          "id": "security-gitleaks-clean",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "security-pattern-checks",
+          "status": "PASS",
+          "detail": "no pattern findings"
+        },
+        {
+          "id": "no-time-sensitive-info",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "forward-slash-paths-only",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "lifecycle-classified",
+          "status": "FAIL",
+          "detail": "no lifecycle classification found \u2014 add one per references/lifecycle.md"
+        },
+        {
+          "id": "degrees-of-freedom-writing-style",
+          "status": "PASS",
+          "detail": "0 bare MUST/ALWAYS/NEVER \u2014 low, likely explained elsewhere"
+        },
+        {
+          "id": "architecture-declared",
+          "status": "PASS",
+          "detail": "context: inline (default)"
+        },
+        {
+          "id": "coherent-unit-scoping",
+          "status": "MANUAL",
+          "detail": "read the skill's one-sentence job description \u2014 does it need 'and' to join two unrelated verbs? (references/writing-philosophy.md)"
+        },
+        {
+          "id": "multi-model-tested",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm a smoke-preset pass exists for Haiku, Sonnet, and Opus"
+        },
+        {
+          "id": "description-optimizer-run",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm the 20-query/60-40-split optimizer was run, not just a hand-written description"
+        },
+        {
+          "id": "inline-vs-fork-decision-correct",
+          "status": "MANUAL",
+          "detail": "presence of `context: fork` is checkable, but whether it's the *right* call needs the worked examples in SKILL.md's Decision Gate section"
+        }
+      ],
+      "summary": {
+        "passed": 11,
+        "failed": 3,
+        "warned": 3,
+        "manual": 4,
+        "total_scored": 14,
+        "pass_rate": 0.786
+      },
+      "decision": {
+        "decision": "upgrade-in-place",
+        "reasons": [
+          "failures found are structural (naming, frontmatter details, missing security/evals) \u2014 additive fixes, not a rewrite"
+        ]
+      },
+      "institutional_knowledge_candidates": [
+        "When to Use",
+        "The Process",
+        "Setup",
+        "Model Selection",
+        "The Task Loop",
+        "Final Review",
+        "Finish",
+        "Common Rationalizations",
+        "Example Workflow"
+      ],
+      "source_label": "obra-superpowers"
+    },
+    {
+      "skill_name": "systematic-debugging",
+      "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/vendored/obra-superpowers/skills/systematic-debugging",
+      "items": [
+        {
+          "id": "frontmatter-valid",
+          "status": "PASS",
+          "detail": "skills-ref + Claude-specific checks pass"
+        },
+        {
+          "id": "path-references-exist",
+          "status": "PASS",
+          "detail": "every relative link resolves"
+        },
+        {
+          "id": "gerund-naming",
+          "status": "WARN",
+          "detail": "name 'systematic-debugging' isn't in gerund form (verb+-ing). Official recommendation, not a hard requirement \u2014 consider a form like 'systematicing-...' if there's a natural verb for what this skill does."
+        },
+        {
+          "id": "description-pushy-imperative",
+          "status": "WARN",
+          "detail": "missing 'Use when...' framing or short \u2014 read against references/frontmatter-spec.md's worked example"
+        },
+        {
+          "id": "body-size-limits",
+          "status": "PASS",
+          "detail": "280 lines, ~1848 tokens (approx \u2014 word count x1.3, not a real tokenizer)"
+        },
+        {
+          "id": "references-one-level-deep",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "references-toc-for-long-files",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "no-human-docs-in-skill-dir",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "evals-present",
+          "status": "FAIL",
+          "detail": "no evals/evals.json"
+        },
+        {
+          "id": "security-scan-marker-current",
+          "status": "FAIL",
+          "detail": "No .security-scan-passed found \u2014 run a clean security scan before packaging"
+        },
+        {
+          "id": "security-gitleaks-clean",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "security-pattern-checks",
+          "status": "PASS",
+          "detail": "no pattern findings"
+        },
+        {
+          "id": "no-time-sensitive-info",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "forward-slash-paths-only",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "lifecycle-classified",
+          "status": "FAIL",
+          "detail": "no lifecycle classification found \u2014 add one per references/lifecycle.md"
+        },
+        {
+          "id": "degrees-of-freedom-writing-style",
+          "status": "WARN",
+          "detail": "3 bare MUST/ALWAYS/NEVER directives \u2014 heuristic only, read each for an explained why (references/writing-philosophy.md)"
+        },
+        {
+          "id": "architecture-declared",
+          "status": "PASS",
+          "detail": "context: inline (default)"
+        },
+        {
+          "id": "coherent-unit-scoping",
+          "status": "MANUAL",
+          "detail": "read the skill's one-sentence job description \u2014 does it need 'and' to join two unrelated verbs? (references/writing-philosophy.md)"
+        },
+        {
+          "id": "multi-model-tested",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm a smoke-preset pass exists for Haiku, Sonnet, and Opus"
+        },
+        {
+          "id": "description-optimizer-run",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm the 20-query/60-40-split optimizer was run, not just a hand-written description"
+        },
+        {
+          "id": "inline-vs-fork-decision-correct",
+          "status": "MANUAL",
+          "detail": "presence of `context: fork` is checkable, but whether it's the *right* call needs the worked examples in SKILL.md's Decision Gate section"
+        }
+      ],
+      "summary": {
+        "passed": 11,
+        "failed": 3,
+        "warned": 3,
+        "manual": 4,
+        "total_scored": 14,
+        "pass_rate": 0.786
+      },
+      "decision": {
+        "decision": "upgrade-in-place",
+        "reasons": [
+          "failures found are structural (naming, frontmatter details, missing security/evals) \u2014 additive fixes, not a rewrite"
+        ]
+      },
+      "institutional_knowledge_candidates": [
+        "Overview",
+        "The Iron Law",
+        "When to Use",
+        "The Four Phases",
+        "Red Flags - STOP and Follow Process",
+        "your human partner's Signals You're Doing It Wrong",
+        "Common Rationalizations",
+        "When Process Reveals \"No Root Cause\"",
+        "Supporting Techniques"
+      ],
+      "source_label": "obra-superpowers"
+    },
+    {
+      "skill_name": "test-driven-development",
+      "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/vendored/obra-superpowers/skills/test-driven-development",
+      "items": [
+        {
+          "id": "frontmatter-valid",
+          "status": "PASS",
+          "detail": "skills-ref + Claude-specific checks pass"
+        },
+        {
+          "id": "path-references-exist",
+          "status": "PASS",
+          "detail": "every relative link resolves"
+        },
+        {
+          "id": "gerund-naming",
+          "status": "WARN",
+          "detail": "name 'test-driven-development' isn't in gerund form (verb+-ing). Official recommendation, not a hard requirement \u2014 consider a form like 'testing-...' if there's a natural verb for what this skill does."
+        },
+        {
+          "id": "description-pushy-imperative",
+          "status": "WARN",
+          "detail": "missing 'Use when...' framing or short \u2014 read against references/frontmatter-spec.md's worked example"
+        },
+        {
+          "id": "body-size-limits",
+          "status": "PASS",
+          "detail": "317 lines, ~1766 tokens (approx \u2014 word count x1.3, not a real tokenizer)"
+        },
+        {
+          "id": "references-one-level-deep",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "references-toc-for-long-files",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "no-human-docs-in-skill-dir",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "evals-present",
+          "status": "FAIL",
+          "detail": "no evals/evals.json"
+        },
+        {
+          "id": "security-scan-marker-current",
+          "status": "FAIL",
+          "detail": "No .security-scan-passed found \u2014 run a clean security scan before packaging"
+        },
+        {
+          "id": "security-gitleaks-clean",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "security-pattern-checks",
+          "status": "PASS",
+          "detail": "no pattern findings"
+        },
+        {
+          "id": "no-time-sensitive-info",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "forward-slash-paths-only",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "lifecycle-classified",
+          "status": "FAIL",
+          "detail": "no lifecycle classification found \u2014 add one per references/lifecycle.md"
+        },
+        {
+          "id": "degrees-of-freedom-writing-style",
+          "status": "PASS",
+          "detail": "0 bare MUST/ALWAYS/NEVER \u2014 low, likely explained elsewhere"
+        },
+        {
+          "id": "architecture-declared",
+          "status": "PASS",
+          "detail": "context: inline (default)"
+        },
+        {
+          "id": "coherent-unit-scoping",
+          "status": "MANUAL",
+          "detail": "read the skill's one-sentence job description \u2014 does it need 'and' to join two unrelated verbs? (references/writing-philosophy.md)"
+        },
+        {
+          "id": "multi-model-tested",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm a smoke-preset pass exists for Haiku, Sonnet, and Opus"
+        },
+        {
+          "id": "description-optimizer-run",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm the 20-query/60-40-split optimizer was run, not just a hand-written description"
+        },
+        {
+          "id": "inline-vs-fork-decision-correct",
+          "status": "MANUAL",
+          "detail": "presence of `context: fork` is checkable, but whether it's the *right* call needs the worked examples in SKILL.md's Decision Gate section"
+        }
+      ],
+      "summary": {
+        "passed": 12,
+        "failed": 3,
+        "warned": 2,
+        "manual": 4,
+        "total_scored": 15,
+        "pass_rate": 0.8
+      },
+      "decision": {
+        "decision": "upgrade-in-place",
+        "reasons": [
+          "failures found are structural (naming, frontmatter details, missing security/evals) \u2014 additive fixes, not a rewrite"
+        ]
+      },
+      "institutional_knowledge_candidates": [
+        "Overview",
+        "When to Use",
+        "The Iron Law",
+        "Red-Green-Refactor",
+        "Good Tests",
+        "Common Rationalizations",
+        "Red Flags - STOP and Start Over",
+        "Example: Bug Fix",
+        "Verification Checklist",
+        "When Stuck",
+        "Debugging Integration",
+        "Final Rule"
+      ],
+      "source_label": "obra-superpowers"
+    },
+    {
+      "skill_name": "using-git-worktrees",
+      "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/vendored/obra-superpowers/skills/using-git-worktrees",
+      "items": [
+        {
+          "id": "frontmatter-valid",
+          "status": "PASS",
+          "detail": "skills-ref + Claude-specific checks pass"
+        },
+        {
+          "id": "path-references-exist",
+          "status": "PASS",
+          "detail": "every relative link resolves"
+        },
+        {
+          "id": "gerund-naming",
+          "status": "PASS",
+          "detail": "name is gerund-form"
+        },
+        {
+          "id": "description-pushy-imperative",
+          "status": "PASS",
+          "detail": "has 'Use when...' framing and real length"
+        },
+        {
+          "id": "body-size-limits",
+          "status": "PASS",
+          "detail": "164 lines, ~1345 tokens (approx \u2014 word count x1.3, not a real tokenizer)"
+        },
+        {
+          "id": "references-one-level-deep",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "references-toc-for-long-files",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "no-human-docs-in-skill-dir",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "evals-present",
+          "status": "FAIL",
+          "detail": "no evals/evals.json"
+        },
+        {
+          "id": "security-scan-marker-current",
+          "status": "FAIL",
+          "detail": "No .security-scan-passed found \u2014 run a clean security scan before packaging"
+        },
+        {
+          "id": "security-gitleaks-clean",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "security-pattern-checks",
+          "status": "PASS",
+          "detail": "no pattern findings"
+        },
+        {
+          "id": "no-time-sensitive-info",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "forward-slash-paths-only",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "lifecycle-classified",
+          "status": "FAIL",
+          "detail": "no lifecycle classification found \u2014 add one per references/lifecycle.md"
+        },
+        {
+          "id": "degrees-of-freedom-writing-style",
+          "status": "PASS",
+          "detail": "1 bare MUST/ALWAYS/NEVER \u2014 low, likely explained elsewhere"
+        },
+        {
+          "id": "architecture-declared",
+          "status": "PASS",
+          "detail": "context: inline (default)"
+        },
+        {
+          "id": "coherent-unit-scoping",
+          "status": "MANUAL",
+          "detail": "read the skill's one-sentence job description \u2014 does it need 'and' to join two unrelated verbs? (references/writing-philosophy.md)"
+        },
+        {
+          "id": "multi-model-tested",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm a smoke-preset pass exists for Haiku, Sonnet, and Opus"
+        },
+        {
+          "id": "description-optimizer-run",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm the 20-query/60-40-split optimizer was run, not just a hand-written description"
+        },
+        {
+          "id": "inline-vs-fork-decision-correct",
+          "status": "MANUAL",
+          "detail": "presence of `context: fork` is checkable, but whether it's the *right* call needs the worked examples in SKILL.md's Decision Gate section"
+        }
+      ],
+      "summary": {
+        "passed": 14,
+        "failed": 3,
+        "warned": 0,
+        "manual": 4,
+        "total_scored": 17,
+        "pass_rate": 0.824
+      },
+      "decision": {
+        "decision": "upgrade-in-place",
+        "reasons": [
+          "failures found are structural (naming, frontmatter details, missing security/evals) \u2014 additive fixes, not a rewrite"
+        ]
+      },
+      "institutional_knowledge_candidates": [
+        "Overview",
+        "Step 0: Detect Existing Isolation",
+        "Step 1: Create Isolated Workspace",
+        "Step 2: Project Setup",
+        "Step 3: Verify Clean Baseline",
+        "Common Rationalizations"
+      ],
+      "source_label": "obra-superpowers"
+    },
+    {
+      "skill_name": "using-superpowers",
+      "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/vendored/obra-superpowers/skills/using-superpowers",
+      "items": [
+        {
+          "id": "frontmatter-valid",
+          "status": "PASS",
+          "detail": "skills-ref + Claude-specific checks pass"
+        },
+        {
+          "id": "path-references-exist",
+          "status": "PASS",
+          "detail": "every relative link resolves"
+        },
+        {
+          "id": "gerund-naming",
+          "status": "PASS",
+          "detail": "name is gerund-form"
+        },
+        {
+          "id": "description-pushy-imperative",
+          "status": "PASS",
+          "detail": "has 'Use when...' framing and real length"
+        },
+        {
+          "id": "body-size-limits",
+          "status": "PASS",
+          "detail": "60 lines, ~595 tokens (approx \u2014 word count x1.3, not a real tokenizer)"
+        },
+        {
+          "id": "references-one-level-deep",
+          "status": "PASS",
+          "detail": "all references one level deep"
+        },
+        {
+          "id": "references-toc-for-long-files",
+          "status": "FAIL",
+          "detail": "missing TOC (>100 lines): references/codex-tools.md"
+        },
+        {
+          "id": "no-human-docs-in-skill-dir",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "evals-present",
+          "status": "FAIL",
+          "detail": "no evals/evals.json"
+        },
+        {
+          "id": "security-scan-marker-current",
+          "status": "FAIL",
+          "detail": "No .security-scan-passed found \u2014 run a clean security scan before packaging"
+        },
+        {
+          "id": "security-gitleaks-clean",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "security-pattern-checks",
+          "status": "PASS",
+          "detail": "no pattern findings"
+        },
+        {
+          "id": "no-time-sensitive-info",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "forward-slash-paths-only",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "lifecycle-classified",
+          "status": "FAIL",
+          "detail": "no lifecycle classification found \u2014 add one per references/lifecycle.md"
+        },
+        {
+          "id": "degrees-of-freedom-writing-style",
+          "status": "PASS",
+          "detail": "2 bare MUST/ALWAYS/NEVER \u2014 low, likely explained elsewhere"
+        },
+        {
+          "id": "architecture-declared",
+          "status": "PASS",
+          "detail": "context: inline (default)"
+        },
+        {
+          "id": "coherent-unit-scoping",
+          "status": "MANUAL",
+          "detail": "read the skill's one-sentence job description \u2014 does it need 'and' to join two unrelated verbs? (references/writing-philosophy.md)"
+        },
+        {
+          "id": "multi-model-tested",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm a smoke-preset pass exists for Haiku, Sonnet, and Opus"
+        },
+        {
+          "id": "description-optimizer-run",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm the 20-query/60-40-split optimizer was run, not just a hand-written description"
+        },
+        {
+          "id": "inline-vs-fork-decision-correct",
+          "status": "MANUAL",
+          "detail": "presence of `context: fork` is checkable, but whether it's the *right* call needs the worked examples in SKILL.md's Decision Gate section"
+        }
+      ],
+      "summary": {
+        "passed": 13,
+        "failed": 4,
+        "warned": 0,
+        "manual": 4,
+        "total_scored": 17,
+        "pass_rate": 0.765
+      },
+      "decision": {
+        "decision": "upgrade-in-place",
+        "reasons": [
+          "failures found are structural (naming, frontmatter details, missing security/evals) \u2014 additive fixes, not a rewrite"
+        ]
+      },
+      "institutional_knowledge_candidates": [
+        "The Rule",
+        "Skill Priority",
+        "Red Flags",
+        "Platform Adaptation",
+        "User Instructions"
+      ],
+      "source_label": "obra-superpowers"
+    },
+    {
+      "skill_name": "verification-before-completion",
+      "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/vendored/obra-superpowers/skills/verification-before-completion",
+      "items": [
+        {
+          "id": "frontmatter-valid",
+          "status": "PASS",
+          "detail": "skills-ref + Claude-specific checks pass"
+        },
+        {
+          "id": "path-references-exist",
+          "status": "PASS",
+          "detail": "every relative link resolves"
+        },
+        {
+          "id": "gerund-naming",
+          "status": "WARN",
+          "detail": "name 'verification-before-completion' isn't in gerund form (verb+-ing). Official recommendation, not a hard requirement \u2014 consider a form like 'verificationing-...' if there's a natural verb for what this skill does."
+        },
+        {
+          "id": "description-pushy-imperative",
+          "status": "PASS",
+          "detail": "has 'Use when...' framing and real length"
+        },
+        {
+          "id": "body-size-limits",
+          "status": "PASS",
+          "detail": "117 lines, ~704 tokens (approx \u2014 word count x1.3, not a real tokenizer)"
+        },
+        {
+          "id": "references-one-level-deep",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "references-toc-for-long-files",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "no-human-docs-in-skill-dir",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "evals-present",
+          "status": "FAIL",
+          "detail": "no evals/evals.json"
+        },
+        {
+          "id": "security-scan-marker-current",
+          "status": "FAIL",
+          "detail": "No .security-scan-passed found \u2014 run a clean security scan before packaging"
+        },
+        {
+          "id": "security-gitleaks-clean",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "security-pattern-checks",
+          "status": "PASS",
+          "detail": "no pattern findings"
+        },
+        {
+          "id": "no-time-sensitive-info",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "forward-slash-paths-only",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "lifecycle-classified",
+          "status": "FAIL",
+          "detail": "no lifecycle classification found \u2014 add one per references/lifecycle.md"
+        },
+        {
+          "id": "degrees-of-freedom-writing-style",
+          "status": "PASS",
+          "detail": "2 bare MUST/ALWAYS/NEVER \u2014 low, likely explained elsewhere"
+        },
+        {
+          "id": "architecture-declared",
+          "status": "PASS",
+          "detail": "context: inline (default)"
+        },
+        {
+          "id": "coherent-unit-scoping",
+          "status": "MANUAL",
+          "detail": "read the skill's one-sentence job description \u2014 does it need 'and' to join two unrelated verbs? (references/writing-philosophy.md)"
+        },
+        {
+          "id": "multi-model-tested",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm a smoke-preset pass exists for Haiku, Sonnet, and Opus"
+        },
+        {
+          "id": "description-optimizer-run",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm the 20-query/60-40-split optimizer was run, not just a hand-written description"
+        },
+        {
+          "id": "inline-vs-fork-decision-correct",
+          "status": "MANUAL",
+          "detail": "presence of `context: fork` is checkable, but whether it's the *right* call needs the worked examples in SKILL.md's Decision Gate section"
+        }
+      ],
+      "summary": {
+        "passed": 13,
+        "failed": 3,
+        "warned": 1,
+        "manual": 4,
+        "total_scored": 16,
+        "pass_rate": 0.812
+      },
+      "decision": {
+        "decision": "upgrade-in-place",
+        "reasons": [
+          "failures found are structural (naming, frontmatter details, missing security/evals) \u2014 additive fixes, not a rewrite"
+        ]
+      },
+      "institutional_knowledge_candidates": [
+        "Overview",
+        "The Iron Law",
+        "The Gate Function",
+        "Common Failures",
+        "Red Flags - STOP",
+        "Rationalization Prevention",
+        "Key Patterns",
+        "When To Apply"
+      ],
+      "source_label": "obra-superpowers"
+    },
+    {
+      "skill_name": "writing-plans",
+      "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/vendored/obra-superpowers/skills/writing-plans",
+      "items": [
+        {
+          "id": "frontmatter-valid",
+          "status": "PASS",
+          "detail": "skills-ref + Claude-specific checks pass"
+        },
+        {
+          "id": "path-references-exist",
+          "status": "PASS",
+          "detail": "every relative link resolves"
+        },
+        {
+          "id": "gerund-naming",
+          "status": "PASS",
+          "detail": "name is gerund-form"
+        },
+        {
+          "id": "description-pushy-imperative",
+          "status": "WARN",
+          "detail": "missing 'Use when...' framing or short \u2014 read against references/frontmatter-spec.md's worked example"
+        },
+        {
+          "id": "body-size-limits",
+          "status": "PASS",
+          "detail": "168 lines, ~1350 tokens (approx \u2014 word count x1.3, not a real tokenizer)"
+        },
+        {
+          "id": "references-one-level-deep",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "references-toc-for-long-files",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "no-human-docs-in-skill-dir",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "evals-present",
+          "status": "FAIL",
+          "detail": "no evals/evals.json"
+        },
+        {
+          "id": "security-scan-marker-current",
+          "status": "FAIL",
+          "detail": "No .security-scan-passed found \u2014 run a clean security scan before packaging"
+        },
+        {
+          "id": "security-gitleaks-clean",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "security-pattern-checks",
+          "status": "PASS",
+          "detail": "no pattern findings"
+        },
+        {
+          "id": "no-time-sensitive-info",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "forward-slash-paths-only",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "lifecycle-classified",
+          "status": "FAIL",
+          "detail": "no lifecycle classification found \u2014 add one per references/lifecycle.md"
+        },
+        {
+          "id": "degrees-of-freedom-writing-style",
+          "status": "PASS",
+          "detail": "1 bare MUST/ALWAYS/NEVER \u2014 low, likely explained elsewhere"
+        },
+        {
+          "id": "architecture-declared",
+          "status": "PASS",
+          "detail": "context: inline (default)"
+        },
+        {
+          "id": "coherent-unit-scoping",
+          "status": "MANUAL",
+          "detail": "read the skill's one-sentence job description \u2014 does it need 'and' to join two unrelated verbs? (references/writing-philosophy.md)"
+        },
+        {
+          "id": "multi-model-tested",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm a smoke-preset pass exists for Haiku, Sonnet, and Opus"
+        },
+        {
+          "id": "description-optimizer-run",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm the 20-query/60-40-split optimizer was run, not just a hand-written description"
+        },
+        {
+          "id": "inline-vs-fork-decision-correct",
+          "status": "MANUAL",
+          "detail": "presence of `context: fork` is checkable, but whether it's the *right* call needs the worked examples in SKILL.md's Decision Gate section"
+        }
+      ],
+      "summary": {
+        "passed": 13,
+        "failed": 3,
+        "warned": 1,
+        "manual": 4,
+        "total_scored": 16,
+        "pass_rate": 0.812
+      },
+      "decision": {
+        "decision": "upgrade-in-place",
+        "reasons": [
+          "failures found are structural (naming, frontmatter details, missing security/evals) \u2014 additive fixes, not a rewrite"
+        ]
+      },
+      "institutional_knowledge_candidates": [
+        "Overview",
+        "Scope Check",
+        "File Structure",
+        "Task Right-Sizing",
+        "Bite-Sized Task Granularity",
+        "Plan Document Header",
+        "Global Constraints",
+        "Task Structure",
+        "No Placeholders",
+        "Self-Review",
+        "Execution Handoff"
+      ],
+      "source_label": "obra-superpowers"
+    },
+    {
+      "skill_name": "writing-skills",
+      "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/vendored/obra-superpowers/skills/writing-skills",
+      "items": [
+        {
+          "id": "frontmatter-valid",
+          "status": "PASS",
+          "detail": "skills-ref + Claude-specific checks pass"
+        },
+        {
+          "id": "path-references-exist",
+          "status": "PASS",
+          "detail": "every relative link resolves"
+        },
+        {
+          "id": "gerund-naming",
+          "status": "PASS",
+          "detail": "name is gerund-form"
+        },
+        {
+          "id": "description-pushy-imperative",
+          "status": "WARN",
+          "detail": "missing 'Use when...' framing or short \u2014 read against references/frontmatter-spec.md's worked example"
+        },
+        {
+          "id": "body-size-limits",
+          "status": "WARN",
+          "detail": "676 lines, ~4888 tokens (approx \u2014 word count x1.3, not a real tokenizer)"
+        },
+        {
+          "id": "references-one-level-deep",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "references-toc-for-long-files",
+          "status": "PASS",
+          "detail": "no references/ directory"
+        },
+        {
+          "id": "no-human-docs-in-skill-dir",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "evals-present",
+          "status": "FAIL",
+          "detail": "no evals/evals.json"
+        },
+        {
+          "id": "security-scan-marker-current",
+          "status": "FAIL",
+          "detail": "No .security-scan-passed found \u2014 run a clean security scan before packaging"
+        },
+        {
+          "id": "security-gitleaks-clean",
+          "status": "PASS",
+          "detail": "clean"
+        },
+        {
+          "id": "security-pattern-checks",
+          "status": "PASS",
+          "detail": "no pattern findings"
+        },
+        {
+          "id": "no-time-sensitive-info",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "forward-slash-paths-only",
+          "status": "PASS",
+          "detail": "none found"
+        },
+        {
+          "id": "lifecycle-classified",
+          "status": "FAIL",
+          "detail": "no lifecycle classification found \u2014 add one per references/lifecycle.md"
+        },
+        {
+          "id": "degrees-of-freedom-writing-style",
+          "status": "WARN",
+          "detail": "5 bare MUST/ALWAYS/NEVER directives \u2014 heuristic only, read each for an explained why (references/writing-philosophy.md)"
+        },
+        {
+          "id": "architecture-declared",
+          "status": "PASS",
+          "detail": "context: inline (default)"
+        },
+        {
+          "id": "coherent-unit-scoping",
+          "status": "MANUAL",
+          "detail": "read the skill's one-sentence job description \u2014 does it need 'and' to join two unrelated verbs? (references/writing-philosophy.md)"
+        },
+        {
+          "id": "multi-model-tested",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm a smoke-preset pass exists for Haiku, Sonnet, and Opus"
+        },
+        {
+          "id": "description-optimizer-run",
+          "status": "MANUAL",
+          "detail": "cannot verify from files alone \u2014 confirm the 20-query/60-40-split optimizer was run, not just a hand-written description"
+        },
+        {
+          "id": "inline-vs-fork-decision-correct",
+          "status": "MANUAL",
+          "detail": "presence of `context: fork` is checkable, but whether it's the *right* call needs the worked examples in SKILL.md's Decision Gate section"
+        }
+      ],
+      "summary": {
+        "passed": 11,
+        "failed": 3,
+        "warned": 3,
+        "manual": 4,
+        "total_scored": 14,
+        "pass_rate": 0.786
+      },
+      "decision": {
+        "decision": "upgrade-in-place",
+        "reasons": [
+          "failures found are structural (naming, frontmatter details, missing security/evals) \u2014 additive fixes, not a rewrite"
+        ]
+      },
+      "institutional_knowledge_candidates": [
+        "Overview",
+        "What is a Skill?",
+        "TDD Mapping for Skills",
+        "When to Create a Skill",
+        "Skill Types",
+        "Directory Structure",
+        "SKILL.md Structure",
+        "Overview",
+        "When to Use",
+        "Core Pattern (for techniques/patterns)",
+        "Implementation",
+        "Common Mistakes",
+        "Real-World Impact (optional)",
+        "Skill Discovery Optimization (SDO)",
+        "Code Examples",
+        "File Organization",
+        "The Iron Law (Same as TDD)",
+        "Match the Form to the Failure",
+        "Bulletproofing Skills Against Rationalization",
+        "Red Flags - STOP and Start Over",
+        "RED-GREEN-REFACTOR for Skills",
+        "Anti-Patterns",
+        "STOP: Before Moving to Next Skill",
+        "Skill Creation Checklist (TDD Adapted)",
+        "Discovery Workflow"
+      ],
+      "source_label": "obra-superpowers"
+    }
+  ],
+  "aggregate": {
+    "total_skills": 14,
+    "errored_skills": [],
+    "decision_counts": {
+      "upgrade-in-place": 14
+    },
+    "checklist_summary": {
+      "frontmatter-valid": {
+        "counts": {
+          "PASS": 14
+        },
+        "total": 14,
+        "dominant_status": "PASS",
+        "dominant_rate": 1.0,
+        "likely_boilerplate": true
+      },
+      "path-references-exist": {
+        "counts": {
+          "PASS": 14
+        },
+        "total": 14,
+        "dominant_status": "PASS",
+        "dominant_rate": 1.0,
+        "likely_boilerplate": true
+      },
+      "gerund-naming": {
+        "counts": {
+          "PASS": 10,
+          "WARN": 4
+        },
+        "total": 14,
+        "dominant_status": "PASS",
+        "dominant_rate": 0.714,
+        "likely_boilerplate": false
+      },
+      "description-pushy-imperative": {
+        "counts": {
+          "WARN": 6,
+          "PASS": 8
+        },
+        "total": 14,
+        "dominant_status": "PASS",
+        "dominant_rate": 0.571,
+        "likely_boilerplate": false
+      },
+      "body-size-limits": {
+        "counts": {
+          "PASS": 12,
+          "WARN": 2
+        },
+        "total": 14,
+        "dominant_status": "PASS",
+        "dominant_rate": 0.857,
+        "likely_boilerplate": false
+      },
+      "references-one-level-deep": {
+        "counts": {
+          "PASS": 14
+        },
+        "total": 14,
+        "dominant_status": "PASS",
+        "dominant_rate": 1.0,
+        "likely_boilerplate": true
+      },
+      "references-toc-for-long-files": {
+        "counts": {
+          "PASS": 13,
+          "FAIL": 1
+        },
+        "total": 14,
+        "dominant_status": "PASS",
+        "dominant_rate": 0.929,
+        "likely_boilerplate": false
+      },
+      "no-human-docs-in-skill-dir": {
+        "counts": {
+          "PASS": 14
+        },
+        "total": 14,
+        "dominant_status": "PASS",
+        "dominant_rate": 1.0,
+        "likely_boilerplate": true
+      },
+      "evals-present": {
+        "counts": {
+          "FAIL": 14
+        },
+        "total": 14,
+        "dominant_status": "FAIL",
+        "dominant_rate": 1.0,
+        "likely_boilerplate": false
+      },
+      "security-scan-marker-current": {
+        "counts": {
+          "FAIL": 14
+        },
+        "total": 14,
+        "dominant_status": "FAIL",
+        "dominant_rate": 1.0,
+        "likely_boilerplate": false
+      },
+      "security-gitleaks-clean": {
+        "counts": {
+          "PASS": 14
+        },
+        "total": 14,
+        "dominant_status": "PASS",
+        "dominant_rate": 1.0,
+        "likely_boilerplate": true
+      },
+      "security-pattern-checks": {
+        "counts": {
+          "WARN": 1,
+          "PASS": 13
+        },
+        "total": 14,
+        "dominant_status": "PASS",
+        "dominant_rate": 0.929,
+        "likely_boilerplate": false
+      },
+      "no-time-sensitive-info": {
+        "counts": {
+          "PASS": 14
+        },
+        "total": 14,
+        "dominant_status": "PASS",
+        "dominant_rate": 1.0,
+        "likely_boilerplate": true
+      },
+      "forward-slash-paths-only": {
+        "counts": {
+          "PASS": 14
+        },
+        "total": 14,
+        "dominant_status": "PASS",
+        "dominant_rate": 1.0,
+        "likely_boilerplate": true
+      },
+      "lifecycle-classified": {
+        "counts": {
+          "FAIL": 14
+        },
+        "total": 14,
+        "dominant_status": "FAIL",
+        "dominant_rate": 1.0,
+        "likely_boilerplate": false
+      },
+      "degrees-of-freedom-writing-style": {
+        "counts": {
+          "PASS": 12,
+          "WARN": 2
+        },
+        "total": 14,
+        "dominant_status": "PASS",
+        "dominant_rate": 0.857,
+        "likely_boilerplate": false
+      },
+      "architecture-declared": {
+        "counts": {
+          "PASS": 14
+        },
+        "total": 14,
+        "dominant_status": "PASS",
+        "dominant_rate": 1.0,
+        "likely_boilerplate": true
+      },
+      "coherent-unit-scoping": {
+        "counts": {
+          "MANUAL": 14
+        },
+        "total": 14,
+        "dominant_status": "MANUAL",
+        "dominant_rate": 1.0,
+        "likely_boilerplate": true
+      },
+      "multi-model-tested": {
+        "counts": {
+          "MANUAL": 14
+        },
+        "total": 14,
+        "dominant_status": "MANUAL",
+        "dominant_rate": 1.0,
+        "likely_boilerplate": true
+      },
+      "description-optimizer-run": {
+        "counts": {
+          "MANUAL": 14
+        },
+        "total": 14,
+        "dominant_status": "MANUAL",
+        "dominant_rate": 1.0,
+        "likely_boilerplate": true
+      },
+      "inline-vs-fork-decision-correct": {
+        "counts": {
+          "MANUAL": 14
+        },
+        "total": 14,
+        "dominant_status": "MANUAL",
+        "dominant_rate": 1.0,
+        "likely_boilerplate": true
+      }
+    },
+    "review_queue": [
+      {
+        "skill_name": "brainstorming",
+        "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/vendored/obra-superpowers/skills/brainstorming",
+        "source_label": "obra-superpowers",
+        "findings": [
+          {
+            "id": "description-pushy-imperative",
+            "status": "WARN",
+            "detail": "missing 'Use when...' framing or short \u2014 read against references/frontmatter-spec.md's worked example"
+          },
+          {
+            "id": "security-pattern-checks",
+            "status": "WARN",
+            "detail": "3 MEDIUM (informational) finding(s)"
+          }
+        ]
+      },
+      {
+        "skill_name": "subagent-driven-development",
+        "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/vendored/obra-superpowers/skills/subagent-driven-development",
+        "source_label": "obra-superpowers",
+        "findings": [
+          {
+            "id": "description-pushy-imperative",
+            "status": "WARN",
+            "detail": "missing 'Use when...' framing or short \u2014 read against references/frontmatter-spec.md's worked example"
+          },
+          {
+            "id": "body-size-limits",
+            "status": "WARN",
+            "detail": "565 lines, ~6247 tokens (approx \u2014 word count x1.3, not a real tokenizer)"
+          }
+        ]
+      },
+      {
+        "skill_name": "systematic-debugging",
+        "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/vendored/obra-superpowers/skills/systematic-debugging",
+        "source_label": "obra-superpowers",
+        "findings": [
+          {
+            "id": "description-pushy-imperative",
+            "status": "WARN",
+            "detail": "missing 'Use when...' framing or short \u2014 read against references/frontmatter-spec.md's worked example"
+          },
+          {
+            "id": "degrees-of-freedom-writing-style",
+            "status": "WARN",
+            "detail": "3 bare MUST/ALWAYS/NEVER directives \u2014 heuristic only, read each for an explained why (references/writing-philosophy.md)"
+          }
+        ]
+      },
+      {
+        "skill_name": "test-driven-development",
+        "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/vendored/obra-superpowers/skills/test-driven-development",
+        "source_label": "obra-superpowers",
+        "findings": [
+          {
+            "id": "description-pushy-imperative",
+            "status": "WARN",
+            "detail": "missing 'Use when...' framing or short \u2014 read against references/frontmatter-spec.md's worked example"
+          }
+        ]
+      },
+      {
+        "skill_name": "using-superpowers",
+        "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/vendored/obra-superpowers/skills/using-superpowers",
+        "source_label": "obra-superpowers",
+        "findings": [
+          {
+            "id": "references-toc-for-long-files",
+            "status": "FAIL",
+            "detail": "missing TOC (>100 lines): references/codex-tools.md"
+          }
+        ]
+      },
+      {
+        "skill_name": "writing-plans",
+        "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/vendored/obra-superpowers/skills/writing-plans",
+        "source_label": "obra-superpowers",
+        "findings": [
+          {
+            "id": "description-pushy-imperative",
+            "status": "WARN",
+            "detail": "missing 'Use when...' framing or short \u2014 read against references/frontmatter-spec.md's worked example"
+          }
+        ]
+      },
+      {
+        "skill_name": "writing-skills",
+        "skill_path": "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/vendored/obra-superpowers/skills/writing-skills",
+        "source_label": "obra-superpowers",
+        "findings": [
+          {
+            "id": "description-pushy-imperative",
+            "status": "WARN",
+            "detail": "missing 'Use when...' framing or short \u2014 read against references/frontmatter-spec.md's worked example"
+          },
+          {
+            "id": "body-size-limits",
+            "status": "WARN",
+            "detail": "676 lines, ~4888 tokens (approx \u2014 word count x1.3, not a real tokenizer)"
+          },
+          {
+            "id": "degrees-of-freedom-writing-style",
+            "status": "WARN",
+            "detail": "5 bare MUST/ALWAYS/NEVER directives \u2014 heuristic only, read each for an explained why (references/writing-philosophy.md)"
+          }
+        ]
+      }
+    ],
+    "review_queue_size": 7
+  }
+}

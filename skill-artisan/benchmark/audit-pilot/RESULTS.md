@@ -623,3 +623,84 @@ re-check, both discovery-logic fixes and their regression tests, the full audit,
 and this write-up — was the longest of any phase so far, roughly 90–120 minutes,
 proportionate to being the structurally messiest corpus encountered. **1,404 skills now
 audited across five independently-sourced corpora.**
+
+## Phase 7: obra/superpowers (14 skills) — the last phase on the approved roadmap
+
+Sixth and final corpus. Pinned tag `v6.3.0` (`b36e0829`) — see `../vendored/README.md`.
+Applied Phase 6's new standing rule (re-verify against the real clone, not just an API
+check, before trusting planning-session numbers) even though nothing suspicious was
+expected: 14 skills confirmed locally, exactly matching both the planning-session figure
+and the live GitHub tree API count — the one source in this whole roadmap that needed no
+correction once actually checked. One harmless symlink exists in the repo
+(`AGENTS.md -> CLAUDE.md`), unrelated to skill discovery.
+
+### The cleanest result of any phase — and an expected one, not a surprising one
+
+14/14 audited, 0 errors, 7 of 14 (50%) review-queue hit rate. Every flagged item was
+either an already-tracked pattern or a low-severity, correctly-calibrated WARN:
+
+- **`description-pushy-imperative`** (6 skills): a mix of two already-understood shapes —
+  `test-driven-development`'s description literally starts "Use when implementing any
+  feature..." (the phrase *is* there, it's just under the 100-character length threshold,
+  the same imprecise-message case documented back in Phase 2); the rest use "You MUST use
+  this before..." instead of "use when" — the same phrasing-convention gap tracked on
+  [#6](https://github.com/EONRaider/SkillArtisan/issues/6), not escalated further here.
+- **`references-toc-for-long-files`** (1 FAIL, `using-superpowers`): genuinely no
+  Contents/TOC/Index heading in `references/codex-tools.md` — Bug #4 remains correctly
+  calibrated on a sixth, structurally distinct corpus.
+- **`security-pattern-checks`** (1 WARN, `brainstorming`): a `no-documented-cli` hit on
+  two small server-lifecycle scripts (the same known, low-priority blind spot from
+  Phase 1/2 — a fixed-interface script doesn't need `--help`) and one obviously-templated
+  URL (`http://host:port`) — neither worth chasing further.
+- **`body-size-limits`** and **`degrees-of-freedom-writing-style`** (2 WARNs each): all
+  well under their respective FAIL thresholds, correctly left as WARN.
+
+No `frontmatter-valid` FAILs at all (100% PASS) — this corpus has no "claude"-named
+skills, so it neither adds nor contradicts the 14/14 reserved-word streak from the other
+four corpora; there was simply nothing to test against here. No `rebuild` decisions, no
+gitleaks findings, no new false-positive mechanism on any check. **Zero new bugs found,
+zero new gaps opened** — the exact outcome the approved plan's own cost-expectations
+section anticipated as legitimate and worth reporting honestly, not a failure of the
+phase: "don't expect a new bug every phase... that's a legitimate, reportable outcome on
+its own (evidence the known classes are now well-covered)."
+
+### Cost — the cheapest phase by far
+
+Execution: single unchunked run, well under a minute. No resilience concerns, no
+discovery-logic surprises, no new documentation corrections needed. Total wall-clock
+including triage and this write-up: roughly 15–20 minutes — proportionate to being both
+the smallest corpus and the one requiring the least investigation. **1,418 skills now
+audited across six independently-sourced corpora — the approved Phases 4–7 roadmap is
+complete.**
+
+## Roadmap complete: six corpora, nine bugs, thirteen deferred-item cross-references
+
+Final tally across the whole real-world audit pilot, Phases 1 through 7:
+
+| Phase | Corpus | Skills | New bugs found | Notable |
+|---|---|---|---|---|
+| 1–2 | `mattpocock-skills` | 35 | 2 | First-ever real-world run; reserved-word true positive discovered |
+| 3 | `daymade-claude-code-skills` | 92 | 4 | Highest bug-density phase; hit-rate prediction corrected |
+| 4 | `mukul975-anthropic-cybersecurity-skills` | 817 | 0* | "Not every false positive should be fixed" — 4 categories confirmed-but-unfixable |
+| 5 | `glebis-claude-skills` | 111 | 1 | Useful contrast with Phase 4 — same checks, mostly true positives this time |
+| 6 | `alirezarezvani-claude-skills` | 349 | 2† | Discovery-logic bugs in shared code, not just audit checks; planning-session numbers self-corrected |
+| 7 | `obra-superpowers` | 14 | 0 | Cleanest result — confirms known classes are well-covered, not a failed search |
+
+\* Phase 4 found and fixed a crash-style bug (`evals.json` shape handling) and a
+false-positive check (`references-toc-for-long-files`) that are counted under Phase 4 in
+`CHANGELOG.md`'s per-release breakdown, not "0" in the strict sense — this table's "0"
+above refers specifically to the security-pattern-checks investigation's headline finding
+(not every false positive should be fixed), see the Phase 4 section for the full count.
+† Both in `_common.find_skill_dirs`/`aggregate_findings.py`, not in the checklist items
+themselves.
+
+**Totals**: 1,418 real-world skills audited, nine confirmed bugs fixed with regression
+tests (91 tests passing, all added or extended during this pilot's six phases), a
+reserved-name true
+positive corroborated 14 times with zero exceptions across five corpora that had any
+"claude"/"anthropic"-named skills to test against, three deferred gaps tracked as GitHub
+issues with cross-phase corroboration instead of scattered CHANGELOG mentions, and one
+methodological correction (the git-tree-API blob/symlink conflation) applied to this
+pilot's own verification discipline, not just to SkillArtisan's shipped tooling. See
+`SCALING.md` for the full readiness-assessment history and what would carry forward if
+this methodology is ever pointed at a seventh source.
