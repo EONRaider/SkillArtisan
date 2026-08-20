@@ -112,6 +112,38 @@ Approved roadmap for further sources: `~/.claude/plans/home-eonraider-desktop-ve
   no repo-specific tooling needed to audit it (this is a read-only skill corpus, not a
   comparison-arm codebase with its own pipeline to run).
 
+### `alirezarezvani-claude-skills/`
+
+- **Repo**: `https://github.com/alirezarezvani/claude-skills`
+- **Pinned commit**: `aa8d778811a557a2c28ccadda4cf3d0bd028a4cc` (`main` HEAD,
+  2026-07-17T13:02:50Z) — reconfirmed live immediately before cloning (2026-08-20); `main`
+  itself hasn't advanced since, though the repo's `pushed_at` is a month later (pushes
+  landed on feature branches, not `main`). The research doc's recommended pin, tag
+  `v2.11.2`, doesn't exist — the repo's own `CLAUDE.md` states that version number ahead
+  of what's actually tagged. Latest real tag is `v2.9.0`
+  (`0d78fd835a0136988f4df2fe75d1e6295b4ef4d7`); pinned to `main` HEAD instead since it's
+  the freshest content and was independently recount-verified before pinning (below), not
+  because the tag was rejected for cause.
+- **License**: MIT — raw `LICENSE` file read directly, "Copyright (c) 2025 Alireza
+  Rezvani."
+- **Structure — corrected significantly from the planning-session estimate**: the repo
+  packages some skills twice — once in a flat `<domain>/skills/<skill>/SKILL.md`
+  collection, again as a self-contained mini-plugin one level deeper
+  (`<domain>/<plugin>/skills/<skill>/SKILL.md`) — *and* symlink-mirrors every skill into
+  four cross-tool directories (`.codex/`, `.gemini/`, `.hermes/`, `.vibe/`) for
+  compatibility with other agent products. Both quirks required real fixes to
+  `_common.find_skill_dirs` and a new content-hash dedup step in
+  `aggregate_findings.py` — see `CHANGELOG.md`'s Phase 6 entry and
+  `benchmark/audit-pilot/RESULTS.md` for the full story, including how the symlink issue
+  was found (a raw skill-count discrepancy this same phase's own extra verification step
+  surfaced) and why the true unique-skill count (**349**) is close to the repo's own
+  self-reported "362," not the "~672" this project's own git-tree-API-based
+  planning-session check had (wrongly) concluded — that check counted tracked symlink
+  blobs as if they were real files, since it filtered by path suffix rather than git
+  object mode.
+- **Runnability confirmed**: same Python-only dependency chain as the rest of `scripts/`;
+  no repo-specific tooling needed to audit it.
+
 ### `glebis-claude-skills/`
 
 - **Repo**: `https://github.com/glebis/claude-skills`

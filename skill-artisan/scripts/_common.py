@@ -152,17 +152,43 @@ TRIAL_PRESETS = {
 def find_skill_dirs(search_paths: list[Path]) -> list[Path]:
     """Find skill directories under each search path: the path itself if it
     directly contains a SKILL.md, one level down (marketplace/<skill>), two
-    levels down (marketplace/plugin/<skill>), or a plugin's own `skills/`
+    levels down (marketplace/plugin/<skill>), a plugin's own `skills/`
     subdirectory (marketplace/plugin/skills/<skill> — the real Claude Code
     plugin convention, verified directly: every installed plugin under
     ~/.claude/plugins/marketplaces/*/plugins/ on the machine this was built
     on uses <plugin>/skills/<skill>/SKILL.md, not the flatter <plugin>/<skill>
-    shape the two-level glob alone assumes).
+    shape the two-level glob alone assumes), or a *nested* plugin one level
+    deeper still (category/plugin-name/skills/<skill> — found via the
+    real-world audit pilot's Phase 6, alirezarezvani/claude-skills: some
+    skills are packaged twice, once in a flat per-category `skills/`
+    collection and again as a fully self-contained, individually-installable
+    mini-plugin one level deeper. Checked exhaustively, not sampled, before
+    adding this: 113 of 125 skills at this depth have *no* flat counterpart
+    at all — genuinely unique content this discovery previously missed
+    entirely, not redundant packaging of something already found).
 
     Shared by dedup_search.py (searching for prior art) and audit.py's bulk
     mode (auditing a whole skills directory) — one implementation per the
     scripts/ discipline in references/script-design.md, not two copies that
-    drift apart.
+    drift apart. Does not deduplicate by *content* — the same real-world
+    check found 12 of 125 nested-layer skills are byte-identical repackagings
+    of a flat-layer sibling; a caller that cares about auditing each unique
+    skill exactly once (like aggregate_findings.py) needs to dedup on top of
+    this function's output, since deciding "these two paths are the same
+    skill" is a judgment about content, not about directory structure, which
+    is deliberately outside this function's job.
+
+    Skips any match reached through a symlink, at any level — found the hard
+    way on the same repo, same phase: `Path.glob()` follows symlinks for
+    ordinary (non-`**`) path components, and alirezarezvani/claude-skills
+    symlink-mirrors every skill into four cross-tool directories
+    (`.codex/`, `.gemini/`, `.hermes/`, `.vibe/`) for compatibility with
+    other agent products. Unfiltered, that inflated discovery from 785 real
+    skills to 1,140+ — the same skill re-counted once per mirror. `git`'s own
+    tree API doesn't have this problem (it tracks a symlink as an opaque
+    blob, never traverses into it), which is why this was invisible during
+    planning (verified via the GitHub API) and only surfaced once skills
+    were actually being discovered on a real local filesystem.
     """
     found = []
     for base in search_paths:
@@ -171,10 +197,11 @@ def find_skill_dirs(search_paths: list[Path]) -> list[Path]:
         if (base / "SKILL.md").exists():
             found.append(base)
             continue
-        for skill_md in base.glob("*/SKILL.md"):
-            found.append(skill_md.parent)
-        for skill_md in base.glob("*/*/SKILL.md"):
-            found.append(skill_md.parent)
-        for skill_md in base.glob("*/skills/*/SKILL.md"):
-            found.append(skill_md.parent)
+        for pattern in ("*/SKILL.md", "*/*/SKILL.md", "*/skills/*/SKILL.md", "*/*/skills/*/SKILL.md"):
+            for skill_md in base.glob(pattern):
+                if skill_md.is_symlink():
+                    continue
+                if any(p.is_symlink() for p in skill_md.parents if p != base and base in p.parents):
+                    continue
+                found.append(skill_md.parent)
     return sorted(set(found))

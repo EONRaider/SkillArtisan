@@ -51,6 +51,7 @@ unless a given path doesn't exist (2).
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 from collections import defaultdict
@@ -79,6 +80,37 @@ KNOWN_BOILERPLATE_IDS = {
 }
 
 
+def dedup_by_content(skill_dirs: list[Path], label: str) -> list[Path]:
+    """Drop any skill directory whose SKILL.md is byte-identical to one
+    already kept (first occurrence wins, in `find_skill_dirs`'s own sorted
+    order — deterministic regardless of which duplicate happens to be
+    "canonical"). `find_skill_dirs` deliberately doesn't do this itself (a
+    content judgment, not a structural one) — needed here because
+    alirezarezvani/claude-skills packages some skills twice: once in a flat
+    per-category collection, again as a fully self-contained mini-plugin.
+    Auditing both would silently double-count 12 of that repo's skills
+    without changing a single finding — same result, wasted effort, and a
+    review-queue count that overstates real coverage."""
+    seen_hashes: dict[str, Path] = {}
+    kept = []
+    skipped = 0
+    for skill_dir in skill_dirs:
+        skill_md = skill_dir / "SKILL.md"
+        try:
+            digest = hashlib.sha256(skill_md.read_bytes()).hexdigest()
+        except OSError:
+            kept.append(skill_dir)
+            continue
+        if digest in seen_hashes:
+            skipped += 1
+            continue
+        seen_hashes[digest] = skill_dir
+        kept.append(skill_dir)
+    if skipped:
+        print(f"[{label}] skipped {skipped} exact-content duplicate(s) of an already-kept skill", file=sys.stderr)
+    return kept
+
+
 def audit_source(
     label: str,
     root: Path,
@@ -87,7 +119,7 @@ def audit_source(
     start: int = 0,
     end: int | None = None,
 ) -> list[dict]:
-    skill_dirs = find_skill_dirs([root])
+    skill_dirs = dedup_by_content(find_skill_dirs([root]), label)
     total_found = len(skill_dirs)
     skill_dirs = skill_dirs[start:end]
     if start or end is not None:
