@@ -6,6 +6,14 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.5.5] - 2026-08-20
+
+### Fixed
+- **`_common.find_skill_dirs` missed 101 real skills in `aws/agent-toolkit-for-aws`** (Phase 9 of the audit pilot) — a literal top-level `skills/` collection directory (not preceded by any wildcard, unlike every other pattern) with two or three category levels of nesting beneath it before the skill's own directory (`skills/core-skills/amazon-bedrock/SKILL.md`, `skills/specialized-skills/database-skills/rds-db2/SKILL.md`). Checked for collisions against every other vendored corpus before adding the two new patterns: zero matches anywhere else. 150 of 151 skills now discovered; the last (a doubly-nested sub-package shape, `plugins/aws-agents/skills/agents-pay/packages/openclaw/skills/agents-pay/SKILL.md`) is real content left as a documented, known gap rather than a fifth pattern justified by one example. Regression tests added to `tests/test_common_find_skill_dirs.py`.
+
+### Notes
+- Phase 9 of the real-world audit pilot: 616 skills audited across three corporate-DevRel-vendor repos (`nvidia/skills`, `forcedotcom/sf-skills`, `aws/agent-toolkit-for-aws`). One new `audit-gap` issue opened ([#9](https://github.com/EONRaider/SkillArtisan/issues/9), two new NVIDIA frontmatter field families — `owner`/`service`/`reviewed` and `tools`, the latter flagged with an explicit warning against ever aliasing it to the security-relevant `allowed-tools` field). One genuine, reproducible content defect documented in NVIDIA's own `doca-*` skill family (systematic off-by-one relative links), not a SkillArtisan fix. Full narrative: `skill-artisan/benchmark/audit-pilot/RESULTS.md`'s Phase 9 section.
+
 ## [2.5.4] - 2026-08-20
 
 ### Fixed

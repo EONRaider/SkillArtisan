@@ -126,6 +126,29 @@ class TestFindSkillDirsSymlinks(unittest.TestCase):
             found = find_skill_dirs([root])
             self.assertIn(variant, found)
 
+    def test_top_level_skills_dir_with_two_category_levels_is_discovered(self):
+        """aws/agent-toolkit-for-aws: a literal top-level skills/ collection (not
+        preceded by any wildcard, unlike every other pattern) with one category
+        level before the skill's own directory: skills/core-skills/amazon-bedrock/."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            nested = root / "skills" / "core-skills" / "amazon-bedrock"
+            make_skill(nested, "amazon-bedrock")
+
+            found = find_skill_dirs([root])
+            self.assertIn(nested, found)
+
+    def test_top_level_skills_dir_with_three_category_levels_is_discovered(self):
+        """Same aws/agent-toolkit-for-aws corpus, one level deeper still:
+        skills/specialized-skills/database-skills/rds-db2/."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            nested = root / "skills" / "specialized-skills" / "database-skills" / "rds-db2"
+            make_skill(nested, "rds-db2")
+
+            found = find_skill_dirs([root])
+            self.assertIn(nested, found)
+
     def test_bundled_example_skill_in_assets_dir_is_not_discovered(self):
         """alirezarezvani-claude-skills' skill-tester bundles a sample skill as
         test fixture content under assets/ — not a real, independently-loadable

@@ -872,3 +872,134 @@ investigations, the HTML-comment fix, the stray-marker cleanup, and this write-u
 roughly 90–110 minutes — the second-most expensive phase after Phase 6, for a similar
 reason (real discovery-logic work, not just grading). **1,848 skills now audited
 across seven independently-sourced corpora.**
+
+## Phase 9: nvidia/skills, forcedotcom/sf-skills, aws/agent-toolkit-for-aws (616 skills)
+
+Second phase of the Phase 8–14 roadmap — vendor wave 1 (corporate-DevRel authorship,
+three different vendors and domains at once). Three repos, pinned live immediately
+before cloning: `nvidia-skills` (344 raw), `forcedotcom-sf-skills` (179 raw),
+`aws-agent-toolkit-for-aws` (151 raw).
+
+### A third genuine `find_skill_dirs` gap: `aws-agent-toolkit-for-aws` found only 49 of 151
+
+Same standing discipline as Phase 6/8: `nvidia-skills` and `forcedotcom-sf-skills`
+both discovered exactly 344/179, matching the candidates doc's raw counts — no
+correction needed. `aws-agent-toolkit-for-aws` did not: only 49 of 151 discovered.
+Root cause: a literal top-level `skills/` collection directory — not preceded by any
+wildcard, unlike every pattern already in `find_skill_dirs` — with either two or
+three category levels of nesting beneath it before the skill's own directory
+(`skills/core-skills/amazon-bedrock/SKILL.md`,
+`skills/specialized-skills/database-skills/rds-db2/SKILL.md`). 101 of the 102 missing
+skills live at these two depths (the other 49 already matched the existing
+`plugins/<plugin>/skills/<skill>/SKILL.md` pattern). Checked for collisions against
+every other vendored corpus (old and new) before adding the two new patterns: zero
+matches anywhere else. **Fixed**: all 150 of 151 now discovered. One skill remains a
+documented, known gap rather than a fifth pattern justified by a single example: a
+doubly-nested sub-package shape
+(`plugins/aws-agents/skills/agents-pay/packages/openclaw/skills/agents-pay/SKILL.md`)
+— real content, but 1 instance out of 616 skills this phase, judged not worth the
+pattern-list risk that a narrower, single-purpose pattern would carry. Regression
+tests added to `tests/test_common_find_skill_dirs.py`. Full 129-test suite passes.
+
+### Content-level dedup, a third confirmation of the same mechanism
+
+`forcedotcom-sf-skills` has 29 content-duplicate groups (58 of 179 skills) — the same
+flat-`skills/`-plus-self-contained-mini-plugin dual-packaging pattern first found in
+`alirezarezvani` (Phase 6), not a new mechanism. `dedup_by_content` handles it with no
+code change. `nvidia-skills` has 1 duplicate group. **Final unique totals**: 343
+(nvidia) + 150 (forcedotcom) + 123 (aws) = **616 auditable skills**.
+
+### Genuine content defect, not a check bug: NVIDIA's `doca-*` family has systematic off-by-one relative links
+
+`path-references-exist` FAILed 78 of 616 skills — nearly all in `nvidia-skills`'
+`doca-*` family (DOCA is NVIDIA's DPU/BlueField SDK). Investigated directly rather
+than assumed: `doca-aes-gcm/SKILL.md` literally contains
+`` [`doca-debug`](../../doca-debug/SKILL.md) ``, but `doca-debug` is a *direct
+sibling* of `doca-aes-gcm` under `skills/` — the correct relative path is one level
+up (`../doca-debug/SKILL.md`), not two. Confirmed by testing both paths against the
+real directory tree, and confirmed the pattern is consistent across a random sample
+of the `doca-*` family, not an isolated typo. This is the same class of finding as
+Phase 6's 12 broken `../../../../megaprompts/` links in `alirezarezvani` — a real,
+reproducible authoring/sync defect in the third-party corpus itself (plausibly an
+artifact of NVIDIA's stated daily sync pipeline flattening a deeper source-repo
+structure into this consolidated `skills/` collection), not a `check_path_references`
+false-positive mechanism. Not fixed in SkillArtisan (nothing to fix); documented here
+as the highest-volume genuine true positive this check has produced across the whole
+pilot.
+
+### Flagged, not fixed: two more NVIDIA field families, one with a real security caveat
+
+35 `frontmatter-valid` FAILs, all in `nvidia-skills`, concentrated in two coherent
+families neither Claude-Code-native (checked against the official docs) nor already
+in `THIRD_PARTY_FIELD_FAMILIES`:
+
+- **`owner` / `service` / `reviewed`** (8 skills): a real, consistently-used internal
+  governance triplet (e.g. `owner: "NVIDIA CORPORATION"`, `service:
+  "auto-magic-calib"`, `reviewed: "2026-06-15"`) — same shape as issue #7's
+  cybersecurity taxonomy, a reasonable new family candidate.
+- **`tools`** (16 skills): a YAML list of literal Claude Code tool names
+  (`tools: [Read, Glob, Grep]`). **Important distinction, checked directly against
+  the official docs before drawing any conclusion**: this superficially resembles
+  the already-portable `allowed-tools` field, but `allowed-tools` has real runtime
+  permission-bypass semantics ("tools Claude can use without asking permission"),
+  while NVIDIA's `tools:` reads as descriptive/cataloging metadata alongside
+  `author`/`tags`/`version`, with no evidence its authors intended a permission
+  effect. **These must never be treated as aliases** — silently normalizing `tools`
+  into `allowed-tools` would risk granting real, unintended permission-bypass
+  behavior. Whatever fix this eventually gets must go through the same
+  `THIRD_PARTY_FIELD_FAMILIES` downgrade-to-warning path as `owner`/`service`/
+  `reviewed`, never the portable-field path.
+
+Two more instances of the already-tracked `triggers:` field (`nemotron-asr-finetune`,
+`nemotron-speech`) — the third and fourth corroborations after Phase 8's ~43, further
+supporting [#8](https://github.com/EONRaider/SkillArtisan/issues/8) without escalating
+it further. Not fixed speculatively — new issue tracked:
+[#9](https://github.com/EONRaider/SkillArtisan/issues/9).
+
+### Corroborated, not new
+
+- **`security-gitleaks-clean`**: a 384-finding outlier
+  (`forcedotcom-sf-skills`' `omnistudio-epc-catalog-generate`) is UUIDs used as
+  Salesforce/Vlocity record identifiers (`%vlocity_namespace%__GlobalKey__c`) in a
+  large product-catalog example dataset — the same confirmed-but-unfixable
+  high-entropy-string class established in Phase 4/5, now at unprecedented volume
+  because of dataset size, not a new mechanism.
+- **`security-pattern-checks` — `blocking-interactive-input`**: real interactive
+  hardware-calibration CLI workflows (`amc-run-rtsp-calibration`'s
+  `run_rtsp_calibration.py`, genuine `input()` calls for a camera-capture
+  confirmation flow) — same already-understood class as Phase 1's `wizard`, Phase 5's
+  `llm-cli`, Phase 8's `nextflow-development`.
+- **`security-pattern-checks` — `absolute-user-path`**: real, hardware-specific
+  deployment paths (`doca-bare-metal-deployment`'s `/home/ubuntu`,
+  `/mnt/home/ubuntu/.ssh/` — the standard user on NVIDIA's BlueField DPU appliance
+  OS) — same legitimate-fixed-target class as Phase 4's Windows-native tool syntax,
+  a different platform, same reasoning.
+- **`forward-slash-paths-only`** (2, `holoscan-install-container/wheel`): real
+  Windows-style paths in legitimate platform documentation, same corroborated class.
+- **`references-toc-for-long-files`** (289, sampled), **`description-pushy-imperative`**
+  (247, sampled — further corroboration of
+  [#6](https://github.com/EONRaider/SkillArtisan/issues/6)),
+  **`degrees-of-freedom-writing-style`** (81, sampled), **`no-time-sensitive-info`**
+  (39, sampled), **`no-human-docs-in-skill-dir`** (29), **`references-one-level-deep`**
+  (20): all genuine, all already-established check shapes across 8 prior phases —
+  no new mechanism in any sample checked.
+- **1 `rebuild`-decision skill** (`aws-agent-toolkit-for-aws`'s `amazon-dynamodb`,
+  631 lines) — confirmed genuinely oversized reference content.
+
+### Cost — a seventh hit-rate data point, and confirmation the npm fix holds at scale
+
+Review-queue hit rate: **569 of 616 (92%)** — in the high band alongside
+daymade/mukul975, higher than Phase 8's vendor corpus. Consistent with the plan's own
+caveat that vendor corpora wouldn't all land in the same low-to-mid band Phase 8 did —
+`nvidia-skills` in particular is technical, reference-heavy SDK/hardware documentation
+across many small product-specific skills, closer in shape to mukul975's
+security-education density than Phase 8's more uniform legal/financial-services
+prose. Execution: unchunked (616 skills, under the ~800-skill threshold that needed
+chunking in Phase 4), **72 seconds total wall-clock** with the local `skills-ref`
+install from Phase 8 in place — confirms that fix holds at a larger scale than it was
+first measured against (430 → 616 skills, no chunking, no npm-registry overhead).
+One real `find_skill_dirs` bug found and fixed, one confirmed-genuine content defect
+documented (not a SkillArtisan fix), one new `audit-gap` issue opened covering two
+field families. Total wall-clock including the discovery-logic investigation, the
+doca-family root-cause confirmation, and this write-up: roughly 60–75 minutes.
+**2,464 skills now audited across eight independently-sourced corpora.**

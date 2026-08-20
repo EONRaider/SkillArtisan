@@ -207,6 +207,21 @@ def find_skill_dirs(search_paths: list[Path]) -> list[Path]:
     blob, never traverses into it), which is why this was invisible during
     planning (verified via the GitHub API) and only surfaced once skills
     were actually being discovered on a real local filesystem.
+
+    Two more patterns added via the audit pilot's Phase 9 (aws/agent-toolkit-for-aws,
+    2026-08-20): a literal top-level `skills/` collection directory (not preceded by
+    any wildcard, unlike every other pattern here) with either two or three category
+    levels of nesting beneath it before the skill's own directory
+    (`skills/core-skills/amazon-bedrock/SKILL.md`,
+    `skills/specialized-skills/database-skills/rds-db2/SKILL.md`) — 101 of 151 skills
+    in that repo live at these two depths, missed entirely before this fix. Checked
+    for collisions against every other vendored corpus (old and new) before adding:
+    zero matches anywhere else. A third, much deeper shape in the same repo
+    (`plugins/aws-agents/skills/agents-pay/packages/openclaw/skills/agents-pay/SKILL.md`
+    — a sub-package bundling its own nested `skills/` collection) is real content but
+    a single instance; left as a documented, known gap rather than a fifth pattern
+    justified by one example (see `../vendored/README.md`'s
+    `aws-agent-toolkit-for-aws` entry).
     """
     found = []
     for base in search_paths:
@@ -220,6 +235,8 @@ def find_skill_dirs(search_paths: list[Path]) -> list[Path]:
             "*/*/SKILL.md",
             "*/skills/*/SKILL.md",
             "*/*/skills/*/SKILL.md",
+            "skills/*/*/SKILL.md",
+            "skills/*/*/*/SKILL.md",
             "*/*/*/skills/*/SKILL.md",
             "*/*/skills/*/*/SKILL.md",
             "*/*/skills/*/*/*/SKILL.md",

@@ -277,3 +277,86 @@ Approved Phase 8–14 roadmap for the skills.sh-sourced expansion:
   because it was expected to be a major source of new findings.
 - **Runnability confirmed**: same Python-only dependency chain as the rest of `scripts/`;
   no repo-specific tooling needed to audit it.
+
+### `nvidia-skills/`
+
+- **Repo**: `https://github.com/NVIDIA/skills`
+- **Pinned commit**: `04bc65e17242d305ffb09c18d0ef0817505cc2c3` (`main` HEAD,
+  2026-08-20T16:26:58Z) — fetched live immediately before cloning (2026-08-20).
+- **License — dual, corrected from the candidates doc's single-label read**: source
+  code under `LICENSE-APACHE` (Apache-2.0); **skill/documentation content itself
+  under `LICENSE-CC-BY-4.0`** (permissive, attribution-only, no share-alike) — the
+  repo's own README states this explicitly (`SPDX-License-Identifier: Apache-2.0 AND
+  CC-BY-4.0`). The candidates doc's GitHub-API single-label check only surfaced
+  Apache-2.0; both raw license files were read directly here. CC-BY-4.0 is
+  meaningfully more permissive than `trailofbits/skills`' CC-BY-SA-4.0 (no
+  copyleft/share-alike clause) — no policy carve-out needed for this repo the way one
+  was recorded for trailofbits.
+- **Structure**: 344 skill directories discovered, exactly matching the candidates
+  doc's raw git-tree count — no correction needed. 1 content-duplicate group.
+- **Distinct**: corporate-DevRel/product-sync authorship — the README states skills
+  are "maintained in their respective product repos... and synced to this repo
+  daily," a genuinely different maintenance model from every other source in this
+  pilot (single-repo-authored, even when multi-contributor). Broad technical/hardware
+  domain (Bedrock, DOCA/BlueField DPU, DeepStream, Omniverse, digital health,
+  quantum computing). Surfaced two new coherent frontmatter field families
+  (`owner`/`service`/`reviewed`, `tools`) and a genuine, reproducible authoring
+  defect in the `doca-*` skill family's cross-references — see
+  `../audit-pilot/RESULTS.md`'s Phase 9 section for both.
+- **Runnability confirmed**: same Python-only dependency chain as the rest of
+  `scripts/`; no repo-specific tooling needed to audit it.
+
+### `forcedotcom-sf-skills/`
+
+- **Repo**: `https://github.com/forcedotcom/sf-skills`
+- **Pinned commit**: `94f1dbdb643245745ba2e5d5cd1b546514b780a7` (`main` HEAD,
+  2026-08-18T17:18:08Z) — fetched live immediately before cloning (2026-08-20).
+- **License**: Apache-2.0 — raw `LICENSE.txt` file read directly (non-standard
+  filename, `.txt` suffix; content confirmed standard Apache-2.0 text,
+  "Copyright (c) 2026 Salesforce, Inc.").
+- **Structure**: 179 skill directories discovered, exactly matching the candidates
+  doc's raw git-tree count — no correction needed. 29 content-duplicate groups (58 of
+  179 skills) — the same flat-`skills/`-plus-self-contained-mini-plugin
+  dual-packaging pattern first found in `alirezarezvani` (Phase 6), handled by the
+  existing `dedup_by_content` with no code change. **150 unique auditable skills**
+  after dedup.
+- **Distinct**: first-party Salesforce content, Salesforce/OmniStudio/Agentforce
+  platform domain. One notable finding: a 384-instance `security-gitleaks-clean`
+  outlier (`omnistudio-epc-catalog-generate`) — confirmed as UUIDs used as Salesforce
+  Vlocity record identifiers in a large product-catalog example dataset, not real
+  secrets, the same confirmed-but-unfixable class from Phase 4/5 at unprecedented
+  volume.
+- **Runnability confirmed**: same Python-only dependency chain as the rest of
+  `scripts/`; no repo-specific tooling needed to audit it.
+
+### `aws-agent-toolkit-for-aws/`
+
+- **Repo**: `https://github.com/aws/agent-toolkit-for-aws`
+- **Pinned commit**: `4b8f1820ef4efa55bf3941191beec031f2681ae4` (`main` HEAD,
+  2026-08-20T12:41:44Z) — fetched live immediately before cloning (2026-08-20).
+- **License**: Apache-2.0 — raw `LICENSE` file read directly, standard text.
+- **Structure — a third genuine `find_skill_dirs` gap, fixed**: raw git-tree count
+  (151) matched the candidates doc, but local discovery initially found only 49. Root
+  cause: a literal top-level `skills/` collection directory (not preceded by any
+  wildcard, unlike every other pattern in `find_skill_dirs`) with two or three
+  category levels of nesting beneath it before the skill's own directory
+  (`skills/core-skills/amazon-bedrock/SKILL.md`,
+  `skills/specialized-skills/database-skills/rds-db2/SKILL.md`) — 101 of the 102
+  missing skills live at these two depths. Checked for collisions against every other
+  vendored corpus before adding the two new patterns: zero matches anywhere else.
+  Fixed; **150 of 151 now discovered**. The last skill
+  (`plugins/aws-agents/skills/agents-pay/packages/openclaw/skills/agents-pay/SKILL.md`
+  — a doubly-nested sub-package shape) is real content left as a documented, known
+  gap rather than a fifth pattern justified by one example. Regression tests in
+  `tests/test_common_find_skill_dirs.py`. 27 content-duplicate groups (54 of 150) —
+  the same flat-`skills/`-plus-mini-plugin dual-packaging pattern as
+  `forcedotcom-sf-skills` above and `alirezarezvani` (Phase 6): e.g.
+  `plugins/aws-core/skills/amazon-bedrock` mirrors
+  `skills/core-skills/amazon-bedrock` byte-for-byte. Handled by the existing
+  `dedup_by_content` with no code change. **123 unique auditable skills** after
+  dedup.
+- **Distinct**: first-party AWS content, broad cloud-infrastructure domain across
+  core and specialized categories (databases, networking, serverless, analytics,
+  resilience, security). One `rebuild`-decision skill (`amazon-dynamodb`, 631 lines).
+- **Runnability confirmed**: same Python-only dependency chain as the rest of
+  `scripts/`; no repo-specific tooling needed to audit it.
