@@ -6,6 +6,11 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.4.5] - 2026-08-20
+
+### Fixed
+- **Root `README.md` was a bare repo map, pointing visitors to `skill-artisan/README.md` just to learn what SkillArtisan does** — but it's the first thing anyone sees, both on the repo landing page and (as of `v2.4.4`'s GitHub Marketplace listing) on the Marketplace page too, which pulls its "About" content from the root README specifically. Verified live: the published Marketplace listing was showing the thin map text, not the actual pitch. Restructured across three files: root `README.md` now carries the full front door (intro, Why this exists, Install, Quick start, GitHub Action, Security, plus short Contributing/Status/Credits sections); `skill-artisan/README.md` keeps the `skill-creator` comparison table and "Verified against `skill-creator`'s current source" as deeper positioning/proof content, plus Quick start and Security as local reference for anyone browsing the installed plugin's own files; a new `CONTRIBUTING.md` holds what's genuinely dev-facing only — repo layout rationale, the plugin's internal architecture, and how to test the eval engine's subagents without a real install (GitHub auto-links `CONTRIBUTING.md` from new issues/PRs, making it the natural home rather than an invented redirect target). Re-verified live after the fix: the Marketplace listing now renders the full pitch.
+
 ## [2.4.4] - 2026-08-20
 
 ### Fixed
