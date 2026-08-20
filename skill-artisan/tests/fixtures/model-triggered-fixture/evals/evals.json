@@ -1,0 +1,22 @@
+{
+  "evals": [
+    {
+      "name": "fixture-loads-and-describes-purpose",
+      "description": "Sanity check that this fixture skill is discoverable and its SKILL.md is well-formed.",
+      "prompt": "Describe the purpose of the model-triggered-fixture skill.",
+      "expected": "The response should explain that this is a test fixture used by skill-artisan's own test suite as the model-triggered control case, not a real user-facing skill."
+    },
+    {
+      "name": "export-workflow-described",
+      "description": "Checks the skill's two-step export workflow is represented accurately.",
+      "prompt": "What does the model-triggered-fixture skill do, step by step?",
+      "expected": "The response should mention reading fixture data and writing a formatted report to disk."
+    },
+    {
+      "name": "trigger-context-present",
+      "description": "Checks the fixture's description carries real trigger-context framing, since it's the control case for normal (non-disable-model-invocation) trigger-optimization guidance.",
+      "prompt": "When should the model-triggered-fixture skill be used?",
+      "expected": "The response should reference exporting fixture data to a formatted report, matching the skill's 'Use when...' description."
+    }
+  ]
+}

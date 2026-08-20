@@ -1,0 +1,22 @@
+{
+  "evals": [
+    {
+      "name": "fixture-loads-and-describes-purpose",
+      "description": "Sanity check that this fixture skill is discoverable and its SKILL.md is well-formed.",
+      "prompt": "Describe the purpose of the user-invoked-fixture skill.",
+      "expected": "The response should explain that this is a test fixture used by skill-artisan's own test suite as the disable-model-invocation:true control case, not a real user-facing skill."
+    },
+    {
+      "name": "export-workflow-described",
+      "description": "Checks the skill's two-step export workflow is represented accurately.",
+      "prompt": "What does the user-invoked-fixture skill do, step by step?",
+      "expected": "The response should mention reading fixture data and writing a formatted report to disk."
+    },
+    {
+      "name": "user-invoked-only-recognized",
+      "description": "Checks the fixture's disable-model-invocation:true framing is recognized, since it's the control case proving trigger-optimization guidance doesn't apply.",
+      "prompt": "Would the user-invoked-fixture skill ever be auto-triggered by the model from a description match?",
+      "expected": "The response should state no — this skill has disable-model-invocation: true and is invoked exclusively by the user, e.g. via a slash command."
+    }
+  ]
+}

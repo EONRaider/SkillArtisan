@@ -11,3 +11,7 @@ field, so normal trigger-optimization guidance should still apply).
 
 1. Read the fixture data.
 2. Write the formatted report to disk.
+
+Lifecycle: encoded-preference, timelessness 10/10, last verified against
+claude-sonnet-5 (2026-08). Fixed, synthetic test behavior — doesn't age
+the way a capability-uplift skill would.

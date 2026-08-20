@@ -8,7 +8,8 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
-Nothing yet.
+### Fixed
+- **`model-triggered-fixture` and `user-invoked-fixture` (test fixtures under `tests/fixtures/`) carried three audit FAIL items** (`evals-present`, `security-scan-marker-current`, `lifecycle-classified`) purely from being minimal — nothing about them needed to stay incomplete. Added real eval cases (3 each) and a proper lifecycle classification line (`references/lifecycle.md`'s convention: both "lifecycle" and "timelessness" keywords in the SKILL.md body, not a bare frontmatter field) to both. `security-scan-marker-current` can't be fixed durably via a commit — `.security-scan-passed` is gitignored by design (confirmed: even the real `creating-skills/` skill only ever has a local, uncommitted one), so any fresh checkout, including every CI run, reports it missing regardless — that's the marker working as intended, not a fixture defect. Both fixtures now score 100% locally (after a real `security_scan.py` run) and 94% (15/16, 16/17 — only the marker item) on a fresh checkout, up from 80%/81% with three real FAILs. `tests/fixtures/gha-fix-pr-smoke-test` is deliberately left as-is — its incompleteness is the entire point of `self-test-action-fix-pr.yml`'s smoke test, not a gap.
 
 ## [2.4.1] - 2026-08-19
 
