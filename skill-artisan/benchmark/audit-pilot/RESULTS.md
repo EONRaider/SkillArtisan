@@ -417,3 +417,102 @@ crash after hardening. Total wall-clock for Phase 4 including chunking, triage a
 ~2,300 individual findings (grouped into 9 checklist-item categories, sampled per the
 established methodology — not read individually), and this write-up: roughly 45–60
 minutes. **944 skills now audited across three independently-sourced corpora.**
+
+## Phase 5: glebis/claude-skills (111 skills)
+
+Fourth corpus. Pinned `52fdf242` (`main` HEAD, 2026-08-19) — see `../vendored/README.md`.
+111 real skill directories (98 at repo root, 13 nested under `confide/skills/`), both
+shapes already discoverable. Ran unchunked (small enough not to need it): 108/111 audited
+cleanly, 3 skills errored — correctly, not a bug (below).
+
+### Confirmed, correct, first time exercised at bulk scale: zero-frontmatter skills error out cleanly
+
+3 skills (`daydream`, `insight-extractor`, `thinking-patterns`) have `SKILL.md` files with
+**no YAML frontmatter at all** — plain Markdown starting straight from a `# Title`
+heading. `audit.py report` has always treated this as unparseable (documented exit code
+4, "SKILL.md unreadable/unparseable" — a skill with no `name`/`description` genuinely
+can't be checklist-audited). This is the first time a bulk/chunked run actually hit that
+path, and `aggregate_findings.py`'s per-skill exception handling (added ahead of Phase 4)
+did exactly what it should: caught the `ValueError` for each of the 3, recorded a clean
+error entry, and kept auditing the other 108 — not a crash, not a silent skip, and not a
+new bug to fix. A genuine real-world validation of already-documented behavior, not a
+finding about it being wrong.
+
+### Bug #5 (fixed): `path-references-exist`'s fourth false-positive mechanism
+
+`agency-docs-updater` FAILed with "Missing referenced files: ~/.claude/skills/calendar-sync"
+— a real, deliberate cross-skill dependency reference:
+`[calendar-sync](~/.claude/skills/calendar-sync)`, documenting that this skill expects a
+companion skill installed elsewhere on the user's machine, not a file bundled inside
+`agency-docs-updater`'s own directory. `check_path_references` had no concept of a
+`~/`-prefixed target meaning "somewhere else entirely," on top of the two mechanisms
+(fenced blocks, inline code spans) already fixed for the same check across Phases 3 and
+2's Bug #2. **Fixed**: added `~` to `SKIP_PREFIXES` alongside `http://`/`https://`/
+`mailto:`/`#` — a target starting with `~` can never be a relative path within the
+skill's own bundle, so this carries no risk of masking a real broken intra-skill link, a
+cleaner case than either of the two earlier fixes for the same check. Verified: the skill
+now reports `path-references-exist — every relative link resolves`; rerunning across the
+full 111-skill corpus confirmed 100% PASS afterward — no other skill in this corpus had a
+masked real broken link either. Regression test added to `tests/test_validate.py`, whose
+docstring was updated to describe all four mechanisms found across three phases as one
+family, not four separate stories.
+
+### Real content, real true positives — a useful contrast with Phase 4
+
+Where Phase 4's security-education corpus mostly produced *confirmed-but-not-fixable
+false positives* on `security-pattern-checks` (fictional forensic paths, crafted-fake
+credentials), this personal-automation-tooling corpus produced the same checks firing on
+**genuine, real problems** in the audited content:
+
+- **`absolute-user-path`**: the author's own real home directory,
+  `/Users/glebkalinin/Brains/brain` (matching the author's actual name), hardcoded
+  throughout multiple skills — 22 occurrences in `automation-advisor` alone, across
+  `SKILL.md`, `README.md`, and reference docs. A genuine portability problem (none of
+  these skills work for anyone but the author as shipped) and a mild information-hygiene
+  one (reveals the author's real system username). Exactly the class of real leak this
+  check exists to catch — not a false positive at all.
+- **`blocking-interactive-input`**: real `input("You: ")` / `input("Select provider...")`
+  calls in `llm-cli`'s bundled `executor.py`/`llm_skill.py` — a genuinely interactive CLI
+  chat tool that would hang if the agent invoked it expecting non-interactive completion.
+- **`dangerous-code-pattern`**: real `import pickle` / `pickle.load(` in `gmail`'s bundled
+  `gmail_search.py` — a common but genuinely risky pattern (deserializing cached
+  credentials), correctly flagged.
+- **`security-gitleaks-clean`** (1 instance, `telegram-telethon`): a placeholder
+  `api_hash` value in a test fixture (`tests/conftest.py`) — the same "crafted, not real"
+  false-positive class as Phase 4, now confirmed in a third distinct context (test
+  fixtures, not tutorial prose or documentation). Not fixed, same reasoning as before.
+
+Together with Phase 4's contrasting result, this is good evidence these checks aren't
+inherently noisy — they correctly track what's actually in the content, and *which*
+result you get (mostly false positives vs. mostly true positives) depends on the corpus's
+genre, not on the checks themselves.
+
+### Corroborated, not new
+
+- **`description-pushy-imperative`**: further corroboration of
+  [#6](https://github.com/EONRaider/SkillArtisan/issues/6)'s "use for"/"use during"
+  phrasing gap.
+- **`references-toc-for-long-files`**: 23 FAILs sampled, all genuine — no TOC/Contents/
+  Index heading present. Bug #4 remains correctly calibrated on a fourth, structurally
+  different corpus.
+- **`no-human-docs-in-skill-dir`**: 15 FAILs, same pattern as daymade (README.md bundled
+  inside the skill's own directory) — not new.
+- **`frontmatter-valid`** (2 of 111, not a corpus-wide pattern like #7): both genuine
+  true positives, not tool defects — `temple-generator` uses `user_invocable` (underscore)
+  where the recognized field is `user-invocable` (hyphen), a real author typo/convention
+  slip, correctly caught; `library-sync` uses a bespoke `triggers` field with no
+  recognized counterpart. Low volume, no coherent taxonomy behind it the way #7's fields
+  are — no new issue opened.
+- **`body-size-limits`** (2 WARNs, 741 and 515 lines) — both well under the ~2x threshold
+  that would trigger a `rebuild` decision, correctly left as WARN, not FAIL.
+
+### Cost — a fourth hit-rate data point
+
+Review-queue hit rate: **83 of 108 (77%)** — between mattpocock's 11% and daymade/
+mukul975's 91%/100%, and unlike mukul975, a genuine mix of real true positives (the
+author's own leaked path, real interactive scripts, real risky deserialization) rather
+than mostly confirmed-but-unfixable noise. Execution: single unchunked run, ~85s total (no
+resilience issue this time — 111 skills stayed well under the threshold where Phase 4
+needed chunking). One real bug found and fixed. Total wall-clock including triage and
+write-up: roughly 30–40 minutes. **1,055 skills now audited across four independently-
+sourced corpora.**

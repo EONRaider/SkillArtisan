@@ -148,7 +148,7 @@ def classify_extended_fields(frontmatter: dict[str, str]) -> tuple[list[str], li
 LINK_RE = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
 FENCED_CODE_BLOCK_RE = re.compile(r"```.*?```", re.DOTALL)
 INLINE_CODE_SPAN_RE = re.compile(r"`[^`\n]*`")
-SKIP_PREFIXES = ("http://", "https://", "mailto:", "#")
+SKIP_PREFIXES = ("http://", "https://", "mailto:", "#", "~")
 
 
 def check_path_references(skill_path: Path, body: str) -> list[str]:
@@ -160,7 +160,11 @@ def check_path_references(skill_path: Path, body: str) -> list[str]:
     (e.g. "do NOT create links like `[doc.md](reviewed-document)`" — a
     daymade/claude-code-skills skill's actual cautionary example, ironically
     about this exact mistake), isn't a real reference into this skill's own
-    directory, and matching it produces a false "missing file" finding."""
+    directory, and matching it produces a false "missing file" finding. A
+    `~/`-prefixed target is skipped too — it names another skill's expected
+    *installed* location (e.g. `[calendar-sync](~/.claude/skills/calendar-sync)`,
+    a real cross-skill dependency reference found in glebis/claude-skills),
+    never a relative path within this skill's own bundle."""
     body = FENCED_CODE_BLOCK_RE.sub("", body)
     body = INLINE_CODE_SPAN_RE.sub("", body)
     missing = []

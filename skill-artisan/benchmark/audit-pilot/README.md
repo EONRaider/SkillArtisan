@@ -58,6 +58,17 @@ made on real data, not a guess — see `RESULTS.md`'s cost-data sections.
   Phases 4–7 candidates for having zero structural surprises after independent
   verification (see the Phases 4–7 plan) and the largest single-domain skill count.
 
+**Phase 5 — `glebis-claude-skills`**:
+- **Repo**: `https://github.com/glebis/claude-skills`
+- **Actually audited from**: `benchmark/vendored/glebis-claude-skills/`, cloned
+  specifically for this phase. See `../vendored/README.md` for the pin record.
+- **Pinned commit**: `52fdf242981c415a723abca8447ad08a3eb1f857` (`main` HEAD,
+  2026-08-19).
+- **Coverage**: all 111 skill directories discovered (108 successfully audited, 3
+  correctly errored — see `RESULTS.md`'s Phase 5 for why that's expected behavior, not a
+  bug) — a solo-maintainer, knowledge-work/personal-automation corpus, the smallest and
+  structurally simplest of the four Phases 4–7 candidates.
+
 ## Coverage
 
 Phase 1 (8 skills, deliberately spread across maturity tiers) ran first as a pilot; see
@@ -118,18 +129,18 @@ a skill lives in, and whether it's wired into `plugin.json`'s shipped `skills` l
 
 ## Status
 
-Full coverage across three independently-sourced corpora: 35/35 `mattpocock-skills` +
-92/92 `daymade-claude-code-skills` + 817/817 `mukul975-anthropic-cybersecurity-skills` =
-**944 real-world skills audited**. Six confirmed bugs found in SkillArtisan's own tooling
-(two in `security_scan.py`, three in `validate.py`/`audit.py` combined across all
-phases — see `CHANGELOG.md` for the exact breakdown), all fixed with regression tests;
-deferred gaps tracked as GitHub issues (`gh issue list --label audit-gap`), not just
-CHANGELOG prose. Phase 4 also validated `aggregate_findings.py`'s chunked/resumable
-execution mode under a real shell timeout — zero results lost. Shipped as `v2.4.6`
-(Phase 1/2) and follow-up releases for Phases 3 and 4 (see `CHANGELOG.md` for exact
-versions). See `RESULTS.md` for the full findings and cost data, and `SCALING.md` for the
-readiness assessment, including Phase 4's finding that a high review-queue hit rate isn't
-always "more bugs to fix" — sometimes it's a corpus whose genre legitimately triggers
-portability/secret-shaped checks throughout. Next: Phases 5–7 (`glebis`, `alirezarezvani`,
-`obra`) per the approved roadmap
+Full coverage across four independently-sourced corpora: 35/35 `mattpocock-skills` +
+92/92 `daymade-claude-code-skills` + 817/817 `mukul975-anthropic-cybersecurity-skills` +
+111/111 `glebis-claude-skills` = **1,055 real-world skills audited**. Seven confirmed bugs
+found in SkillArtisan's own tooling, all fixed with regression tests; deferred gaps
+tracked as GitHub issues (`gh issue list --label audit-gap`), not just CHANGELOG prose.
+Phase 4 validated `aggregate_findings.py`'s chunked/resumable execution mode under a real
+shell timeout — zero results lost; Phase 5 validated the same tool's per-skill exception
+handling against 3 skills with no frontmatter at all, and found a fourth mechanism for
+the `path-references-exist` false-positive class (fixed). Shipped as `v2.4.6` (Phase 1/2)
+and follow-up releases for Phases 3, 4, and 5 (see `CHANGELOG.md` for exact versions). See
+`RESULTS.md` for the full findings and cost data, and `SCALING.md` for the readiness
+assessment, including the finding that review-queue hit rate and finding *shape* (fixable
+bug vs. correct-but-unfixable signal vs. genuine true positive) vary independently by
+corpus genre. Next: Phases 6–7 (`alirezarezvani`, `obra`) per the approved roadmap
 (`~/.claude/plans/home-eonraider-desktop-verified-candida-imperative-thompson.md`).

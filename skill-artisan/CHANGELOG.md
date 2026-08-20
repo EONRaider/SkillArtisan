@@ -6,6 +6,18 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.4.9] - 2026-08-20
+
+### Added
+- **Fourth real-world audit corpus: all 111 skills in `glebis/claude-skills`** (Phase 5 of the approved Phases 4-7 roadmap), a solo-maintainer knowledge-work/personal-automation corpus. **1,055 real-world skills now audited across four independently-sourced corpora.** Ran unchunked (small enough not to need it) — first real-world exercise of the per-skill exception handling added ahead of Phase 4: 3 skills (`daydream`, `insight-extractor`, `thinking-patterns`) have `SKILL.md` files with no YAML frontmatter at all, correctly erroring out individually (documented `audit.py` exit code 4 behavior) rather than crashing the batch or being silently skipped — confirmed-correct behavior, not a bug.
+- **A useful contrast with Phase 4**: the same `security-pattern-checks` categories that were mostly confirmed-but-unfixable false positives on Phase 4's deliberately-crafted security-education examples turned out to be genuine true positives here — the author's own real home directory (`/Users/glebkalinin/Brains/brain`) hardcoded across multiple skills (22 occurrences in one skill alone), real blocking `input()` calls in an interactive CLI tool, real `pickle.load()` use for credential caching. Evidence these checks track real content correctly rather than being inherently noisy; which result you get depends on the corpus's genre. Full detail: `benchmark/audit-pilot/RESULTS.md`'s Phase 5 section.
+
+### Fixed
+- **`path-references-exist` had a fourth false-positive mechanism**, on top of the two already fixed in `[2.4.6]`/`[2.4.7]`: a `~/`-prefixed cross-skill dependency reference (`[calendar-sync](~/.claude/skills/calendar-sync)`, documenting that a skill expects a companion skill installed elsewhere on the user's machine) was treated as a broken relative link into the skill's own directory. Fixed by adding `~` to `SKIP_PREFIXES` alongside the existing `http://`/`https://`/`mailto:`/`#` exclusions — a `~/`-prefixed target can never be a relative path within the skill's own bundle, so this carries no risk of masking a real broken intra-skill link. Verified: the triggering skill now passes, and a full corpus re-run confirmed 100% PASS afterward. Regression test added to `tests/test_validate.py`.
+
+### Deferred, not forgotten
+- [#6](https://github.com/EONRaider/SkillArtisan/issues/6) (use-when phrasing) gained a fourth data point: 55% incidence in this corpus, between Phase 4's 82% and Phase 3's ~40% sample — three real-world corpora now show "use for"/"use during"/"use whenever" as a common, legitimate alternative phrasing, strengthening the case this is worth an actual fix.
+
 ## [2.4.8] - 2026-08-20
 
 ### Added

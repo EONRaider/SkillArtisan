@@ -126,6 +126,18 @@ needed before a "hundreds" run:
    account for both possibilities, not just raw hit-rate percentage — a security- or
    compliance-adjacent corpus should be expected to produce a high rate of "confirmed, not
    fixed" findings rather than "confirmed, fixed" ones.
+
+   **Fourth data point, Phase 5 (`glebis-claude-skills`, 111 skills): 77% hit rate** —
+   between mattpocock's 11% and daymade/mukul975's 91%/100%, landing in between because
+   this corpus mixes both shapes at once: one new real bug (`path-references-exist`'s
+   fourth false-positive mechanism, a `~/`-prefixed cross-skill reference) alongside a
+   cluster of genuine true positives on the exact same checks that were mostly false
+   positives in Phase 4 — this author's own real leaked home directory path (22 instances
+   in one skill alone), real interactive scripts, real risky deserialization. Confirms the
+   Phase 4 lesson generalizes: hit-rate *shape* (fixable bug vs. correct-but-unfixable
+   signal vs. genuine true positive) varies by corpus genre independently of hit-rate
+   *magnitude*, and a personal/real-world-tooling corpus tends toward true positives on
+   checks that fired as false positives on deliberately-crafted teaching content.
 4. **Parallel subagent grading, still unused so far.** Both Phase 1/2 (35 skills, full
    reads) and Phase 3 (92 skills, sampled reads) ran entirely inline, no subagents spawned
    — cheaper in practice than expected, so this was never actually needed yet. Stays a
@@ -138,14 +150,15 @@ needed before a "hundreds" run:
 
 ## Recommendation
 
-Mechanically proven across three independently-sourced corpora now (944 skills total, six
-real tool bugs found and fixed — see `RESULTS.md`). Phase 4 also validated the chunked/
-resumable execution mode added ahead of it: a real shell timeout hit mid-run, and zero
-results were lost because each ~100-skill chunk persists to disk immediately. Phases 5–7
-(glebis, alirezarezvani, obra) are approved and next; budget each one's grading pass
-expecting a hit rate anywhere from ~10% to 100%, and expect the *shape* of the findings to
-vary by domain the way Phase 4's did (a corpus's genre can produce a high rate of
-"confirmed, correctly firing, not fixable" findings rather than "confirmed, fixed" ones —
-budget review time for both, not just for finding new bugs). Reuse
-`aggregate_findings.py`'s chunking for any single source past a couple hundred skills, not
-just the largest one.
+Mechanically proven across four independently-sourced corpora now (1,055 skills total,
+seven real tool bugs found and fixed — see `RESULTS.md`). Phase 4 validated the chunked/
+resumable execution mode added ahead of it (a real shell timeout hit mid-run, zero results
+lost); Phase 5 validated that a small corpus (111 skills) doesn't need chunking at all,
+and that a personal/real-world-tooling corpus can land at any hit rate with any mix of
+fixable-bug/correct-but-unfixable/genuine-true-positive shapes — don't assume Phase 4's
+"high hit rate mostly means unfixable noise" pattern generalizes; Phase 5's high-ish rate
+(77%) was mostly genuine true positives instead. Phases 6–7 (alirezarezvani, obra) are
+approved and next; budget each one's grading pass expecting a hit rate anywhere from ~10%
+to 100%, with the finding *shape* varying by corpus genre independently of the rate
+itself. Reuse `aggregate_findings.py`'s chunking for any single source past a couple
+hundred skills, not just the largest one.
