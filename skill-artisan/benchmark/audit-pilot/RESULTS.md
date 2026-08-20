@@ -1494,3 +1494,131 @@ architecture investigation and its verification, the design-philosophy
 investigation, the two path-reference read-throughs, and this write-up: roughly
 75–90 minutes. **3,813 skills now audited across twelve independently-sourced
 corpora** (21 individual repos total across the full pilot).
+
+## Phase 14: kostja94/marketing-skills, refoundai/lenny-skills, yaklang/hack-skills (350 skills)
+
+Seventh and final phase of the approved Phase 8–14 roadmap — the domain trims
+(marketing, PM/podcast-derived, offensive-security). Pinned live immediately before
+cloning: `kostja94-marketing-skills` (172), `refoundai-lenny-skills` (76),
+`yaklang-hack-skills` (102) — all three exact matches against the candidates doc,
+all MIT licensed (raw `LICENSE` files read directly). All three discovered 100%
+clean under the new recursive `find_skill_dirs` (no gaps, no dedup, 0 symlinks, 0
+errors) — the third corpus batch in a row to confirm the Phase 13 architectural
+change generalizes without incident.
+
+### Highest-volume single-corpus instance yet of an already-tracked packaging defect
+
+`kostja94-marketing-skills` FAILs `frontmatter-valid` on 100 of 172 skills (58%) —
+every single one a directory/skill-name mismatch (`skills-ref`'s "Directory name...
+must match skill name..."), the same packaging-defect class first found in Phase 3
+and corroborated in Phases 6 and 8, now at by far the highest volume and percentage
+of any single corpus in the pilot. Investigated the root cause directly rather than
+assuming 100 independent mistakes: the author uses short, terse directory names for
+internal organization (`skills/analytics/sources/ai-traffic/`) while frontmatter
+`name:` fields carry the full, descriptive skill identifier
+(`name: ai-traffic-tracking`) — a real, consistent authoring convention across the
+whole corpus, not scattered typos. Same real-world consequence as every prior
+instance of this class (a directory-path-based loader could genuinely fail to
+resolve these by their declared name), just concentrated by one author's own
+organizational habit rather than distributed across many authors' individual
+mistakes.
+
+### A second confirmed instance of Phase 12's undocumented, unfixed false positive
+
+`kostja94`'s `article-content` FAILs `path-references-exist` on a literal
+`[Source](url)` — the exact same false-positive shape as Phase 12's adobe
+`url-or-embedded-image` finding: an unfenced, live-prose markdown-link placeholder
+in an example table row, not inside any fenced block, inline span, or HTML comment.
+Still not fixed, for the same reason as before — a literal string match on "url"
+alone would be far riskier and broader than "url-or-embedded-image" was, with no
+safe generalizable signal to anchor a fix on. Documented as a second, independent
+corroboration that this false-positive shape recurs, not a new mechanism to chase.
+
+### The pilot's highest-ever `description-pushy-imperative` rate: a genuine, not phrasing-gap, true positive
+
+`refoundai-lenny-skills` FAILs/WARNs `description-pushy-imperative` on 76 of 76
+skills (100%) — higher than mukul975's Phase 4 peak (82%). Checked directly rather
+than assumed equivalent-phrasing (issue #6's "use for"/"use during" gap):
+`acquisition-channels`' description — *"Help users identify unique distribution
+advantages and master the lifecycle of acquisition channels to build a sustainable
+engine for growth and retention"* — has no trigger framing under any phrasing, a
+plain declarative capability statement throughout the whole corpus. A genuine,
+consistent authoring-style difference (podcast-derived content, per this repo's own
+distinct provenance — sourced from a named podcast rather than organically authored
+technical documentation), not a phrasing variant of an already-fixed pattern.
+
+### One more genuine true positive for `path-references-exist`
+
+`kostja94`'s `website-structure` references `../../../docs/skills-reference.md`
+(three levels up), but the real file (`docs/skills-reference.md`, confirmed to
+exist) requires four levels up from that skill's actual depth
+(`skills/strategies/structure/website-structure/`) — a real, reproducible
+off-by-one-level authoring defect, verified by testing the exact resolution rather
+than assumed, same class as Phase 9's `doca-*` family and Phase 12's dotnet/grafana
+findings.
+
+### Corroborated, not new
+
+- **`security-gitleaks-clean`** (4, `yaklang`): a skill literally titled
+  `jwt-oauth-token-attacks` containing a realistic example JWT — exactly the
+  expected shape for security-education content, same confirmed-but-unfixable
+  class as Phase 4/5/9/11/12.
+- **`security-pattern-checks`** (58, sampled): real offensive-security tooling
+  content (`reverse-shell-techniques`' `dangerous-code-pattern`), same
+  already-understood class.
+- **`forward-slash-paths-only`** (11, all `yaklang`): real Windows-native
+  attack-technique syntax (`windows-lateral-movement`), same legitimate-content
+  class as Phase 4/9.
+- **`references-toc-for-long-files`** (76, sampled — every `refoundai` instance
+  checked genuinely lacks a TOC), **`no-time-sensitive-info`** (34, sampled),
+  **`body-size-limits`** (11, sampled): all genuine, all already-established check
+  shapes across 13 prior phases — no new mechanism in any sample checked.
+- **No `rebuild`-decision skills** — 350/350 `upgrade-in-place`.
+
+### Cost — the thirteenth and final hit-rate data point of the roadmap
+
+Review-queue hit rate: **237 of 350 (68%)** — mid-range, close to the running
+pilot median, with the two extremes this phase (`kostja94`'s 58%-of-corpus
+directory-mismatch concentration, `refoundai`'s 100% description-framing rate) both
+confirmed as genuine, real, corpus-specific patterns rather than tool
+miscalibration. Execution: unchunked, **~35 seconds total wall-clock** for all
+three repos combined, local `skills-ref` still holding, recursive `find_skill_dirs`
+clean across a third consecutive multi-repo batch. Zero new code bugs found — the
+correct, honestly-reported outcome for a phase whose real findings were volume/rate
+extremes of already-well-understood classes, not new mechanisms (the same
+legitimate "nothing new" result Phases 4 and 7 reported earlier in the pilot).
+Total wall-clock including the directory-mismatch root-cause investigation, the
+two path-reference read-throughs, and this write-up: roughly 50–65 minutes — one of
+the cheaper phases, proportionate to finding no new bugs and needing no code
+changes. **4,163 skills now audited across thirteen independently-sourced corpora**
+(24 individual repos total across the full pilot).
+
+## Roadmap complete: Phases 8–14
+
+The approved Phase 8–14 skills.sh-sourced expansion is done: seven phases, 19
+individual repos vendored and audited, adding 2,745 skills to the pilot's prior
+1,418 (Phases 1–7) for **4,163 skills across 25 individual repos total** — 13
+tracked corpus-additions in the running tally that counts each phase's batch as
+one, consistent throughout Phases 8–14. Five real
+`find_skill_dirs` discovery-logic bugs found and fixed (Phases 8 ×2, 9, 10, 12
+×2 — a plugins-wrapper shape, nested platform sub-skills, a root-level `skills/`
+collection at two depths, a bundled-template collision, a deeper
+`plugins/product/version` shape), one `check_path_references` mechanism repaired
+rather than skipped for the first time (Phase 11's `{baseDir}` template
+variable), and one full architectural replacement (Phase 13: ten accumulated
+fixed-depth patterns swapped for a single bounded recursive walk, verified safe
+against all 19 corpora vendored at the time before landing). Two field-family
+threads accumulated real cross-corpus evidence without being resolved
+speculatively (`triggers:`, now corroborated across three independent authorship
+models on #8; a general "new coherent field family" pattern corroborated five
+times on #9, including one — NVIDIA's `tools`/`allowed-tools` — with a real
+security distinction flagged explicitly). One genuine, unresolved design question
+opened and left for deliberate confirmation rather than a speculative regex guess
+(#10, `description-pushy-imperative`'s English-only bias, discovered on the
+pilot's first non-English corpus). Every release shipped end-to-end, including
+syncing the external `EONRaider/claude-plugins` marketplace manifest each time —
+current version `2.5.9` at roadmap completion, six releases (`2.5.4` through
+`2.5.9`, one per phase with a real code fix) each paired with its own marketplace
+sync commit. Phase 14 shipped no release — the correct outcome for a phase whose
+real findings were volume/rate extremes of already-understood classes, not new
+code bugs.

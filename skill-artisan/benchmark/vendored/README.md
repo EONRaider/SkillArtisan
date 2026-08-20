@@ -614,3 +614,62 @@ Approved Phase 8–14 roadmap for the skills.sh-sourced expansion:
   heuristic — a real design-philosophy difference, not a bug on either side.
 - **Runnability confirmed**: same Python-only dependency chain as the rest of
   `scripts/`; no repo-specific tooling needed to audit it.
+
+### `kostja94-marketing-skills/`
+
+- **Repo**: `https://github.com/kostja94/marketing-skills`
+- **Pinned commit**: `70987bad4ebe9dce1f74858c1c64f3f8810f18e4` (`main` HEAD,
+  2026-06-09T05:13:06Z) — fetched live immediately before cloning (2026-08-20).
+- **License**: MIT — raw `LICENSE` file read directly, "kostja94."
+- **Structure**: 172 skill directories discovered, exactly matching the candidates
+  doc's raw count — no correction needed. 0 content-duplicate groups, 0 errors,
+  clean under the recursive `find_skill_dirs`.
+- **Distinct**: marketing domain (largest of the trimmed cluster). The
+  highest-volume single-corpus instance of the directory/skill-name-mismatch
+  packaging defect in the whole pilot (100 of 172, 58%) — confirmed as a real,
+  consistent authoring convention (short internal directory names, full
+  descriptive frontmatter names), not scattered mistakes. Also a second confirmed
+  instance of Phase 12's undocumented, unfixable `path-references-exist` false
+  positive (`[Source](url)`, live-prose placeholder) and one genuine broken
+  cross-reference (`website-structure`, off-by-one-level). See
+  `../audit-pilot/RESULTS.md`'s Phase 14 section.
+- **Runnability confirmed**: same Python-only dependency chain as the rest of
+  `scripts/`; no repo-specific tooling needed to audit it.
+
+### `refoundai-lenny-skills/`
+
+- **Repo**: `https://github.com/RefoundAI/lenny-skills`
+- **Pinned commit**: `13598cc54e09399bc1bc1398b0fca284110efb2f` (`main` HEAD,
+  2026-07-15T21:06:41Z) — fetched live immediately before cloning (2026-08-20).
+- **License**: MIT — raw `LICENSE` file read directly, "Refound AI."
+- **Structure**: 76 skill directories discovered, exactly matching the candidates
+  doc's raw count — no correction needed. 0 content-duplicate groups, 0 errors.
+- **Distinct**: PM domain, content sourced from a named podcast (Lenny's Podcast)
+  — a genuinely different provenance character from any other corpus in the
+  pilot (skills built from a named third party's interview material, not
+  organically authored technical documentation). The pilot's highest-ever
+  `description-pushy-imperative` rate (76 of 76, 100%) — confirmed as a genuine,
+  consistent authoring-style difference (plain declarative capability statements
+  throughout, no trigger framing under any phrasing), not an equivalent-phrasing
+  gap.
+- **Runnability confirmed**: same Python-only dependency chain as the rest of
+  `scripts/`; no repo-specific tooling needed to audit it.
+
+### `yaklang-hack-skills/`
+
+- **Repo**: `https://github.com/yaklang/hack-skills`
+- **Pinned commit**: `c9a4b9ee8645eb60763eb4eef172f1ecb0a5b3e8` (`main` HEAD,
+  2026-06-16T16:11:43Z) — fetched live immediately before cloning (2026-08-20).
+- **License**: MIT — raw `LICENSE` file read directly, "VillanCh."
+- **Structure**: 102 skill directories discovered, exactly matching the
+  candidates doc's raw count — no correction needed. 0 content-duplicate groups,
+  0 errors.
+- **Distinct**: offensive-security domain (a third security-adjacent corpus
+  alongside `mukul975` and `trailofbits`, distinct sub-domain — web/network
+  attack techniques rather than mukul975's broader cybersecurity-education scope
+  or trailofbits' vulnerability-research tooling). All security-adjacent findings
+  (gitleaks JWT examples, dangerous-code-pattern in offensive tooling, real
+  Windows-native attack-technique syntax) matched already-established,
+  confirmed-genuine classes — no new mechanism.
+- **Runnability confirmed**: same Python-only dependency chain as the rest of
+  `scripts/`; no repo-specific tooling needed to audit it.
