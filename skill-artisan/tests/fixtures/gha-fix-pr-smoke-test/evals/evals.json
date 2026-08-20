@@ -1,0 +1,10 @@
+{
+  "evals": [
+    {
+      "name": "smoke-test-fixture-noop",
+      "description": "Placeholder eval for the disposable fix-PR smoke-test fixture. This skill has no real user-facing behavior to evaluate; this eval exists only so the evals-present audit check passes.",
+      "prompt": "This is a smoke-test fixture skill for skill-artisan's own CI. Respond with a one-sentence acknowledgement that this is a test fixture.",
+      "criteria": "Response acknowledges this is a test/smoke-test fixture and does not claim to perform any real user-facing task."
+    }
+  ]
+}
