@@ -25,7 +25,7 @@ This repo is the working home for **SkillArtisan** — a Claude Code plugin that
 
 ## Status
 
-**Current version: `2.4.1`** — see [`skill-artisan/CHANGELOG.md`](skill-artisan/CHANGELOG.md) for the full release history, and [`skill-artisan/README.md`](skill-artisan/README.md) for what SkillArtisan does.
+**Current version: `2.4.2`** — see [`skill-artisan/CHANGELOG.md`](skill-artisan/CHANGELOG.md) for the full release history, and [`skill-artisan/README.md`](skill-artisan/README.md) for what SkillArtisan does.
 
 ## License
 
