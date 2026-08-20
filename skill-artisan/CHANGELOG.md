@@ -6,6 +6,11 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.5.3] - 2026-08-20
+
+### Fixed
+- **The test suite's `REPO_ROOT = parents[2]` convention broke ~15 tests when run from an installed plugin copy**, not just the dev checkout — flagged, but deliberately left unfixed, at the end of the prior live-install check. Every test file computed `SCRIPTS_DIR = REPO_ROOT / "skill-artisan" / "scripts"` assuming a full monorepo layout (`<monorepo-root>/skill-artisan/tests/test_x.py`, two parents up is the monorepo root); `EONRaider/claude-plugins`' `git-subdir` source (`path: "skill-artisan"`) fetches only that directory's contents, so in an install the same test file sits one level shallower and the re-appended `"skill-artisan"` segment resolves nowhere. New shared `tests/_repo_paths.py` computes `PLUGIN_ROOT` as the test file's grandparent directory directly — always correct in both contexts, since that's exactly what `git-subdir`'s `path` fetches — and detects `MONOREPO_ROOT` (`None` in an install) for the handful of files genuinely outside the plugin (`action.yml`, the monorepo's own root `README.md`, the pre-2.5.1 root `marketplace.json`), which now `self.skipTest(...)` with a stated reason instead of erroring when those don't exist. All 15 affected test files updated to import from it. Verified three ways, not just by inspection: full suite from the dev checkout (121 pass), from a constructed installed-copy layout (116 pass, 5 skip with named reasons), and — the real test — copied into the actual `~/.claude/plugins/cache/eonraider/skillartisan/2.5.2/` directory `claude plugin install` had populated from the live marketplace and run from there (same 116/5 split).
+
 ## [2.5.2] - 2026-08-20
 
 ### Fixed

@@ -24,8 +24,8 @@ import sys
 import unittest
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-SCRIPTS_DIR = REPO_ROOT / "skill-artisan" / "scripts"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _repo_paths import SCRIPTS_DIR  # noqa: E402
 FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures"
 THIRD_PARTY_FIXTURE = FIXTURES_DIR / "third-party-fixture"
 USER_INVOKED_FIXTURE = FIXTURES_DIR / "user-invoked-fixture"

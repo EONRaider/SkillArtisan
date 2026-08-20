@@ -13,8 +13,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-SCRIPTS_DIR = REPO_ROOT / "skill-artisan" / "scripts"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _repo_paths import SCRIPTS_DIR  # noqa: E402
 sys.path.insert(0, str(SCRIPTS_DIR))
 
 import pr_execute  # noqa: E402

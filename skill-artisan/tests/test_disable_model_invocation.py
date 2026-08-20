@@ -20,9 +20,8 @@ import sys
 import unittest
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-SCRIPTS_DIR = REPO_ROOT / "skill-artisan" / "scripts"
-CREATING_SKILLS_DIR = REPO_ROOT / "skill-artisan" / "creating-skills"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _repo_paths import CREATING_SKILLS_DIR, SCRIPTS_DIR  # noqa: E402
 FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures"
 USER_INVOKED_FIXTURE = FIXTURES_DIR / "user-invoked-fixture"
 MODEL_TRIGGERED_FIXTURE = FIXTURES_DIR / "model-triggered-fixture"

@@ -19,8 +19,8 @@ import sys
 import unittest
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-SCRIPTS_DIR = REPO_ROOT / "skill-artisan" / "scripts"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _repo_paths import PLUGIN_ROOT, SCRIPTS_DIR  # noqa: E402
 
 sys.path.insert(0, str(SCRIPTS_DIR))
 
@@ -57,7 +57,7 @@ class TestCheckPathReferences(unittest.TestCase):
         self.assertEqual(missing, ["references/does-not-exist.md"])
 
     def test_real_valid_link_outside_a_fenced_block_still_resolves(self, ):
-        with_tmp = REPO_ROOT / "skill-artisan"
+        with_tmp = PLUGIN_ROOT
         body = "See [the scripts dir](scripts/validate.py) for details.\n"
         missing = validate.check_path_references(with_tmp, body)
         self.assertEqual(missing, [])

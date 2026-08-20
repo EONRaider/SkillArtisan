@@ -17,15 +17,23 @@ invariant can't be tested from here; what remains testable locally is:
 version pins that still live in this repo (plugin.json + README's Action
 pin and "Current version" line) agree, and (3) the root marketplace.json
 does not silently come back and recreate the name collision.
+
+The README/root-marketplace.json checks need the wrapping monorepo, which
+git-subdir installs never fetch (see _repo_paths.py) — they skip, not
+fail, when running from an install. plugin.json itself is always present
+either way, so the field-validity check always runs.
 """
 import json
 import re
+import sys
 import unittest
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-PLUGIN_JSON = REPO_ROOT / "skill-artisan" / ".claude-plugin" / "plugin.json"
-README = REPO_ROOT / "README.md"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _repo_paths import MONOREPO_ROOT, PLUGIN_ROOT  # noqa: E402
+
+PLUGIN_JSON = PLUGIN_ROOT / ".claude-plugin" / "plugin.json"
+README = MONOREPO_ROOT / "README.md" if MONOREPO_ROOT else None
 
 
 class TestPluginManifest(unittest.TestCase):
@@ -33,7 +41,7 @@ class TestPluginManifest(unittest.TestCase):
     def setUpClass(cls):
         with PLUGIN_JSON.open() as f:
             cls.plugin = json.load(f)
-        cls.readme = README.read_text()
+        cls.readme = README.read_text() if README else None
 
     def test_plugin_json_has_required_fields(self):
         for field in ("name", "version", "description", "author"):
@@ -43,6 +51,8 @@ class TestPluginManifest(unittest.TestCase):
                          "and the EONRaider/claude-plugins marketplace entry")
 
     def test_readme_version_pins_match_plugin_json(self):
+        if MONOREPO_ROOT is None:
+            self.skipTest("README.md lives one level above the plugin root — absent in an installed copy")
         version = self.plugin["version"]
         action_pins = re.findall(r"EONRaider/SkillArtisan@v(\S+)", self.readme)
         self.assertTrue(action_pins, "README lost its GitHub Action pin (`- uses: EONRaider/SkillArtisan@vX.Y.Z`)")
@@ -59,11 +69,17 @@ class TestPluginManifest(unittest.TestCase):
         """The root marketplace.json moved to EONRaider/claude-plugins because
         two repos declaring the same "eonraider" marketplace name collide.
         Reintroducing it here silently recreates that collision."""
-        self.assertFalse((REPO_ROOT / ".claude-plugin" / "marketplace.json").exists(),
+        if MONOREPO_ROOT is None:
+            self.skipTest("no wrapping monorepo to check in an installed copy — "
+                          "git-subdir only ever fetches the plugin root, so this collision "
+                          "can't recur from an install regardless")
+        self.assertFalse((MONOREPO_ROOT / ".claude-plugin" / "marketplace.json").exists(),
                          "root .claude-plugin/marketplace.json is back — the 'eonraider' marketplace "
                          "is canonically hosted in EONRaider/claude-plugins now")
 
     def test_readme_points_at_unified_marketplace(self):
+        if MONOREPO_ROOT is None:
+            self.skipTest("README.md lives one level above the plugin root — absent in an installed copy")
         self.assertIn("claude plugin marketplace add EONRaider/claude-plugins", self.readme,
                       "README install instructions must point at the unified marketplace repo")
         self.assertNotIn("marketplace add eonraider/SkillArtisan", self.readme,

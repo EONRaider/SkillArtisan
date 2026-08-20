@@ -11,13 +11,19 @@ form's action.yml validation panel while preparing to publish `v2.4.3`
 was a multi-line paragraph (~290 chars); nothing else in the repo's own
 tooling would have caught that before an actual publish attempt failed.
 This guards against a future edit growing it back past the limit.
+action.yml lives one level above the plugin root (see _repo_paths.py) —
+absent from an installed copy, since git-subdir only fetches the plugin
+root — so these tests skip rather than fail when run from an install.
 """
 import re
+import sys
 import unittest
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-ACTION_YML = REPO_ROOT / "action.yml"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _repo_paths import MONOREPO_ROOT  # noqa: E402
+
+ACTION_YML = MONOREPO_ROOT / "action.yml" if MONOREPO_ROOT else None
 
 # Matches only the top-level `description:` key (zero indentation) — the
 # `inputs.*.description` fields are indented and must not match here.
@@ -35,6 +41,8 @@ def get_top_level_description(text: str) -> str:
 
 class TestActionYmlDescription(unittest.TestCase):
     def test_description_under_marketplace_character_limit(self):
+        if ACTION_YML is None:
+            self.skipTest("action.yml lives one level above the plugin root — absent in an installed copy")
         text = ACTION_YML.read_text()
         description = get_top_level_description(text)
         self.assertLess(
@@ -44,6 +52,8 @@ class TestActionYmlDescription(unittest.TestCase):
         )
 
     def test_description_is_non_empty(self):
+        if ACTION_YML is None:
+            self.skipTest("action.yml lives one level above the plugin root — absent in an installed copy")
         text = ACTION_YML.read_text()
         description = get_top_level_description(text)
         self.assertTrue(description.strip())

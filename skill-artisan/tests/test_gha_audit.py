@@ -12,8 +12,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-SCRIPTS_DIR = REPO_ROOT / "skill-artisan" / "scripts"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _repo_paths import SCRIPTS_DIR  # noqa: E402
 FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures"
 
 sys.path.insert(0, str(SCRIPTS_DIR))
