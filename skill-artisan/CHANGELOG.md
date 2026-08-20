@@ -6,6 +6,11 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.4.4] - 2026-08-20
+
+### Fixed
+- **`action.yml`'s `description` (~290 chars, a multi-line paragraph) exceeded GitHub Marketplace's 125-character limit for Action descriptions** — found live, navigating to the actual "Edit release" page for `v2.4.3` ahead of publishing: the panel read "Your action.yml needs changes before it can be published... Description must be less than 125 characters." Nothing in the repo's own tooling would have caught this before an actual publish attempt failed; `name`, `icon`, `color`, and the README all passed the same validation with no complaints. Shortened to a single 119-character line covering the same two-mode pitch. Added `skill-artisan/tests/test_action_yml.py` (2 tests) as a regression guard — parses the top-level `description:` key (careful to skip the indented per-input `description` fields) and asserts it stays under 125 chars, so a future edit can't silently grow it back past the limit.
+
 ## [2.4.3] - 2026-08-20
 
 ### Fixed

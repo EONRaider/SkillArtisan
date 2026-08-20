@@ -1,9 +1,5 @@
 name: "SkillArtisan Audit"
-description: >-
-  Audit every Claude Agent Skill found in a repository against SkillArtisan's
-  checklist. With no API key supplied, produces a report only. With
-  ANTHROPIC_API_KEY supplied, additionally authors additive-only fixes for
-  skills with FAIL items and opens a pull request per skill for review.
+description: "Audit Claude Agent Skills in a repo against SkillArtisan's checklist; open additive-only pull requests to fix failures."
 author: "EONRaider"
 branding:
   icon: "check-circle"
