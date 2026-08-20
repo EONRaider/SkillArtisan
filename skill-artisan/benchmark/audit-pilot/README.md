@@ -87,4 +87,7 @@ Full repo coverage complete (35/35 skills, both phases). Two confirmed bugs foun
 SkillArtisan's own tooling (`security_scan.py`, `validate.py`), both fixed with
 regression tests (`tests/test_security_scan.py`, `tests/test_validate.py`); one
 identified false-positive mechanism left unfixed by design (see `RESULTS.md`'s Bug #2).
-See `RESULTS.md` for the full findings, cost data, and next-step recommendation.
+Shipped as `v2.4.6`. See `RESULTS.md` for the full findings, cost data, and
+`SCALING.md` for the readiness assessment behind scaling this methodology to hundreds of
+skills across multiple source repos, including `aggregate_findings.py` — a new tool
+that mechanically reproduces this run's own review-queue triage.
