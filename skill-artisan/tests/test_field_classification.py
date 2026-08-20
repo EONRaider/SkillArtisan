@@ -61,5 +61,53 @@ class TestAllowlistSyncedToDocs(unittest.TestCase):
         self.assertIn("user_invocable", unknown)
 
 
+class TestThirdPartyFieldFamilies(unittest.TestCase):
+    """Issue #7: mukul975/Anthropic-Cybersecurity-Skills' consistent
+    framework-mapping taxonomy (mitre_attack, nist_csf, domain, ...) FAILed
+    frontmatter-valid on 817 of 817 skills — a real, coherent field family,
+    not sloppy authoring. Recognized families now downgrade to a portability
+    warning; anything outside a family stays a hard error."""
+
+    MUKUL975_FRONTMATTER = {
+        "name": "windows-event-log-analysis", "description": "d",
+        "author": "mukul975", "domain": "forensics", "subdomain": "windows",
+        "mitre_attack": "T1070", "nist_csf": "DE.AE", "tags": "dfir",
+        "version": "1.0",
+    }
+
+    def test_family_fields_classify_as_known_third_party(self):
+        claude_only, known, unknown = validate.classify_extended_fields(self.MUKUL975_FRONTMATTER)
+        self.assertEqual(unknown, [], "family fields must not land in unknown (the hard-error bucket)")
+        self.assertEqual(claude_only, [])
+        self.assertIn("security-framework-taxonomy", known)
+        self.assertIn("common-authoring-metadata", known)
+        self.assertIn("mitre_attack", known["security-framework-taxonomy"])
+        self.assertIn("author", known["common-authoring-metadata"])
+
+    def test_mixed_frontmatter_fills_all_three_buckets(self):
+        frontmatter = {"name": "x", "description": "y", "context": "fork",
+                       "mitre_attack": "T1059", "totally_made_up_field": "z"}
+        claude_only, known, unknown = validate.classify_extended_fields(frontmatter)
+        self.assertEqual(claude_only, ["context"])
+        self.assertEqual(known, {"security-framework-taxonomy": ["mitre_attack"]})
+        self.assertEqual(unknown, ["totally_made_up_field"])
+
+    def test_bespoke_conventions_still_error(self):
+        """Recorded Phase 5/6 patterns deliberately kept OUT of the families."""
+        for field in ("triggers", "command", "agents", "compatible_tools", "user_invocable"):
+            _, known, unknown = validate.classify_extended_fields({"name": "x", field: "v"})
+            self.assertIn(field, unknown, f"{field} must stay a hard error")
+            self.assertEqual(known, {})
+
+    def test_family_warning_text_avoids_the_audit_filter_word(self):
+        """audit.py's check_frontmatter_and_paths buckets warnings by the
+        substring 'gerund' — the family warning must never contain it, or it
+        would be misattributed to the naming-convention checklist item."""
+        for name, fields in validate.THIRD_PARTY_FIELD_FAMILIES.items():
+            self.assertNotIn("gerund", name)
+            for f in fields:
+                self.assertNotIn("gerund", f)
+
+
 if __name__ == "__main__":
     unittest.main()

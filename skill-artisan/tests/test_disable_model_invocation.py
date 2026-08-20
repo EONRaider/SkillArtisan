@@ -50,7 +50,7 @@ class TestFieldClassification(unittest.TestCase):
 
     def test_classify_extended_fields_treats_it_as_informational(self):
         frontmatter = {"name": "x", "description": "y", "disable-model-invocation": "true"}
-        claude_only, unknown = validate.classify_extended_fields(frontmatter)
+        claude_only, _known_third_party, unknown = validate.classify_extended_fields(frontmatter)
         self.assertIn("disable-model-invocation", claude_only)
         self.assertNotIn("disable-model-invocation", unknown)
 

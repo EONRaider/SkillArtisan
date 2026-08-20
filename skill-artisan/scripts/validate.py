@@ -68,6 +68,23 @@ CLAUDE_CODE_ONLY_FIELDS = {
     "agent", "arguments", "disallowed-tools", "model", "effort", "background", "hooks", "shell",
 }
 
+# Known third-party metadata field families (issue #7). Real, coherent
+# taxonomies observed in the wild that aren't portable and aren't Claude Code
+# fields, but also aren't authoring mistakes — flagging them as hard errors
+# on 817/817 skills of a corpus (mukul975/Anthropic-Cybersecurity-Skills)
+# taught nothing. Fields here downgrade to a portability warning naming the
+# family. Deliberately NOT included, so they keep hard-erroring: recorded
+# true positives and bespoke one-off conventions (`user_invocable` — an
+# underscore typo for the real `user-invocable` — plus `triggers`, `command`,
+# `agents`, `compatible_tools` from the Phase 5/6 pilot notes).
+THIRD_PARTY_FIELD_FAMILIES: dict[str, set[str]] = {
+    "security-framework-taxonomy": {
+        "mitre_attack", "nist_csf", "d3fend_techniques", "mitre_f3",
+        "atlas_techniques", "nist_ai_rmf", "domain", "subdomain",
+    },
+    "common-authoring-metadata": {"author", "tags", "version"},
+}
+
 GERUND_SUFFIXES = ("ing", "ing-")
 
 
@@ -143,12 +160,23 @@ def check_gerund_form(name: str) -> str | None:
     )
 
 
-def classify_extended_fields(frontmatter: dict[str, str]) -> tuple[list[str], list[str]]:
-    """Split non-portable fields into (claude_code_only, genuinely_unknown)."""
+def classify_extended_fields(frontmatter: dict[str, str]) -> tuple[list[str], dict[str, list[str]], list[str]]:
+    """Split non-portable fields into (claude_code_only, known_third_party,
+    genuinely_unknown). known_third_party maps family name -> fields present,
+    for the families in THIRD_PARTY_FIELD_FAMILIES."""
     non_portable = [k for k in frontmatter if k not in PORTABLE_FIELDS]
     claude_only = [k for k in non_portable if k in CLAUDE_CODE_ONLY_FIELDS]
-    unknown = [k for k in non_portable if k not in CLAUDE_CODE_ONLY_FIELDS]
-    return claude_only, unknown
+    known_third_party: dict[str, list[str]] = {}
+    unknown = []
+    for k in non_portable:
+        if k in CLAUDE_CODE_ONLY_FIELDS:
+            continue
+        family = next((name for name, fields in THIRD_PARTY_FIELD_FAMILIES.items() if k in fields), None)
+        if family:
+            known_third_party.setdefault(family, []).append(k)
+        else:
+            unknown.append(k)
+    return claude_only, known_third_party, unknown
 
 
 LINK_RE = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
@@ -225,12 +253,22 @@ def validate(skill_path: Path) -> dict:
         if gerund_warning:
             result["warnings"].append(gerund_warning)
 
-    claude_only, unknown = classify_extended_fields(frontmatter)
+    claude_only, known_third_party, unknown = classify_extended_fields(frontmatter)
     if claude_only:
         result["info"].append(
             f"Claude Code-only fields present: {', '.join(sorted(claude_only))}. "
             f"These hard-error on spec-only surfaces (Claude.ai, Messages API, generic cross-vendor clients) — "
             f"fine if Claude Code is a target surface, see references/surface-matrix.md."
+        )
+    for family, fields in sorted(known_third_party.items()):
+        # Warning, not error: a recognized third-party metadata family — real
+        # taxonomy, not a typo. NOTE: this text must never contain the word
+        # audit.py filters warnings on (naming-convention check), see
+        # check_frontmatter_and_paths.
+        result["warnings"].append(
+            f"Known third-party metadata family '{family}': {', '.join(sorted(fields))}. "
+            f"Not portable — spec-compliant clients reject unrecognized fields; nest these under "
+            f"`metadata:` for cross-vendor compatibility."
         )
     if unknown:
         result["errors"].append(f"Unrecognized frontmatter field(s): {', '.join(sorted(unknown))}")

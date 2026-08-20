@@ -53,6 +53,9 @@ from _common import find_skill_dirs, parse_skill_md
 #   FAIL   - verified false, a real problem
 #   WARN   - a heuristic signal worth a look, not a hard failure
 #   MANUAL - script cannot verify this; needs a human or LLM read
+#   N/A    - the check looks for a SkillArtisan pipeline artifact this skill's
+#            source never produces (third-party skills, issue #4); the detail
+#            still reports what was observed, but it isn't scored
 # Only PASS/FAIL count toward the pass-rate summary (item 1's requirement:
 # "never a bare binary verdict" means the report itself must be itemized,
 # not that every item can be force-fit into a binary).
@@ -268,10 +271,14 @@ def check_content_hygiene(body: str) -> list[dict]:
     return items
 
 
-def check_lifecycle_classified(body: str, frontmatter: dict[str, str]) -> dict:
+def has_lifecycle_markers(body: str, frontmatter: dict[str, str]) -> bool:
     has_marker = "lifecycle" in body.lower() and "timelessness" in body.lower()
     has_metadata = "lifecycle" in frontmatter.get("metadata", "").lower()
-    if has_marker or has_metadata:
+    return has_marker or has_metadata
+
+
+def check_lifecycle_classified(body: str, frontmatter: dict[str, str]) -> dict:
+    if has_lifecycle_markers(body, frontmatter):
         return {"id": "lifecycle-classified", "status": "PASS", "detail": "lifecycle/timelessness classification present (see references/lifecycle.md)"}
     return {"id": "lifecycle-classified", "status": "FAIL", "detail": "no lifecycle classification found — add one per references/lifecycle.md"}
 
@@ -287,6 +294,54 @@ def check_degrees_of_freedom_proxy(body: str) -> dict:
             "detail": f"{len(hits)} bare MUST/ALWAYS/NEVER directives — heuristic only, read each for an explained why (references/writing-philosophy.md)"}
 
 
+# --- Source detection (issue #4) ----------------------------------------------
+# Three checklist items (evals-present, security-scan-marker-current,
+# lifecycle-classified) verify artifacts only SkillArtisan's own pipeline
+# produces — on a skill authored elsewhere they FAILed ~100% of the time
+# regardless of actual quality (confirmed across all six audit-pilot corpora).
+# A skill counts as first-party if ANY pipeline artifact is present: one
+# artifact means it entered the pipeline, so hold it to the full checklist.
+# Deliberately not "all artifacts present" — that would make the three checks
+# unfalsifiable (a fresh first-party draft missing an artifact would silently
+# reclassify as third-party and skip the gate it exists to enforce). Authors
+# can always force the mode with --source.
+
+
+def detect_source(skill_path: Path) -> str:
+    """Return 'first-party' or 'third-party' based on SkillArtisan pipeline artifacts."""
+    marker_path = skill_path / security_scan.MARKER_FILENAME
+    if marker_path.exists():
+        try:
+            marker = json.loads(marker_path.read_text())
+        except (json.JSONDecodeError, OSError):
+            marker = None
+        # Only this pipeline's marker shape ({"hash": ..., "algorithm": ...})
+        # counts — 85 skills in the vendored daymade corpus ship a same-named
+        # plain-text marker from a different tool, which must not flip them to
+        # first-party. A stale-but-ours marker still counts (the skill entered
+        # the pipeline; the stale hash is then a real first-party finding).
+        if isinstance(marker, dict) and "hash" in marker:
+            return "first-party"
+    evals_file = skill_path / "evals" / "evals.json"
+    if evals_file.exists():
+        try:
+            data = json.loads(evals_file.read_text())
+        except (json.JSONDecodeError, OSError):
+            data = None
+        # Only the {"evals": [...]} wrapper is this pipeline's shape — a bare
+        # list is a documented third-party shape (see check_evals_present).
+        if isinstance(data, dict) and "evals" in data:
+            return "first-party"
+    body, frontmatter = get_body(skill_path)
+    if has_lifecycle_markers(body, frontmatter):
+        return "first-party"
+    return "third-party"
+
+
+def resolve_source(skill_path: Path, requested: str) -> str:
+    return detect_source(skill_path) if requested == "auto" else requested
+
+
 MANUAL_ONLY_ITEMS = [
     {"id": "coherent-unit-scoping", "status": "MANUAL",
      "detail": "read the skill's one-sentence job description — does it need 'and' to join two unrelated verbs? (references/writing-philosophy.md)"},
@@ -297,18 +352,45 @@ MANUAL_ONLY_ITEMS = [
 ]
 
 
-def run_checklist(skill_path: Path) -> list[dict]:
+def run_checklist(skill_path: Path, source: str = "first-party") -> list[dict]:
     body, frontmatter = get_body(skill_path)
+    third_party = source == "third-party"
     items: list[dict] = []
     items += check_frontmatter_and_paths(skill_path)
     items.append(check_description_quality(frontmatter))
     items.append(check_body_size(body))
     items += check_references_depth_and_toc(skill_path)
     items.append(check_no_human_docs_in_skill_dir(skill_path))
-    items.append(check_evals_present(skill_path))
-    items += check_security(skill_path)
+
+    evals_item = check_evals_present(skill_path)
+    if third_party and evals_item["detail"] == "no evals/evals.json":
+        # Reframe only the missing-artifact case: a present evals file (bare
+        # list included — the check already understands that shape) is real
+        # content and stays scored regardless of source.
+        evals_item = {"id": "evals-present", "status": "N/A",
+                      "detail": "no evals/evals.json — a SkillArtisan pipeline artifact, not expected in a "
+                                "third-party skill; not scored. Add evals via the eval workflow if adopting this skill."}
+    items.append(evals_item)
+
+    security_items = check_security(skill_path)
+    if third_party:
+        for item in security_items:
+            if item["id"] == "security-scan-marker-current" and item["status"] == "FAIL":
+                item["status"] = "N/A"
+                item["detail"] = (f"{item['detail']} — the marker is a SkillArtisan packaging artifact, not expected "
+                                  "in a third-party skill; not scored. security-gitleaks-clean and "
+                                  "security-pattern-checks below still scan the actual content.")
+    items += security_items
+
     items += check_content_hygiene(body)
-    items.append(check_lifecycle_classified(body, frontmatter))
+
+    lifecycle_item = check_lifecycle_classified(body, frontmatter)
+    if third_party and lifecycle_item["status"] == "FAIL":
+        lifecycle_item = {"id": "lifecycle-classified", "status": "N/A",
+                          "detail": "no lifecycle classification — a SkillArtisan authoring convention "
+                                    "(references/lifecycle.md), not expected in a third-party skill; not scored. "
+                                    "Classify on adoption."}
+    items.append(lifecycle_item)
     items.append(check_degrees_of_freedom_proxy(body))
     context_value = frontmatter.get("context", "inline (default)")
     items.append({"id": "architecture-declared", "status": "PASS", "detail": f"context: {context_value}"})
@@ -327,9 +409,11 @@ def summarize(items: list[dict]) -> dict:
     failed = sum(1 for i in scored if i["status"] == "FAIL")
     warned = sum(1 for i in items if i["status"] == "WARN")
     manual = sum(1 for i in items if i["status"] == "MANUAL")
+    not_applicable = sum(1 for i in items if i["status"] == "N/A")
     total_scored = passed + failed
     return {
         "passed": passed, "failed": failed, "warned": warned, "manual": manual,
+        "not_applicable": not_applicable,
         "total_scored": total_scored,
         "pass_rate": round(passed / total_scored, 3) if total_scored else 0.0,
     }
@@ -375,8 +459,10 @@ def find_unmapped_sections(body: str) -> list[str]:
 # --- Single-skill report ------------------------------------------------------
 
 
-def audit_skill(skill_path: Path, timelessness: int | None, lifecycle_category: str | None) -> dict:
-    items = run_checklist(skill_path)
+def audit_skill(skill_path: Path, timelessness: int | None, lifecycle_category: str | None,
+                source: str = "auto") -> dict:
+    resolved_source = resolve_source(skill_path, source)
+    items = run_checklist(skill_path, source=resolved_source)
     summary = summarize(items)
     decision = decide_upgrade_vs_rebuild(items, timelessness, lifecycle_category)
     body, _ = get_body(skill_path)
@@ -385,6 +471,7 @@ def audit_skill(skill_path: Path, timelessness: int | None, lifecycle_category: 
     return {
         "skill_name": name or skill_path.name,
         "skill_path": str(skill_path),
+        "source": resolved_source,
         "items": items,
         "summary": summary,
         "decision": decision,
@@ -395,7 +482,10 @@ def audit_skill(skill_path: Path, timelessness: int | None, lifecycle_category: 
 def print_report(report: dict) -> None:
     s = report["summary"]
     print(f"Audit: {report['skill_name']} ({report['skill_path']})")
-    print(f"Checklist: {s['passed']}/{s['total_scored']} pass ({s['pass_rate']*100:.0f}%), {s['warned']} warning(s), {s['manual']} item(s) need a manual/LLM read\n")
+    print(f"Source: {report['source']}" + (" — checks for SkillArtisan pipeline artifacts are reported N/A, not scored"
+                                           if report["source"] == "third-party" else ""))
+    na_note = f", {s['not_applicable']} n/a" if s.get("not_applicable") else ""
+    print(f"Checklist: {s['passed']}/{s['total_scored']} pass ({s['pass_rate']*100:.0f}%), {s['warned']} warning(s), {s['manual']} item(s) need a manual/LLM read{na_note}\n")
     for i in report["items"]:
         print(f"  [{i['status']:>6}] {i['id']} — {i['detail']}")
     print(f"\nDecision: {report['decision']['decision'].upper()}")
@@ -431,7 +521,7 @@ def cmd_bulk(args: argparse.Namespace) -> int:
     reports = []
     for skill_dir in skill_dirs:
         try:
-            reports.append(audit_skill(skill_dir, args.timelessness, args.lifecycle))
+            reports.append(audit_skill(skill_dir, args.timelessness, args.lifecycle, source=args.source))
         except (ValueError, OSError) as e:
             reports.append({"skill_name": skill_dir.name, "skill_path": str(skill_dir), "error": str(e)})
 
@@ -445,8 +535,9 @@ def cmd_bulk(args: argparse.Namespace) -> int:
             print(f"  {r['skill_name']}: ERROR — {r['error']}")
             continue
         s = r["summary"]
+        na_note = f"  {s['not_applicable']} n/a" if s.get("not_applicable") else ""
         print(f"  {r['skill_name']:<30} {s['passed']}/{s['total_scored']} pass ({s['pass_rate']*100:.0f}%)  "
-              f"{s['warned']} warn  {s['manual']} manual  -> {r['decision']['decision']}")
+              f"{s['warned']} warn  {s['manual']} manual{na_note}  [{r['source']}]  -> {r['decision']['decision']}")
     print("\nRun `audit.py report <skill-path>` on any individual skill above for the full itemized breakdown.")
     return 0
 
@@ -499,7 +590,7 @@ def cmd_report(args: argparse.Namespace) -> int:
         print(f"Error: not a directory: {skill_path}", file=sys.stderr)
         return 2
     try:
-        report = audit_skill(skill_path, args.timelessness, args.lifecycle)
+        report = audit_skill(skill_path, args.timelessness, args.lifecycle, source=args.source)
     except (ValueError, OSError) as e:
         print(f"Error: could not audit {skill_path}: {e}", file=sys.stderr)
         return 4
@@ -522,6 +613,11 @@ def main() -> None:
     p_report.add_argument("--lifecycle", choices=["capability-uplift", "encoded-preference"], default=None,
                            help="Lifecycle category (references/lifecycle.md) — supply alongside --timelessness")
     p_report.add_argument("--json", action="store_true", help="Emit structured JSON instead of a text report")
+    p_report.add_argument("--source", choices=["auto", "first-party", "third-party"], default="auto",
+                           help="Skill provenance. auto (default) infers first-party from SkillArtisan pipeline artifacts "
+                                "(.security-scan-passed, wrapped evals.json, lifecycle marker); third-party reports "
+                                "pipeline-artifact checks as N/A instead of FAIL. Pass first-party explicitly for a fresh "
+                                "draft that hasn't produced any artifact yet.")
     p_report.set_defaults(func=cmd_report)
 
     p_bulk = sub.add_parser("bulk", help="Audit every skill found under a directory (row 31)")
@@ -529,6 +625,8 @@ def main() -> None:
     p_bulk.add_argument("--timelessness", type=int, default=None, metavar="0-10", help="Applied to every skill audited — omit unless every skill genuinely shares one score")
     p_bulk.add_argument("--lifecycle", choices=["capability-uplift", "encoded-preference"], default=None)
     p_bulk.add_argument("--json", action="store_true", help="Emit structured JSON instead of a text report")
+    p_bulk.add_argument("--source", choices=["auto", "first-party", "third-party"], default="auto",
+                         help="Skill provenance, applied to every skill (auto resolves per skill — mixed corpora work)")
     p_bulk.set_defaults(func=cmd_bulk)
 
     p_pr = sub.add_parser("pr-plan", help="Print an additive-only contribution plan for a third-party skill (row 32 — plan only, this subcommand never executes)")
