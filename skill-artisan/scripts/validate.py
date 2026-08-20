@@ -58,8 +58,14 @@ RESERVED_WORDS = ("anthropic", "claude")
 PORTABLE_FIELDS = {"name", "description", "license", "compatibility", "metadata", "allowed-tools"}
 
 # Claude Code extensions (references/surface-matrix.md documents these in full).
+# Synced against the official frontmatter reference at
+# https://code.claude.com/docs/en/skills.md — the pre-sync list was missing
+# eight documented fields, which made validate.py hard-FAIL real skills using
+# them (issue #5's `agent: general-purpose` alongside `context: fork` was the
+# corpus find that exposed this).
 CLAUDE_CODE_ONLY_FIELDS = {
     "disable-model-invocation", "user-invocable", "context", "paths", "when_to_use", "argument-hint",
+    "agent", "arguments", "disallowed-tools", "model", "effort", "background", "hooks", "shell",
 }
 
 GERUND_SUFFIXES = ("ing", "ing-")

@@ -25,6 +25,14 @@ The full-capability surface: subagents, a browser (for the eval viewer), the `cl
 | `paths` | Restricts which project paths the skill's auto-triggering considers relevant (monorepo scoping). |
 | `when_to_use` | A structured alternative/supplement to prose triggering guidance in `description`. |
 | `argument-hint` | Autocomplete hint text when the skill is invoked as a slash command. |
+| `arguments` | Named positional arguments for string substitution when invoked as a slash command. |
+| `agent` | Which subagent type handles the forked invocation when `context: fork` is set (e.g. `general-purpose`, `Explore`, or a custom agent from `.claude/agents/`). Defaults to `general-purpose`. |
+| `background` | With `context: fork`: set `false` to wait for the fork's result instead of running it in the background. |
+| `model` | Model to use while this skill is active. |
+| `effort` | Effort level while this skill is active (`low`, `medium`, `high`, `xhigh`, `max`). |
+| `disallowed-tools` | Tools removed from the available pool while the skill runs (complement of the portable `allowed-tools`). |
+| `hooks` | Hooks registered for the duration of the skill invocation. |
+| `shell` | Shell used for commands (`bash` or `powershell`). |
 
 **Directory-qualified nested skills**: in a monorepo, `apps/web:deploy` addresses a skill scoped to a specific subdirectory rather than the whole repo — useful when multiple subprojects have same-named but different skills (`apps/web:deploy` vs. `apps/api:deploy`).
 

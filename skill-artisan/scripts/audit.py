@@ -111,6 +111,17 @@ def is_user_invoked_only(frontmatter: dict[str, str]) -> bool:
     return frontmatter.get("disable-model-invocation", "").strip().lower() == "true"
 
 
+# Trigger-framing phrases equivalent to the canonical "Use when...". Found in
+# the wild across five audit-pilot corpora (issue #6): "use whenever", "use
+# for X, Y, Z", "use during authorized red-team...", "use this skill when..."
+# — incidence 8.6%–82% per corpus. Deliberately NOT matched: a bare "use" or
+# "you MUST use this" with no trigger clause — pushy without saying *when*
+# doesn't help the model's trigger decision, so those still WARN.
+TRIGGER_FRAMING_RE = re.compile(
+    r"\buse\s+(?:this\s+(?:skill\s+)?)?(?:when(?:ever)?|if|for|during)\b", re.IGNORECASE
+)
+
+
 def check_description_quality(frontmatter: dict[str, str]) -> dict:
     desc = frontmatter.get("description", "")
     if not desc:
@@ -123,11 +134,21 @@ def check_description_quality(frontmatter: dict[str, str]) -> dict:
     if len(desc) < 40:
         return {"id": "description-pushy-imperative", "status": "FAIL",
                 "detail": f"description missing or under 40 chars ({len(desc)} chars) — likely fails to trigger reliably"}
-    has_use_when = "use when" in desc.lower()
-    status = "PASS" if has_use_when and len(desc) >= 100 else "WARN"
-    detail = ("has 'Use when...' framing and real length" if status == "PASS"
-              else "missing 'Use when...' framing or short — read against references/frontmatter-spec.md's worked example")
-    return {"id": "description-pushy-imperative", "status": status, "detail": detail}
+    has_framing = bool(TRIGGER_FRAMING_RE.search(desc))
+    long_enough = len(desc) >= 100
+    if has_framing and long_enough:
+        return {"id": "description-pushy-imperative", "status": "PASS",
+                "detail": "has trigger framing ('Use when/whenever/for/during...') and real length"}
+    # Say which condition actually fired — the old OR-phrased message couldn't
+    # tell an author whether to add framing or add length (RESULTS.md, obra's
+    # test-driven-development: had 'Use when' but was 72 chars).
+    problems = []
+    if not has_framing:
+        problems.append("missing trigger framing ('Use when...' or an equivalent like 'use whenever/for/during')")
+    if not long_enough:
+        problems.append(f"short ({len(desc)} chars, under 100)")
+    return {"id": "description-pushy-imperative", "status": "WARN",
+            "detail": " and ".join(problems) + " — read against references/frontmatter-spec.md's worked example"}
 
 
 def check_body_size(body: str) -> dict:
