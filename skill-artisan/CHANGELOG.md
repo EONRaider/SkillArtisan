@@ -6,6 +6,18 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.4.6] - 2026-08-20
+
+### Added
+- **First real-world validation of `audit.py` against skills it didn't author** — every prior QA pass tested the authoring/eval engine on a synthetic corpus; the audit path itself had never been run against skills that exist in the wild. Audited all 35 skills in `mattpocock-skills` v1.2.3 (`github.com/mattpocock/skills`), grading every finding by hand against the actual source rather than trusting the tool's own report. Confirmed the checklist tracks something real: the reserved-word naming check (`frontmatter-valid` flagging "claude"/"anthropic" in a skill's `name`) predicted real-world exclusion in 3 of 3 cases — every "claude"-named skill in the repo sits outside the author's own shipped list, without being told about it in advance. Full findings, methodology, and cost data in `benchmark/audit-pilot/`.
+
+### Fixed
+- **`security_scan.py`'s `blocking-interactive-input` check matched ordinary English prose, not just real blocking calls** — `INTERACTIVE_INPUT_PATTERNS`'s `input(` pattern flagged a comment reading "visible input (non-secret)" as a HIGH-severity finding, at the wrong line number, on a skill (`wizard`) whose entire documented purpose is walking a human through blocking interactive prompts. Found via the real-world audit pilot above, not the existing synthetic corpus. Fixed by skipping full-line comments before applying the pattern. Regression test: `tests/test_security_scan.py`.
+- **`validate.py`'s `path-references-exist` check matched markdown-link-shaped text inside fenced code-block documentation examples as if they were real file references** — `wayfinder`'s SKILL.md includes a \`\`\`markdown template example containing a worked-example link, `[<closed ticket title>](link)`; the literal word "link" isn't a path, but the check flagged it as a missing file. Fixed by stripping fenced code blocks before scanning for links. Regression test: `tests/test_validate.py`. A second, harder instance of the same check (`setup-ts-deep-modules`, an inline non-fenced documentation example) was deliberately left unfixed — distinguishing "an example of a link" from "a real reference" in ordinary prose is a genuine judgment call, not something a regex can safely automate without risking false negatives on real broken links; documented in `benchmark/audit-pilot/RESULTS.md`.
+
+### Deferred, not forgotten
+- **Third-party-source mode for `audit.py`.** Three checklist items (`evals-present`, `security-scan-marker-current`, `lifecycle-classified`) FAILed on all 35 of 35 real-world skills audited above, with zero exceptions — each checks for a SkillArtisan-specific artifact no skill authored outside this pipeline would ever have, which dilutes the checklist pass-rate number and would read as tone-deaf to an outside author. A real scope decision (reframe vs. hard-FAIL for third-party audits), not a one-line patch — left for a future release.
+
 ## [2.4.5] - 2026-08-20
 
 ### Fixed
