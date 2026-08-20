@@ -21,13 +21,11 @@ This repo is the working home for **SkillArtisan** — a Claude Code plugin that
 └── skill-artisan-master-spec.md      # design spec + 40-row Gap Table vs. skill-creator
 ```
 
-`skill-artisan-master-spec.md` stays at the root because it documents the *build process* itself, not the plugin — there's no equivalent inside `skill-artisan/`. `README.md`, `CHANGELOG.md`, and `LICENSE` exist only inside `skill-artisan/`; root-level copies of those three were removed after they drifted out of sync with the real ones (the root `CHANGELOG.md` copy kept saying "nothing shipped yet" long after v1.0.1 had). One canonical copy each, no duplication to keep in sync.
-
-Two more files existed at the root during earlier development and were deliberately removed, including from git history: `skill-artisan-TODO.md` (a pre-implementation research log, redundant with the master spec's own "Appendix: Research Provenance" section) and `skill-artisan-claude-code-prompt.md` (the two build prompts — Prompt A for v1 and Prompt B for v2, both now run). The prompt file is kept locally rather than published; it's git-ignored rather than tracked, since the project intentionally doesn't publish its own build prompts.
+`skill-artisan-master-spec.md` stays at the root because it documents the *build process* itself, not the plugin — there's no equivalent inside `skill-artisan/`. `README.md`, `CHANGELOG.md`, and `LICENSE` exist only inside `skill-artisan/` — one canonical copy each, not duplicated at root.
 
 ## Status
 
-**Current version: `2.4.1`** (per [`skill-artisan/CHANGELOG.md`](skill-artisan/CHANGELOG.md) and `plugin.json`). Both release stages of the master spec (v1 `1.0.0` and v2 `2.0.0`) are built and shipped, followed by eleven patch/minor releases (`2.0.1` through `2.4.1`) — five fixing real bugs in the eval/description-optimization engine itself, caught through actual regression testing rather than left as theoretical risk, `2.4.0` adding the GitHub Action (see `skill-artisan/README.md`'s "GitHub Action" section), and `2.4.1` fixing an idempotency bug found while live-testing that Action. v1 (Stages 1-4: eval engine, decision/dedup gate, five-surface matrix, security scanning) was verified against a live `claude -p` session and a real `gitleaks` install, then dogfooded on a real project skill before v2 began. v2 (Stages 5-6: lifecycle framing, audit mode) was verified against Anthropic's actual shipped `skill-creator` and a set of throwaway test skills, not just written and assumed correct. See `CHANGELOG.md` for what shipped, what's deliberately deferred (the Best-in-Market Scorecard hasn't been run — no "best in market" claim is made anywhere), and the master spec's Gap Table for the row-by-row comparison against `skill-creator` and other prior art.
+**Current version: `2.4.1`** — see [`skill-artisan/CHANGELOG.md`](skill-artisan/CHANGELOG.md) for the full release history, and [`skill-artisan/README.md`](skill-artisan/README.md) for what SkillArtisan does.
 
 ## License
 
