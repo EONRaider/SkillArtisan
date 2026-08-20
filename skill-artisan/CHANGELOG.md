@@ -8,10 +8,7 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 
 ## [Unreleased]
 
-### Deferred, not forgotten
-- **Multi-model verification scope, reduced from the literal smoke preset.** `--preset smoke` nominally means 5 runs per configuration, with/without-skill both. Running the full 5×2×3-model matrix (30 runs per eval, 180 total) was disproportionate to what "quick capability check" should cost, so the actual run below used 1 rep, with-skill only, per eval per model (18 runs). This answers the real question ("does `creating-skills` perform reliably across model sizes") without re-deriving a with/without delta per model, which the checklist item doesn't ask for. Noted here so a future full-rep run isn't assumed redundant.
-- **Best-in-Market Scorecard full run** (master spec's "Best-in-Market Scorecard" section, companion prompt's "The Best-in-Market Scorecard (full run)"). Both source documents gate this explicitly behind "if asked to run it" — it requires building a 12-20 skill benchmark corpus, cloning and running `daymade/claude-code-skills` and `tripleyak/SkillForge` as live comparison arms alongside Anthropic's shipped `skill-creator`, and dozens of real `claude -p` with/without-skill benchmark runs per arm. Not run yet; nobody asked for it yet, and the master spec is explicit that "best in market" must not be claimed anywhere until it has been. Axis 1 (checklist compliance) can now be scored against the *full* Gap Table rather than the v1-scoped subset, since v2 is shipped — that's the one thing `2.0.0` changed about the scorecard's own preconditions.
-- **Fresh-session confirmation of `agents/*.md` subagent invocability post-install.** `2.1.0` confirmed a local install doesn't refresh the *current* session's subagent-type registry; a session started fresh *after* install is expected to pick the plugin's agents up (the same mechanism verified working in `[1.0.0]`), but that specific half wasn't independently re-tested inside this session's own tooling — noted so it isn't silently assumed confirmed twice over.
+Nothing yet.
 
 ## [2.4.1] - 2026-08-19
 
