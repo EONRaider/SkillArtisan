@@ -6,6 +6,15 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.5.8] - 2026-08-20
+
+### Fixed
+- **`_common.find_skill_dirs` missed 43 real skills in `adobe/skills`**: a `plugins/<product>/<version>/skills/<category>/<name>/SKILL.md` shape one wildcard deeper on both sides of the literal `skills` component than the existing nested pattern, e.g. `plugins/aem/6.5-lts/skills/aem-workflow/workflow-triaging/SKILL.md`. Checked for collisions against every vendored corpus before adding the new pattern: zero matches anywhere else. 162 of 162 now discovered.
+- **A fifth exclusion-worthy intermediate directory, `example`, added to `find_skill_dirs`**: `flutter/agent-plugins` bundles two deliberate test fixtures for its own SKILL.md linter under `tool/dart_skills_lint/example/skills/{valid,invalid}/SKILL.md`, both explicitly self-described as fixtures in their own body text. Checked across every corpus audited so far before adding `example` alongside the existing `assets`/`tests`/`fixtures` exclusions: these two are the only matches anywhere.
+
+### Notes
+- Phase 12 of the real-world audit pilot: 464 skills audited across the second vendor wave (`adobe/skills`, `google/skills`, `dotnet/skills`, `grafana/skills`, `flutter/agent-plugins`), completing the 10-repo first-party-vendor cluster begun in Phase 9. `dotnet/skills` initially looked like a second discovery gap but turned out to be the Phase 10 `assets`/`tests`/`fixtures` exclusion working correctly on a brand-new corpus (real test fixtures for dotnet's own skill-validator tooling), not a new bug. Also documented (not code-fixed, by design): one genuine `path-references-exist` false positive with no safe general pattern (an unfenced literal placeholder in checklist prose), and two genuine true positives — real broken content in `dotnet/skills` and `grafana/skills`' own documentation. Full narrative: `skill-artisan/benchmark/audit-pilot/RESULTS.md`'s Phase 12 section.
+
 ## [2.5.7] - 2026-08-20
 
 ### Fixed

@@ -195,6 +195,46 @@ class TestFindSkillDirsSymlinks(unittest.TestCase):
             self.assertIn(real, found)
             self.assertNotIn(template, found)
 
+    def test_product_version_wrapped_nested_skill_is_discovered(self):
+        """adobe/skills (Phase 12): plugins/<product>/<version>/skills/<category>/
+        <name>/SKILL.md — one wildcard deeper on both sides of the literal `skills`
+        component than the existing */*/skills/*/*/SKILL.md pattern. 43 of 162 real
+        skills were missed entirely before this pattern was added."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            nested = root / "plugins" / "aem" / "6.5-lts" / "skills" / "aem-workflow" / "workflow-triaging"
+            make_skill(nested, "workflow-triaging")
+
+            found = find_skill_dirs([root])
+            self.assertIn(nested, found)
+
+    def test_test_fixture_in_eng_tooling_dir_is_not_discovered(self):
+        """dotnet/skills (Phase 12): eng/skill-validator/tests/fixtures/sample-skill/
+        SKILL.md — real test fixtures for the repo's own validator tooling, not real
+        skills. Confirms the Phase 10 assets/tests/fixtures exclusion generalizes
+        correctly to a new corpus and a new intermediate-path shape, not just the
+        one it was built against."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            fixture = root / "eng" / "skill-validator" / "tests" / "fixtures" / "sample-skill"
+            make_skill(fixture, "sample-skill")
+
+            found = find_skill_dirs([root])
+            self.assertNotIn(fixture, found)
+
+    def test_linter_example_fixture_is_not_discovered(self):
+        """flutter/agent-plugins (Phase 12): tool/dart_skills_lint/example/skills/
+        {valid,invalid}/SKILL.md — deliberate test fixtures for the repo's own
+        SKILL.md linter (explicitly self-described as fixtures in their own body
+        text, both carrying metadata: internal: true), not real skills."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            fixture = root / "tool" / "dart_skills_lint" / "example" / "skills" / "invalid"
+            make_skill(fixture, "NotInvalid")
+
+            found = find_skill_dirs([root])
+            self.assertNotIn(fixture, found)
+
 
 if __name__ == "__main__":
     unittest.main()

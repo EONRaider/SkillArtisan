@@ -463,3 +463,109 @@ Approved Phase 8–14 roadmap for the skills.sh-sourced expansion:
   [#9](https://github.com/EONRaider/SkillArtisan/issues/9)).
 - **Runnability confirmed**: same Python-only dependency chain as the rest of
   `scripts/`; no repo-specific tooling needed to audit it.
+
+### `adobe-skills/`
+
+- **Repo**: `https://github.com/adobe/skills`
+- **Pinned commit**: `c94ebf018b19b4e075ccce1c15428c6f39dbedcd` (`main` HEAD,
+  2026-08-20T17:28:52Z) — fetched live immediately before cloning (2026-08-20).
+- **License**: Apache-2.0 — raw `LICENSE` file read directly, standard text.
+- **Structure — a fourth genuine `find_skill_dirs` gap, fixed**: raw exact-filename
+  tree count (162) exceeded the candidates doc's original figure (161) by one and
+  local discovery initially found only 119. Root cause:
+  `plugins/<product>/<version>/skills/<category>/<name>/SKILL.md` — one wildcard
+  deeper on both sides of the literal `skills` component than the existing
+  `*/*/skills/*/*/SKILL.md` pattern, e.g.
+  `plugins/aem/6.5-lts/skills/aem-workflow/workflow-triaging/SKILL.md`. Checked for
+  collisions against every vendored corpus before adding: zero matches anywhere
+  else. Fixed — **162 of 162 now discovered**, 0 content-duplicate groups.
+- **Distinct**: first-party vendor content (a named enterprise product line, Adobe
+  Experience Manager, plus Workfront), two-tier product/version/category-umbrella
+  structure (a category like `aem-workflow` is itself a skill with sub-skills
+  beneath it) — explains an unusually high `no-human-docs-in-skill-dir` count (56)
+  as a genuine structural consequence, not a check anomaly. One genuine, undocumented
+  `path-references-exist` false positive (`code-review`'s literal
+  `url-or-embedded-image` placeholder in unfenced checklist prose) left unfixed —
+  no safe general pattern, see `../audit-pilot/RESULTS.md`'s Phase 12 section.
+- **Runnability confirmed**: same Python-only dependency chain as the rest of
+  `scripts/`; no repo-specific tooling needed to audit it.
+
+### `google-skills/`
+
+- **Repo**: `https://github.com/google/skills`
+- **Pinned commit**: `3e9cfe3744226e78f289f827f53d4943fb6bf16e` (`main` HEAD,
+  2026-08-20T18:08:34Z) — fetched live immediately before cloning (2026-08-20).
+- **License**: Apache-2.0 — raw `LICENSE` file read directly, standard text.
+- **Structure**: 111 skill directories discovered, exactly matching the candidates
+  doc's raw count — no correction needed. 0 content-duplicate groups, 0 errors.
+- **Distinct**: first-party Google vendor content. No corpus-specific findings
+  beyond already-established, sampled-and-confirmed check categories shared across
+  this phase's whole vendor-wave-2 batch.
+- **Runnability confirmed**: same Python-only dependency chain as the rest of
+  `scripts/`; no repo-specific tooling needed to audit it.
+
+### `dotnet-skills/`
+
+- **Repo**: `https://github.com/dotnet/skills`
+- **Pinned commit**: `ab761ad27acdf2751d97a3c4439182a6721f2631` (`main` HEAD,
+  2026-08-19T17:41:47Z) — fetched live immediately before cloning (2026-08-20).
+- **License**: MIT — raw `LICENSE` file read directly, ".NET Foundation and
+  Contributors."
+- **Structure — a discrepancy that turned out to be the Phase 10 fix working
+  correctly, not a new gap**: raw exact-filename tree count (106) matched the
+  candidates doc; local discovery initially found 104. The missing 2
+  (`eng/skill-validator/tests/fixtures/{no-eval-skill,sample-skill}/SKILL.md`) are
+  real test fixtures for this repo's own skill-validator tooling, correctly
+  excluded by the `assets`/`tests`/`fixtures` intermediate-directory rule added in
+  Phase 10 for `mims-harvard/tooluniverse` — confirms that fix generalizes across
+  corpora rather than being a one-off patch. **104 is the correct, final count.**
+  0 content-duplicate groups.
+- **Distinct**: first-party Microsoft/.NET Foundation content, real production
+  first-party tooling context (its own `eng/skill-validator` — a dotnet-authored
+  SKILL.md linter, structurally analogous to SkillArtisan's own validator). One
+  genuine, real broken reference found in `authoring-github-workflows`
+  (`agentic-workflows.agent.md` referenced, but the real file is
+  `agentic-workflows.md`) — a true positive, not a check mechanism issue.
+- **Runnability confirmed**: same Python-only dependency chain as the rest of
+  `scripts/`; no repo-specific tooling needed to audit it.
+
+### `grafana-skills/`
+
+- **Repo**: `https://github.com/grafana/skills`
+- **Pinned commit**: `51d33e71e191b409bbd25fc7be2684c610d18166` (`main` HEAD,
+  2026-08-18T08:38:56Z) — fetched live immediately before cloning (2026-08-20).
+- **License**: Apache-2.0 — raw `LICENSE` file read directly, standard text.
+- **Structure**: 51 skill directories discovered, exactly matching the candidates
+  doc's raw count — no correction needed. 0 content-duplicate groups, 0 errors.
+- **Distinct**: first-party Grafana Labs content (LGTM stack — Loki, Grafana,
+  Tempo, Mimir — plus k6, Pyroscope). One genuine, real broken reference found in
+  `loki` (three referenced files — `logql.md`, `configuration.md`, `send-data.md`
+  — confirmed via whole-repo search not to exist anywhere) — a true positive, a
+  real content gap in the source repo. One deliberate scaffold-template skill
+  (`name: your-skill-name` in a directory named `template`) correctly flagged by
+  `frontmatter-valid`, not a real skill's own identity.
+- **Runnability confirmed**: same Python-only dependency chain as the rest of
+  `scripts/`; no repo-specific tooling needed to audit it.
+
+### `flutter-agent-plugins/`
+
+- **Repo**: `https://github.com/flutter/agent-plugins`
+- **Pinned commit**: `1e5696a2e986345f7ecc92842b5e9293bc079d6f` (`main` HEAD,
+  2026-08-20T18:33:03Z) — fetched live immediately before cloning (2026-08-20).
+- **License**: BSD-3-Clause — raw `LICENSE` file read directly, "Copyright 2026
+  The Flutter Authors."
+- **Structure — a fifth exclusion-worthy intermediate directory, fixed**: raw
+  exact-filename tree count (38) matched the candidates doc; local discovery
+  initially found all 38 structurally, but 2 were real false positives:
+  `tool/dart_skills_lint/example/skills/{valid,invalid}/SKILL.md` — deliberate test
+  fixtures for the repo's own SKILL.md linter, both explicitly self-described as
+  fixtures in their own body text and both carrying `metadata: {internal: true}`.
+  Checked across every corpus audited so far before adding `example` to
+  `find_skill_dirs`' intermediate-directory exclusion set: these two are the only
+  matches anywhere. Fixed — **36 real skills discovered**, 0 content-duplicate
+  groups.
+- **Distinct**: first-party Google/Flutter content, dev-tooling domain (Dart/Flutter
+  CLI workflows, its own skill-linter's dogfooded skills). Smallest vendor-cluster
+  repo by real skill count.
+- **Runnability confirmed**: same Python-only dependency chain as the rest of
+  `scripts/`; no repo-specific tooling needed to audit it.

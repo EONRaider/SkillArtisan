@@ -1254,3 +1254,122 @@ expensive phase since Phase 6, proportionate to genuinely new investigative grou
 (first non-English corpus, first check-repair-not-skip fix) rather than repeated
 discovery-logic work. **2,988 skills now audited across ten independently-sourced
 corpora.**
+
+## Phase 12: adobe/skills, google/skills, dotnet/skills, grafana/skills, flutter/agent-plugins (464 skills)
+
+Fifth phase of the Phase 8–14 roadmap — vendor wave 2, completing the 10-repo
+first-party-vendor cluster begun in Phase 9. Pinned live immediately before
+cloning: `adobe-skills` (162 raw), `google-skills` (111), `dotnet-skills` (106
+raw), `grafana-skills` (51), `flutter-agent-plugins` (38 raw). All five license
+files read directly: Apache-2.0 (adobe, google, grafana), MIT (dotnet, ".NET
+Foundation and Contributors"), BSD-3-Clause (flutter, "The Flutter Authors").
+
+### Two structural discrepancies, two very different outcomes
+
+Both `adobe-skills` and `dotnet-skills` showed a discovery gap against their raw
+tree counts. Investigated both before assuming either was a real bug:
+
+- **`adobe-skills`: a genuine, fourth `find_skill_dirs` structural gap.** Found only
+  119 of 162. Root cause: `plugins/<product>/<version>/skills/<category>/<name>/SKILL.md`
+  — one wildcard deeper on *both* sides of the literal `skills` component than the
+  existing `*/*/skills/*/*/SKILL.md` pattern (Phase 8's zoom-plugin shape), e.g.
+  `plugins/aem/6.5-lts/skills/aem-workflow/workflow-triaging/SKILL.md`. All 43
+  missing skills follow the identical shape and are confirmed genuine, curated
+  content (a real AEM production-support triaging skill). Checked for collisions
+  against every vendored corpus before adding the new pattern: zero matches
+  anywhere else. **Fixed — 162 of 162 now discovered.**
+- **`dotnet-skills`: not a gap at all — the Phase 10 fix working correctly on a
+  brand-new corpus.** Found 104 of 106; the missing 2 turned out to be
+  `eng/skill-validator/tests/fixtures/{no-eval-skill,sample-skill}/SKILL.md` — real
+  test fixtures for dotnet's own skill-validator tooling, correctly excluded by the
+  `assets`/`tests`/`fixtures` intermediate-directory rule added in Phase 10 for a
+  completely different corpus. Confirms that fix generalizes, not a one-off patch
+  for `tooluniverse` specifically. **104 is the correct, final count.**
+
+### Bug #9 (fixed): a fifth exclusion-worthy intermediate directory — `example`
+
+`flutter-agent-plugins` discovered 2 more false positives beyond the discrepancy
+count above:
+`tool/dart_skills_lint/example/skills/{valid,invalid}/SKILL.md` — deliberate test
+fixtures for the repo's own SKILL.md linter, both explicitly self-described as
+fixtures in their own body text ("A deliberately broken fixture used by
+example/README.md...", "Reference fixture for dart_skills_lint...") and both
+carrying `metadata: {internal: true}`. Checked across every corpus audited so far
+(all 12 prior, not just the newest 5) before adding `example` to the exclusion set
+alongside `assets`/`tests`/`fixtures`: these two are the only matches anywhere.
+**Fixed** — `find_skill_dirs` now discovers 36 of `flutter-agent-plugins`' real
+skills (38 raw minus the 2 confirmed fixtures). Regression tests for both Phase 12
+fixes added to `tests/test_common_find_skill_dirs.py`. Full 135-test suite passes.
+
+### `path-references-exist`'s 3 findings: one real false positive, two real true positives
+
+Low-volume enough to read every one directly rather than sample:
+
+- **`adobe-skills`' `code-review`**: `![Desktop Screenshot](url-or-embedded-image)`
+  — a literal, *unfenced* markdown-image placeholder in live checklist prose (a PR
+  review template with "Before: [URL]" / "After: [URL]" slots nearby), not inside
+  any fenced block, inline span, or HTML comment. A genuine false positive, but
+  **not fixed**: unlike the six mechanisms already fixed this pilot, there's no
+  clean, generalizable signal here — the only distinguishing feature is the exact
+  literal string "url-or-embedded-image," and pattern-matching on one specific
+  string wouldn't generalize to any future case. Documented, not coded around.
+- **`dotnet-skills`' `authoring-github-workflows`**: references
+  `.github/agents/agentic-workflows.agent.md`, but the real file is named
+  `agentic-workflows.md` (no `.agent` in the filename) — a genuine, reproducible
+  authoring defect in dotnet's own docs, same class as Phase 9's `doca-*` off-by-one
+  links. Confirmed directly: the real file exists, just under a different name.
+- **`grafana-skills`' `loki`**: references three files
+  (`references/logql.md`/`configuration.md`/`send-data.md`) that don't exist
+  *anywhere* in the repo, confirmed by a whole-repo search, not just the skill's own
+  directory. A genuine content gap in grafana's own docs, not a check mechanism
+  issue.
+
+### Corroborated, not new
+
+- **`no-human-docs-in-skill-dir`** (56, all `adobe-skills`): genuine and
+  structurally explained, not a check anomaly — many of adobe's plugin categories
+  (e.g. `aem-workflow`) are themselves category-umbrella skills (with their own
+  `SKILL.md` one level above their sub-skills) that legitimately bundle a README.md
+  in their own directory. High volume because adobe's two-tier
+  product/version/category structure has many such umbrella skills, not because the
+  check misfired.
+- **`security-gitleaks-clean`** (18, mostly adobe): investigated the highest-volume
+  instance (`wf-planning-solution-architect`, 13 findings) directly — a large
+  realistic-looking Workfront JSON template full of explicit placeholder markers
+  (`PLACEHOLDER_ORG_ID@AdobeOrg`, a fictional company name, `SAMPLE_USER_03@example.placeholder.e`).
+  Same confirmed-but-unfixable class as Phase 4/5/9/11, now at a similar volume
+  scale to Phase 9's 384-finding Salesforce outlier.
+- **`references-toc-for-long-files`** (131, sampled), **`security-pattern-checks`**
+  (80, sampled), **`description-pushy-imperative`** (68, sampled — further
+  corroboration of [#6](https://github.com/EONRaider/SkillArtisan/issues/6)),
+  **`degrees-of-freedom-writing-style`** (45, sampled), **`no-time-sensitive-info`**
+  (39, sampled), **`references-one-level-deep`** (29, sampled — genuine two-level
+  reference nesting in adobe's category-scoped `references/` subdirectories),
+  **`body-size-limits`** (30, sampled), **`forward-slash-paths-only`** (5,
+  sampled): all genuine, all already-established check shapes across 11 prior
+  phases — no new mechanism in any sample checked.
+- **1 `frontmatter-valid` FAIL** (`grafana-skills`' literal template skill,
+  `name: your-skill-name` in a directory named `template`) — a real, deliberate
+  scaffold-template skill, correctly flagged, not shipped as a real skill's own
+  identity.
+- **5 `rebuild`-decision skills**, all confirmed genuinely oversized reference
+  content (e.g. adobe's `replication-api` at 1,889 lines).
+
+### Cost — an eleventh hit-rate data point, back in the low-to-mid band
+
+Review-queue hit rate: **290 of 464 (62.5%)** — back toward the vendor-corpus band
+Phase 8 established (53%), rather than Phase 9's 92% (`nvidia-skills`' unusually
+dense hardware/SDK documentation was the outlier there, not vendor authorship
+itself). Execution: unchunked, **47–48 seconds total wall-clock** for all five
+repos combined, local `skills-ref` still holding at this combined scale (464
+skills). Two real `find_skill_dirs` fixes (a fourth structural pattern, a fifth
+exclusion-worthy directory name), both checked against every corpus audited so far
+before landing. Three `path-references-exist` findings read in full: one genuine,
+undocumented-mechanism false positive (not fixed — no safe general pattern), two
+genuine true positives in the source repos' own content. Total wall-clock including
+both discovery-logic investigations, the three individual path-reference
+read-throughs, and this write-up: roughly 75–90 minutes — proportionate to landing
+two real code fixes across five repos at once. **3,452 skills now audited across
+eleven independently-sourced corpora** (counting each phase's batch as one corpus
+addition to the running tally, consistent with Phases 8–11 — twenty individual
+repos in total across the full pilot when counted one by one).

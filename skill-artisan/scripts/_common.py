@@ -225,7 +225,8 @@ def find_skill_dirs(search_paths: list[Path]) -> list[Path]:
 
     Excludes any match whose path (between the search root and the skill's own
     directory, exclusive of that directory's own name) passes through a directory
-    named `assets`, `tests`, or `fixtures` — found via the audit pilot's Phase 10
+    named `assets`, `tests`, `fixtures`, or `example` — found via the audit pilot's
+    Phase 10
     (mims-harvard/tooluniverse, 2026-08-20): a fill-in-the-blanks skill-creation
     template, `skills/create-tooluniverse-skill/assets/skill_template/SKILL.md`
     (literal `[domain-name]` placeholders in its own frontmatter), matched the new
@@ -236,9 +237,31 @@ def find_skill_dirs(search_paths: list[Path]) -> list[Path]:
     bundled non-skill content, just not reachable by any pattern that existed before
     Phase 9's root-anchored additions. Checked against every vendored corpus before
     adding this: exactly one real false positive fixed (this one), zero legitimate
-    discoveries anywhere excluded by it.
+    discoveries anywhere excluded by it. `example` (singular, matching the exact
+    directory name observed — not `examples`/`demo`/`demos`, unconfirmed variants
+    not added speculatively) joined the set in Phase 12
+    (flutter/agent-plugins, 2026-08-20):
+    `tool/dart_skills_lint/example/skills/{valid,invalid}/SKILL.md` — two deliberate
+    linter test fixtures, explicitly self-described in their own body text as
+    "a deliberately broken fixture" and "reference fixture for dart_skills_lint,"
+    both carrying `metadata: {internal: true}`. Checked across every corpus
+    audited so far before adding: these are the only two matches anywhere.
+
+    One more pattern added via the audit pilot's Phase 12 (adobe/skills,
+    2026-08-20): `plugins/<product>/<version>/skills/<category>/<name>/SKILL.md` —
+    one wildcard deeper on both sides of the literal `skills` component than the
+    existing `*/*/skills/*/*/SKILL.md` pattern (Phase 8's zoom-plugin sub-skill
+    shape), e.g. `plugins/aem/6.5-lts/skills/aem-workflow/workflow-triaging/SKILL.md`.
+    43 of 162 real skills missed entirely before this fix, all confirmed genuine,
+    curated content (a real AEM production-support triaging skill, not a stub).
+    Checked for collisions against every vendored corpus before adding: zero matches
+    anywhere else. The same phase's `dotnet/skills` initially looked like a second
+    gap (2 skills at `eng/skill-validator/tests/fixtures/.../SKILL.md`) but turned
+    out to be the Phase 10 `assets`/`tests`/`fixtures` exclusion working exactly as
+    designed — real test fixtures for dotnet's own skill-validator tooling,
+    correctly excluded, not a gap at all.
     """
-    EXCLUDED_INTERMEDIATE_DIRS = {"assets", "tests", "fixtures"}
+    EXCLUDED_INTERMEDIATE_DIRS = {"assets", "tests", "fixtures", "example"}
     found = []
     for base in search_paths:
         if not base.is_dir():
@@ -256,6 +279,7 @@ def find_skill_dirs(search_paths: list[Path]) -> list[Path]:
             "*/*/*/skills/*/SKILL.md",
             "*/*/skills/*/*/SKILL.md",
             "*/*/skills/*/*/*/SKILL.md",
+            "*/*/*/skills/*/*/SKILL.md",
         ):
             for skill_md in base.glob(pattern):
                 if skill_md.is_symlink():
