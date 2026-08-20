@@ -111,3 +111,26 @@ Approved roadmap for further sources: `~/.claude/plans/home-eonraider-desktop-ve
 - **Runnability confirmed**: same Python-only dependency chain as the rest of `scripts/`;
   no repo-specific tooling needed to audit it (this is a read-only skill corpus, not a
   comparison-arm codebase with its own pipeline to run).
+
+### `glebis-claude-skills/`
+
+- **Repo**: `https://github.com/glebis/claude-skills`
+- **Pinned commit**: `52fdf242981c415a723abca8447ad08a3eb1f857` (`main` HEAD,
+  2026-08-19T20:59:32Z) — no tags exist upstream, same HEAD-SHA-pin convention as
+  daymade. Reconfirmed live immediately before cloning (2026-08-20); unchanged since
+  planning.
+- **License**: MIT — raw `LICENSE` file read directly at planning time, standard text,
+  "Copyright (c) 2025-2026 Gleb Kalinin." Re-confirm by reading the file directly if this
+  pin is ever revisited far from 2026-08-20.
+- **Structure**: mostly root-level (`<skill-name>/SKILL.md`, one directory per skill,
+  103 top-level entries plus a `BUNDLES.md`), with a handful nested one level deeper
+  (`confide/skills/<name>/SKILL.md`) — both shapes already covered by the existing
+  `find_skill_dirs`. 111 skill directories discovered, matching the live GitHub tree API
+  count from planning (not the "~85–100" the original research estimated).
+- **Distinct from the first three sources**: solo maintainer (Gleb Kalinin, Berlin),
+  knowledge-work/solopreneur focus — meeting/transcript pipelines, Obsidian tooling,
+  personal analytics, coaching/therapy skills, some Russian-language content. A different
+  authorship model and domain from mattpocock (single-author engineering), daymade
+  (large, many-contributor, heterogeneous), and mukul975 (community security corpus).
+- **Runnability confirmed**: same Python-only dependency chain as the rest of `scripts/`;
+  no repo-specific tooling needed to audit it.
