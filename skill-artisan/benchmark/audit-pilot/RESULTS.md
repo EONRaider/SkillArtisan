@@ -1373,3 +1373,124 @@ two real code fixes across five repos at once. **3,452 skills now audited across
 eleven independently-sourced corpora** (counting each phase's batch as one corpus
 addition to the running tally, consistent with Phases 8–11 — twenty individual
 repos in total across the full pilot when counted one by one).
+
+## Phase 13: secondsky/claude-skills, bobmatnyc/claude-mpm-skills (361 skills)
+
+Sixth phase of the Phase 8–14 roadmap — the dev-tooling cluster trim. Pinned live
+immediately before cloning: `secondsky-claude-skills` (187), `bobmatnyc-claude-mpm-skills`
+(174) — both exact matches against the candidates doc, both MIT licensed (raw
+`LICENSE` files read directly).
+
+### `find_skill_dirs`' fixed-pattern-list architecture reached its breaking point — replaced with a bounded recursive walk
+
+`secondsky-claude-skills` discovered cleanly (187/187). `bobmatnyc-claude-mpm-skills`
+discovered only **2 of 174** — not a missing pattern this time, but proof the whole
+pattern-enumeration model had run out of road. Its structure
+(`universal/security/threat-modeling/SKILL.md`,
+`toolchains/php/frameworks/wordpress/wordpress-security-validation/SKILL.md`) is
+plain category nesting at *arbitrary depth*, with no `skills/` marker directory
+anywhere to anchor a fixed-depth pattern against — the tenth pattern added since
+Phase 3, and the first shape no finite list of fixed-depth patterns could ever cover.
+
+**Replaced the whole discovery mechanism** with a single bounded recursive walk
+(`base.rglob("SKILL.md")`), keeping the exact same symlink-skip and
+`assets`/`tests`/`fixtures`/`example` intermediate-directory-exclusion logic already
+proven correct. **Verified safe before switching, not assumed**: ran the recursive
+approach head-to-head against all nineteen corpora already vendored at the time (not
+sampled). Identical results everywhere except two, both confirmed improvements, not
+regressions:
+
+- `bobmatnyc-claude-mpm-skills` itself: 172 real skills recovered.
+- `aws-agent-toolkit-for-aws`: naturally recovers the single
+  `agents-pay`-under-`packages`-under-`agents-pay` sub-package skill that Phase 9
+  had deliberately left undiscovered ("not worth a fifth single-purpose pattern") —
+  the recursive walk needs no dedicated pattern to reach it.
+
+Also measurably **faster**, not slower, in a direct timing comparison on the
+largest corpus (`mukul975`, 817 skills): the ten overlapping glob patterns took
+0.079s; the single recursive walk took 0.048s. Full 135-test suite passes
+unchanged — every existing positive-discovery and negative-exclusion regression
+test still holds under the new implementation, additional confirmation beyond the
+19-corpus comparison. This is a genuine architectural simplification, not a patch:
+`_common.find_skill_dirs`' docstring now documents the full provenance concisely
+rather than growing a phase-by-phase narrative that no longer describes the actual
+code.
+
+### A design-philosophy tension, not a bug: bobmatnyc's own progressive-disclosure sizing
+
+38 of 174 `bobmatnyc` skills (22%) triggered a `rebuild` decision on `body-size-limits`
+— an unusually high rate. Investigated directly rather than assumed: `dspy`
+(1,561 lines) declares its own explicit `token_estimate: {entry: 75, full: 5500}`
+in a structured `progressive_disclosure` block, repeated in both frontmatter and
+body — this repo has built its *own* deliberate multi-tier context-management
+system (a short entry-point summary plus a long, explicitly-sized "full" tier), a
+genuinely different design philosophy from SkillArtisan's own degrees-of-freedom
+body-size heuristic, not oversized/bloated content. Not a false positive to fix and
+not confirmed bloat either — a real, documented disagreement between two
+legitimate approaches to the same underlying problem (managing an agent's context
+budget), left as an honest observation rather than forced into either verdict.
+
+### Flagged, not fixed: `progressive_disclosure` and six sibling fields — a fifth field-family corroboration
+
+174 of 174 `bobmatnyc` skills (100%) FAIL `frontmatter-valid` on a coherent,
+whole-corpus field family: `progressive_disclosure` (a structured nested object,
+~170 of 174), plus `category`, `context_limit`, `requires_tools`,
+`updated`/`updated_at`, `skill_version`, `token_estimates` in various combinations
+— clearly this repo's own deliberate authoring/tooling convention (the name
+"claude-mpm" suggests a managed skill-authoring pipeline), same scale and character
+as mukul975's Phase 4 taxonomy (817/817, already resolved via a
+`THIRD_PARTY_FIELD_FAMILIES` entry). Commented on
+[#9](https://github.com/EONRaider/SkillArtisan/issues/9) rather than opening a new
+issue — same open question, fifth corroboration.
+
+### `path-references-exist`: two more genuine true positives, no new mechanism
+
+9 findings total, all investigated (low enough volume to read in full). Two worth
+naming directly: `bobmatnyc`'s `env-manager` references
+`../../../../../../CONTRIBUTING.md` (six levels up) but no `CONTRIBUTING.md` exists
+anywhere in the repo — a real broken link, not a depth the check misjudges.
+`secondsky`'s `woocommerce-code-review` references
+`../woocommerce-backend-dev/file-entities.md`, assuming both WooCommerce skills
+live one level apart under a shared plugin, when the real packaging has them as two
+fully separate plugins (`plugins/woocommerce-code-review/skills/.../` and
+`plugins/woocommerce-backend-dev/skills/.../`) three levels apart, not one. Both
+genuine, reproducible authoring defects in the source repos' own content, same
+class as Phase 9's `doca-*` family and Phase 12's dotnet/grafana findings — no new
+check mechanism.
+
+### Corroborated, not new
+
+- **`bad-example-skill`/`example-framework-skill`** (`bobmatnyc`, top-level
+  `examples/` directory, plural — not the singular `example` already excluded):
+  both explicitly declare `user-invocable: false` and `disable-model-invocation:
+  true`, one literally named for and marked "DO NOT COPY" as an anti-pattern demo.
+  Already discoverable under the *old* fixed-pattern list too (a plain two-level
+  match, not a new false positive introduced by the Phase 13 architecture change),
+  and `audit.py`'s own `is_user_invoked_only()` handling already treats
+  non-model-invocable skills fairly. Left alone — not excluded, not a bug, just
+  worth noting the check correctly downgrades what it can't avoid discovering.
+- **`security-gitleaks-clean`** (16, split evenly), **`security-pattern-checks`**
+  (84, sampled), **`references-toc-for-long-files`** (137, sampled),
+  **`forward-slash-paths-only`** (9), **`no-human-docs-in-skill-dir`** (7),
+  **`references-one-level-deep`** (2), **`no-time-sensitive-info`** (7),
+  **`degrees-of-freedom-writing-style`** (9), **`description-pushy-imperative`**
+  (30, all `secondsky` — further corroboration of
+  [#6](https://github.com/EONRaider/SkillArtisan/issues/6)): all genuine, all
+  already-established check shapes across 12 prior phases — no new mechanism in any
+  sample checked.
+
+### Cost — a twelfth hit-rate data point, and the pilot's largest architectural change
+
+Review-queue hit rate: **309 of 361 (86%)**, driven mostly by `bobmatnyc`'s
+whole-corpus field-family FAIL and elevated size-limit rate — `secondsky` alone
+sits closer to the mid-range prior vendor/dev-tooling corpora have shown.
+Execution: unchunked, **~38–39 seconds total wall-clock** for both repos combined,
+local `skills-ref` still holding. This phase's real cost was upstream of grading
+entirely, the same shape as Phase 6 and Phase 9: a genuine architectural decision
+(replace ten fixed patterns with one recursive walk) that needed comprehensive
+verification (all 19 prior corpora, not a sample, plus a timing comparison) before
+landing, not a narrow pattern addition. Total wall-clock including the
+architecture investigation and its verification, the design-philosophy
+investigation, the two path-reference read-throughs, and this write-up: roughly
+75–90 minutes. **3,813 skills now audited across twelve independently-sourced
+corpora** (21 individual repos total across the full pilot).

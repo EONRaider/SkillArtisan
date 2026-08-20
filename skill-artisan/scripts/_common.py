@@ -150,145 +150,92 @@ TRIAL_PRESETS = {
 
 
 def find_skill_dirs(search_paths: list[Path]) -> list[Path]:
-    """Find skill directories under each search path: the path itself if it
-    directly contains a SKILL.md, one level down (marketplace/<skill>), two
-    levels down (marketplace/plugin/<skill>), a plugin's own `skills/`
-    subdirectory (marketplace/plugin/skills/<skill> — the real Claude Code
-    plugin convention, verified directly: every installed plugin under
-    ~/.claude/plugins/marketplaces/*/plugins/ on the machine this was built
-    on uses <plugin>/skills/<skill>/SKILL.md, not the flatter <plugin>/<skill>
-    shape the two-level glob alone assumes), or a *nested* plugin one level
-    deeper still (category/plugin-name/skills/<skill> — found via the
-    real-world audit pilot's Phase 6, alirezarezvani/claude-skills: some
+    """Find every skill directory under each search path: any directory,
+    at any depth, whose own `SKILL.md` exists, isn't reached through a
+    symlink, and doesn't sit under an excluded intermediate directory.
+
+    Architectural note (Phase 13 of the real-world audit pilot,
+    `bobmatnyc/claude-mpm-skills`, 2026-08-20): through Phase 12, this
+    function enumerated ten fixed glob patterns, each added incrementally as
+    a new real-world packaging shape was found (a plugin's own `skills/`
+    subdirectory, a nested mini-plugin one level deeper, a `plugins/` wrapper,
+    platform sub-skills one or two levels beneath an already-discovered
+    skill, a literal top-level `skills/` collection with two or three
+    category levels, a `plugins/<product>/<version>/skills/<category>/<name>`
+    shape — the full provenance for each lives in this project's git history
+    and `benchmark/audit-pilot/RESULTS.md`, not repeated here). `bobmatnyc`
+    broke that model outright: `universal/security/threat-modeling/SKILL.md`,
+    `toolchains/php/frameworks/wordpress/wordpress-security-validation/SKILL.md`
+    — plain category nesting at arbitrary depth, with no `skills/` marker
+    directory anywhere to anchor a pattern against. No finite list of
+    fixed-depth patterns can cover arbitrary depth; the fixed-pattern-list
+    model had reached the shape of problem it can't solve. Replaced with a
+    plain recursive walk (`rglob("SKILL.md")`), filtered by the same
+    symlink-skip and intermediate-directory-exclusion logic already in place.
+    **Verified safe before switching, not assumed**: run head-to-head against
+    all nineteen corpora already vendored at the time (not sampled) —
+    identical results everywhere except two, both confirmed improvements, not
+    regressions: `bobmatnyc` itself (172 real skills recovered) and
+    `aws-agent-toolkit-for-aws` (naturally recovers the single
+    `agents-pay`-under-`packages`-under-`agents-pay` sub-package skill that
+    Phase 9 had deliberately left undiscovered as "not worth a fifth
+    single-purpose pattern" — the recursive walk needs no new pattern to
+    reach it). Also faster in a direct timing comparison on the largest
+    corpus (817 skills): ten overlapping glob passes versus one tree walk.
+
+    Skips any match reached through a symlink, at any level — found via the
+    audit pilot's Phase 6, alirezarezvani/claude-skills: some
     skills are packaged twice, once in a flat per-category `skills/`
     collection and again as a fully self-contained, individually-installable
     mini-plugin one level deeper. Checked exhaustively, not sampled, before
     adding this: 113 of 125 skills at this depth have *no* flat counterpart
     at all — genuinely unique content this discovery previously missed
-    entirely, not redundant packaging of something already found), or one of
-    two shapes found via the audit pilot's Phase 8 (anthropics/*, 2026-08-20):
-    a `plugins/` wrapper directory adding one more level ahead of the
-    existing category/plugin/skills/<skill> shape
-    (`plugins/category/plugin/skills/<skill>` — anthropics/financial-services,
-    117 of 118 skills live at exactly this depth, missed entirely before this
-    fix), and platform/surface *sub-skills* nested one or two levels beneath
-    an already-discovered skill's own directory
-    (`.../skills/<skill>/<variant>/SKILL.md` and one level deeper still —
-    anthropics/knowledge-work-plugins' zoom-plugin: a parent skill
-    (`contact-center/SKILL.md`) explicitly routes to `android/SKILL.md`,
-    `ios/SKILL.md`, `web/SKILL.md` as distinct, individually-loadable
-    sub-skills via its own body text, not example/test content — confirmed
-    by checking the parent's actual prose before adding this pattern, and by
-    confirming neither pattern collides with two known false-positive shapes
-    already present in other vendored corpora at different depths
-    (`assets/sample-skill/SKILL.md`, `tests/fixtures/sample-skill/SKILL.md` —
-    both intentionally excluded since neither has "skills" as a path
-    component at the depth these new patterns require).
+    entirely, not redundant packaging of something already found; the same
+    repo also symlink-mirrors every skill into four cross-tool directories
+    (`.codex/`, `.gemini/`, `.hermes/`, `.vibe/`) for compatibility with
+    other agent products, and `Path.glob()`/`rglob()` follow symlinks for
+    ordinary path components — unfiltered, that inflated discovery from 785
+    real skills to 1,140+, the same skill re-counted once per mirror.
+
+    Excludes any match whose path (between the search root and the skill's
+    own directory, exclusive of that directory's own name) passes through a
+    directory named `assets`, `tests`, `fixtures`, or `example`. Each entry
+    is backed by a confirmed real instance, not a guess: `assets`
+    (`alirezarezvani-claude-skills`' `skill-tester/assets/sample-skill/`,
+    Phase 8), `tests`/`fixtures`
+    (`tripleyak-skillforge`'s `scripts/tests/fixtures/sample-skill/`, Phase 8;
+    corroborated by `dotnet/skills`' `eng/skill-validator/tests/fixtures/`,
+    Phase 12), `example` (`flutter/agent-plugins`'
+    `tool/dart_skills_lint/example/skills/{valid,invalid}/`, Phase 12 — two
+    deliberate linter test fixtures, both explicitly self-described as
+    fixtures in their own body text and both carrying
+    `metadata: {internal: true}`). Checked against every corpus already
+    vendored each time a name was added: zero legitimate discoveries lost.
 
     Shared by dedup_search.py (searching for prior art) and audit.py's bulk
     mode (auditing a whole skills directory) — one implementation per the
     scripts/ discipline in references/script-design.md, not two copies that
     drift apart. Does not deduplicate by *content* — the same real-world
-    check found 12 of 125 nested-layer skills are byte-identical repackagings
-    of a flat-layer sibling; a caller that cares about auditing each unique
-    skill exactly once (like aggregate_findings.py) needs to dedup on top of
-    this function's output, since deciding "these two paths are the same
-    skill" is a judgment about content, not about directory structure, which
-    is deliberately outside this function's job.
-
-    Skips any match reached through a symlink, at any level — found the hard
-    way on the same repo, same phase: `Path.glob()` follows symlinks for
-    ordinary (non-`**`) path components, and alirezarezvani/claude-skills
-    symlink-mirrors every skill into four cross-tool directories
-    (`.codex/`, `.gemini/`, `.hermes/`, `.vibe/`) for compatibility with
-    other agent products. Unfiltered, that inflated discovery from 785 real
-    skills to 1,140+ — the same skill re-counted once per mirror. `git`'s own
-    tree API doesn't have this problem (it tracks a symlink as an opaque
-    blob, never traverses into it), which is why this was invisible during
-    planning (verified via the GitHub API) and only surfaced once skills
-    were actually being discovered on a real local filesystem.
-
-    Two more patterns added via the audit pilot's Phase 9 (aws/agent-toolkit-for-aws,
-    2026-08-20): a literal top-level `skills/` collection directory (not preceded by
-    any wildcard, unlike every other pattern here) with either two or three category
-    levels of nesting beneath it before the skill's own directory
-    (`skills/core-skills/amazon-bedrock/SKILL.md`,
-    `skills/specialized-skills/database-skills/rds-db2/SKILL.md`) — 101 of 151 skills
-    in that repo live at these two depths, missed entirely before this fix. Checked
-    for collisions against every other vendored corpus (old and new) before adding:
-    zero matches anywhere else. A third, much deeper shape in the same repo
-    (`plugins/aws-agents/skills/agents-pay/packages/openclaw/skills/agents-pay/SKILL.md`
-    — a sub-package bundling its own nested `skills/` collection) is real content but
-    a single instance; left as a documented, known gap rather than a fifth pattern
-    justified by one example (see `../vendored/README.md`'s
-    `aws-agent-toolkit-for-aws` entry).
-
-    Excludes any match whose path (between the search root and the skill's own
-    directory, exclusive of that directory's own name) passes through a directory
-    named `assets`, `tests`, `fixtures`, or `example` — found via the audit pilot's
-    Phase 10
-    (mims-harvard/tooluniverse, 2026-08-20): a fill-in-the-blanks skill-creation
-    template, `skills/create-tooluniverse-skill/assets/skill_template/SKILL.md`
-    (literal `[domain-name]` placeholders in its own frontmatter), matched the new
-    Phase 9 `skills/*/*/*/SKILL.md` pattern above and was discovered as if it were a
-    real, independent skill. This confirms, not merely guesses at, a pattern already
-    suspected in Phase 8: `alirezarezvani-claude-skills`' `assets/sample-skill/` and
-    `tripleyak-skillforge`'s `tests/fixtures/sample-skill/` are the same class of
-    bundled non-skill content, just not reachable by any pattern that existed before
-    Phase 9's root-anchored additions. Checked against every vendored corpus before
-    adding this: exactly one real false positive fixed (this one), zero legitimate
-    discoveries anywhere excluded by it. `example` (singular, matching the exact
-    directory name observed — not `examples`/`demo`/`demos`, unconfirmed variants
-    not added speculatively) joined the set in Phase 12
-    (flutter/agent-plugins, 2026-08-20):
-    `tool/dart_skills_lint/example/skills/{valid,invalid}/SKILL.md` — two deliberate
-    linter test fixtures, explicitly self-described in their own body text as
-    "a deliberately broken fixture" and "reference fixture for dart_skills_lint,"
-    both carrying `metadata: {internal: true}`. Checked across every corpus
-    audited so far before adding: these are the only two matches anywhere.
-
-    One more pattern added via the audit pilot's Phase 12 (adobe/skills,
-    2026-08-20): `plugins/<product>/<version>/skills/<category>/<name>/SKILL.md` —
-    one wildcard deeper on both sides of the literal `skills` component than the
-    existing `*/*/skills/*/*/SKILL.md` pattern (Phase 8's zoom-plugin sub-skill
-    shape), e.g. `plugins/aem/6.5-lts/skills/aem-workflow/workflow-triaging/SKILL.md`.
-    43 of 162 real skills missed entirely before this fix, all confirmed genuine,
-    curated content (a real AEM production-support triaging skill, not a stub).
-    Checked for collisions against every vendored corpus before adding: zero matches
-    anywhere else. The same phase's `dotnet/skills` initially looked like a second
-    gap (2 skills at `eng/skill-validator/tests/fixtures/.../SKILL.md`) but turned
-    out to be the Phase 10 `assets`/`tests`/`fixtures` exclusion working exactly as
-    designed — real test fixtures for dotnet's own skill-validator tooling,
-    correctly excluded, not a gap at all.
+    check found 12 of 125 nested-layer skills (Phase 6) are byte-identical
+    repackagings of a flat-layer sibling; a caller that cares about auditing
+    each unique skill exactly once (like aggregate_findings.py) needs to
+    dedup on top of this function's output, since deciding "these two paths
+    are the same skill" is a judgment about content, not about directory
+    structure, which is deliberately outside this function's job.
     """
     EXCLUDED_INTERMEDIATE_DIRS = {"assets", "tests", "fixtures", "example"}
     found = []
     for base in search_paths:
         if not base.is_dir():
             continue
-        if (base / "SKILL.md").exists():
-            found.append(base)
-            continue
-        for pattern in (
-            "*/SKILL.md",
-            "*/*/SKILL.md",
-            "*/skills/*/SKILL.md",
-            "*/*/skills/*/SKILL.md",
-            "skills/*/*/SKILL.md",
-            "skills/*/*/*/SKILL.md",
-            "*/*/*/skills/*/SKILL.md",
-            "*/*/skills/*/*/SKILL.md",
-            "*/*/skills/*/*/*/SKILL.md",
-            "*/*/*/skills/*/*/SKILL.md",
-        ):
-            for skill_md in base.glob(pattern):
-                if skill_md.is_symlink():
-                    continue
-                if any(p.is_symlink() for p in skill_md.parents if p != base and base in p.parents):
-                    continue
-                skill_dir = skill_md.parent
-                intermediate_parts = skill_dir.relative_to(base).parts[:-1]
-                if any(part in EXCLUDED_INTERMEDIATE_DIRS for part in intermediate_parts):
-                    continue
-                found.append(skill_dir)
+        for skill_md in base.rglob("SKILL.md"):
+            if skill_md.is_symlink():
+                continue
+            if any(p.is_symlink() for p in skill_md.parents if p != base and base in p.parents):
+                continue
+            skill_dir = skill_md.parent
+            intermediate_parts = skill_dir.relative_to(base).parts[:-1]
+            if any(part in EXCLUDED_INTERMEDIATE_DIRS for part in intermediate_parts):
+                continue
+            found.append(skill_dir)
     return sorted(set(found))

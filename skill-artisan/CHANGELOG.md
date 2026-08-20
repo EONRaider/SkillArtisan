@@ -6,6 +6,14 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.5.9] - 2026-08-20
+
+### Fixed
+- **`_common.find_skill_dirs`' fixed-pattern-list architecture replaced with a bounded recursive walk.** `bobmatnyc/claude-mpm-skills` discovered only 2 of 174 real skills — not a missing pattern, but proof the pattern-enumeration model (ten fixed glob patterns accumulated since Phase 3) had reached a shape of problem it can't solve: plain category nesting at arbitrary depth, with no `skills/` marker directory anywhere to anchor a fixed-depth pattern against. Replaced with `base.rglob("SKILL.md")`, keeping the exact same symlink-skip and intermediate-directory-exclusion logic. Verified safe before switching, not assumed: run head-to-head against all nineteen corpora already vendored at the time — identical results everywhere except two, both confirmed improvements (172 real `bobmatnyc` skills recovered; `aws-agent-toolkit-for-aws` naturally recovers a sub-package skill Phase 9 had deliberately left undiscovered). Also measurably faster on the largest corpus tested (817 skills: 0.079s → 0.048s). Full 135-test suite passes unchanged.
+
+### Notes
+- Phase 13 of the real-world audit pilot: 361 skills audited across the dev-tooling cluster trim (`secondsky/claude-skills`, `bobmatnyc/claude-mpm-skills`). Found and documented (not code-fixed, by design) a real design-philosophy tension: `bobmatnyc` declares its own explicit multi-tier `progressive_disclosure`/`token_estimate` content architecture, which produces a genuinely higher `rebuild`-decision rate under SkillArtisan's own body-size heuristic — a real disagreement between two legitimate approaches, not a bug on either side. Also a fifth corroboration of the field-family pattern on [#9](https://github.com/EONRaider/SkillArtisan/issues/9) (`progressive_disclosure` and six sibling fields, 174/174). Full narrative: `skill-artisan/benchmark/audit-pilot/RESULTS.md`'s Phase 13 section.
+
 ## [2.5.8] - 2026-08-20
 
 ### Fixed

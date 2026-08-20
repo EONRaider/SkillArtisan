@@ -569,3 +569,48 @@ Approved Phase 8–14 roadmap for the skills.sh-sourced expansion:
   repo by real skill count.
 - **Runnability confirmed**: same Python-only dependency chain as the rest of
   `scripts/`; no repo-specific tooling needed to audit it.
+
+### `secondsky-claude-skills/`
+
+- **Repo**: `https://github.com/secondsky/claude-skills`
+- **Pinned commit**: `ad16332a30363b7cc13aa97baac3edeb8c9cc558` (`main` HEAD,
+  2026-08-20T08:18:21Z) — fetched live immediately before cloning (2026-08-20).
+- **License**: MIT — raw `LICENSE` file read directly, "Claude Skills Maintainers."
+- **Structure**: 187 skill directories discovered, exactly matching the candidates
+  doc's raw count — no correction needed. 0 content-duplicate groups, 0 errors.
+- **Distinct**: dev-tooling cluster (largest of the trimmed set) — Cloudflare, React,
+  WooCommerce, and general web/JS toolchain domain. Two genuine, reproducible broken
+  cross-references found in its own content (`gemini-cli`, `woocommerce-code-review`
+  — the latter assumes a packaging depth that doesn't match reality; see
+  `../audit-pilot/RESULTS.md`'s Phase 13 section), not check mechanism issues.
+- **Runnability confirmed**: same Python-only dependency chain as the rest of
+  `scripts/`; no repo-specific tooling needed to audit it.
+
+### `bobmatnyc-claude-mpm-skills/`
+
+- **Repo**: `https://github.com/bobmatnyc/claude-mpm-skills`
+- **Pinned commit**: `718070a7d622921b01687799a1f9613f36c6f615` (`main` HEAD,
+  2026-07-18T19:16:51Z) — fetched live immediately before cloning (2026-08-20).
+- **License**: MIT — raw `LICENSE` file read directly, "Claude MPM Contributors."
+- **Structure — the corpus that broke `find_skill_dirs`' fixed-pattern-list model,
+  in a good way**: raw tree count (174) matched the candidates doc; local discovery
+  *with the pre-Phase-13 pattern list* found only 2. Root cause: plain category
+  nesting at arbitrary depth (`universal/security/threat-modeling/SKILL.md`,
+  `toolchains/php/frameworks/wordpress/wordpress-security-validation/SKILL.md`) with
+  no `skills/` marker directory anywhere — a shape no finite list of fixed-depth
+  patterns can cover. Triggered a full architectural replacement of
+  `find_skill_dirs` with a bounded recursive walk, verified safe against all 19
+  corpora already vendored (identical results everywhere except two confirmed
+  improvements) and measurably faster — see `../audit-pilot/RESULTS.md`'s Phase 13
+  section for the full account. **174 of 174 now discovered**, 0 content-duplicate
+  groups.
+- **Distinct**: dev-tooling cluster, a distinct progressive-loading/toolchain-detection
+  architecture (its own name, "claude-mpm," suggests a managed skill-authoring
+  pipeline) — confirmed via a coherent, whole-corpus frontmatter field family
+  (`progressive_disclosure` and six sibling fields, 174/174 FAILing
+  `frontmatter-valid` on it) and an explicit, deliberate multi-tier
+  context-management design (declared `token_estimate` targets) that produces a
+  genuinely higher `rebuild`-decision rate under SkillArtisan's own body-size
+  heuristic — a real design-philosophy difference, not a bug on either side.
+- **Runnability confirmed**: same Python-only dependency chain as the rest of
+  `scripts/`; no repo-specific tooling needed to audit it.
