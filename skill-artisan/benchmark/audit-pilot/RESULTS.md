@@ -2549,3 +2549,83 @@ investigation and fix, and write-up: roughly 2.5 hours — the most expensive
 phase since the pilot began scaling, driven by the corpus's sheer size plus a
 real bug investigation, not by finding-volume. **8,523 skills now audited
 across the pilot** (7,308 + 1,215).
+
+## Phase 24: 20 more low-sitemap-count repos — scale batch 10, first major vendors from the tier, a clean phase (145 skills)
+
+Tenth scale batch (2026-08-21, seed 24). Funnel: 2,448 pairs → 255 held
+excluded → 1,501-repo tier → 16-call GraphQL screen (one transient `gh: HTTP
+503` on batch 5, resumed cleanly via per-batch persistence on retry, no data
+lost) → seeded draw, 20 repos (0–2★ bin still exhausted). 20/20 survived
+verification.
+
+### Two major vendors, both licenses resolved cleanly by reading the actual terms
+
+`oracle/skills` — Oracle Corporation's own curated skills collection, UPL-1.0
+(Universal Permissive License), an OSI-approved, broadly permissive license,
+no restriction beyond standard notice terms. `canner/wrenai` (17,347★) is
+multi-licensed by path — read the repo's own `LICENSE` overview file in full
+rather than assuming from the top-level SPDX label, confirmed every one of
+the 7 discovered skill paths (`core/**`, `skills/**`) falls under the
+explicitly Apache-2.0-licensed portion of the map. No ambiguity, no
+restrictive posture needed for either.
+
+### An eighth confirmed issue #12 instance, yet another directory-naming shape
+
+`aws-samples/sample-well-architected-skills-and-steering`'s `skills/
+example-skill/SKILL.md` — self-declared "Example skill template used for the
+CreateHub template. You should never use this skill directly as it is just a
+template." Directory named `example-skill`, matching neither `example` nor
+`templates` nor any variant tried so far — the eighth distinct way this
+pattern has evaded a name-based rule across 10 phases (Phases 19, 20, 22
+×2, 24). Excluded from this phase's count on direct read; logged on #12,
+conclusion unchanged (still no safe structural signal, content-based
+detection remains the only plausible mechanism and remains too risky to
+guess at blind).
+
+### First zero-rebuild, zero-misclassification phase since scaling began
+
+No `rebuild` decisions, no first-party misclassifications this phase — a
+genuinely clean, uneventful result by the pilot's own established measures.
+Correctly reported as the honest outcome, consistent with the standing
+"not every phase yields a finding" expectation from the original roadmap.
+
+### Corroborated, not new
+
+- **`path-references-exist`, a genuine true positive verified by checking the
+  actual filesystem**: `jiaiyan/element-plus-skills`' `element-plus-components`
+  references `./components/el-affix/SKILL.md` relative to its own directory,
+  but the real `components/` tree sits at the repo root — a genuine
+  off-by-one-level defect, same class as Phase 9/12/14's prior instances, not
+  assumed from the FAIL message alone.
+- **A third+ corroboration of the documented, unfixed `[title](URL)`
+  placeholder false positive** (Phase 12/14/17's class): `daleseo/
+  korean-skills`' `style-guide` describes markdown link syntax in unfenced
+  prose (`[제목](URL)`), same shape, same conclusion (no safe general fix).
+- **Gitleaks (3 skills, 2 sampled and confirmed)**: a truncated example JWT
+  and a base64-encoded test placeholder (`dXNlcjp0b2tlbg==` = "user:token") —
+  established doc-example/test-fixture class.
+- **No new field families**; three unrelated single-field instances
+  (`not_for`, `requirements`, `keywords`).
+- **Zero reserved-word instances** — true positive holds at 28/28, not every
+  phase produces a new one.
+
+### Hit rate — eleventh data point
+
+Review queue: **126 of 145 (87%, template stub excluded from both sides)**.
+`unovue/shadcn-vue` (10,476★) and `alchaincyf/zhangxuefeng-skill` (10,177★)
+are both clean 1/1s; `canner/wrenai` (17,347★) runs 4/7 — consistent with the
+now well-established pattern that star count alone predicts nothing reliably
+about collection-level cleanliness.
+
+### Cost — sampled vs. exhaustive stated explicitly
+
+Read exhaustively: `canner/wrenai`'s full multi-license text and every
+discovered path checked against its map, the template-stub instance, the
+jiaiyan off-by-one defect (verified against the real filesystem, not assumed),
+2 of 3 gitleaks skills, all 20 license files. Sampled: 2–4 per remaining
+high-volume group. Zero code changes — one more #12 corroboration and a
+clean, uneventful result otherwise — so **no release** (Phase 14/16-22
+precedent; v2.5.13 was Phase 23's fix). Wall-clock including the multi-license
+resolution and off-by-one verification: roughly 1.25 hours, one of the
+cheaper phases, proportionate to a clean result. **8,668 skills now audited
+across the pilot** (8,523 + 145).

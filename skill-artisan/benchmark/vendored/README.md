@@ -1383,3 +1383,71 @@ hidden collection, audited in full.
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 24 cohort: 20 more low-sitemap-count repos (scale batch 10) — first two major vendors from the low-star tier
+
+Tenth batch (2026-08-21, seed 24). Funnel: 2,448 pairs → 255 held excluded →
+1,501-repo tier → 16-call GraphQL screen (one transient `gh: HTTP 503`
+absorbed cleanly by per-batch persistence, resumed on retry) → same
+exclusions → seeded draw (0–2★ bin still exhausted). 20 of 20 cloned, pinned,
+licenses read raw — 100% survival.
+
+**Two major-vendor repos drawn this phase** — `oracle/skills` (Oracle
+Corporation, UPL-1.0, a new pilot license type — OSI-approved, broadly
+permissive) and `canner/wrenai` (17,347★, multi-licensed by path:
+`skills/**` and `core/**` are both explicitly Apache-2.0 per the repo's own
+path→license map, confirmed by reading the full `LICENSE` file and checking
+every discovered skill path against the table — no ambiguity). `aws-samples/
+sample-well-architected-skills-and-steering` is **MIT-0** (MIT, no attribution
+required). Two NOASSERTION cases resolved favorably on raw read:
+`chjm-ai/stock-monitor-skill` (MIT) and `redwoodjs/local-ci` (FSL-1.1-MIT,
+already-seen license type).
+
+**An eighth confirmed instance of issue #12's template-stub pattern**:
+`aws-samples/...`'s `skills/example-skill/SKILL.md`, self-declared "Example
+skill template... You should never use this skill directly as it is just a
+template." Its own directory is named `example-skill`, not `example` — yet
+another shape the existing exact-name exclusion wouldn't catch. Excluded from
+this phase's audited count on direct read; commented on #12.
+
+**First phase with zero rebuild decisions and zero first-party
+misclassifications** since scaling began — a clean, uneventful phase by the
+pilot's own established measures, correctly reported as such.
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `adspower/adspower-browser` | `06dc59d65e09` | 2026-07-20 | MIT | 1 | 1 | 131 |
+| `alchaincyf/zhangxuefeng-skill` | `a9a71563a39f` | 2026-05-28 | MIT | 1 | 1 | 10,177 |
+| `aws-samples/sample-well-architected-skills-and-steering` | `4b58ba02670a` | 2026-08-17 | MIT-0 | 5* | 2 | 247 |
+| `bryanwhl/ffmpeg-video-editor` | `d5c3ee6e9896` | 2026-03-03 | MIT | 1 | 1 | 7 |
+| `canner/wrenai` | `f2841bcbdf8d` | 2026-08-21 | Apache-2.0 (multi)** | 7 | 1 | 17,347 |
+| `chjm-ai/stock-monitor-skill` | `91de3efccf55` | 2026-02-02 | MIT (raw)*** | 1 | 1 | 45 |
+| `collaborative-deep-research/agent-papers-cli` | `23a1941893d0` | 2026-03-22 | Apache-2.0 | 4 | 2 | 49 |
+| `cypress-io/ai-toolkit` | `9c9038ee1faf` | 2026-06-25 | MIT | 3 | 3 | 40 |
+| `daleseo/korean-skills` | `ae12ba27982e` | 2026-05-04 | MIT | 3 | 3 | 160 |
+| `dpconde/claude-android-skill` | `edfca5e36ceb` | 2025-12-07 | MIT | 1 | 1 | 314 |
+| `jiaiyan/element-plus-skills` | `1d126b39a805` | 2026-03-13 | MIT | 89 | 1 | 24 |
+| `kunchenguid/chrome-devtools-axi` | `fb6eb4545053` | 2026-08-20 | MIT | 1 | 1 | 324 |
+| `oracle/skills` | `9f7192af7cdb` | 2026-08-14 | UPL-1.0 | 14 | 2 | 815 |
+| `penfick/skills` | `89479377389f` | 2026-06-05 | MIT | 1 | 1 | 12 |
+| `redwoodjs/local-ci` | `a8db59493b88` | 2026-08-21 | FSL-1.1-MIT (raw)*** | 3 | 1 | 779 |
+| `rllm-org/hive` | `9ed315971ea2` | 2026-04-27 | Apache-2.0 | 3 | 3 | 213 |
+| `skillhq/flight-search` | `49ed0d291fef` | 2026-04-12 | MIT | 1 | 1 | 25 |
+| `unovue/shadcn-vue` | `24999cd6cf62` | 2026-08-17 | MIT | 1 | 1 | 10,476 |
+| `voltagent/skills` | `066b137c520a` | 2026-01-27 | MIT | 4 | 3 | 14 |
+| `yusukebe/ax` | `8abbca2fc400` | 2026-08-05 | MIT | 1 | 1 | 686 |
+
+\* excludes 1 template stub, 6 on disk. \*\* per-path multi-license, all
+discovered skill paths fall under the Apache-2.0-licensed `skills/**`/`core/**`
+trees. \*\*\* NOASSERTION at screen, raw read resolves favorably.
+
+**Structure notes**: `jiaiyan/element-plus-skills` (89 skills) confirmed a
+genuine off-by-one relative-path defect
+(`element-plus-components/SKILL.md` references `./components/el-affix/
+SKILL.md`, but `components/` actually sits at the repo root, not nested under
+`element-plus-components/`) — same established class as Phase 9/12/14's
+off-by-one authoring defects. `rllm-org/hive`: 3 exact-content duplicates
+deduped.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.
