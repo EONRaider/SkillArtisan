@@ -4139,3 +4139,88 @@ finding (decoded), `getsentry/warden`'s fixture structure, `karpathy/nanochat`'s
 actual skill content. Zero `scripts/` code changes — **no release** (established
 scale-batch precedent). **13,120 skills now audited across the pilot** (12,943 +
 177), **631 repos**.
+
+## Phase 43: 20 more low-sitemap-count repos — scale batch 29, a machine-translation pipeline that translated YAML key names themselves, a fourth frontmatter-error root cause, shadcn/ui's own skill (501 discovered, 497 net-new)
+
+Twenty-ninth scale batch (2026-08-21, seed 43). Funnel: 2,448 pairs → 626 held
+excluded (+20 from Phase 42) → 1,121-repo tier → 14-call GraphQL screen, 0
+call-errors → seeded draw, 20 repos, **20/20 vendored, zero rejections**. Two
+NOASSERTION cases, both read in full and resolved favorably: `langfuse/langfuse`
+(33,520★) splits its license by directory (an "ee/" enterprise-edition subtree under
+a separate license, everything else plain MIT) — checked directly that none of its
+34 discovered `SKILL.md` files sit under `ee/`, so the whole audited set is plain
+MIT; `netresearch/jira-skill` is dual MIT/CC-BY-SA-4.0.
+
+### A genuinely new authoring-defect mechanism: a translation pipeline that translated the YAML key names themselves
+
+`2025emma/vibe-coding-cn` ships every skill through an i18n pipeline (`i18n/{en,zh,
+hi}/skills/<name>/SKILL.md`) generating localized copies of the same underlying
+content. Two distinct, novel breakages surfaced from this pipeline, both
+investigated directly:
+- **A fourth root-cause mechanism for the "missing frontmatter" error class** (after
+  Phase 15's no-frontmatter-at-all, Phase 33's wrong-delimiter, and Phase 38's
+  UTF-8 BOM prefix): 15 `i18n/en/` (and one `i18n/zh/`) files open with a literal
+  line `TRANSLATED CONTENT:` *before* the `---` delimiter — a translation-tooling
+  artifact left in the output — breaking the strict opening-delimiter check.
+  Correctly caught via the exit-code-4 contract.
+- **A genuinely novel finding, more consequential than the BOM/delimiter cases**:
+  the `hi` (Hindi) locale's `claude-skills` variant has its **YAML field names
+  themselves machine-translated** — `name:` became `नाम:` and `description:` became
+  `विवरण:` — not just the values. Since `audit.py`'s parser looks for the literal
+  English key names required by the spec, this produces neither field, correctly
+  drawing a `rebuild` verdict for "triggering logic is fundamentally broken: both
+  frontmatter validity and description quality fail." Confirmed by reading the raw
+  file directly — a real translation-pipeline defect (over-eager machine
+  translation applied to the YAML schema itself, not a tool bug on this pilot's
+  side).
+
+### shadcn/ui's own official skill
+
+`shadcn/ui` (121,774★, the well-known component library — this pilot's second-
+highest star count after Phase 33's prompts.chat) contributed 2 genuine official
+skills, including `shadcn` itself (component management, presets, registries).
+
+### Two more cross-corpus duplicates, one new pairing and one already-established chain
+
+`langfuse/langfuse`'s `web/.agents/skills/vercel-composition-patterns` and
+`vercel-react-best-practices` both match already-held copies in
+`artivilla-agents-config` — Vercel's own published best-practice skills,
+redistributed by a second author (`artivilla-agents-config`) now matched again by a
+different, unrelated real product's repo. `memtensor/skills-vote`'s `pdf` (present
+in two of its own example directories, auto-deduped within the cohort) also matches
+`tfboy1-academic-paper-writer`'s already-held copy of Anthropic's official `pdf`
+skill — another corroboration of the recurring redistribution family. All three
+match instances excluded from the net-new count.
+
+### All gitleaks findings confirmed non-issues
+
+- `2025emma/vibe-coding-cn`'s `coingecko` hits are real, well-known public Ethereum
+  token contract addresses (USDT, WETH) in CoinGecko API documentation, plus one
+  obviously-fake `CG-abc123xyz789` placeholder key.
+- `practicalswan/agent-skills`' `figma-implement-design` hits are a consistent
+  synthetic example Figma file key (`kL9xQn2VwM8pYrTb4ZcHjF`) reused throughout its
+  own documentation — not a real access token (Figma file keys are semi-public URL
+  identifiers, not secrets, in any case).
+
+### Corroborated, not new
+
+- **Eight reserved-word instances**, seven concentrated in `2025emma/vibe-coding-cn`
+  across its multiple locale variants of `claude-code-guide`/`claude-cookbooks`/
+  `claude-skills` (real distinct per-locale content, same reserved names), plus one
+  in `malue-ai/dazee-small`'s `claude-computer-use`.
+- Six more `rebuild` decisions beyond the Hindi one above, all verified genuine:
+  three real oversized `practicalswan/agent-skills` entries and one real oversized
+  `postgresql` reference in `2025emma/vibe-coding-cn`.
+
+### Cost and hit rate
+
+Review queue: **462 of 485 (95%)** — this phase's highest hit rate yet, driven
+mostly by the i18n pipeline's own repeated structural gaps (missing TOCs, trigger
+framing) spread consistently across its many locale-duplicated skills rather than
+one concentrated defect. Read exhaustively: both novel frontmatter-defect
+mechanisms (raw file bytes/content in both cases), the Hindi-YAML-key finding in
+particular, all cross-corpus duplicates, all gitleaks findings, `shadcn/ui`'s actual
+skill content, `langfuse/langfuse`'s license-directory split verified against every
+discovered skill path. Zero `scripts/` code changes — **no release** (established
+scale-batch precedent). **13,617 skills now audited across the pilot** (13,120 +
+497), **651 repos**.

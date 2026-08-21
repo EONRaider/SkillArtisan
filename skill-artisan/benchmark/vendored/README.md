@@ -2474,3 +2474,50 @@ write-up: `../audit-pilot/RESULTS.md`'s Phase 42 section.
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 43 cohort: 20 more low-sitemap-count repos (scale batch 29) — a machine-translation pipeline defect, shadcn/ui's own skill
+
+Twenty-ninth batch (2026-08-21, seed 43). Funnel: 2,448 sitemap pairs → 626 held
+excluded → 1,121-repo tier → 14-call GraphQL screen (0 call-errors) → seeded draw.
+20 drawn, **20/20 vendored**, zero rejections.
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `2025emma/vibe-coding-cn` | `9b42dd10ddf3` | 2025-12-16 | MIT | 30 | 1 | 22,768 |
+| `blaxel-ai/agent-skills` | `e337838555df` | 2026-08-17 | MIT | 2 | 2 | 3 |
+| `dhan-oss/dhanhq-skills` | `6b43f98b9720` | 2026-06-30 | MIT | 1 | 1 | 30 |
+| `diffusionstudio/skills` | `ce4cf5ecb94d` | 2026-08-14 | MIT | 3 | 3 | 7 |
+| `fastapi-practices/skills` | `84e491a66de9` | 2026-07-12 | MIT | 1 | 1 | 11 |
+| `fenng/tech-doc-style-chinese` | `a6f5b6064b92` | 2026-08-07 | MIT | 1 | 1 | 1,056 |
+| `huajiexiewenfeng/codex-token-usage-skill` | `3a3ffd2c58af` | 2026-04-29 | MIT | 1 | 1 | 27 |
+| `jshchnz/claude-code-scheduler` | `f44464eacf7f` | 2026-01-19 | MIT | 1 | 1 | 510 |
+| `langfuse/langfuse` | `93eb91d7819c` | 2026-08-21 | MIT (split)* | 34 | 1 | 33,520 |
+| `lifelonglazylearner/qu-ai-wei` | `39da1cfac4f0` | 2026-08-16 | MIT | 1 | 1 | 451 |
+| `lukasniessen/kubernetes-skill` | `f85547fb3a1e` | 2026-08-16 | MIT | 1 | 1 | 381 |
+| `malue-ai/dazee-small` | `7aa03f577fc5` | 2026-03-18 | MIT | 174 | 1 | 36 |
+| `memtensor/skills-vote` | `55ea783d1818` | 2026-08-05 | MIT | 8 | 1 | 297 |
+| `neonwatty/logo-designer-skill` | `8f9a4b04009c` | 2026-05-03 | MIT | 1 | 1 | 68 |
+| `netresearch/jira-skill` | `a16c55d00c79` | 2026-08-21 | MIT+CC-BY-SA-4.0* | 3 | 2 | 77 |
+| `pixverseai/skills` | `bde749507291` | 2026-08-20 | MIT | 1 | 1 | 60 |
+| `practicalswan/agent-skills` | `54787cf42fde` | 2026-08-20 | MIT | 232 | 2 | 8 |
+| `rgmez/apple-accessibility-skills` | `ab6f67852f5d` | 2026-08-05 | MIT | 3 | 1 | 27 |
+| `shadcn/ui` | `c06da1d0e91e` | 2026-08-21 | MIT | 2 | 2 | 121,774 |
+| `yctimlin/mcp_excalidraw` | `ff42de9e352e` | 2026-08-21 | MIT | 1 | 1 | 2,330 |
+
+**License notes (the two `*` rows, both NOASSERTION on the screen, both read in full
+and resolved favorably)**: `langfuse/langfuse` (33,520★) splits its license by
+directory — an "ee/" enterprise-edition subtree under a separate license, everything
+else plain MIT — verified directly that none of its 34 discovered `SKILL.md` files
+sit under `ee/`. `netresearch/jira-skill` is dual MIT/CC-BY-SA-4.0.
+
+**Structure notes**: `2025emma/vibe-coding-cn` ships every skill through an i18n
+pipeline (`i18n/{en,zh,hi}/skills/<name>/SKILL.md`) that produced two novel
+authoring-defect mechanisms — a `TRANSLATED CONTENT:` prefix line breaking the
+frontmatter delimiter on 15 files, and (more notably) a Hindi-locale variant with
+its **YAML field names themselves machine-translated** (`name:` → `नाम:`,
+`description:` → `विवरण:`), correctly drawing a `rebuild` verdict. `shadcn/ui`
+(121,774★, this pilot's second-highest star count) contributed its own genuine
+official skill. Full write-up: `../audit-pilot/RESULTS.md`'s Phase 43 section.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.
