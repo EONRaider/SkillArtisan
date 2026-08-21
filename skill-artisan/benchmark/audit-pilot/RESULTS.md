@@ -2258,3 +2258,96 @@ and a revised (not new) framing on cross-corpus duplicates — so **no release**
 (Phase 14/16/17/18/19 precedent). Wall-clock including the license rejection,
 two duplicate investigations, and template-stub read: roughly 2 hours.
 **6,407 skills now audited across the pilot** (6,132 + 275).
+
+## Phase 21: 23 more low-sitemap-count repos — scale batch 7, the tier's low-star pool thins (503 skills)
+
+Seventh scale batch (2026-08-21, seed 21). Funnel: 2,448 pairs → 192 held
+excluded → 1,564-repo tier → 16-call GraphQL screen, zero failures → seeded
+draw. **First sign the low end of the tier is depleting**: the 0–2★ bin's
+drawable pool dropped to 3 repos (all 3 drawn, below the usual 8-target) —
+total draw was 23 repos, not 28. `cockroachdb/cockroach`'s clone hit a
+transient GnuTLS network error mid-fetch; a single retry succeeded cleanly —
+infrastructure noise, recorded not as a rejection. 23/23 survived verification.
+
+### `thelobbi/claude`: 452 skills vs. 1 listed, and a new structural character (archived versions)
+
+452 raw discovered against a sitemap count of 1 — the pilot's second-largest
+hidden-collection undercount (452x) after Phase 15's `claude-dev-suite` (717x).
+Content spot-checked directly before committing to a full chunked audit
+(genuine, well-formed multi-plugin toolkit skills, not aggregator-shaped). 50
+exact-content duplicates deduped (452→402), chunked into 5×100-skill windows
+per the established >200-skill rule, all health-checked. One chunking-driver
+false alarm caught and resolved during this phase, not a real audit bug: my own
+health-check script computed the final chunk's expected size against the
+*raw* 452-count, but `aggregate_findings.py`'s `audit_source` applies
+`dedup_by_content` **before** slicing `--start`/`--end` — so the final window
+correctly returned 2 reports (the true remainder of the 402-deduped list), not
+the ~52 my script wrongly expected. Confirmed by reading the actual chunk file
+before treating it as anything but a calibration error in my own throwaway
+script, not `aggregate_findings.py` itself (unchanged, uses the exact same
+dedup-then-slice order it always has).
+
+**New structural character, distinct from issue #12's template-stub pattern**:
+49 of thelobbi's 402 skills (12%) live under `plugins/claude-code-expert/
+archive/v7.6.0/` — real, previously-published skill content from an old plugin
+version (not a placeholder). Nearly all of this phase's 35 per-skill errors and
+77 of 295 `frontmatter-valid` "Missing required field: name" FAILs concentrate
+in this archived subtree — an older, pre-`name:`-field authoring convention
+frozen at the point of archiving. Not excluded (it's real content) and not
+opened as an issue (a FAIL/rebuild verdict on a demonstrably outdated snapshot
+is a legitimate, correct audit outcome, not a miscalibration) — just documented
+as a new shape of large-collection structure this pilot hadn't seen before.
+
+### Issue #11's sixth corroboration
+
+`learnwy/skills` (4 skills, bare `{id, prompt, expected_output, files}` shape)
+— sixth independent author (5dive, fluxcd, blitzreels, easy-cheese,
+shadowcz007, learnwy). Logged, not acted on.
+
+### Corroborated, not new
+
+- **Reserved-word instance 20/20**: `thelobbi/claude`'s
+  `plugins/work-automation/skills/claude-code-automation` — still zero
+  exceptions across the whole pilot.
+- **Gitleaks (4 skills, all read)**: `abcdef123456`, `your-api-key`,
+  `YOUR_API_KEY`, and a test-fixture example key (`sm_valid_key_...` in
+  `index.test.ts`) — all the established doc-example/test-fixture class.
+- **15 `rebuild` decisions, all `thelobbi/claude`, all size-based** — spot-
+  verified (`authentication/SKILL.md`: 1,102 lines, genuinely double the
+  limit) — the highest single-phase rebuild count so far, an authoring-scale
+  consequence of one very large multi-plugin collection, not a new pattern.
+- **Issues #8/#9**: `triggers:` recurs multiple times within `thelobbi` alone
+  (different plugin authors, same repo); a cluster of related but distinct
+  trigger/routing-metadata field variants (`trigger_phrases`, `intent`,
+  `related-skills`, `globs`) — internal diversity within one large multi-
+  plugin collection rather than a single new coherent family, so not opened as
+  a separate issue. A second confirmation that `user_invocable` correctly
+  hard-FAILs as a true positive (`cockroachdb/cockroach`), same as Phase 20.
+- **Zero cross-corpus duplicates** this phase (0/554 raw skills against the
+  6,672-skill held set) — Phase 20's two hits didn't extend into a third
+  consecutive phase.
+
+### Hit rate — eighth data point, driven by the mega-collection's own shape
+
+Review queue: **438 of 468 (94%)** — by far the highest of the eight scale
+batches, almost entirely a function of `thelobbi/claude`'s own 97% rate (357 of
+367) dominating the phase's 503-skill total; the other 22 repos combined run a
+more typical 80% (81/101). A reminder that phase-level hit rate is corpus-
+composition-weighted, not a single population's rate — same caveat as every
+prior phase, just unusually visible here given one repo supplied 73% of the
+phase's skills.
+
+### Cost — sampled vs. exhaustive stated explicitly
+
+Read exhaustively: the chunking-driver false alarm (traced to source before
+concluding it wasn't a real bug), the archived-subtree structural finding
+(confirmed via direct count and sampling, not assumed), a rebuild sample
+(line-count verified), all 4 gitleaks-flagged skills, both new license texts in
+full, all 23 license files. Sampled: 2–4 per high-volume group across
+`thelobbi`'s large share (gerund-naming, description framing, unrecognized
+fields). Zero code changes — a sixth #11 corroboration and one new,
+non-actionable structural pattern (archived-version subtrees), not a new
+mechanism — so **no release** (Phase 14/16-20 precedent). Wall-clock including
+the clone retry, chunking-driver debugging, and the archived-subtree
+investigation: roughly 2 hours. **6,910 skills now audited across the pilot**
+(6,407 + 503).

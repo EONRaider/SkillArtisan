@@ -1163,3 +1163,75 @@ count predicts nothing reliably about collection-level cleanliness.
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 21 cohort: 23 more low-sitemap-count repos (scale batch 7) — the tier's low-star pool thins out
+
+Seventh batch (2026-08-21, seed 21). Funnel: 2,448 pairs → 192 held excluded →
+1,564-repo tier → 16-call GraphQL screen, zero failures → same exclusions →
+seeded draw. **The 0–2★ bin's pool dropped to 3 repos (drew all 3, below the
+usual target of 8)** — the first sign the tier's low end is thinning as
+consecutive phases draw it down; total draw was 23, not 28. `cockroachdb/
+cockroach`'s clone hit a transient network failure (GnuTLS recv error mid-fetch)
+and succeeded cleanly on a single retry — recorded as infrastructure noise, not
+a rejection.
+
+23 of 23 cloned, pinned, licenses read raw — 100% survival on the drawn set. Two
+new source-available license types, both read in full and both explicitly
+grant broad non-competing-use rights (same shape as Phase 18's BSL 1.1, audit-
+only posture applied for consistency): `cockroachdb/cockroach`'s own
+"CockroachDB Software License" and `millionco/expect`'s **FSL-1.1-MIT**
+(Functional Source License — converts to MIT after a delay period, permits
+"any purpose other than a Competing Use").
+
+**`thelobbi/claude`: 452 skills discovered vs. 1 sitemap-listed** — a
+452x undercount, the pilot's second-largest hidden collection after Phase 15's
+717x `claude-dev-suite`. A real, dedicated multi-plugin Claude Code toolkit
+(content spot-checked directly, not assumed from volume alone — genuine, well-
+formed skills throughout). 50 exact-content duplicates deduped (452→402),
+chunked for audit (5×100-skill windows) per the established >200-skill rule.
+
+**Structural note, new to this pilot**: 49 of thelobbi's 402 skills (12%) live
+under a `plugins/claude-code-expert/archive/v7.6.0/` versioned-snapshot
+directory — real, previously-published content from an old plugin version, not
+a template stub (a genuinely different character than issue #12's pattern).
+35 of the phase's 35 total per-skill errors and 77 of its "Missing required
+field: name" `frontmatter-valid` FAILs concentrate almost entirely in this
+archived subtree — an older, pre-`name:`-field authoring convention frozen in
+the archive, correctly flagged as real defects in that historical snapshot, not
+a new bug. Not excluded (genuinely real content, unlike a template) and not
+opened as an issue (no miscalibration — a `rebuild`/FAIL verdict on a
+demonstrably outdated skill snapshot is a legitimate audit outcome).
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `21st-dev/agent-elements` | `b04b36cb6381` | 2026-04-24 | MIT | 1 | 1 | 95 |
+| `agents365-ai/drawio-skill` | `2ee141e0ff18` | 2026-08-05 | MIT | 1 | 1 | 7,862 |
+| `aotenjou/silicon-paddleocr` | `c01bbe8c5a87` | 2026-02-10 | MIT | 1 | 1 | 1 |
+| `astro-han/karpathy-llm-wiki` | `eafcc77001e4` | 2026-07-24 | MIT | 1 | 1 | 1,966 |
+| `cockroachdb/cockroach` | `8812064a015d` | 2026-08-07 | CockroachDB-SL* | 15 | 1 | 32,407 |
+| `comet-ml/opik-skills` | `88c7250135d7` | 2026-08-19 | Apache-2.0 | 2 | 2 | 6 |
+| `didit-protocol/skills` | `408979a9b2a4` | 2026-08-10 | MIT | 13 | 1 | 26 |
+| `dream-num/skills` | `9e4358e8f1cd` | 2026-08-15 | Apache-2.0 | 7 | 1 | 62 |
+| `henricook/claude-glab-skill` | `b5ef4fb77f8e` | 2025-11-07 | MIT | 1 | 1 | 74 |
+| `kenchangh/kicad-schematic` | `5ebbc911a14d` | 2026-02-26 | MIT | 1 | 1 | 1 |
+| `learnprompt/luban-skill` | `cea2da331027` | 2026-07-11 | MIT | 1 | 1 | 927 |
+| `learnwy/skills` | `d727b3862052` | 2026-06-03 | MIT | 13 | 1 | 3 |
+| `lingui/skills` | `acc25ae9f61d` | 2026-08-14 | MIT | 6 | 2 | 9 |
+| `mcp-use/skills` | `3bf0eaa4b007` | 2026-01-31 | Apache-2.0 | 2 | 1 | 1 |
+| `millionco/expect` | `39e975007257` | 2026-04-10 | FSL-1.1-MIT** | 8 | 1 | 3,551 |
+| `react-native-community/skills` | `1fb0e0848fc7` | 2026-08-05 | MIT | 2 | 1 | 26 |
+| `supermemoryai/supermemory` | `34876664810a` | 2026-08-20 | MIT | 1 | 1 | 28,978 |
+| `thelobbi/claude` | `3678a0c7540f` | 2026-08-18 | MIT | 452*** | 1 | 19 |
+| `tigrisdata/skills` | `668ea424758e` | 2026-07-23 | MIT | 18 | 1 | 3 |
+| `timbroddin/app-store-aso-skill` | `3f0b917384ae` | 2026-05-04 | MIT | 1 | 1 | 95 |
+| `twostraws/swiftdata-agent-skill` | `922d989473a9` | 2026-03-11 | MIT | 1 | 1 | 391 |
+| `veris-ai/veris-skills` | `711573d85dba` | 2026-08-21 | Apache-2.0 | 4 | 1 | 3 |
+| `vladimir-human/humanizer-ru` | `e5f4eba5d0c5` | 2026-08-16 | MIT | 2 | 1 | 111 |
+
+\* CockroachDB Software License — source-available, broad grant "for the
+purposes of operating, evaluating, testing, fixing, integrating with, and
+improving CockroachDB," audit-only posture applied. \*\* Functional Source
+License 1.1 (MIT Future License) — same posture. \*\*\* 402 post-dedup, audited.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.
