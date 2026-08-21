@@ -2629,3 +2629,65 @@ precedent; v2.5.13 was Phase 23's fix). Wall-clock including the multi-license
 resolution and off-by-one verification: roughly 1.25 hours, one of the
 cheaper phases, proportionate to a clean result. **8,668 skills now audited
 across the pilot** (8,523 + 145).
+
+## Phase 25: 20 more low-sitemap-count repos — scale batch 11 (124 skills)
+
+Eleventh scale batch (2026-08-21, seed 25). Funnel: 2,448 pairs → 275 held
+excluded → 1,481-repo tier → 15-call GraphQL screen, zero failures → seeded
+draw, 20 repos (0–2★ bin still exhausted). 20/20 survived verification, no
+NOASSERTION cases. Zero cross-corpus duplicates against the 9,519-skill held
+set. 126 raw discovered, 2 exact-content duplicates deduped
+(`8090-inc/software-factory-plugin`), 124 = 124 audited, 0 errors — the
+second consecutive zero-error phase, reconciled exactly, single unchunked
+pass, ~77s wall-clock.
+
+### `tondevrel/scientific-agent-skills`: a genuine domain-density concentration, not a defect pattern
+
+62 skills covering real scientific-computing libraries (numpy, scipy, sympy,
+biopython, qiskit, rdkit, opencv, pyscf, mdanalysis) — every one of this
+phase's 9 `rebuild` decisions comes from this single corpus, spot-verified
+(`numpy/SKILL.md`: 1,361 lines, genuinely double the size limit). A
+legitimate authoring-density consequence of covering dense scientific APIs
+thoroughly, same class as Phase 21's `thelobbi/claude` size-driven rebuild
+cluster — not a new pattern, corpus-specific volume.
+
+### Issue #11's eighth corroboration
+
+`wzyn20051216/solidworks-automation-skill`'s `autocad-automation` (Chinese-
+language content) hits the same bare-shape bucket. Eight independent authors
+now (5dive, fluxcd, blitzreels, easy-cheese, shadowcz007, learnwy, organvm,
+wzyn20051216), still not acted on.
+
+### Corroborated, not new
+
+- **Gitleaks (1 skill, read)**: `yyh211/claude-meta-skill`'s
+  `local-diff-review` carries a doc-example `sk-1234567890abcdef` in two
+  reference files — established class. (A separate, unrelated workflow-
+  template JSON file elsewhere in the same repo also carries what look like
+  short API-key-shaped strings, but that file sits outside the audited skill
+  directory entirely and was not part of any checklist finding.)
+- **Zero reserved-word instances** — true positive holds at 28/28.
+- **No new field families**: `homepage`/`repository` (bradautomates) and
+  `requires` (epiral) — both already-established recurring singles.
+
+### Hit rate — twelfth data point
+
+Review queue: **84 of 124 (68%)**. `bradautomates/claude-video` (15,943★),
+`tamagui/tamagui` (14,150★), `epiral/bb-browser` (6,063★), and
+`chuspeeism/dashi-ppt-skill` (5,862★) are all clean — the four highest-star
+repos this phase all scored 100% clean, the strongest single-phase
+corroboration yet of the high-star-incidental-is-clean pattern (though, as
+established since Phase 16's aitytech counterexample, this remains a
+tendency, not a rule).
+
+### Cost — sampled vs. exhaustive stated explicitly
+
+Read exhaustively: the misclassification's evals.json, a rebuild sample
+(line-count verified), the gitleaks finding (traced to the correct directory
+after an initial path-scoping miss on my own part, corrected before
+concluding), all 20 license files. Sampled: 2–4 per remaining high-volume
+group. Zero code changes — one more #11 corroboration and a genuine
+domain-density explanation for a rebuild cluster, not a new mechanism — so
+**no release** (Phase 14/16-22/24 precedent). Wall-clock: roughly 1 hour, one
+of the cheapest phases of the batch, proportionate to a small, clean corpus.
+**8,792 skills now audited across the pilot** (8,668 + 124).

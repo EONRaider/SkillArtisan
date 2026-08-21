@@ -1451,3 +1451,48 @@ deduped.
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 25 cohort: 20 more low-sitemap-count repos (scale batch 11)
+
+Eleventh batch (2026-08-21, seed 25). Funnel: 2,448 pairs → 275 held excluded
+→ 1,481-repo tier → 15-call GraphQL screen, zero failures → same exclusions →
+seeded draw (0–2★ bin still exhausted). 20 of 20 cloned, pinned, licenses read
+raw — 100% survival, no NOASSERTION cases this phase. `chuspeeism/
+dashi-ppt-skill` — **AGPL-3.0**, same audit-only posture as every other
+copyleft case. Zero cross-corpus duplicates against the 9,519-skill held set.
+
+`8090-inc/software-factory-plugin`: 2 exact-content duplicates deduped
+(4→2). `tondevrel/scientific-agent-skills` (62 skills) — a genuine scientific-
+computing reference library (numpy, scipy, sympy, biopython, qiskit, rdkit,
+opencv, pyscf, mdanalysis) — is this phase's hidden collection, audited in
+full; its own domain density (each library's SKILL.md running well past
+1,000 lines) drove all 9 of this phase's `rebuild` decisions, spot-verified
+(`numpy/SKILL.md`: 1,361 lines).
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `8090-inc/software-factory-plugin` | `90459912f10e` | 2026-06-08 | MIT | 2 | 1 | 7 |
+| `alchaincyf/elon-musk-skill` | `5a7d8cf0f23c` | 2026-05-28 | MIT | 1 | 1 | 487 |
+| `alchaincyf/mrbeast-skill` | `504c360a0b35` | 2026-05-28 | MIT | 1 | 1 | 104 |
+| `bradautomates/claude-video` | `83da59fa78c3` | 2026-06-30 | MIT | 1 | 1 | 15,943 |
+| `chuspeeism/dashi-ppt-skill` | `7cb23347f91c` | 2026-07-30 | AGPL-3.0* | 1 | 2 | 5,862 |
+| `deeflect/mies` | `0b6c4d27706c` | 2026-05-29 | MIT | 1 | 1 | 4 |
+| `epiral/bb-browser` | `7975dc74b3f6` | 2026-05-29 | MIT | 2 | 2 | 6,063 |
+| `greedychipmunk/agent-skills` | `378ec597428a` | 2026-08-13 | MIT | 17 | 1 | 14 |
+| `jin-doh/traceknot` | `6efbf1ea6383` | 2026-08-21 | MIT | 1 | 1 | 3 |
+| `jpeggdev/humanize-writing` | `da03340e5bb3` | 2026-03-14 | MIT | 1 | 1 | 51 |
+| `linear/linear-release` | `cbd166fad995` | 2026-08-21 | MIT | 1 | 1 | 63 |
+| `motion-creative/skills` | `5d031702c7b8` | 2026-03-11 | MIT | 5 | 1 | 10 |
+| `remix-run/agent-skills` | `33578aae4aa3` | 2026-06-18 | MIT | 3 | 3 | 138 |
+| `sailtonight/kalopilot-skill` | `ea60e237dbfb` | 2026-08-17 | MIT | 1 | 1 | 6 |
+| `storybookjs/react-native` | `c53ff1c9947f` | 2026-07-27 | MIT | 3 | 2 | 1,310 |
+| `tamagui/tamagui` | `9f2297f893fa` | 2026-08-20 | MIT | 3 | 1 | 14,150 |
+| `tondevrel/scientific-agent-skills` | `6e89d9e8c841` | 2026-02-01 | MIT | 62 | 2 | 19 |
+| `wzyn20051216/solidworks-automation-skill` | `cc1e9301ecdf` | 2026-08-03 | MIT | 5 | 1 | 753 |
+| `yejinlei/pdf-ocr-skill` | `c44d4e7b758a` | 2026-04-20 | MIT | 1 | 2 | 14 |
+| `yyh211/claude-meta-skill` | `ba6f50c5724d` | 2026-05-15 | MIT | 12 | 1 | 274 |
+
+\* audit-only posture applied for consistency.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.
