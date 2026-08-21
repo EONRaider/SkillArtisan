@@ -125,6 +125,35 @@ TRIGGER_FRAMING_RE = re.compile(
 )
 
 
+# Issue #10: both TRIGGER_FRAMING_RE and the length thresholds below are
+# calibrated for English text density — confirmed wrong two independent ways
+# on two independent CJK corpora (Phase 11 Korean, 77% FAIL/WARN; Phase 16
+# Chinese, 98%, verified against real descriptions both times, not assumed
+# from the aggregate rate). A Korean sentence carrying real trigger-framing
+# content structurally can't match an English regex; a short CJK description
+# can carry as much semantic content as a much longer English one, so the
+# character-count floor undercounts it. Rather than guess at per-script
+# regex/thresholds with no linguistic verification (real risk of encoding a
+# wrong pattern with false confidence — worse than an honest gap), a
+# predominantly non-Latin-script description gets MANUAL instead of a
+# confident FAIL/WARN the check structurally cannot evaluate. Threshold
+# picked empirically against both corpora: skills whose description is
+# actually written in English (even in a Korean/Chinese-authored repo) sit
+# at 0% non-Latin letters and are unaffected; genuine CJK-script descriptions
+# sit at a 47-67% median, so 30% cleanly separates the two without needing a
+# per-language table.
+NON_LATIN_SCRIPT_THRESHOLD = 0.3
+_LATIN_SUPPLEMENT_MAX_CODEPOINT = 0x024F  # Basic Latin + Latin-1 Supplement + Latin Extended-A/B
+
+
+def _non_latin_letter_fraction(text: str) -> float:
+    letters = [c for c in text if c.isalpha()]
+    if not letters:
+        return 0.0
+    non_latin = sum(1 for c in letters if ord(c) > _LATIN_SUPPLEMENT_MAX_CODEPOINT)
+    return non_latin / len(letters)
+
+
 def check_description_quality(frontmatter: dict[str, str]) -> dict:
     desc = frontmatter.get("description", "")
     if not desc:
@@ -134,6 +163,12 @@ def check_description_quality(frontmatter: dict[str, str]) -> dict:
         detail = ("disable-model-invocation: true — pushy/'Use when...' triggering framing doesn't apply; description just needs to accurately state what the skill does"
                   if status == "PASS" else "description too short to be useful even for a plain, non-triggering description")
         return {"id": "description-pushy-imperative", "status": status, "detail": detail}
+    non_latin_frac = _non_latin_letter_fraction(desc)
+    if non_latin_frac >= NON_LATIN_SCRIPT_THRESHOLD:
+        return {"id": "description-pushy-imperative", "status": "MANUAL",
+                "detail": f"description is predominantly non-Latin-script ({non_latin_frac:.0%} of letters) — "
+                          "the trigger-framing regex and length floor are English-calibrated and cannot "
+                          "reliably judge this text; read directly against the skill's stated purpose"}
     if len(desc) < 40:
         return {"id": "description-pushy-imperative", "status": "FAIL",
                 "detail": f"description missing or under 40 chars ({len(desc)} chars) — likely fails to trigger reliably"}

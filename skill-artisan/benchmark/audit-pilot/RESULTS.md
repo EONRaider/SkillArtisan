@@ -1872,3 +1872,45 @@ tracked design-limit issue (#11), three issue corroborations, and confirmed
 instances of established classes, so **no release** (Phase 14 precedent).
 Wall-clock including funnel re-run, triage, issue writing, and write-up: roughly
 2 hours. **5,493 skills now audited across the pilot** (5,142 + 351).
+
+## Post-Phase-16 fix: issue #10 closed, `description-pushy-imperative` is no longer English-only (shipped as v2.5.11)
+
+User's call after reviewing the Phase 15/16 checkpoints: worth fixing #10 now (two
+languages, two mechanisms, high corpus-wide rates — enough evidence for a real
+fix), leave #11 open (one data point, premature to pick between its three options).
+
+Implemented exactly the design the issue itself specified when it was opened,
+rather than a new guess: detect predominantly non-Latin-script descriptions and
+report **MANUAL** ("cannot verify from files alone") instead of asserting a
+confident FAIL/WARN the check structurally can't evaluate — same principle as
+issue #4's third-party-source-mode fix (don't score a check against content it
+wasn't built to judge). Threshold (30% non-Latin letters) picked empirically
+against both held corpora before committing to it, not guessed: skills whose
+description is genuinely written in English (even inside a Korean- or
+Chinese-authored repo) measure 0% and are unaffected; genuine CJK-script
+descriptions measure a 47–67% median across both corpora, so 30% cleanly
+separates the two without a per-language table.
+
+**Re-run against both corpora, both directions checked by hand:**
+
+| Corpus | Before | After | Sampled for correctness |
+|---|---|---|---|
+| `nomadamas/k-skill` (118) | 90 WARN, 1 FAIL, 27 PASS | 74 MANUAL, 22 WARN, 22 PASS | All 22 remaining WARNs read: every one is a description genuinely written in English (0.00–0.25 non-Latin fraction) inside the Korean repo — correctly still scored on English criteria, not swept into MANUAL by mistake. |
+| `chaterm/terminal-skills` (63) | 62 FAIL, 1 WARN | 45 MANUAL, 17 FAIL, 1 WARN | All 17 remaining FAILs read: genuinely thin even in translation (`AWS CLI 操作` → "AWS CLI Operations", 19 chars; `Linux file and directory operations`, already pure English) — the fix doesn't launder real terseness into a pass, only removes the language-density penalty. |
+
+Both directions of possible failure checked, not just the headline count: the fix
+neither hides genuine Chinese terseness behind MANUAL, nor keeps flagging Korean
+skills whose description was never in Korean to begin with.
+
+**Regression tests** (`tests/test_description_cjk_manual.py`) use the exact real
+corpus strings verified above — `daangn-cars-search`'s 61-char information-dense
+Korean sentence, `assembly-bill-vote-search`'s Korean-only description, the
+5-character `防火墙配置` — rather than synthetic examples, plus boundary and
+pass-rate/rebuild-gate interaction tests. 146-test suite passes (10 new).
+
+**Issue #10 closed.** Issue #11 stays open, deliberately: it has one corroborating
+instance (fluxcd/agent-skills, 3 skills) against three real design trade-offs, and
+picking one now would repeat the exact "regex guess" risk this fix was built to
+avoid. Shipped as **v2.5.11**, no new corpus audited this pass (a targeted fix
+against two already-held corpora, not a new phase) — pilot total unchanged at
+5,493 skills.

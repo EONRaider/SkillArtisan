@@ -6,6 +6,14 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.5.11] - 2026-08-21
+
+### Fixed
+- **`audit.py`'s `description-pushy-imperative` check is English-only no longer.** Tracked as issue #10 since Phase 11: `TRIGGER_FRAMING_RE` (looks for literal English "use when/if/for/during" phrasing) and the 40/100-character length floors are both calibrated for English text density — confirmed wrong two independent ways on two independent CJK corpora, verified against real descriptions both times, not assumed from the aggregate rate. Korean sentences carrying genuine trigger-framing content structurally can't match an English regex (`nomadamas/k-skill`, Phase 11: 77% FAIL/WARN). Short Chinese descriptions carry as much semantic content as much longer English ones but get FAILed by a character-count floor built for English word length (`chaterm/terminal-skills`, Phase 16: 98%). Rather than guess at per-language regex or rescaled thresholds with no linguistic verification — real risk of encoding a wrong pattern with false confidence, worse than an honest gap — a predominantly non-Latin-script description (≥30% non-Latin letters, threshold picked empirically: genuinely-English descriptions in CJK-authored repos measure 0%, genuine CJK-script descriptions measure a 47–67% median across both corpora) now reports **MANUAL** ("cannot verify from files alone") instead of a confident FAIL/WARN the check structurally can't evaluate. Re-run against both corpora: Korean's 91 FAIL/WARN drops to 74 MANUAL + 22 WARN (the 22 remaining are genuinely English-written descriptions in the Korean repo, correctly still scored); Chinese's 62 FAIL drops to 45 MANUAL + 17 FAIL (the 17 remaining are genuinely thin even translated — `Linux file and directory operations`-style entries — correctly still flagged). Regression tests added (`tests/test_description_cjk_manual.py`, using the real corpus strings verified in RESULTS.md, not synthetic examples); 146-test suite passes.
+
+### Notes
+- Issue #10 closed. Issue #11 (fluxcd/agent-skills' independent convergence on this pipeline's evals.json schema) stays open per the standing discipline — one data point isn't enough to pick between its three options without risking the same speculative-guess problem this fix avoided.
+
 ## [2.5.10] - 2026-08-20
 
 ### Fixed
