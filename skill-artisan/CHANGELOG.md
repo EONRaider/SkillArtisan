@@ -6,6 +6,14 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.5.13] - 2026-08-21
+
+### Fixed
+- **`audit.py`'s `has_lifecycle_markers` metadata-field check matched any unrelated tag containing the substring "lifecycle".** The `metadata` frontmatter field is reconstructed as one flat string by `_common.py`'s parser (no real YAML nesting), so `"lifecycle" in metadata.lower()` matched any tag/category anywhere in the block — found live during audit-pilot Phase 23 on two real skills in `terminalskills/skills`: `mlflow` (tagged `ml-lifecycle`, about MLflow's own ML-lifecycle management) and `sequenzy-email-marketing` (tagged `lifecycle-email`, about email-campaign lifecycles), both misdetected as first-party and drawing bogus `evals-present`/`security-scan-marker-current` FAILs. Fixed with the same co-occurrence discipline the body-text path already uses: the metadata field now requires "lifecycle" alongside "timelessness" or one of the two documented lifecycle categories (`capability-uplift`, `encoded-preference`) before counting as a marker — a real classification always names its category, so this doesn't weaken genuine detection, verified against both a synthetic true-positive metadata marker and the existing body-text fixture. Regression tests added (`tests/test_lifecycle_metadata_false_positive.py`, using the real corpus frontmatter blocks); 153-test suite passes; both real skills re-verified as correctly `third-party` after the fix.
+
+### Notes
+- Phase 23 of the audit pilot: 1,215 skills audited across 20 repos, headlined by `terminalskills/skills` (1,018 skills vs. 1 sitemap-listed — the pilot's largest single hidden collection yet, audited in full across 11 chunks with zero per-skill errors). Full narrative: `skill-artisan/benchmark/audit-pilot/RESULTS.md`'s Phase 23 section.
+
 ## [2.5.12] - 2026-08-21
 
 ### Added

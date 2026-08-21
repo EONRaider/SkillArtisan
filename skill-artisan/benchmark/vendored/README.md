@@ -1314,3 +1314,72 @@ frontmatter block (3 of the phase's per-skill errors, correctly caught).
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 23 cohort: 20 more low-sitemap-count repos (scale batch 9) — the pilot's largest hidden collection yet
+
+Ninth batch (2026-08-21, seed 23). Funnel: 2,448 pairs → 235 held excluded →
+1,521-repo tier → 16-call GraphQL screen, zero failures → same exclusions →
+seeded draw (0–2★ bin still exhausted, as Phase 22). 20 of 20 cloned, pinned,
+licenses read raw — 100% survival, no NOASSERTION cases this phase.
+
+**`terminalskills/skills`: 1,018 skills discovered vs. 1 sitemap-listed** — the
+pilot's largest single hidden collection ever (surpassing Phase 21's
+`thelobbi/claude` at 452 and Phase 15's `claude-dev-suite` at 717 in raw
+count). Content spot-checked directly across multiple unrelated topics before
+committing to a full audit (genuine, well-formed, alphabetically-organized
+`skills/<topic>/` reference library spanning an encyclopedic range — "3dsmax-
+rendering" through "zustand" — each skill's frontmatter carrying a consistent
+`author: terminal-skills` / `version` / `category` / `tags` schema).
+Chunked into 11×~100-skill windows per the established >200-skill rule, using
+Phase 21's corrected lesson (chunk against the post-dedup discovery count, not
+a raw guess). **Zero per-skill errors across all 1,018 skills** — the cleanest
+large corpus this pilot has audited at scale.
+
+**Real bug found and fixed (v2.5.13)**: two `terminalskills/skills` skills
+(`mlflow`, `sequenzy-email-marketing`) auto-detected as first-party via
+`has_lifecycle_markers`' unguarded metadata-field substring match — both carry
+a `tags:` entry (`ml-lifecycle`, `lifecycle-email`) that happens to contain
+the literal substring "lifecycle" in an unrelated domain context (MLflow's ML
+lifecycle, email-campaign lifecycles). Fixed by requiring the same
+co-occurrence discipline the body-text check already used. See
+`../audit-pilot/RESULTS.md`'s Phase 23 section and `CHANGELOG.md`'s [2.5.13].
+
+**Highest single-corpus reserved-word concentration in the pilot**: 7 of
+`terminalskills/skills`' 1,018 skills trip the reserved-word check
+(`anthropic-sdk`, `claude-code`, `claude-computer-use`, `claude-hud`,
+`claude-mem`, `git-guardrails-claude-code`, `oh-my-claudecode`) — a natural
+consequence of an encyclopedic library genuinely covering Claude/Anthropic
+tooling as topics in their own right, not the "excluded from the author's own
+shipped list" pattern earlier corpora showed. Reserved-word true positive now
+28/28 across the whole pilot, zero exceptions.
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `a-tokyo/agent-skills` | `99652ee6a787` | 2026-08-06 | MIT | 11 | 2 | 15 |
+| `agno-agi/agno` | `7b8e5308e9c8` | 2026-08-21 | Apache-2.0 | 4 | 3 | 41,817 |
+| `antdv-next/skills` | `0dd42f92751b` | 2026-07-03 | MIT | 1 | 1 | 10 |
+| `cnemri/google-genai-skills` | `7277476f9229` | 2026-02-06 | MIT | 10 | 1 | 125 |
+| `erikote04/swift-api-design-guidelines-agent-skill` | `36cdc1b5680f` | 2026-02-18 | MIT | 1 | 1 | 27 |
+| `fatfingererr/macro-skills` | `13e538802829` | 2026-02-03 | MIT | 37 | 1 | 3 |
+| `fradser/dotclaude` | `6f2a0b2345b9` | 2026-08-12 | MIT | 104 | 1 | 582 |
+| `framix-team/openclaw-tavily` | `6db474508f44` | 2026-02-14 | MIT | 1 | 1 | 75 |
+| `herdrdev/herdr` | `624dfd479655` | 2026-08-20 | Apache-2.0 | 5 | 1 | 31,223 |
+| `mouse-lin/finesse-skill` | `5050b6c71e27` | 2026-08-04 | MIT | 1 | 1 | 470 |
+| `nhadaututtheky/neural-memory` | `2015cb9b0973` | 2026-08-16 | MIT | 5 | 3 | 237 |
+| `ningzimu/image-to-editable-ppt-skill` | `fb869763127f` | 2026-07-28 | MIT | 1 | 1 | 2,089 |
+| `oil-oil/beautify-github-readme` | `55bdb1c05414` | 2026-07-27 | MIT | 1 | 1 | 1,648 |
+| `outsharp/shipp-skills` | `c623cae557f3` | 2026-03-22 | Apache-2.0 | 9 | 1 | 4 |
+| `parthjadhav/ios-marketing-capture` | `00ae3cbe2250` | 2026-04-11 | MIT | 1 | 1 | 254 |
+| `temporalio/skill-temporal-cloud` | `2d867d1f96ae` | 2026-03-26 | MIT | 1 | 1 | 5 |
+| `terminalskills/skills` | `7a5cc96749b0` | 2026-07-26 | Apache-2.0 | 1,018 | 1 | 134 |
+| `tobi/qmd` | `dbfd0b4736ae` | 2026-08-18 | MIT | 2 | 2 | 29,023 |
+| `tscircuit/skill` | `3dbfeec2d2c9` | 2026-08-13 | MIT | 1 | 1 | 18 |
+| `wshuyi/translate-pdf-skill` | `5836f0de12d9` | 2026-01-01 | MIT | 1 | 1 | 21 |
+
+**Structure notes**: `mouse-lin/finesse-skill` (4→1 post-dedup) and
+`nhadaututtheky/neural-memory` (8→5) both use the established multi-tool-
+mirroring convention. `fradser/dotclaude` (104 skills) is this phase's second
+hidden collection, audited in full.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.

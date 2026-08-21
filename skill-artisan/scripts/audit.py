@@ -308,7 +308,24 @@ def check_content_hygiene(body: str) -> list[dict]:
 
 def has_lifecycle_markers(body: str, frontmatter: dict[str, str]) -> bool:
     has_marker = "lifecycle" in body.lower() and "timelessness" in body.lower()
-    has_metadata = "lifecycle" in frontmatter.get("metadata", "").lower()
+    # The `metadata` frontmatter field is reconstructed as one flat string by
+    # _common.py's parser (no real YAML nesting), so a bare "lifecycle" in
+    # metadata.lower() matches any unrelated tag/category containing that
+    # substring — found live on real third-party content (Phase 23):
+    # terminalskills/skills' `mlflow` ("ml-lifecycle" tag, about MLflow's ML
+    # lifecycle) and `sequenzy-email-marketing` ("lifecycle-email" tag, about
+    # email-campaign lifecycles) both misdetected as first-party, drawing
+    # bogus evals-present/security-scan-marker-current FAILs. Same
+    # co-occurrence discipline as the body-text check fixes it: a real
+    # lifecycle classification names its category, so require "lifecycle"
+    # alongside "timelessness" or one of the two documented category values
+    # (references/lifecycle.md: capability-uplift, encoded-preference).
+    metadata_text = frontmatter.get("metadata", "").lower()
+    has_metadata = "lifecycle" in metadata_text and (
+        "timelessness" in metadata_text
+        or "capability-uplift" in metadata_text
+        or "encoded-preference" in metadata_text
+    )
     return has_marker or has_metadata
 
 

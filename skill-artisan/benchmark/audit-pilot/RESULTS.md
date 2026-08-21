@@ -2443,3 +2443,109 @@ strengthened conclusion (#12's directory-naming boundary), not a new
 mechanism — so **no release** (Phase 14/16-21 precedent). Wall-clock including
 the jimliu true-positive trace and organvm structural investigation: roughly
 1.5 hours. **7,308 skills now audited across the pilot** (6,910 + 398).
+
+## Phase 23: 20 more low-sitemap-count repos — scale batch 9, pilot's largest hidden collection, a real bug fixed (1,215 skills, shipped as v2.5.13)
+
+Ninth scale batch (2026-08-21, seed 23). Funnel: 2,448 pairs → 235 held
+excluded → 1,521-repo tier → 16-call GraphQL screen, zero failures → seeded
+draw, 20 repos (0–2★ bin still exhausted). 20/20 survived verification, no
+NOASSERTION cases. Zero cross-corpus duplicates against the 8,149-skill held
+set.
+
+### `terminalskills/skills`: 1,018 skills vs. 1 listed — the pilot's largest hidden collection, zero errors
+
+1,018 raw discovered against a sitemap count of 1, surpassing Phase 21's
+`thelobbi/claude` (452) and Phase 15's `claude-dev-suite` (717) as the
+pilot's largest single hidden collection by raw count. Content spot-checked
+across multiple unrelated topics (a React state-management library, 3ds Max
+rendering settings) before committing to a full audit — genuine, well-formed,
+alphabetically-organized reference content throughout, not a thin or
+generated-at-scale corpus. Chunked into 11×~100-skill windows, applying Phase
+21's corrected lesson directly: chunk boundaries computed against the
+verification record's `after_dedup` count (which is what `aggregate_findings.py`
+actually slices against), not a freshly-guessed raw number — no chunking
+false alarm this time. **Zero per-skill errors across all 1,018 skills** —
+the cleanest large corpus this pilot has audited at this scale.
+
+### Real bug found and fixed: `has_lifecycle_markers`' metadata-field substring match, shipped as v2.5.13
+
+Two real skills — `mlflow` and `sequenzy-email-marketing` — auto-detected as
+first-party and drew bogus `evals-present`/`security-scan-marker-current`
+FAILs. Root cause, confirmed by reading the actual frontmatter: `_common.py`'s
+parser reconstructs the `metadata` frontmatter field as one flat string (no
+real YAML nesting), and `has_lifecycle_markers`' metadata path did a bare
+`"lifecycle" in metadata.lower()` substring check with no co-occurrence
+requirement — unlike the already-safe body-text path, which correctly
+requires "lifecycle" *and* "timelessness" together. Both skills carry a
+`tags:` entry containing the substring "lifecycle" in an unrelated domain
+sense (`ml-lifecycle` — MLflow's own ML-lifecycle management;
+`lifecycle-email` — email-campaign lifecycles), nothing to do with this
+pipeline's skill-lifecycle classification convention
+(`references/lifecycle.md`). **Fixed**: the metadata path now requires
+"lifecycle" alongside "timelessness" or one of the two documented category
+values (`capability-uplift`, `encoded-preference`) — the same discipline
+already governing the body-text path. A genuine classification always names
+its category, so this doesn't weaken real detection; verified against both a
+synthetic true-positive metadata marker and the pre-existing body-text
+fixture before shipping. Regression tests added
+(`tests/test_lifecycle_metadata_false_positive.py`, using the real corpus
+frontmatter blocks, not synthetic guesses); 153-test suite passes; both real
+skills re-verified as correctly `third-party` after the fix.
+
+Unlike issue #11 (a genuine multi-option design tradeoff, still correctly left
+open pending more evidence), this was a narrow, well-evidenced, single-
+mechanism bug with a safe fix mirroring an already-proven-safe pattern
+elsewhere in the same function — the same bar Phase 19's issue #10 fix used,
+applied here immediately rather than logged for later.
+
+### Highest single-corpus reserved-word concentration in the pilot
+
+7 of `terminalskills/skills`' 1,018 skills trip the reserved-word check
+(`anthropic-sdk`, `claude-code`, `claude-computer-use`, `claude-hud`,
+`claude-mem`, `git-guardrails-claude-code`, `oh-my-claudecode`) — a different
+shape than every prior instance: this is a genuinely encyclopedic library
+covering Claude/Anthropic tooling as real topics in their own right, not the
+"segregated outside the author's own shipped list" pattern 21 prior instances
+showed. Reserved-word true positive now **28/28**, zero exceptions.
+
+### Corroborated, not new
+
+- **Gitleaks (18 skills flagged in `terminalskills` alone, sampled 3, all
+  confirmed)**: doc-example placeholders (`abc123def456`, `YOUR_TOKEN`,
+  `sk-live-abc123def456`) — consistent with the corpus's uniform,
+  documentation-reference authoring style throughout.
+- **2 `rebuild` decisions**, both size-based, both genuine.
+- **Field families (#8/#9)**: `homepage` (nhadaututtheky), plus two more
+  singles (`based_on`, `updated`) — no new coherent family this phase.
+- **3 per-skill errors outside the mega-corpus**, all read: a missing-
+  frontmatter creative-content skill and a stray `.claude-plugin` manifest
+  file discovered as if it were a skill directory (correctly errored, not a
+  real skill, exit-code-4 behavior working as intended).
+
+### Hit rate — tenth data point, and the mega-collection's own internal shape
+
+Review queue: **591 of 1,212 (49%)** — `terminalskills` itself runs 45%
+(462/1,018), the other 19 repos combined run 66% (129/194). Notably *lower*
+than the phase average despite the corpus's otherwise clean, professional
+character — almost entirely explained by the near-universal `gerund-naming`
+WARN (1,001/1,018, just under the aggregator's 95% dynamic-boilerplate
+threshold) and `description-pushy-imperative` (304/1,018) from the author's
+consistent "You are an expert in X..." framing rather than "Use when..."
+trigger phrasing — a real, corpus-wide stylistic choice, not scattered defects.
+
+### Cost — sampled vs. exhaustive stated explicitly
+
+Read exhaustively: the bug's root cause (both real frontmatter blocks, the
+parser's flattening behavior, both call sites of the affected function), all
+verification-script logic before trusting chunk boundaries, the reserved-word
+concentration (all 7 names read), all 20 license files. Sampled: 3 gitleaks
+skills out of 18+ flagged (established class, high-confidence sample given
+uniform corpus style), 2–4 per remaining high-volume group. **Shipped as
+v2.5.13** — the fourth code fix of the low-quality-cohort scaling effort
+(after v2.5.10's evals-schema fix, v2.5.11's CJK fix; v2.5.12 was an
+unrelated SECURITY.md release from a parallel session, not an audit-pilot
+fix). Wall-clock including the mega-corpus character check, the bug
+investigation and fix, and write-up: roughly 2.5 hours — the most expensive
+phase since the pilot began scaling, driven by the corpus's sheer size plus a
+real bug investigation, not by finding-volume. **8,523 skills now audited
+across the pilot** (7,308 + 1,215).
