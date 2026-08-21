@@ -3035,3 +3035,132 @@ specific sub-case with zero discriminator signal available either way).
 capability, not just corrected pattern matching, per this project's own
 semver interpretation). 172-test suite passes. Both audit-gap issues closed.
 No new corpus audited this pass — pilot total unchanged at 9,434 skills.
+
+## Phase 30: 20 more low-sitemap-count repos — scale batch 16, first AGPL license, a genuine cross-skill absolute-path leak, and a real bug in the funnel's own screening script (119 skills)
+
+First scale batch after v2.6.0 (2026-08-21, seed 30). The prior session's scratchpad
+tooling (`phaseN_funnel.py`/`phaseN_draw.py`/`phaseN_verify.py`) does not persist across
+sessions, so this phase rebuilt it fresh from this document's own Phase 15-29
+methodology descriptions (confirmed against a live `skills.sh` sitemap fetch — the site
+now redirects `skills.sh` → `www.skills.sh`, and its sitemap is itself an index of four
+sub-sitemaps; `sitemap-skills-{1,2}.xml` are the 20,000 skill-URL files this pilot has
+always used).
+
+### The funnel, measured live
+
+Fresh sitemap crawl: 20,000 skill URLs, 2,448 unique owner/repo pairs. Held-repo
+exclusion (all 372 previously-vendored repos, parsed from `vendored/README.md`, plus the
+two permanently-rejected repos from Phase 17/27's fix) removed 365, leaving 2,096
+unvetted candidates → **1,380 in the 1–3-sitemap-listed tier**. Batched GraphQL screen
+(14 calls, matching the usual 14-18-call range): 31 missing/private, 507 no-license file
+(37%, on the higher end of the phase-to-phase range but not unprecedented), 17 forks, 0
+empty repos, 15 dropped on the standing aggregator/marketplace-name heuristic, 76
+NOASSERTION (kept, flagged for individual raw-file confirmation — none happened to land
+in the actual draw). **Drawable pool: 810.** Seeded stratified draw (`random.Random(30)`,
+0/8/6/6 across the four star bins — the 0-2★ bin has been empty since Phase 22 and stayed
+empty here too): **20 repos**, all 20 cloned, pinned, and verified with no rejections.
+
+### A real bug in this phase's own rebuilt screening script, caught before it silently shrank the candidate pool
+
+The rebuilt `phase30_screen.py` initially treated any non-zero exit code from
+`gh api graphql` as a total batch failure and discarded the whole batch (10 of the
+tier's 14 batches failed this way — every batch containing at least one renamed,
+deleted, or transferred repo). Root cause: `gh api graphql` exits non-zero whenever
+*any* aliased lookup inside a batched query errors (e.g. `NOT_FOUND` on one dead repo
+among 100 healthy aliases), but it still writes the complete partial response — real
+data for every alias that resolved, `null` plus a per-path entry in `errors` for the
+ones that didn't — to stdout regardless of exit code. Confirmed directly by hand
+(`gh api graphql` against one real repo + one deliberately-nonexistent one) before
+patching: exit code 1, but stdout carried both the good data and the one error, fully
+parseable JSON. **Fixed**: parse stdout first and only treat a batch as a genuine
+failure (worth a retry) if stdout itself isn't valid JSON — the actual transient-network
+case this retry logic exists for. Re-running after the fix: 14/14 batches resolved,
+1,380/1,380 candidates screened, 0 call-errors. Worth remembering for any future
+from-scratch rebuild of this tooling: a CLI wrapper's own exit code is not a reliable
+signal for "did any of this batch's data come back usable" when the call is itself a
+batch of independent lookups — check what actually landed on stdout before discarding
+it. Not a SkillArtisan/`scripts/` bug (this script lives in the scratchpad, is
+per-session throwaway tooling, and was never committed) — recorded here because the
+Phase 15-29 methodology write-ups are exactly what a future session rebuilding this
+tooling will read, and this is the mistake worth them not repeating.
+
+### First AGPL-3.0 license in the pilot
+
+`op7418/guizang-ppt-skill` (24,572★) is licensed GNU Affero GPL v3, confirmed by reading
+the raw `LICENSE` file (matches the GraphQL SPDX screen). A new license type for this
+pilot's running tally (alongside Elastic-2.0, BSL-1.1, CC0-1.0, GPL-3.0,
+LGPL-2.1, PolyForm-NC-1.0.0 from earlier phases) but not a new *complication*: AGPL-3.0
+is OSI-approved and copyleft-restrictive on redistribution/modification of the
+*licensed work itself*, not on reading it — standing audit-only posture applies exactly
+as it does for every other non-permissive license already in the vendored README (read
+and report with short attributed quotes; never copy or adapt its content into
+SkillArtisan's own MIT-licensed material).
+
+### A genuine, verified cross-skill absolute-path leak
+
+`security-pattern-checks` flagged `absolute-user-path` on 3 of `dhruvanbhalara/skills`'
+43 skills (`dart-optimization` ×2, `flutter-debugging`, `flutter-native`). Read in full
+context before concluding anything, since the truncated 160-character finding preview
+cut off before the actual match on two of the four: all four are genuine,
+`file:///Users/dhruvanbhalara/Desktop/Github%20Projects/skills/...` — the author's real
+local development path, leaking through `(see [sibling-skill](file:///Users/...))`
+cross-reference links between skills in their own personal collection (a real, working
+authoring pattern — cross-linking related skills — undermined by using an absolute
+`file://` URI instead of a relative path). Confirmed via `grep -rl` across the whole
+repo: exactly 4 instances in 3 files, matching what `audit.py` found. Same class as
+Phase 5's glebis (22+ instances) and Phase 22's jimliu (71 instances) — a genuine true
+positive, not a pattern-matcher false alarm. Separately, `baidu-netdisk/bdpan-storage`'s
+own 3 `absolute-user-path` hits are the established false-positive shape instead
+(`/home/user/...` — a literal generic placeholder username in documented example CLI
+output, not a real author's path) and `guizang-ppt-skill`'s 1 hit is a self-referential
+TODO-list entry literally describing "remove the `/Users/guohao/...` absolute path
+(done)" — the string is real but it's meta-commentary about a fix already applied
+elsewhere, not a live leak itself.
+
+### Corroborated, not new
+
+- **Two confirmed-non-issue gitleaks findings** (both read in full): `alextangson/
+  feishu_skills`' 3 hits are `Authorization: Bearer YOUR_TOKEN` in Feishu API
+  documentation (the established placeholder-credential shape); `raphaelbarbosaqwerty/
+  maestro-dev-skills`' 1 hit is `API_KEY: sk_live_abc123` inside a `# ❌ Don't do this`
+  security-education anti-pattern block — literally teaching the reader not to do the
+  thing gitleaks flagged.
+- **Issue #10 (CJK MANUAL routing)**: 15 more corroborations across four repos
+  (`alextangson/feishu_skills` ×10, `baidu-netdisk/bdpan-storage` ×2,
+  `op7418/guizang-ppt-skill`, `xiaomimimo/mimo-skills`, `alchaincyf/ilya-sutskever-skill`)
+  — every one correctly routed to MANUAL rather than a confident FAIL/WARN, the fix
+  still holding.
+- **Issue #12 (`authoring-template-detected`)**: 119/119 PASS, zero false positives —
+  the fix continues to add no false signal on ordinary content.
+- **Third-party mode** (`evals-present`/`security-scan-marker-current`/
+  `lifecycle-classified`): correctly N/A across all 119 skills with `--source
+  third-party` passed up front, the actual operational fix issue #11 shipped for.
+- **Both `rebuild` decisions verified by direct read**: `theplasmak/faster-whisper`
+  (1,130-line single-file SKILL.md, real per-feature reference density — audio
+  transcription CLI with genuinely broad surface area) and `wandb/skills`'
+  `wandb-primary` (1,726 lines, W&B's own official skill covering multiple product
+  surfaces — same "real vendor reference density" shape as Phase 25's tondevrel).
+- **One small field-family instance**: `alextangson/feishu_skills`' `required_permissions`
+  (8 of its 11 skills) — a coherent single-author convention, issue #9-shaped but too
+  small on its own to add to that issue's tracked families.
+- **Zero reserved-word (`claude`/`anthropic`-named) instances this phase** — the third
+  time this has happened (also Phases 17, 18), correctly reported as corpus composition,
+  not a search failure.
+
+### Cross-corpus dedup and hit rate
+
+Zero cross-corpus duplicates: all 119 new `SKILL.md` content hashes checked against all
+9,419 unique hashes already held across the other 372 vendored repos (matches, hash for
+hash, zero collisions). Zero within-cohort duplicates either (119 files, 119 unique
+hashes). Review queue: **86 of 119 (72%)**, squarely in the pilot's established
+9%-100% corpus-dependent range.
+
+### Cost
+
+119 skills discovered = 119 audited, 0 per-skill errors, single unchunked pass (largest
+single repo was `dhruvanbhalara/skills` at 43). Read exhaustively: both rebuild
+decisions, both gitleaks findings, all 5 `absolute-user-path` sources (verified by
+direct grep against the real clone, not assumed from the truncated preview), all 20
+LICENSE files, the CJK-MANUAL sample. Zero `scripts/` code changes — **no release**
+(Phase 14/16-22/24/25/27/28/29 precedent). **9,553 skills now audited across the pilot**
+(9,434 + 119), **392 repos**.

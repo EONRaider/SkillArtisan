@@ -1749,3 +1749,53 @@ continuing to accumulate corroborations.
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 30 cohort: 20 more low-sitemap-count repos (scale batch 16) — first AGPL-3.0, a genuine cross-skill absolute-path leak
+
+Sixteenth batch (2026-08-21, seed 30). Funnel rebuilt fresh this session (prior
+scratchpad tooling doesn't persist across sessions): 2,448 sitemap pairs → 365 held
+excluded → 1,380-repo tier → 14-call GraphQL screen (0 call-errors after fixing a
+real bug in the rebuilt screening script itself — see `../audit-pilot/RESULTS.md`'s
+Phase 30 section) → seeded draw. 20 drawn, **20/20 vendored**, no rejections.
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `alchaincyf/ilya-sutskever-skill` | `056284b63c2d` | 2026-05-28 | MIT | 1 | 1 | 47 |
+| `alextangson/feishu_skills` | `7569ef14adee` | 2026-03-26 | MIT | 10 | 2 | 65 |
+| `anivar/zod-skill` | `bb0620d90ed0` | 2026-08-08 | MIT | 1 | 1 | 20 |
+| `atlassian/atlassian-mcp-server` | `94a30436435f` | 2026-07-27 | Apache-2.0 | 6 | 1 | 979 |
+| `baidu-netdisk/bdpan-storage` | `b0f22b465a47` | 2026-08-11 | Apache-2.0 | 2 | 1 | 202 |
+| `dhruvanbhalara/skills` | `28b936d5c2ee` | 2026-07-10 | MIT | 43 | 1 | 29 |
+| `done-0/value-realization` | `ba9ea9599815` | 2026-08-01 | MIT | 1 | 1 | 527 |
+| `fastapi/fastapi` | `c3f316b7e814` | 2026-08-19 | MIT | 1 | 1 | 101,742 |
+| `flyer-li/paper-analyst` | `1e385a3f6f86` | 2026-04-26 | MIT | 1 | 1 | 66 |
+| `honra-io/drizzle-best-practices` | `c1bc07273a84` | 2026-05-24 | MIT | 1 | 1 | 20 |
+| `iart-ai/webgl-animation-skills` | `50697d659fbf` | 2026-06-22 | MIT | 3 | 1 | 8 |
+| `op7418/guizang-ppt-skill` | `c91369c449d3` | 2026-08-07 | AGPL-3.0 | 1 | 1 | 24,572 |
+| `raphaelbarbosaqwerty/maestro-dev-skills` | `53ce7c0e9dc9` | 2026-02-05 | MIT | 1 | 1 | 8 |
+| `screenci/screenci` | `fedeafcc72be` | 2026-08-18 | MIT | 2 | 2 | 3 |
+| `shanraisshan/claude-code-best-practice` | `d4df0acdfe1c` | 2026-08-21 | MIT | 9 | 2 | 64,829 |
+| `shawnchee/caveman-skill` | `82af154a91dd` | 2026-04-06 | MIT | 1 | 1 | 71 |
+| `theplasmak/faster-whisper` | `1c8d6a682c56` | 2026-02-22 | MIT | 1 | 1 | 10 |
+| `tinyfish-io/tinyfish-cookbook` | `2751ef766264` | 2026-08-17 | MIT | 30 | 1 | 2,119 |
+| `wandb/skills` | `b93e46c7a2be` | 2026-08-06 | Apache-2.0 | 3 | 1 | 66 |
+| `xiaomimimo/mimo-skills` | `fa2a81225730` | 2026-04-24 | MIT | 1 | 1 | 90 |
+
+**License note**: `op7418/guizang-ppt-skill` — first AGPL-3.0 in the pilot, confirmed
+by raw `LICENSE` read. OSI-approved and copyleft-restrictive on redistributing/
+modifying the licensed work itself, not on reading it — standing audit-only posture
+applies (read + report with short attributed quotes; never copy/adapt into
+SkillArtisan's own MIT-licensed material), same as every other non-permissive license
+already in this table.
+
+**Structure note**: `dhruvanbhalara/skills` (43 found vs. 1 listed) ships a genuine,
+verified cross-skill absolute-path leak — `file:///Users/dhruvanbhalara/Desktop/
+Github%20Projects/skills/...` in 4 sibling-skill cross-reference links across 3
+skills (`dart-optimization` ×2, `flutter-debugging`, `flutter-native`), the author's
+real local dev path, not a placeholder. Confirmed by direct `grep -rl` against the
+clone. Same class as the glebis (Phase 5) and jimliu (Phase 22) findings, not a new
+mechanism. Full write-up, including two confirmed-non-issue gitleaks findings and a
+third zero-reserved-word phase: `../audit-pilot/RESULTS.md`'s Phase 30 section.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.
