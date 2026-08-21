@@ -3385,3 +3385,100 @@ gitleaks findings, both NOASSERTION licenses, the Go test-fixture directory's ow
 source-file documentation, `home-assistant/core`'s actual skill content. Zero
 `scripts/` code changes — **no release** (established scale-batch precedent).
 **10,440 skills now audited across the pilot** (10,228 + 212), **432 repos**.
+
+## Phase 33: 20 more low-sitemap-count repos — scale batch 19, the pilot's new highest star count by a wide margin, a new frontmatter-delimiter authoring defect, a first `.windsurf/` discovery (288 discovered, 285 net-new)
+
+Nineteenth scale batch (2026-08-21, seed 33). Funnel: 2,448 pairs → 425 held excluded
+(+20 from Phase 32) → 1,320-repo tier → 14-call GraphQL screen, 0 call-errors → seeded
+draw, 20 repos, **20/20 vendored, zero rejections**. Four NOASSERTION cases, all
+resolved favorably by raw read: `f/prompts.chat` is dual-licensed (MIT for source,
+CC0-1.0 for the prompt content itself); `max-sixty/worktrunk` is dual MIT/Apache-2.0;
+`boise-state-development/agentcore-public-stack` is PolyForm Noncommercial 1.0.0 (a
+second instance of this license type, after Phase 26); `gitroomhq/postiz-agent` is
+AGPL-3.0 (a second instance, after Phase 30). All four NOASSERTION results traced to
+the same root cause seen throughout this pilot: non-standard header text or a
+multi-file dual-license scheme confusing GitHub's single-SPDX classifier, not an
+actual licensing gap.
+
+### The pilot's new highest star count by a wide margin
+
+`f/prompts.chat` — **167,691★**, more than 50% higher than Phase 29's previous record
+(graphify-labs/graphify, 108,962★). This is the well-known prompts.chat / "Interactive
+Book of Prompting" project (Fatih Kadir Akin). 4 real skills, all genuine internal
+tooling (book translation across 25 chapters/7 parts, UI widget generation, prompt/
+skill lookup) — no defects worth flagging. **A first for the pilot's discovery
+patterns**: 2 of the 4 live under `.windsurf/skills/`, a sixth distinct agent-tool
+directory this pilot has found real skills mirrored into (after `.claude/`, `.codex/`,
+`.gemini/`, `.hermes/`, `.vibe/` from Phase 6's symlink-mirroring discovery).
+
+### 288 discovered → 286 after within-cohort dedup → 281 audited + 5 documented errors → 285 net-new after cross-corpus exclusion
+
+`max-sixty/worktrunk` mirrors 2 skills byte-identically into `plugins/worktrunk/skills/`
+and root `skills/` (the established flat/nested pattern, auto-deduped). One cross-corpus
+exact duplicate: `openstatushq/data-table-filters`' `.agents/skills/skill-creator`
+matches **both** already-held copies (`anthropics-financial-services` and
+`cdeistopened-skill-stack`) — a ninth-plus corroboration of the recurring
+Anthropic-skill-creator-redistribution pattern, excluded from the net-new count.
+
+### A new frontmatter-authoring-defect shape, in the same repo as an established one
+
+`bytedance/agentkit-samples` (163 found vs. 1 listed, ByteDance's real Volcengine cloud
+product skill collection — genuine Chinese-language content, verified directly) has
+both known and previously-unseen malformed-frontmatter shapes:
+- `byted-ai-mobileuse-agent` uses `***` to open and a long dash run
+  (`---------------`) to close its frontmatter block instead of the exact `---`
+  delimiter YAML requires — correctly errors with "missing frontmatter (no opening
+  ---)", same exit-code-4 contract as every prior no-frontmatter case, but this is a
+  **new sub-shape**: frontmatter-like content is genuinely present and readable by eye,
+  just delimited with the wrong markdown-horizontal-rule variant.
+- `byted-mediakit-videoedit` has valid `---` delimiters but its `description: >` block
+  scalar is missing the required indentation on its continuation lines, so the YAML
+  parser reads the field as empty — correctly FAILs `frontmatter-valid`
+  ("Field 'description' must be a non-empty string") and
+  `description-pushy-imperative` ("description missing"), producing this phase's only
+  "triggering logic is fundamentally broken" `rebuild` verdict. Confirmed by reading
+  the raw file: the description text is genuinely present in the markdown source,
+  just YAML-invalid.
+
+Both are genuine authoring defects on the source repo's side (likely from internal
+tooling that doesn't lint strict YAML before commit), not tool bugs — `audit.py`
+correctly catches both.
+
+### All gitleaks findings confirmed non-issues, including a high-volume one
+
+- `byted-mediakit-voiceover-editing`'s 65 hits are all `auth_key=...` signed-URL
+  parameters inside `examples/web-sdk.js`, every one pointing at
+  `vod-fe-test-aideo.byte-test.com` — a domain with "test" in it twice, genuine SDK
+  demo/example data, not production secrets.
+- `byted-airesearch-survey`'s hit is inside a "Do not leak credentials" security-
+  education block, explicitly labeled "Bad — the host showed unredacted API key" —
+  the established self-referential-documentation class.
+- `byted-security-clawsentry`'s hit is a Feishu/Lark public group-chat invite link
+  token, not an API credential.
+- `questdb-skills`' hit is a `curl-auth-user` false match on a plain
+  `curl ... http://localhost:3000/api/health` health-check with no credentials
+  present at all.
+
+### Corroborated, not new
+
+- **One reserved-word instance**: `bfollington/terma`'s `claude-plugins` — genuinely a
+  quick-reference doc for Claude Code's own plugin system (same "about Claude/
+  Anthropic products, not a branded helper skill" sub-case Phase 31 established), and
+  also one of this phase's 5 documented frontmatter errors (pure prose, no `---` block
+  at all).
+- **4 more `rebuild` decisions, all verified real vendor/product reference density**:
+  `questdb-skills`' `questdb` (1,220 lines, a real time-series database company's
+  official skill), `bytedance/agentkit-samples`' `byted-vedb-mysql`, `max-sixty/
+  worktrunk`'s `writing-user-outputs`, `bfollington/terma`'s `sqlite-notes` — same
+  "real reference content pushing past size limits" shape as every prior instance of
+  this pattern.
+
+### Cost and hit rate
+
+Review queue: **209 of 281 (74%)**. Read exhaustively: both new frontmatter-defect
+shapes (raw file content in both cases), all 4 gitleaks-flagged skills, all 4
+NOASSERTION licenses, the cross-corpus duplicate, `f/prompts.chat`'s actual skill
+content given its record star count, `bytedance/agentkit-samples`' genuineness before
+committing to a full audit of its 163-skill hidden collection. Zero `scripts/` code
+changes — **no release** (established scale-batch precedent). **10,725 skills now
+audited across the pilot** (10,440 + 285), **452 repos**.

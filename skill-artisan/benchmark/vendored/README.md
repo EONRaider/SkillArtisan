@@ -1937,3 +1937,66 @@ GitHub's classifier from confidently matching either.
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 33 cohort: 20 more low-sitemap-count repos (scale batch 19) — the pilot's new highest star count, ByteDance's Volcengine collection
+
+Nineteenth batch (2026-08-21, seed 33). Funnel: 2,448 sitemap pairs → 425 held
+excluded → 1,320-repo tier → 14-call GraphQL screen (0 call-errors) → seeded draw.
+20 drawn, **20/20 vendored**, zero rejections.
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `ag-grid/skills` | `40ac2d87fad4` | 2026-08-18 | MIT | 2 | 2 | 6 |
+| `bfollington/terma` | `4a88bbd3f0ae` | 2026-03-04 | CC-BY-SA-4.0 | 21 | 1 | 51 |
+| `boise-state-development/agentcore-public-stack` | `bcc15f921457` | 2026-08-17 | PolyForm-NC-1.0.0* | 8 | 1 | 17 |
+| `bytedance/agentkit-samples` | `0890278a6571` | 2026-08-21 | Apache-2.0 | 163 | 1 | 428 |
+| `easysoft/zentao-skills` | `941728a78d5d` | 2026-08-12 | MIT | 3 | 2 | 68 |
+| `f/prompts.chat` | `217c9b0613d0` | 2026-08-21 | MIT+CC0-1.0* | 4 | 3 | 167,691 |
+| `geoffjay/claude-plugins` | `0ab5ae1b22bf` | 2025-11-04 | MIT | 25 | 3 | 8 |
+| `gitroomhq/postiz-agent` | `885e1b04260a` | 2026-08-11 | AGPL-3.0* | 1 | 1 | 415 |
+| `greekr4/playwright-bot-bypass` | `d163f9750b20` | 2026-07-24 | MIT | 1 | 1 | 188 |
+| `max-sixty/worktrunk` | `9c37aae5b9af` | 2026-08-20 | MIT+Apache-2.0* | 7 | 2 | 6,565 |
+| `molefrog/skills` | `2ff4c8486b19` | 2026-02-12 | MIT | 1 | 1 | 169 |
+| `nicobailon/visual-explainer` | `df35d97a0019` | 2026-08-19 | MIT | 1 | 1 | 9,533 |
+| `openstatushq/data-table-filters` | `0c8454b06216` | 2026-08-21 | MIT | 15 | 1 | 2,182 |
+| `postman-devrel/agent-skills` | `e48de265f4ae` | 2026-03-09 | MIT | 2 | 1 | 16 |
+| `questdb/skills` | `4fa3f13bea1d` | 2026-06-09 | Apache-2.0 | 1 | 1 | 18 |
+| `schwepps/skills` | `8aa9a4e0eec8` | 2026-01-19 | MIT | 8 | 2 | 16 |
+| `superwall/skills` | `85ecf0b20a30` | 2026-07-17 | MIT | 4 | 3 | 28 |
+| `vercel-labs/slack-agent-skill` | `d30f784c4b52` | 2026-07-15 | Apache-2.0 | 1 | 1 | 22 |
+| `vercel/turborepo` | `0423d7087b49` | 2026-08-21 | MIT | 1 | 1 | 30,964 |
+| `xiaolai/vmark` | `fffeae17716d` | 2026-08-21 | ISC | 19 | 1 | 533 |
+
+**License notes (the four `*` rows, all NOASSERTION on the GraphQL screen, resolved
+favorably)**:
+
+- `f/prompts.chat` — dual-licensed: MIT for source/site code, CC0-1.0 (public domain)
+  for the prompt content itself. The pilot's new highest star count by a wide margin
+  (167,691★, surpassing Phase 29's graphify at 108,962★).
+- `max-sixty/worktrunk` — dual MIT/Apache-2.0, user's choice.
+- `boise-state-development/agentcore-public-stack` — PolyForm Noncommercial 1.0.0, a
+  second instance of this license type (first seen Phase 26) — noncommercial-use-only,
+  standard audit-only posture applies.
+- `gitroomhq/postiz-agent` — AGPL-3.0, a second instance (first seen Phase 30) — same
+  audit-only posture as every other non-permissive license already in this table.
+
+**Structure notes**:
+
+- `bytedance/agentkit-samples` (163 found vs. 1 listed) is ByteDance's real Volcengine
+  cloud-product skill collection (genuine Chinese-language content, verified directly)
+  — and the source of **a new frontmatter-authoring-defect shape**: one skill uses
+  `***`/a long dash run instead of the exact `---` YAML delimiter (correctly errors,
+  exit-code-4 contract), another has valid delimiters but an under-indented
+  `description: >` block scalar that parses as empty (correctly FAILs
+  `frontmatter-valid`/`description-pushy-imperative`, drawing this phase's only
+  `rebuild` verdict for that reason rather than size).
+- `f/prompts.chat` is a first for the pilot's discovery patterns: 2 of its 4 skills
+  live under `.windsurf/skills/`, a sixth distinct agent-tool directory found holding
+  real skills (after `.claude/`, `.codex/`, `.gemini/`, `.hermes/`, `.vibe/`).
+- `openstatushq/data-table-filters`' `.agents/skills/skill-creator` is a ninth-plus
+  corroboration of the recurring Anthropic-skill-creator-redistribution pattern,
+  matching two already-held copies at once — excluded from the net-new count.
+  Full write-up: `../audit-pilot/RESULTS.md`'s Phase 33 section.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.
