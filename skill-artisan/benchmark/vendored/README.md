@@ -1686,3 +1686,66 @@ consequence of the tool's own stated purpose (local API emulation).
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 29 cohort: 19 more low-sitemap-count repos (scale batch 15) — a genuine filename-case defect on the pilot's highest-star repo, one sitemap false positive dropped
+
+Fifteenth batch (2026-08-21, seed 29). Funnel: 2,448 pairs → 356 held
+excluded → 1,400-repo tier → 14-call GraphQL screen, zero failures → seeded
+draw. 20 drawn; **19 vendored**.
+
+`steel-dev/cli` discovered **zero** skills and, on investigation, contains no
+`SKILL.md`/`skill.md` file anywhere in the repo at all — its `init_agent_guide.md`
+is a CLI-generated onboarding doc, not a Claude Skills-format file. A genuine
+sitemap false positive (skills.sh's crawler indexed it via loose
+keyword-adjacency, not a real skill), dropped consistent with the standing
+character-check discipline. Not counted toward this phase's totals, no
+replacement drawn.
+
+**`graphify-labs/graphify` (108,962★, the pilot's new highest star count)
+also discovered zero skills — but for a genuinely different, more
+consequential reason**: it ships real, well-formed skill content at
+`graphify/skill.md` — **lowercase**, not the spec-required `SKILL.md`.
+Confirmed by reading the file directly: legitimate frontmatter, a working
+slash-command definition. On a case-sensitive filesystem (Linux, most CI),
+this skill would silently fail to load in a real Claude Code session exactly
+the way it failed `find_skill_dirs`' discovery here — `find_skill_dirs`
+correctly mirrors the spec's case-sensitive requirement rather than papering
+over it. Kept vendored (not dropped) with this finding recorded: the pilot's
+single highest-star repo drawn so far ships a skill broken by filename case,
+likely working only by accident on the author's own case-insensitive
+development machine (macOS/Windows default).
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `agentrhq/authsome` | `0d756011a6fe` | 2026-07-05 | MIT | 1 | 1 | 82 |
+| `aidotnet/moyucode` | `9fa0412ff1d5` | 2026-01-28 | MIT | 59 | 1 | 83 |
+| `arjitj2/swiftui-design-principles` | `791d22d73f84` | 2026-03-15 | MIT | 1 | 1 | 23 |
+| `atlassian/forge-skills` | `6d3897463bdb` | 2026-08-17 | Apache-2.0 | 6 | 1 | 20 |
+| `bevibing/tutor-skills` | `397110c9fefb` | 2026-02-28 | MIT | 2 | 2 | 1,105 |
+| `buildgreatproducts/plaid` | `002ea9330057` | 2026-05-05 | MIT | 1 | 1 | 214 |
+| `graphify-labs/graphify` | `b2cd36267456` | 2026-08-20 | Apache-2.0 | 0* | 1 | 108,962 |
+| `imsus/pi-extension-minimax-coding-plan-mcp` | `357c0856d7c6` | 2026-04-12 | MIT | 2 | 1 | 15 |
+| `lancelin111/crawl4ai-skill` | `e1bdcff8034f` | 2026-03-11 | MIT | 1 | 1 | 16 |
+| `lottiefiles/motion-design-skill` | `f9a8a041b851` | 2026-05-18 | MIT | 1 | 1 | 1,307 |
+| `nshipster/sosumi.ai` | `afec623b039a` | 2026-08-11 | MIT | 1 | 1 | 464 |
+| `pashov/skills` | `c577eb7799c3` | 2026-07-09 | MIT | 5 | 1 | 1,088 |
+| `qianwen-ai/qianwenai-deploy` | `3669469d3227` | 2026-08-05 | Apache-2.0 | 1 | 1 | 9 |
+| `render-oss/skills` | `3f2aa30eaadc` | 2026-08-18 | MIT | 21 | 3 | 76 |
+| `saisudhir14/claude-skills` | `edef07bc111f` | 2026-03-31 | MIT | 9 | 1 | 8 |
+| `sawyerhood/dev-browser` | `73fe10f045b9` | 2026-07-14 | MIT | 1 | 1 | 6,554 |
+| `seo-skills/seo-audit-skill` | `bbca017b5608` | 2026-07-20 | MIT | 2 | 1 | 385 |
+| `specstoryai/agent-skills` | `9454d3f2b9ac` | 2026-01-30 | Apache-2.0 | 6 | 1 | 33 |
+| `yaojingang/yao-meta-skill` | `f5d8f681372e` | 2026-08-17 | MIT | 1 | 1 | 2,397 |
+
+\* real skill content exists but is undiscoverable due to a filename-case
+defect in the source repo — see note above; correctly not counted as an
+audited skill.
+
+Also this phase: two more issue #11 corroborations (`agentrhq/authsome`,
+bare-shape bucket; `atlassian/forge-skills`, the exact-`expectations`
+full-schema-match sub-case — fourth author now) — logged, and per the user's
+direction this session now pivots to actually resolving #11/#12 rather than
+continuing to accumulate corroborations.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.

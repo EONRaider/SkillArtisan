@@ -2910,3 +2910,62 @@ single-corpus volume) and a fifth cross-corpus duplicate, not a new
 mechanism — so **no release** (Phase 14/16-22/24/25/27 precedent).
 Wall-clock: roughly 1.5 hours. **9,314 skills now audited across the
 pilot** (9,042 + 272).
+
+## Phase 29: 19 more low-sitemap-count repos — scale batch 15, a genuine filename-case defect on the pilot's highest-star repo (120 skills)
+
+Fifteenth scale batch (2026-08-21, seed 29). Funnel: 2,448 pairs → 356 held
+excluded → 1,400-repo tier → 14-call GraphQL screen, zero failures → seeded
+draw, 20 repos. 19 vendored (one dropped, below).
+
+### A real, consequential filename-case defect, correctly caught by not being discovered
+
+`graphify-labs/graphify` (108,962★, the pilot's new highest star count)
+discovered zero skills. Investigated directly rather than assumed benign:
+the repo ships a real, well-formed skill at `graphify/skill.md` —
+**lowercase**, not the spec-required `SKILL.md`. On any case-sensitive
+filesystem (Linux, most CI environments), this skill would fail to load in a
+genuine Claude Code session for exactly the reason `find_skill_dirs` didn't
+discover it here — the tool correctly mirrors the real runtime's case-
+sensitive requirement rather than being more lenient than the spec it's
+checking against. Kept vendored, the finding documented rather than treated
+as a discovery bug: the pilot's single highest-star repo drawn so far ships
+a skill broken by filename case, most likely working only by accident on the
+author's own case-insensitive development environment.
+
+### One sitemap false positive, dropped
+
+`steel-dev/cli` also discovered zero skills, but for an unrelated reason —
+no `SKILL.md`/`skill.md` exists anywhere in the repo (its `init_agent_guide.md`
+is a CLI-generated onboarding doc, not a Claude Skills file). A genuine
+sitemap false positive, dropped per the standing character-check discipline,
+no replacement drawn.
+
+### Corroborated, not new
+
+- **Two more issue #11 instances**: `agentrhq/authsome` (bare-shape bucket,
+  tenth author overall) and `atlassian/forge-skills` (the exact
+  `expectations` field, a fourth independent author on the full-schema-match
+  sub-case). Logged as the final corroborations before pivoting to actually
+  resolving #11/#12 per the user's direction mid-phase.
+- **One `rebuild` decision**, `atlassian/forge-skills`' `forge-connector`,
+  verified directly (1,074 lines, genuinely oversized).
+- **Gitleaks (5 skills, one sampled and confirmed)**: `yaojingang/
+  yao-meta-skill`'s 7 hits are the same hash repeated across multiple files
+  named things like `*_commitment.json` — a content-integrity checksum, not
+  a credential.
+
+### Hit rate — sixteenth data point
+
+Review queue: **89 of 120 (74%)**.
+
+### Cost, and a scope note
+
+Read exhaustively: both zero-skill repos' actual content (the case-defect
+and the false-positive, both confirmed by direct inspection, not assumed
+from a 0-count alone), the rebuild sample, one gitleaks source. This phase
+was cut short of its usual exhaustive-sampling depth partway through, per
+the user's request to move to resolving #11/#12 rather than continue
+collecting corroborations — the remaining findings (field families, full
+reserved-word check) were not separately investigated this phase. Zero code
+changes — **no release**. **9,434 skills now audited across the pilot**
+(9,314 + 120). Session pivots here to addressing #11 and #12 directly.
