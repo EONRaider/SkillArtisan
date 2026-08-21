@@ -6,6 +6,11 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.5.12] - 2026-08-21
+
+### Added
+- **`SECURITY.md` filled in.** The repo-root file existed only as GitHub's unedited template (placeholder supported-versions table, placeholder reporting instructions). Now documents the actual policy: latest `2.5.x` line only receives fixes, reports go through GitHub's private vulnerability reporting (now enabled on the repo) rather than a public issue, and scope is stated explicitly — the plugin's own scripts/agents/Action code are in scope, skills a user produces and then edits/publishes themselves are not (that responsibility is already covered by `references/sanitization-checklist.md`).
+
 ## [2.5.11] - 2026-08-21
 
 ### Fixed
