@@ -1561,3 +1561,69 @@ against realistic-looking test fixtures).
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 27 cohort: 19 more low-sitemap-count repos (scale batch 13) — spotware re-drawn and re-rejected, a third cross-corpus duplicate character
+
+Thirteenth batch (2026-08-21, seed 27). Funnel: 2,448 pairs → 315 held
+excluded → 1,441-repo tier → 15-call GraphQL screen, zero failures → seeded
+draw. **20 drawn, 19 vendored** — `spotware/ctrader-skills` came up again by
+chance (same pin, `01e93fec`, as its Phase 20 rejection — the held-set
+exclusion only tracks *vendored* repos, not *rejected* ones, so a genuinely
+proprietary repo can be re-drawn). Re-verified consistently (same "All
+rights reserved... Spotware End User License Agreement" text) and dropped
+again. **Fixed going forward**: `ykdojo/claude-code-tips` (Phase 17) and
+`spotware/ctrader-skills` are now added to the funnel script's permanent
+exclusion set alongside the 25 originally-held repos, so neither gets
+re-drawn a third time.
+
+**A third distinct character of cross-corpus duplicate**: `kimyx0207/
+findskill`'s `original/SKILL.md` is byte-identical to `artivilla/
+agents-config`'s `find-skills` (Phase 20) — but unlike the Anthropic-
+skill-creator-redistribution shape (Phases 18, 20, 26) or the same-company-
+self-duplicate shape (Phase 26's Streamlit), this is a third party
+deliberately preserving *another* third party's exact tool unmodified
+(directory literally named `original`) alongside their own derivative
+(`windows`, a genuinely distinct Windows-compatibility fork — the repo's own
+description says as much: "Windows兼容版...修复npx skills空输出问题"). The
+`original` copy excluded from this phase's count; the real `windows` fork
+audited normally.
+
+Two NOASSERTION cases resolved favorably on raw read: `muthuishere/
+hand-drawn-diagrams` (MIT) and `vercel/streamdown` (Apache-2.0).
+`netresearch/security-audit-skill` carries **both** `LICENSE-CC-BY-SA-4.0`
+and `LICENSE-MIT` files with no explicit path-scoping — treated under the
+same audit-only posture as every restrictive case for consistency, though
+the MIT option alone would already cover this pilot's usage if a dual-license
+convention (either license, author's choice) applies. `doccker/cc-use-exp`
+carries **PolyForm Noncommercial License 1.0.0** — the pilot's second
+instance (first: Phase 26's alexgreensh).
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `andrewgleave/skills` | `d6c72b885a19` | 2026-04-23 | MIT | 5 | 1 | 31 |
+| `antibrow/anti-detect-browser-skills` | `c91f6e17be78` | 2026-08-12 | MIT | 3 | 3 | 9 |
+| `axtonliu/axton-obsidian-visual-skills` | `1265976d9746` | 2026-02-11 | MIT | 3 | 3 | 3,323 |
+| `deepdotspace/deepspace-skill` | `28766417f905` | 2026-08-21 | MIT | 1 | 1 | 5 |
+| `doccker/cc-use-exp` | `448997909221` | 2026-06-30 | PolyForm-NC-1.0**** | 108 | 1 | 1,011 |
+| `giulioco/skills` | `2db17d19e51d` | 2026-07-02 | Apache-2.0 | 8 | 1 | 10 |
+| `greendesertsnow/pocketbase-skills` | `c573263e84a2` | 2026-04-08 | MIT | 1 | 1 | 10 |
+| `handsomestwei/patent-disclosure-skill` | `424da1ae803d` | 2026-08-20 | MIT | 1 | 1 | 5,204 |
+| `hithink-tech/financial-api` | `9dbef74d2ce5` | 2026-08-17 | MIT | 11 | 1 | 610 |
+| `kevmoo/dash_skills` | `893f53ddd02d` | 2026-08-19 | Apache-2.0 | 10 | 3 | 142 |
+| `kimyx0207/findskill` | `93b8024620f6` | 2026-08-13 | MIT | 1* | 1 | 110 |
+| `muthuishere/hand-drawn-diagrams` | `b1a87cf580e9` | 2026-08-10 | MIT (raw)** | 1 | 1 | 60 |
+| `netresearch/security-audit-skill` | `647a9ba130c7` | 2026-08-13 | CC-BY-SA-4.0/MIT*** | 1 | 1 | 36 |
+| `oil-oil/ui-ux-guide` | `da6a44d3081f` | 2026-04-18 | Apache-2.0 | 1 | 1 | 91 |
+| `quantumnous/skills` | `a0db8d8e878c` | 2026-03-14 | MIT | 1 | 1 | 79 |
+| `raroque/vibe-security-skill` | `850938f20f69` | 2026-03-15 | MIT | 1 | 1 | 965 |
+| `texiaoyao/office-automation-skill` | `111beb1b0a62` | 2026-02-22 | MIT | 1 | 1 | 6 |
+| `vercel/streamdown` | `725e390fc4da` | 2026-08-21 | Apache-2.0 (raw)** | 1 | 1 | 5,525 |
+| `yeadon8888/cangjie-skill` | `c489ba54a420` | 2026-04-12 | MIT | 3 | 1 | 201 |
+
+\* excludes 1 cross-corpus duplicate, 2 on disk. \*\* NOASSERTION at screen,
+raw read resolves favorably. \*\*\* dual-licensed, no explicit scoping,
+audit-only posture applied. \*\*\*\* audit-only posture applied for
+consistency.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.

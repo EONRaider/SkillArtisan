@@ -2764,3 +2764,84 @@ worth recording and a second corroboration of #11's rarer sub-case, not a
 new mechanism — so **no release** (Phase 14/16-22/24/25 precedent).
 Wall-clock: roughly 1.5 hours. **8,880 skills now audited across the pilot**
 (8,792 + 88).
+
+## Phase 27: 19 more low-sitemap-count repos — scale batch 13, spotware re-drawn, a third duplicate character (162 skills)
+
+Thirteenth scale batch (2026-08-21, seed 27). Funnel: 2,448 pairs → 315 held
+excluded → 1,441-repo tier → 15-call GraphQL screen, zero failures → seeded
+draw, 20 repos.
+
+### A real process gap found and fixed: rejected repos could be re-drawn
+
+`spotware/ctrader-skills` (Phase 20's first proprietary-license rejection)
+came up again on this phase's random draw — the held-set exclusion only
+tracks repos that were actually *vendored*, not ones *rejected* at the
+license step, so nothing prevented a second draw of the same known-bad repo.
+Re-verified consistently (identical pin `01e93fec`, identical "All rights
+reserved... Spotware End User License Agreement" text) and dropped again —
+no new information, but real wasted verification effort. **Fixed**: the
+funnel script's exclusion set now permanently includes both confirmed
+rejections (`ykdojo/claude-code-tips` from Phase 17, `spotware/ctrader-skills`
+from Phase 20), so future draws can't repeat this. 19 of the 20 drawn repos
+vendored.
+
+### A third distinct character of cross-corpus duplicate
+
+`kimyx0207/findskill`'s `original/SKILL.md` matches `artivilla/agents-config`'s
+`find-skills` (held since Phase 20) byte-for-byte — but this is neither the
+Anthropic-skill-creator-redistribution shape (Phases 18, 20, 26) nor the
+same-company-self-duplicate shape (Phase 26's Streamlit). Here a third party
+deliberately preserves *another* third party's exact tool unmodified,
+directory literally named `original`, explicitly as a reference baseline
+alongside their own derivative work (`windows`, a real, distinct
+Windows-compatibility fork — matching the repo's own stated purpose: "fixes
+npx skills empty output bug" on Windows). The `original` copy excluded from
+this phase's count; the genuine `windows` fork audited normally. Four
+cross-corpus duplicates now found across five of the last ten phases checked
+(Phases 18, 20, 26, 27) — no longer treatable as rare, though still low-volume
+relative to overall discovery.
+
+### A second dual-license repo, no explicit scoping
+
+`netresearch/security-audit-skill` ships both `LICENSE-CC-BY-SA-4.0` and
+`LICENSE-MIT` with no stated path-scoping (unlike Phase 20's `canner/wrenai`,
+whose multi-license map was explicit per path). Treated under the same
+audit-only posture as every restrictive case this pilot has handled, even
+though a standard "either license, licensee's choice" dual-license
+convention (if that's the intent here) would already make the MIT option
+sufficient for this pilot's usage. `doccker/cc-use-exp` is this pilot's
+second PolyForm Noncommercial 1.0.0 instance (first: Phase 26).
+
+### Second consecutive zero-rebuild, zero-first-party-misclassification phase
+
+No `rebuild` decisions, no first-party misclassifications — the second such
+phase after Phase 24, both correctly reported as clean, uneventful results.
+
+### Corroborated, not new
+
+- **Gitleaks (3 skills, all read)**: doc-example placeholders throughout,
+  including `kevmoo/dash_skills`' PEM-format-shaped code-style example (an
+  "Avoid vs. Prefer" Dart-idiom comparison, not a real key) and
+  `netresearch/security-audit-skill`'s own security-education content
+  (`sk_live_abc123`-style examples) — all established non-actionable classes.
+- **No new field families**; three unrelated singles (`keywords`, `trigger`,
+  `key_features`).
+- **Zero reserved-word instances** — true positive holds at 30/30.
+
+### Hit rate — fourteenth data point
+
+Review queue: **84 of 162 (52%)**. `vercel/streamdown` (5,525★) and
+`quantumnous/skills` (79★) both clean; `hithink-tech/financial-api` (610★)
+runs 1/11 (also very clean) while `kevmoo/dash_skills` (142★) runs 10/10 (all
+in queue) — no consistent star-count pattern this phase either direction.
+
+### Cost — sampled vs. exhaustive stated explicitly
+
+Read exhaustively: the spotware re-rejection (confirmed identical, not
+reflexively assumed), the third-character cross-corpus duplicate (byte-
+diffed, both directories inspected to confirm the "original vs. fork"
+relationship), the dual-license text, all 3 gitleaks skills, all 19 license
+files. Sampled: 2–4 per remaining high-volume group. One process fix (funnel
+exclusion set), zero audit-tool code changes — so **no release** (Phase
+14/16-22/24/25 precedent). Wall-clock: roughly 1.5 hours. **9,042 skills now
+audited across the pilot** (8,880 + 162).
