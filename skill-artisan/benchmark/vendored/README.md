@@ -1627,3 +1627,62 @@ consistency.
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 28 cohort: 20 more low-sitemap-count repos (scale batch 14) — a fifth cross-corpus duplicate, two more #11 sub-cases at once
+
+Fourteenth batch (2026-08-21, seed 28). Funnel: 2,448 pairs → 336 held
+excluded → 1,420-repo tier → 15-call GraphQL screen (one transient "unexpected
+end of JSON input" on batch 4, resumed cleanly on retry) → seeded draw,
+`rainlib/ai-storyboard` is **GPL-3.0**, audit-only posture applied. 20 of 20
+cloned, pinned, licenses read raw — 100% survival, no NOASSERTION cases.
+
+**A fifth cross-corpus content duplicate** — the same Anthropic official
+`mcp-builder` skill found in `bmad-labs/skills`, byte-identical to Phase 25's
+`yyh211/claude-meta-skill` copy. Excluded from this phase's count, same
+treatment as every prior instance.
+
+**Two #11 sub-cases in one phase, six misclassified skills total**: `bmad-labs/
+skills` writes `evals.json` using this pipeline's exact `expectations` field
+across 6 of its skills at once — the **third** independent author on the
+full-schema-match sub-case (after Phase 16's fluxcd, Phase 26's petekp).
+`evanbacon/serve-sim` uses yet another field-name variant,
+`expected_behavior` (neither `assertions` nor `expectations`) — a fourth
+distinct flavor of the no-discriminator-signal bucket the other 8
+corroborations hit. Nine authors total across all #11 sub-cases combined,
+commented on the issue.
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `benedictking/context7-auto-research` | `23ff46058325` | 2026-04-21 | MIT | 1 | 1 | 16 |
+| `bmad-labs/skills` | `088a427df8b0` | 2026-07-09 | MIT | 22* | 3 | 15 |
+| `colbymchenry/codegraph` | `81e1f4a92fdb` | 2026-08-20 | MIT | 2 | 2 | 67,550 |
+| `crafter-station/skills` | `ceef4cd58732` | 2026-08-17 | MIT | 8 | 1 | 109 |
+| `crypto-com/crypto-agent-trading` | `41c3a8c877d1` | 2026-06-10 | Apache-2.0 | 2 | 2 | 19 |
+| `davis7dotsh/better-context` | `864e5ba45256` | 2026-04-11 | MIT | 3 | 2 | 1,155 |
+| `decathlon/tzatziki` | `ec2d27473c76` | 2026-08-18 | Apache-2.0 | 1 | 1 | 88 |
+| `ejirocodes/agent-skills` | `6e805e4cc8a4` | 2026-06-25 | MIT | 7 | 1 | 5 |
+| `evanbacon/serve-sim` | `14ad57ff9225` | 2026-07-17 | Apache-2.0 | 2 | 1 | 2,685 |
+| `francyjglisboa/agent-skill-creator` | `f4f7d35eb242` | 2026-08-11 | MIT | 4 | 1 | 2,291 |
+| `humanlayer/skills` | `3c2629142c5d` | 2026-08-13 | MIT | 5 | 2 | 385 |
+| `iamzifei/wechat-article-publisher-skill` | `d3508c44248a` | 2026-08-12 | MIT | 1 | 1 | 154 |
+| `module-federation/core` | `08fdc4dfbf4d` | 2026-08-19 | MIT | 4 | 1 | 2,617 |
+| `rainlib/ai-storyboard` | `6610fd33f348` | 2026-01-11 | GPL-3.0** | 4 | 1 | 44 |
+| `sammcj/agentic-coding` | `25cb214728a0` | 2026-08-20 | Apache-2.0 | 77 | 3 | 158 |
+| `seflless/deepwiki` | `3ba91173780c` | 2026-02-12 | MIT | 1 | 1 | 23 |
+| `superdesigndev/superdesign-skill` | `f9f05cd988c2` | 2026-08-21 | MIT | 1 | 1 | 436 |
+| `vercel-labs/emulate` | `d0219d05818a` | 2026-08-19 | Apache-2.0 | 14 | 1 | 1,554 |
+| `vince-winkintel/gitlab-cli-skills` | `70626ac9b979` | 2026-08-18 | MIT | 48 | 1 | 45 |
+| `xobotyi/cc-foundry` | `3f58b07df062` | 2026-08-17 | MIT | 65 | 1 | 19 |
+
+\* excludes 1 cross-corpus duplicate, 23 on disk. \*\* audit-only posture
+applied for consistency.
+
+**Structure notes**: `vince-winkintel/gitlab-cli-skills` (48), `sammcj/
+agentic-coding` (77), and `xobotyi/cc-foundry` (65) are this phase's hidden
+collections, all audited in full. `vercel-labs/emulate`'s gitleaks findings
+(9, sampled and confirmed) are all realistic-looking example credentials for
+each service it emulates (`sk_test_emulated`, `test_token_admin`) — a direct
+consequence of the tool's own stated purpose (local API emulation).
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.

@@ -2845,3 +2845,68 @@ files. Sampled: 2–4 per remaining high-volume group. One process fix (funnel
 exclusion set), zero audit-tool code changes — so **no release** (Phase
 14/16-22/24/25 precedent). Wall-clock: roughly 1.5 hours. **9,042 skills now
 audited across the pilot** (8,880 + 162).
+
+## Phase 28: 20 more low-sitemap-count repos — scale batch 14, a fifth cross-corpus duplicate, two #11 sub-cases at once (272 skills)
+
+Fourteenth scale batch (2026-08-21, seed 28). Funnel: 2,448 pairs → 336 held
+excluded → 1,420-repo tier → 15-call GraphQL screen (one transient failure,
+resumed cleanly on retry) → seeded draw, 20 repos. 20/20 survived
+verification, no NOASSERTION cases. 273 raw discovered, 1 cross-corpus
+duplicate excluded, 272 = 272 audited, 0 errors, reconciled exactly, ~162s
+wall-clock.
+
+### Fifth cross-corpus duplicate, and two #11 sub-cases landing in the same phase
+
+`bmad-labs/skills`' `mcp-builder` is byte-identical to Phase 25's `yyh211/
+claude-meta-skill` copy of Anthropic's official skill — excluded from this
+phase's count, the fifth such hit across six of the last eleven phases
+checked. Separately, and more consequentially: `bmad-labs/skills` writes
+`evals.json` using this pipeline's exact `expectations` field across **6 of
+its own skills at once** — the third independent author on issue #11's rarer
+full-schema-match sub-case (after fluxcd, petekp), the highest single-corpus
+misclassification count yet. `evanbacon/serve-sim` (1 skill) uses a fourth
+distinct field-name variant, `expected_behavior` — neither `assertions` nor
+`expectations` — landing in the same no-discriminator-signal bucket as the
+other 8 corroborations. Nine independent authors now confirmed across all of
+issue #11's sub-cases combined. Both commented on the issue, still logged
+not acted on.
+
+### Corroborated, not new
+
+- **Both `rebuild` decisions verified directly, not assumed from the
+  detail string alone**: `bmad-labs/skills`' `bmad-auto` reads "511 lines,
+  ~13,390 tokens" — a genuinely high token-to-line ratio (dense content, not
+  just a long file) confirming the size heuristic is working on real word
+  density, not merely line count; `sammcj/agentic-coding`'s `prompt-enhancer`
+  combines a real frontmatter and description defect, correctly triggering
+  the compound rebuild condition.
+- **Gitleaks (9 skills, sampled 2, both confirmed)**: `vercel-labs/emulate`'s
+  findings are realistic-looking example credentials for each third-party
+  service it emulates (`sk_test_emulated`, `test_token_admin`, a truncated
+  PEM example) — a direct, expected consequence of the tool's own stated
+  purpose (local API emulation for CI), not a leak.
+- **Reserved-word instances 31–35** (`humanlayer/skills`' `improve-claude-md`,
+  `sammcj/agentic-coding`'s `authoring-claude-md`/`claude-agent-sdk`,
+  `xobotyi/cc-foundry`'s `claude-code-sdk`/`claude-md`) — true positive holds
+  at 35/35, zero exceptions.
+- **No new field families**; two unrelated singles (`activation`/`provenance`,
+  `disable-agent-invocation`).
+
+### Hit rate — fifteenth data point
+
+Review queue: **193 of 272 (71%)**. `colbymchenry/codegraph` (67,550★, the
+pilot's new highest star count) is fully clean (0/2); `francyjglisboa/
+agent-skill-creator` (2,291★) runs 4/4 in queue — no consistent star-count
+signal, as established.
+
+### Cost — sampled vs. exhaustive stated explicitly
+
+Read exhaustively: the cross-corpus duplicate (byte-diffed), both #11
+sub-case evals.json files (field-by-field), both rebuild decisions
+(size-heuristic reasoning verified, not assumed), 2 of 9 gitleaks-flagged
+skills, all 20 license files. Sampled: 2–4 per remaining high-volume group.
+Zero code changes — two more #11 corroborations (one at unusually high
+single-corpus volume) and a fifth cross-corpus duplicate, not a new
+mechanism — so **no release** (Phase 14/16-22/24/25/27 precedent).
+Wall-clock: roughly 1.5 hours. **9,314 skills now audited across the
+pilot** (9,042 + 272).
