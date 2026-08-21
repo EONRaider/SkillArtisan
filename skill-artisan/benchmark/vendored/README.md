@@ -2265,3 +2265,56 @@ net-new count.
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 39 cohort: 20 more low-sitemap-count repos (scale batch 25) — the largest hidden collection since Phase 23
+
+Twenty-fifth batch (2026-08-21, seed 39). Funnel: 2,448 sitemap pairs → 547 held
+excluded → 1,200-repo tier → 14-call GraphQL screen (0 call-errors) → seeded draw.
+20 drawn, **20/20 vendored**, zero rejections.
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `agynio/gh-pr-review` | `d2c86f61c570` | 2026-04-13 | MIT | 1 | 1 | 174 |
+| `argos-ci/argos-javascript` | `a441481c0b5a` | 2026-08-18 | MIT | 4 | 2 | 18 |
+| `callstackincubator/rozenite` | `907ba2ff7912` | 2026-08-20 | MIT | 1 | 1 | 649 |
+| `desplega-ai/agent-fs` | `406e3e282e70` | 2026-08-21 | MIT | 1 | 1 | 15 |
+| `kar2phi/video-lens` | `7a182d7c5033` | 2026-06-12 | MIT | 2 | 2 | 106 |
+| `laurigates/claude-plugins` | `7740f4db82b1` | 2026-08-21 | MIT | 421 | 1 | 52 |
+| `mvanhorn/last30days-skill` | `86a882510381` | 2026-08-20 | MIT | 1 | 1 | 58,871 |
+| `narumiruna/skills` | `c9c274ca40c1` | 2026-08-18 | MIT | 43 | 1 | 11 |
+| `netresearch/file-search-skill` | `a5493720af1a` | 2026-08-15 | MIT+CC-BY-SA-4.0* | 1 | 1 | 34 |
+| `obra/superpowers-chrome` | `782358eb8d3b` | 2026-08-07 | MIT | 1 | 1 | 345 |
+| `onsager-ai/dev-skills` | `14c732fd83f6` | 2026-08-13 | MIT | 18 | 1 | 5 |
+| `paddlepaddle/paddleocr` | `2661c7c0ef5c` | 2026-07-22 | Apache-2.0 | 2 | 2 | 88,058 |
+| `pluginagentmarketplace/custom-plugin-react-native` | `baa8a75fe7b9` | 2026-01-05 | Custom (permissive)* | 7 | 1 | 10 |
+| `remix-run/react-router` | `c09183296992` | 2026-08-20 | MIT | 7 | 1 | 56,566 |
+| `runwayml/skills` | `16353db3500e` | 2026-07-14 | MIT | 17 | 1 | 65 |
+| `sepush/naive-ui-skills` | `4876e9811a27` | 2026-02-23 | MIT | 1 | 1 | 24 |
+| `tencentcloud/tencentmeeting-cli` | `0407d61aa333` | 2026-08-07 | MIT* | 1 | 1 | 224 |
+| `tiangong-ai/skills` | `38aabe7a5ee8` | 2026-08-20 | MIT | 55 | 2 | 7 |
+| `vudovn/ag-kit` | `211561c83a0e` | 2026-07-30 | MIT | 58 | 2 | 8,147 |
+| `zzzlc0405/photo-abstract-editorial` | `49e55073d6d0` | 2026-08-19 | Custom (non-commercial)* | 1 | 1 | 4,541 |
+
+**License notes (the four `*` rows, all NOASSERTION on the GraphQL screen, resolved
+favorably)**:
+
+- `netresearch/file-search-skill` — dual MIT/CC-BY-SA-4.0.
+- `tencentcloud/tencentmeeting-cli` — plain MIT with a standard Tencent open-source
+  preamble.
+- `pluginagentmarketplace/custom-plugin-react-native` — an elaborate but genuinely
+  permissive custom license: explicit grants for personal/educational/commercial
+  use, modification, and redistribution with attribution, alongside heavy
+  liability/indemnification boilerplate.
+- `zzzlc0405/photo-abstract-editorial` — a genuine non-commercial-only custom
+  license (bilingual Chinese/English): personal/research use permitted, commercial
+  use requires prior authorization. Same audit-only posture as every other
+  non-permissive license already in this table.
+
+**Structure note**: `laurigates/claude-plugins` (421 found vs. 3 listed) is this
+pilot's largest hidden collection since Phase 23's terminalskills (1,018) — a real,
+well-organized personal Claude Code plugin toolkit, verified genuine before the full
+audit. Full write-up, including its 5 reserved-word instances (all genuinely about
+Claude Code itself): `../audit-pilot/RESULTS.md`'s Phase 39 section.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.

@@ -3853,3 +3853,68 @@ remaining gitleaks findings, `browser-act-skill-forge`'s flagged phrasing in ful
 context. Zero `scripts/` code changes — **no release** (established scale-batch
 precedent). **12,035 skills now audited across the pilot** (11,709 + 326), **552
 repos**.
+
+## Phase 39: 20 more low-sitemap-count repos — scale batch 25, the largest hidden collection since Phase 23, four resolved non-standard licenses (643 discovered, 642 net-new)
+
+Twenty-fifth scale batch (2026-08-21, seed 39). Funnel: 2,448 pairs → 547 held
+excluded (+20 from Phase 38) → 1,200-repo tier → 14-call GraphQL screen, 0
+call-errors → seeded draw, 20 repos, **20/20 vendored, zero rejections**. Four
+NOASSERTION cases, all resolved favorably by raw read: `netresearch/file-search-
+skill` (dual MIT/CC-BY-SA-4.0); `pluginagentmarketplace/custom-plugin-react-native`
+(an elaborate but genuinely permissive custom license — explicit grants for
+personal/educational/commercial use, modification, and redistribution with
+attribution, alongside heavy liability/indemnification boilerplate); `tencentcloud/
+tencentmeeting-cli` (plain MIT with a standard Tencent open-source preamble); and
+`zzzlc0405/photo-abstract-editorial` (a genuine non-commercial-only custom license,
+bilingual Chinese/English — personal/research use permitted, commercial use requires
+prior authorization, same audit-only posture as every other non-permissive license
+already in this pilot).
+
+### The largest hidden collection since Phase 23
+
+`laurigates/claude-plugins` (421 found vs. 3 listed) is this pilot's largest single
+hidden collection since Phase 23's terminalskills (1,018) — a large, well-organized
+personal multi-plugin Claude Code toolkit spanning session management, ComfyUI,
+Taskwarrior, Kubernetes/Helm, Home Assistant, Rust, git, GitHub Actions, accessibility,
+and more. Verified genuine before committing to a full audit (real dated/reviewed
+frontmatter, coherent per-plugin organization); a `test-fixtures/` top-level
+directory was checked and confirmed to contain zero `SKILL.md` files, so nothing was
+incorrectly swept in.
+
+### Five reserved-word instances, all genuinely about Claude Code itself
+
+All five of this phase's reserved-word (`claude`-named) instances are concentrated in
+`laurigates/claude-plugins`: `claude-security-settings`, `configure-claude-plugins`,
+`blueprint-claude-md`, `claude-blog-sources`, `claude-code-github-workflows`. Every
+one is genuinely *about* Claude Code itself (settings hardening, plugin
+configuration, `CLAUDE.md` authoring, GitHub Actions integration) — the same
+"genuinely about Claude/Anthropic's own products" sub-case established in Phases
+31/33, here concentrated in one author's personal Claude Code meta-tooling
+collection rather than scattered across different repos.
+
+### Both gitleaks findings and both `rebuild` decisions confirmed/verified
+
+- `laurigates/claude-plugins`' two gitleaks hits are both obviously-fake placeholder
+  keys (`abc123def456`, `api-key-12345`) in documentation examples.
+- `mvanhorn/last30days-skill` (58,871★) and `vudovn/ag-kit`'s `frontend-design` are
+  both confirmed genuinely oversized (2,294 and 1,222 lines respectively) real
+  reference content — the established rebuild pattern.
+
+### Corroborated, not new
+
+- One more cross-corpus duplicate: `argos-ci/argos-javascript`'s `.agents/skills/
+  skill-creator` matches two already-held copies (`wedsamuel1230/arduino-skills` and
+  `a-tokyo-agent-skills`) — a third author on this specific shared `.agents/skills/
+  skill-creator` template variant. Excluded from the net-new count.
+
+### Cost and hit rate
+
+Review queue: **582 of 643 (91%)** — another high hit rate, consistent with the
+recent 89-93% pattern. Zero per-skill errors across the full 643-skill unchunked
+pass. Read exhaustively: both rebuild decisions, both gitleaks findings, all four
+non-standard licenses in full, all five reserved-word instances, `laurigates/
+claude-plugins`' genuineness and `test-fixtures/` exclusion-safety before the full
+audit, `paddlepaddle/paddleocr` (88,058★) and `remix-run/react-router` (56,566★)
+sampled directly. Zero `scripts/` code changes — **no release** (established
+scale-batch precedent). **12,677 skills now audited across the pilot** (12,035 +
+642), **572 repos**.
