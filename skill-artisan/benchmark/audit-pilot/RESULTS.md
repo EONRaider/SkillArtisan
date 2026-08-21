@@ -2351,3 +2351,95 @@ mechanism — so **no release** (Phase 14/16-20 precedent). Wall-clock including
 the clone retry, chunking-driver debugging, and the archived-subtree
 investigation: roughly 2 hours. **6,910 skills now audited across the pilot**
 (6,407 + 503).
+
+## Phase 22: 20 more low-sitemap-count repos — scale batch 8, low-star tier fully exhausted (398 skills)
+
+Eighth scale batch (2026-08-21, seed 22). Funnel: 2,448 pairs → 215 held
+excluded → 1,541-repo tier → 16-call GraphQL screen, zero failures → seeded
+draw. **The 0–2★ bin's drawable pool hit 0** — Phase 21 first signaled
+depletion (pool of 3); this phase confirms it's fully exhausted after eight
+consecutive phases drawing that stratum down. Total draw: 20, not 28. 20/20
+survived verification; both NOASSERTION cases resolved favorably. 923 raw
+discovered (dominated by `organvm-iv-taxis/a-i--skills`' 703, deduped to 183 —
+the same repo packaged three times over across `distributions/claude`,
+`distributions/codex`, `distributions/extensions` plus a canonical source
+tree, structurally identical to the established multi-tool-mirroring pattern),
+401 = 398 audited + 3 documented errors, reconciled exactly, single unchunked
+pass, ~236s wall-clock.
+
+### A sixth issue #12 instance, and it defeats even a narrower hypothetical fix
+
+`acedatacloud/skills`' `template/SKILL.md` (self-declared: "A template for
+creating new AceDataCloud Agent Skills. Copy this directory and customize.")
+isn't nested under any `templates`-named parent at all — it *is* the skill's
+own top-level directory, named `template`. Confirms the issue's conclusion
+more strongly than before: even a hypothetical fix scoped to "exclude a skill
+whose own directory is named exactly `template`/`templates`" (narrower than
+the original "exclude any intermediate directory named `templates`" idea)
+would still risk excluding a real skill someone genuinely names `template` —
+there's no safe boundary on directory naming alone, only content. Logged on
+#12, conclusion unchanged. Excluded from this phase's count on direct read.
+
+### Richest single-author field family in the pilot
+
+`organvm-iv-taxis/a-i--skills` uses a ~13-field custom governance/taxonomy
+schema across most of its 165 flagged skills — `governance_phases`,
+`governance_norm_group`, `governance_auto_activate`, `organ_affinity`,
+`complements`, `complexity`, `tier`, `time_to_learn`, `inputs`, `outputs`,
+`side_effects`, `includes`, `prerequisites` — genuinely elaborate and
+internally consistent (matches the repo's own "organ"/"taxis" branding), the
+largest coherent single-author field family this pilot has seen. Commented on
+issue #9.
+
+### A genuine true positive: a real author-path leak, not a doc example
+
+`jimliu/baoyu-design`'s 71 `absolute-user-path` HIGH findings all trace to one
+file — a committed build/sync log
+(`references/upstream-sync/apply-report.json`) that leaks the author's real
+local machine paths (`/Users/jimliu/GitHub/baoyu-design/...`) dozens of times,
+accidentally checked in as tooling output rather than scrubbed. Verified by
+reading the actual matched lines, not assumed from volume — same established
+true-positive class as Phase 5's glebis finding (22+ hardcoded home-directory
+references), confirming this check catches real leaks when they occur, not
+just doc-example noise.
+
+### Corroborated, not new
+
+- **Issue #11's seventh corroboration**: `organvm-iv-taxis/a-i--skills`'
+  `parametrize-and-cite` hits the same bare-shape bucket. Seven authors now.
+- **`user_invocable` correctly hard-FAILs a third and fourth time**
+  (`joeseesun/qiaomu-knowledge-site-creator`, `santifer/career-ops`) — now
+  four independent confirmations this deliberately-unallowlisted field keeps
+  behaving as designed.
+- **Reserved-word instance 21/21**: `organvm-iv-taxis/a-i--skills`'
+  `claude-project-manifest` — zero exceptions still.
+- **Gitleaks (6 skills, all read)**: obviously-fake sequential hex
+  (`00112233...`), a truncated Cloudflare Turnstile example token (ends in
+  literal `...`), and security-education content (`specstory-guard`'s
+  redacted-example leaked-secret patterns, itself a skill *about* catching
+  leaked secrets) — all the established non-actionable classes.
+- **3 per-skill errors**, all read: `hermeticormus/libreuiux-claude-code`'s
+  `archetypal-alchemy` plugin (a genuinely creative Tarot-to-UI-color-palette
+  skill set, prose-heading style with no frontmatter block) — correct
+  exit-code-4 behavior on real, well-formed but non-standard content.
+- **3 `rebuild` decisions**, all size-based, all genuine (spot-verified).
+
+### Hit rate — ninth data point
+
+Review queue: **322 of 398 (81%)**. `santifer/career-ops` (67,113★) is a clean
+1/1; `streamlit/streamlit` (45,577★) runs 9/21 — another data point in the
+now-well-established pattern that star count predicts nothing reliably about
+collection-level cleanliness, consistent with every prior high-star phase.
+
+### Cost — sampled vs. exhaustive stated explicitly
+
+Read exhaustively: all 3 errors, all 3 rebuild decisions (sampled for size
+verification), all 6 gitleaks-flagged skills (including tracing the
+absolute-user-path finding to its real source rather than assuming volume =
+noise), the sixth template-stub instance, all 20 license files, the
+organvm field-family sample. Sampled: 2–4 per remaining high-volume group.
+Zero code changes — two new issue corroborations (#11, #12) and one
+strengthened conclusion (#12's directory-naming boundary), not a new
+mechanism — so **no release** (Phase 14/16-21 precedent). Wall-clock including
+the jimliu true-positive trace and organvm structural investigation: roughly
+1.5 hours. **7,308 skills now audited across the pilot** (6,910 + 398).

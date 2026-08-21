@@ -1235,3 +1235,82 @@ License 1.1 (MIT Future License) — same posture. \*\*\* 402 post-dedup, audite
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 22 cohort: 20 more low-sitemap-count repos (scale batch 8) — 0-2★ bin fully exhausted
+
+Eighth batch (2026-08-21, seed 22). Funnel: 2,448 pairs → 215 held excluded →
+1,541-repo tier → 16-call GraphQL screen, zero failures → same exclusions →
+seeded draw. **The 0–2★ bin's drawable pool is now 0** — fully exhausted after
+eight phases drawing it down (Phase 21 saw it drop to 3; this phase confirms
+the depletion). Total draw: 20 repos, not 28. 20/20 cloned, pinned, licenses
+read raw — 100% survival. Two NOASSERTION cases both resolved favorably on raw
+read: `acedatacloud/skills` (Apache-2.0) and `maplibre/maplibre-agent-skills`
+(MIT).
+
+**`organvm-iv-taxis/a-i--skills`: 703 raw discovered, 520 exact-content
+duplicates deduped (183 unique)** — not a new bug, the repo's own description
+("12 categories," "distributions") explains it structurally: the same ~172
+unique skills are packaged three times over (`distributions/claude/`,
+`distributions/codex/`, `distributions/extensions/`) plus a canonical
+`skills/<category>/` source tree — the established multi-tool-mirroring
+convention (Phase 6/15/19), just organized as top-level directories instead of
+dotfiles. `dedup_by_content` handled it correctly.
+
+**A sixth confirmed instance of issue #12's template-stub pattern**, and a
+useful new data point: `acedatacloud/skills`' `template/SKILL.md`
+(`name: template-skill`, `description: A template for creating new
+AceDataCloud Agent Skills. Copy this directory and customize.`) isn't nested
+under any parent directory named `templates` at all — it *is* the skill's own
+top-level directory, named `template` (singular). Even a narrower fix scoped
+to "the skill directory's own name" rather than an intermediate parent
+wouldn't safely catch this without risking excluding a real skill someone
+names literally `template` — logged on issue #12 as reinforcing evidence, not
+a new conclusion. Excluded from this phase's audited count on direct read.
+
+**Richest single-author field family found yet**: `organvm-iv-taxis/a-i--skills`
+uses a ~13-field custom governance/classification taxonomy across most of its
+165 flagged skills (`governance_phases`, `governance_norm_group`,
+`governance_auto_activate`, `organ_affinity`, `complements`, `complexity`,
+`tier`, `time_to_learn`, `inputs`, `outputs`, `side_effects`, `includes`,
+`prerequisites`) — a genuinely elaborate, internally-consistent personal
+schema (matches the repo's own "organ"/"taxis" branding), not scattered
+ad-hoc fields. Commented on issue #9.
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `acedatacloud/skills` | `6335fc99f960` | 2026-08-21 | Apache-2.0 (raw)* | 101** | 1 | 16 |
+| `alchaincyf/paul-graham-skill` | `8de3d2bf4e0c` | 2026-05-28 | MIT | 1 | 1 | 89 |
+| `arvindrk/extract-design-system` | `1873741ba8de` | 2026-06-19 | MIT | 1 | 1 | 183 |
+| `benedictking/codex-review` | `348ce8c85bb9` | 2026-04-21 | MIT | 1 | 1 | 12 |
+| `bufbuild/claude-plugins` | `c4766e5fff1b` | 2026-06-18 | Apache-2.0 | 1 | 1 | 18 |
+| `buluslan/ecommerce-competitor-analyzer` | `853c7102b769` | 2026-08-19 | MIT | 1 | 1 | 52 |
+| `daydreammy/tushare-openclaw-skill` | `d9778b278374` | 2026-02-08 | MIT | 1 | 1 | 16 |
+| `denissergeevitch/agents-best-practices` | `47c5590af77e` | 2026-08-10 | MIT | 1 | 1 | 2,233 |
+| `hermeticormus/libreuiux-claude-code` | `e5a061ebeb85` | 2026-05-27 | MIT | 74 | 1 | 93 |
+| `jimliu/baoyu-design` | `026d4ea012bd` | 2026-07-29 | MIT | 2 | 2 | 3,523 |
+| `joeseesun/qiaomu-knowledge-site-creator` | `1efa6ca13402` | 2026-02-25 | MIT | 1 | 1 | 362 |
+| `kesslerio/ultimate-frontend-design-openclaw-skill` | `b36c53e95de3` | 2026-02-23 | Apache-2.0 | 1 | 1 | 6 |
+| `maplibre/maplibre-agent-skills` | `efacb28bae72` | 2026-08-09 | MIT (raw)* | 5 | 2 | 134 |
+| `organvm-iv-taxis/a-i--skills` | `1d929d47cf56` | 2026-07-19 | Apache-2.0 | 703→183 | 1 | 15 |
+| `sagargupta16/claude-cost-optimizer` | `519e972b0e45` | 2026-08-15 | MIT | 2→1 | 1 | 35 |
+| `santifer/career-ops` | `5291cc79755c` | 2026-08-21 | MIT | 1 | 1 | 67,113 |
+| `streamlit/streamlit` | `fc86025a6db4` | 2026-08-21 | Apache-2.0 | 21 | 1 | 45,577 |
+| `vercel/flags` | `6294177c50e3` | 2026-08-18 | MIT | 1 | 1 | 616 |
+| `whatevertogo/feishuskill` | `08e9dddf692a` | 2026-03-22 | MIT | 1 | 1 | 38 |
+| `yizhiyanhua-ai/fireworks-tech-graph` | `d56d45a286f1` | 2026-08-19 | MIT | 2→1 | 1 | 10,745 |
+
+\* NOASSERTION at screen, raw LICENSE/LICENSE.md resolves favorably.
+\*\* excludes 1 template stub, 102 on disk.
+
+**Structure notes**: `jimliu/baoyu-design` — a real true-positive
+`absolute-user-path` finding (Phase 5-class, not a doc example): a committed
+build/sync log (`references/upstream-sync/apply-report.json`) leaks the
+author's real local machine paths (`/Users/jimliu/GitHub/baoyu-design/...`)
+dozens of times, accidentally checked in as tooling output.
+`hermeticormus/libreuiux-claude-code`'s `plugins/archetypal-alchemy/` is
+genuinely creative content (a Tarot-Major-Arcana-to-UI-color-palette mapping
+skill) — real, well-formed, just written in prose-heading style without a
+frontmatter block (3 of the phase's per-skill errors, correctly caught).
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.
