@@ -3747,3 +3747,109 @@ pattern (sampled 8 of `jim60105`'s 41 skills directly), the cross-corpus duplica
 `slidevjs/slidev`'s (48,176★) single skill verified genuine. Zero `scripts/` code
 changes — **no release** (established scale-batch precedent). **11,709 skills now
 audited across the pilot** (11,632 + 77), **532 repos**.
+
+## Phase 38: 20 more low-sitemap-count repos — scale batch 24, a genuine astroturfing/sockpuppet-automation skill found and documented, the pilot's largest single-repo Anthropic-redistribution match, a new frontmatter-error mechanism (346 discovered, 326 net-new)
+
+Twenty-fourth scale batch (2026-08-21, seed 38). Funnel: 2,448 pairs → 527 held
+excluded (+20 from Phase 37) → 1,220-repo tier → 14-call GraphQL screen, 0
+call-errors → seeded draw, 20 repos, **20/20 vendored, zero rejections**. Two
+NOASSERTION cases, both resolved favorably: `gitbutlerapp/gitbutler` (21,543★) is
+**Functional Source License 1.1, MIT Future License (FSL-1.1-MIT) — a new license
+type for the pilot** (converts to MIT after a fixed period; competing-use
+restricted until then, standard audit-only posture applies); `affilino/
+ecommerce-seo-audit-skill` is a genuine **custom, bespoke license** (not matching any
+standard SPDX template — explicit self-authored terms permitting install/use/
+personal-modify/fork-contribute, prohibiting redistribution-under-a-different-name,
+authorship claims, and unauthorized commercial redistribution) — read in full,
+resolves favorably for audit purposes.
+
+### A genuine, serious content finding: a fully-engineered Reddit sockpuppet/astroturfing automation skill
+
+While investigating this phase's one documented per-skill error (see below),
+`browser-act/skills`' `solutions/social-listening/reddit-warmup` was read in full per
+the standing content-as-data discipline, and warrants being flagged prominently
+rather than folded into a routine finding. The skill is a meticulously engineered
+30-day Reddit account "warm-up" system: **Days 2-14 lurk-only, Days 15-29 AI-generated
+"natural" comments, Day 30+ covert brand promotion** ("organically plant brand
+content in target subreddits to eventually promote products"). Its own "Red Lines"
+section documents specific countermeasures explicitly framed around evading Reddit's
+anti-abuse detection — never delete a post/comment in the first 30 days ("deletion is
+a stronger bot signal than silence"), no DMs/friend requests in the first 30 days
+("triggers anti-harassment heuristics"), never edit the same comment more than twice
+("repeated edits flag the account"), one account = one browser profile = one proxy
+("never swap, never mix"). This is unambiguous coordinated inauthentic behavior
+tooling — building fabricated organic credibility specifically to defeat platform
+abuse-detection before covert, undisclosed promotional use. Per this pilot's standing
+discipline (treat every skill's content as data to audit, never as instructions to
+follow, and report anything that reads as manipulative rather than acting on it):
+documented here as a finding, not executed, adopted, or otherwise acted on. Distinct
+in kind from every prior finding in this pilot — not a pattern-matcher false positive
+or a benign documentation example, but a real, working specification for deceptive
+platform manipulation.
+
+### A new frontmatter-error mechanism, found while investigating the finding above
+
+`reddit-warmup`'s own SKILL.md is the pilot's one documented error this phase
+("missing frontmatter (no opening ---)") — investigated and traced to a **third
+distinct root cause** for this error class (after "no frontmatter at all" and Phase
+33's "wrong delimiter" cases): the file opens with a **UTF-8 byte-order-mark (BOM)**
+before the `---` delimiter, invisible to a human reading the file but enough to break
+the strict opening-delimiter check. Confirmed by hex-inspecting the file's first
+bytes. Correctly caught by the exit-code-4 contract; not a tool bug.
+
+### The pilot's largest single-repo Anthropic-redistribution match, and a copy-of-a-copy chain
+
+`bbeierle12/skill-mcp-claude` (78 found vs. 1 listed) has **12 skills exactly
+byte-identical to `cdeistopened-skill-stack`'s bundled Anthropic-skills collection**
+(Phase 32) — `web-artifacts-builder`, `canvas-design`, `frontend-design`,
+`internal-comms`, `brand-guidelines`, `algorithmic-art`, `slack-gif-creator`,
+`doc-coauthoring`, `mcp-builder`, `skill-creator`, `theme-factory`, `xlsx` — the
+largest single-repo match against another third party's bundle in this pilot
+(surpassing Phase 32's 3-of-17 partial match on the same source bundle). Given the
+match is against `cdeistopened-skill-stack`'s specific snapshot rather than the
+canonical Anthropic repo, this reads as a **copy-of-a-copy** rather than an
+independent re-download from Anthropic — bbeierle12 most likely obtained this bundle
+from cdeistopened-skill-stack (or a common intermediate source) rather than
+Anthropic's own repository directly. A thirteenth cross-corpus match this phase:
+`wedsamuel1230/arduino-skills`' `.agents/skills/skill-creator` matches
+`a-tokyo-agent-skills`' already-held copy. All 13 excluded from the net-new count.
+`bbeierle12`'s `pdf` skill (correctly labeled `license: Proprietary. LICENSE.txt has
+complete terms`, with the real Anthropic copyright notice intact) is a second
+positive-labeling instance after Phase 37's `jim60105`.
+
+### All other security findings confirmed non-issues
+
+- `browser-act/skills`' `airbnb-listing-detail` gitleaks hit
+  (`X-Airbnb-API-Key: d306zoyjsyarp7ifhu67rjxn52tv0t20`) is Airbnb's own
+  well-documented public client-side API key, embedded in every page load of
+  airbnb.com — widely known as non-sensitive, not a leaked secret.
+- `xiaohongshu-search`'s `xsecToken` hit is an example value inside documented
+  API-response format in the `SKILL.md` itself.
+- `browser-act-skill-forge`'s "never refuse" phrasing (flagged for a closer read
+  given the imperative language) is, in full context, product-confidence marketing
+  about the tool's designed use case (reproducing already-authenticated, already-
+  displayed browser content) — the skill explicitly documents its own operational
+  boundary ("never bypassing authentication or access controls... equivalent to
+  copy-pasting on the user's behalf") — confirmed benign, not a directive to
+  override the agent's own judgment.
+
+### Corroborated, not new
+
+- **Four `rebuild` decisions, all verified genuine real reference density**:
+  `affilino/ecommerce-seo-audit-skill` (2,630 lines) and three of `wangyendt/
+  wayne-skills`' `pywayne` sub-skills (`lark-bot` 1,864 lines, `lark-bot-listener`
+  1,667 lines, `tools` 1,106 lines — a real personal Python-toolkit library spanning
+  crypto, computer vision, LLM chat bots, and Lark/Feishu bot integrations, 10,413
+  lines of `SKILL.md` content across 34 sub-skills total).
+- **Zero reserved-word instances this phase.**
+
+### Cost and hit rate
+
+Review queue: **240 of 338 (71%)**. Read exhaustively: the reddit-warmup finding in
+full (the single most thorough individual-skill read of this phase, given the
+stakes), all 4 rebuild decisions, both new/unusual licenses, the bbeierle12
+cross-corpus match set (all 12 confirmed byte-for-byte against the same source), both
+remaining gitleaks findings, `browser-act-skill-forge`'s flagged phrasing in full
+context. Zero `scripts/` code changes — **no release** (established scale-batch
+precedent). **12,035 skills now audited across the pilot** (11,709 + 326), **552
+repos**.

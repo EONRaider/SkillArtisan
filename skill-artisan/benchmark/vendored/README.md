@@ -2202,3 +2202,66 @@ Full write-up: `../audit-pilot/RESULTS.md`'s Phase 37 section.
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 38 cohort: 20 more low-sitemap-count repos (scale batch 24) — a serious content finding, a new FSL license, a custom bespoke license
+
+Twenty-fourth batch (2026-08-21, seed 38). Funnel: 2,448 sitemap pairs → 527 held
+excluded → 1,220-repo tier → 14-call GraphQL screen (0 call-errors) → seeded draw.
+20 drawn, **20/20 vendored**, zero rejections.
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `affilino/ecommerce-seo-audit-skill` | `76f313d28600` | 2026-01-31 | Custom (bespoke)* | 1 | 1 | 6 |
+| `affitor/affiliate-skills` | `ed17ef37bc16` | 2026-06-13 | MIT | 54 | 1 | 619 |
+| `agamm/claude-code-owasp` | `bfaf257b2859` | 2026-07-27 | MIT | 1 | 1 | 342 |
+| `alchaincyf/karpathy-skill` | `fb9ec5b89161` | 2026-05-28 | MIT | 1 | 1 | 295 |
+| `arjunkmrm/recall` | `8dd7381b7b92` | 2026-07-28 | MIT | 1 | 1 | 140 |
+| `bbeierle12/skill-mcp-claude` | `04482be81656` | 2026-08-21 | MIT | 78 | 2 | 8 |
+| `browser-act/skills` | `8f287271faa0` | 2026-08-12 | MIT | 103 | 2 | 5,390 |
+| `gitbutlerapp/gitbutler` | `6875610d8a8f` | 2026-08-21 | FSL-1.1-MIT* | 6 | 1 | 21,543 |
+| `ilm-alan/frontend-design` | `1641823c7043` | 2026-05-01 | MIT | 1 | 1 | 108 |
+| `krea-ai/skills` | `52c5feed7632` | 2026-08-13 | MIT | 3 | 1 | 20 |
+| `mattnowdev/thinking-partner` | `ce95b6280660` | 2026-03-20 | MIT | 1 | 1 | 182 |
+| `momo2young/humanize-academic-writing` | `5ced86855fd8` | 2026-01-25 | MIT | 1 | 1 | 17 |
+| `openprose/prose` | `779138a615e8` | 2026-08-12 | MIT | 1 | 2 | 1,682 |
+| `orval-labs/orval` | `de70663e9ba6` | 2026-08-20 | MIT | 1 | 1 | 6,372 |
+| `succ985/openclaw-akshare-skill` | `a3929e1bed18` | 2026-02-08 | MIT | 1 | 1 | 9 |
+| `sveltejs/ai-tools` | `7e98403e699a` | 2026-08-14 | MIT | 10 | 2 | 307 |
+| `wangyendt/wayne-skills` | `5b8ccdfa873a` | 2026-08-05 | MIT | 45 | 1 | 8 |
+| `wedsamuel1230/arduino-skills` | `d6e77bb2461a` | 2026-08-20 | MIT | 33 | 2 | 20 |
+| `yrom/arxiv-paper-translator` | `d980af2a632b` | 2026-02-28 | MIT | 2 | 1 | 45 |
+| `yusufkaraaslan/skill_seekers` | `f3972efa33fa` | 2026-08-09 | MIT | 2 | 1 | 14,790 |
+
+**License notes (the two `*` rows, both NOASSERTION on the GraphQL screen, resolved
+favorably)**:
+
+- `gitbutlerapp/gitbutler` — **Functional Source License 1.1, MIT Future License
+  (FSL-1.1-MIT), a new license type for the pilot** — converts to plain MIT after a
+  fixed period; restricted only against building a competing product in the
+  meantime. Standard audit-only posture applies.
+- `affilino/ecommerce-seo-audit-skill` — a genuine **custom, bespoke license** (not a
+  standard SPDX template): explicit self-authored terms permitting install/use/
+  personal-modify/fork-contribute, prohibiting redistribution under a different
+  name, authorship claims, or unauthorized commercial redistribution. Read in full,
+  resolves favorably for this pilot's audit-only posture.
+
+**Content note — a serious finding, not a false positive**: `browser-act/skills`'
+`solutions/social-listening/reddit-warmup` is a fully-engineered Reddit sockpuppet/
+astroturfing automation skill — a 30-day account "warm-up" progression (lurk →
+AI-generated comments → covert brand promotion) with explicit countermeasures framed
+around evading Reddit's own anti-abuse detection. Documented as a finding per this
+pilot's content-as-data discipline, not executed or acted on. Full write-up,
+including the specific evasion techniques quoted and the discovery of a new
+BOM-prefixed frontmatter-error mechanism found while investigating this same skill:
+`../audit-pilot/RESULTS.md`'s Phase 38 section.
+
+**Structure note**: `bbeierle12/skill-mcp-claude` (78 found vs. 1 listed) has 12
+skills exactly byte-identical to `cdeistopened-skill-stack`'s bundled
+Anthropic-skills collection (Phase 32) — the pilot's largest single-repo match
+against another third party's redistributed bundle, read as a copy-of-a-copy rather
+than an independent Anthropic download. All 12 (plus a 13th, `wedsamuel1230/
+arduino-skills`' `skill-creator` matching `a-tokyo-agent-skills`) excluded from the
+net-new count.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.
