@@ -4008,3 +4008,68 @@ its new `.factory/` discovery. Zero `scripts/` code changes — **no release**
 license exclusion — was a judgment call about scope, not a code change). **12,864
 skills now audited across the pilot** (12,677 + 187), **591 repos** (572 + 19 —
 `dicklesworthstone` cloned then deleted, never counted).
+
+## Phase 41: 20 more low-sitemap-count repos — scale batch 27, a second FSL variant, Cloudflare's own vinext migration skill, a genuine high-volume author-path leak (81 discovered, 79 net-new)
+
+Twenty-seventh scale batch (2026-08-21, seed 41). Funnel: 2,448 pairs → 586 held
+excluded (+19 net from Phase 40, reflecting the license exclusion) → 1,161-repo tier
+→ 14-call GraphQL screen, 0 call-errors → seeded draw, 20 repos, **20/20 vendored,
+zero rejections**. One NOASSERTION case, resolved favorably: `saltbo/agent-kanban`
+is **Functional Source License 1.1, Apache 2.0 Future License (FSL-1.1-ALv2)** — a
+second FSL variant for this pilot, after Phase 38's FSL-1.1-MIT. Full text checked
+directly for any deviant clauses (per the new discipline established after Phase
+40's Anthropic-exclusion-rider finding); none found — a standard FSL template,
+resolves favorably.
+
+### Cloudflare's own official vinext migration skill
+
+`cloudflare/vinext` (8,640★) contributed one genuine official skill —
+`migrate-to-vinext`, guiding automated migration of Next.js projects to Cloudflare's
+Vite-based Next.js reimplementation. Verified genuine.
+
+### A genuine, high-volume author-path leak, contrasted directly against a placeholder look-alike in the same phase
+
+`vladmdgolam/agent-skills`' `agent-sessions` has 32 `absolute-user-path` hits, every
+one `/Users/vladmdgolam/Play/radar/tools/agent-sessions` — the author's real local
+path, and notably the username in the path matches the repo owner's actual GitHub
+handle exactly, confirming it's genuine rather than borrowed/copied documentation. A
+real true positive, though low severity (a dev-machine path, not a credential).
+Contrasted directly in the same repo: `time-lens`'s 22 hits are all `/Users/alice/
+code/api-server` — the classic "Alice/Bob" documentation-placeholder convention, not
+a leak. Read side by side specifically to confirm the distinction wasn't being
+missed either direction.
+
+### All other security findings confirmed non-issues
+
+- `four-meme-community/four-meme-ai`'s gitleaks hits are a real BSC (Binance Smart
+  Chain) smart-contract address (`0x5c95...`) — a public on-chain identifier by
+  design, not a secret.
+- `superagent-ai/skills`' `crypto-secrets` hits are the established self-referential
+  class: a secrets-*detection* skill whose own reference patterns document example
+  strings to search for, one explicitly named `syntheticApiKey123`.
+- `maton-ai/api-gateway-skill`'s hits are a documented `curl` example and Stripe API
+  idempotency-key UUIDs (a standard non-sensitive request parameter, not a secret).
+- `johnrogers/claude-swift-engineering`'s hit is the generic `/Users/yourname/...`
+  placeholder convention.
+- `robbyczgw-cla/web-search-plus`'s `blocking-interactive-input` hits are real
+  `input()` calls in `scripts/setup.py` — checked against the `SKILL.md`'s own
+  instructions and confirmed to be explicitly labeled "Interactive setup
+  (recommended for first run)" under Quick Start, meant for a human to run once
+  during manual installation, not something the agent is instructed to invoke — the
+  established correctly-flagged-but-benign shape for this check.
+
+### Corroborated, not new
+
+- **One reserved-word instance**, `vladmdgolam/agent-skills`' `update-claude-md` —
+  genuinely about `CLAUDE.md` authoring, the same sub-case established in Phases
+  31/33/39.
+- **Zero `rebuild` decisions this phase.**
+
+### Cost and hit rate
+
+Review queue: **51 of 79 (65%)**. Read exhaustively: both `absolute-user-path`
+clusters side by side (confirming the genuine-vs-placeholder distinction), every
+gitleaks/security-pattern finding traced to source, the new FSL variant's full text,
+Cloudflare's actual skill content. Zero `scripts/` code changes — **no release**
+(established scale-batch precedent). **12,943 skills now audited across the pilot**
+(12,864 + 79), **611 repos**.

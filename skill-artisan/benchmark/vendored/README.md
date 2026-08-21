@@ -2378,3 +2378,50 @@ defect pattern.
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 41 cohort: 20 more low-sitemap-count repos (scale batch 27) — a second FSL variant, Cloudflare's own vinext skill
+
+Twenty-seventh batch (2026-08-21, seed 41). Funnel: 2,448 sitemap pairs → 586 held
+excluded → 1,161-repo tier → 14-call GraphQL screen (0 call-errors) → seeded draw.
+20 drawn, **20/20 vendored**, zero rejections.
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `almogbaku/debug-skill` | `26ef325fe218` | 2026-04-17 | MIT | 1 | 1 | 313 |
+| `cloudflare/vinext` | `20fdac4cec59` | 2026-08-20 | MIT | 1 | 1 | 8,640 |
+| `four-meme-community/four-meme-ai` | `c81f0eebbabe` | 2026-03-30 | MIT | 1 | 1 | 15 |
+| `h3nryprod01/design-taste` | `c3596bc7a03d` | 2026-07-23 | MIT | 1 | 1 | 36 |
+| `johnrogers/claude-swift-engineering` | `1dc2cf4d020b` | 2026-01-18 | MIT | 17 | 1 | 226 |
+| `kunchenguid/lavish-axi` | `6131b3c29d43` | 2026-08-21 | MIT | 2 | 1 | 2,928 |
+| `lodev09/react-native-true-sheet` | `379fd14fa7d6` | 2026-08-19 | MIT | 1 | 1 | 2,038 |
+| `maton-ai/api-gateway-skill` | `0afeeedec9d4` | 2026-08-20 | MIT | 4 | 1 | 28 |
+| `mihneaptu/opencode-fusion` | `4c314488f277` | 2026-08-06 | MIT | 1 | 1 | 215 |
+| `openfga/agent-skills` | `7ffd65d59d2d` | 2026-04-06 | Apache-2.0 | 1 | 1 | 4 |
+| `robbyczgw-cla/web-search-plus` | `9eeb0bed7b73` | 2026-07-05 | MIT | 1 | 1 | 26 |
+| `saltbo/agent-kanban` | `a26bef6e4f65` | 2026-07-28 | FSL-1.1-ALv2* | 4 | 1 | 451 |
+| `scrapegraphai/just-scrape` | `a3d179ffe269` | 2026-06-24 | MIT | 1 | 1 | 49 |
+| `snarktank/ralph` | `6c53cb0b831e` | 2026-02-01 | MIT | 2 | 2 | 21,564 |
+| `stellar/stellar-dev-skill` | `1f4b94e01ca2` | 2026-08-19 | Apache-2.0 | 8 | 1 | 51 |
+| `superagent-ai/skills` | `0da315b873ed` | 2026-08-15 | MIT | 14 | 3 | 75 |
+| `topviewai/skill` | `5e0fa64642cd` | 2026-07-23 | Apache-2.0 | 5 | 1 | 34 |
+| `tt-a1i/archify` | `98648ce928d2` | 2026-08-21 | MIT | 1 | 1 | 14,914 |
+| `vladmdgolam/agent-skills` | `b910d4ce8a51` | 2026-08-05 | MIT | 14 | 1 | 7 |
+| `wuyoscar/gpt-image2-skill` | `068dd9e24aad` | 2026-08-10 | MIT | 1 | 1 | 4,797 |
+
+**License note (the `*` row, NOASSERTION on the screen, resolved favorably)**:
+`saltbo/agent-kanban` — Functional Source License 1.1, Apache 2.0 Future License
+(FSL-1.1-ALv2), a second FSL variant for this pilot after Phase 38's FSL-1.1-MIT.
+Full text checked directly (per the discipline established after Phase 40's
+Anthropic-exclusion-rider finding — always read NOASSERTION licenses in full for any
+deviant clause, not just enough to identify the base template); a standard FSL
+template with no additions, resolves favorably.
+
+**Structure note**: `cloudflare/vinext` (8,640★) contributed its own genuine
+official Next.js-to-vinext migration skill. `vladmdgolam/agent-skills`' `agent-
+sessions` carries a genuine, high-volume real author-path leak (32 instances of
+`/Users/vladmdgolam/...`, matching the repo owner's actual handle) — contrasted
+directly in the same repo against `time-lens`'s `/Users/alice/...` placeholder
+convention. Full write-up: `../audit-pilot/RESULTS.md`'s Phase 41 section.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.
