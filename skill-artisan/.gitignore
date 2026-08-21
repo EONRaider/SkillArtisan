@@ -15,13 +15,11 @@ __pycache__/
 # pinned commit/tag is recorded in benchmark/vendored/README.md instead,
 # which stays tracked) — and the harness's scratch run output (regenerated
 # by run_authoring.py, same convention as any other eval-engine workspace
-# in this project).
-/benchmark/vendored/daymade-claude-code-skills/
-/benchmark/vendored/tripleyak-skillforge/
-/benchmark/vendored/mukul975-anthropic-cybersecurity-skills/
-/benchmark/vendored/glebis-claude-skills/
-/benchmark/vendored/alirezarezvani-claude-skills/
-/benchmark/vendored/obra-superpowers/
+# in this project). Was an explicit per-repo list; every repo vendored since
+# audit-pilot Phase 8 (50+ dirs) was missing from it and showing up untracked
+# in every `git status` since. Blanket pattern instead, self-maintaining.
+/benchmark/vendored/*/
+!/benchmark/vendored/README.md
 /benchmark/harness/workspace/
 
 # Session-scratch continuity note for resuming after a /clear — not project

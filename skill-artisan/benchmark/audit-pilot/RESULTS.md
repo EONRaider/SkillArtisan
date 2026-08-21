@@ -1914,3 +1914,85 @@ picking one now would repeat the exact "regex guess" risk this fix was built to
 avoid. Shipped as **v2.5.11**, no new corpus audited this pass (a targeted fix
 against two already-held corpora, not a new phase) — pilot total unchanged at
 5,493 skills.
+
+## Phase 17: 27 more low-sitemap-count repos — scale batch 3, first license rejection (135 skills)
+
+Third scale batch (2026-08-21, seed 17). Funnel re-run fresh: 2,448 pairs → 82 held
+excluded → 1,674-repo tier → 17-call GraphQL screen, zero failures → same
+exclusions → seeded draw, 28 repos. **The funnel's first real rejection**:
+`ykdojo/claude-code-tips` (9,829★) screened NOASSERTION, and — unlike every prior
+NOASSERTION case in the pilot (~15+, all resolved favorably) — its raw `LICENSE`
+turned out to be genuine "All Rights Reserved" with no public grant at all.
+Dropped, clone deleted, not counted. 27 of 27 remaining survived verification —
+still effectively 100% on the license-viable set. 139 raw skills discovered, 2
+exact-content duplicates deduped (xiaomingx), 137 = 135 audited + 2 documented
+errors, reconciled exactly, single unchunked pass, ~100s wall-clock.
+
+While handling the license rejection, found `.gitignore` had only ever listed the
+original 6 pre-Phase-8 corpora explicitly — every repo vendored across Phases
+8–17 (50+ directories) has been showing up untracked in every `git status` since.
+Fixed with a blanket `/benchmark/vendored/*/` pattern (README.md excepted) instead
+of a per-repo list that nobody was maintaining — a one-time hygiene fix, not part
+of this phase's audit findings.
+
+### Issue #11's second real-world corroboration, via a third independent schema variant
+
+`blitzreels/agent-skills` (3 skills) auto-detects first-party and draws the same
+shape of bogus FAILs (`security-scan-marker-current`, `lifecycle-classified` — 6
+across 3 skills). Its `evals/evals.json` is `{"skill_name", "evals": [{id, name,
+prompt, expected_output, files}]}` — neither `assertions` nor `expectations`, no
+eval-methodology doc anywhere in the repo (unlike fluxcd's documented `AGENTS.md`).
+This lands in the specific "ambiguous, neither discriminator present" bucket
+v2.5.11's fix *deliberately* keeps as first-party (to avoid the unfalsifiability
+trap for fresh first-party drafts) — not a new bug in that logic, but a second
+independent real-world author converging on a bare prompt/expected-output evals
+shape with zero SkillArtisan involvement, producing real bogus output anyway.
+Three independent schema variants now confirmed across three unrelated authors
+(5dive's `assertions`, fluxcd's full `expectations`, blitzreels' bare shape) —
+commented on issue #11 with the count, deliberately not acted on: the standing
+rule this pilot follows since #10 is real corroborating evidence before a design
+call, and #11 has that now, but the decision itself stays the user's.
+
+### Corroborated, not new
+
+- **Issues #8/#9**: `triggers:` on two more independent models (`qodo-ai`'s plain
+  list; `cklxx/elephant.ai`'s much more elaborate structured variant — nested
+  `intent_patterns`, `context_signals.keywords`, `confidence_threshold` — a richer
+  trigger-routing schema than any prior corroboration, still the same underlying
+  pattern). New coherent families: `cklxx`'s 6-field agent-runtime-config set
+  (`cooldown`, `max_tokens`, `output`, `priority`, `requires_tools`, plus
+  `triggers`, 30/30 skills) and a `homepage`/`repository`/`displayName`/`emoji`
+  loader-metadata cluster across three separate repos.
+- **Gitleaks (2, both read)**: an obviously-fake `sk-1234567890abcdef` and a
+  standard `YOUR_API_KEY` placeholder — the established doc-example class.
+- **2 per-skill errors, both read**: a Chinese-language human-readable reference
+  doc named `SKILL.md` in a nested `docs/zh-CN/` path (the real skill lives at a
+  dotfile-prefixed path outside discovery) and a plain markdown doc with an H1
+  but no frontmatter block — both correct exit-code-4 behavior.
+- **`references-one-level-deep`** (1): a genuine nested `references/` subdirectory,
+  same established class.
+- **Zero `rebuild` decisions** this phase — a first for the low-quality-cohort
+  batches (Phases 15–16 each had at least one).
+- **Zero reserved-word instances** this phase — the first batch since Phase 4
+  with none; not every phase produces one, an honestly-reported gap not a search
+  failure.
+
+### Hit rate — fourth data point, no new gradient shape
+
+Review queue: **118 of 135 (87%)** — the highest of the three scale batches
+(Phase 15: 92%, Phase 16: 78%). No clean high-star-incidental-is-cleanest split
+this time: `zereight/gitlab-mcp` (1,908★) is 23/23 in-queue while
+`anysearch-ai/anysearch-skill` (5,810★) is a clean 1/1 — star count continues to
+predict nothing about collection-level cleanliness on its own, consistent with
+Phase 16's aitytech counterexample, not a new finding.
+
+### Cost — sampled vs. exhaustive stated explicitly
+
+Read exhaustively: both errors, the license-rejection LICENSE text in full, both
+gitleaks skills, the blitzreels evals-schema anomaly and its issue-#11 comment,
+all 27 remaining license files. Sampled: 2–4 per high-volume group (gerund-naming,
+description framing, frontmatter unknown-fields, no-human-docs). Zero code
+changes — one new field-family corroboration set and one new issue-#11 data
+point, not a new mechanism — so **no release** (Phase 14/16 precedent). Wall-clock
+including the license rejection, gitignore fix, and write-up: roughly 1.5 hours.
+**5,628 skills now audited across the pilot** (5,493 + 135).

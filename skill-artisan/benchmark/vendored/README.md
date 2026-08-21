@@ -843,3 +843,82 @@ duplicates against the 5,366 held skills.
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 17 cohort: 27 more low-sitemap-count repos (scale batch 3) — one repo rejected on license
+
+Third batch, drawn 2026-08-21 (seed 17). Funnel: 2,448 sitemap pairs → 82 held
+excluded (25 original + 28 Phase 15 + 28 Phase 16 + tripleyak) → 1,674-repo tier →
+17-call GraphQL screen (zero failures) → same aggregator/fork exclusions → seeded
+stratified draw (8/8/6/6). **28 drawn, 27 vendored — the pilot's first license
+rejection.**
+
+`ykdojo/claude-code-tips` (9,829★) screened as NOASSERTION and was cloned for the
+standard raw-file read per the established discipline — but unlike every prior
+NOASSERTION case in this pilot (all ~15+ resolved favorably), its raw `LICENSE`
+reads: *"Copyright (c) YK Sugi. All Rights Reserved."* followed only by a clause
+granting the **author** rights over contributor PRs — no grant of any right to
+use, copy, or audit the content back to the public. Functionally equivalent to no
+license at all. **Dropped, not vendored** — its clone was deleted, not counted
+toward this phase's totals, per the pilot's own standing license bar ("exactly as
+strict as the original 44's screening," Phase 15 plan). First real rejection this
+funnel has produced; every case before this was NOASSERTION resolving in the
+repo's favor. No replacement drawn — 27 audited is the honest batch size.
+
+**27 of 27 remaining cloned, pinned, licenses read raw — 100% survival on the
+license-viable set.** Zero exact duplicates against the 5,728 held skills
+(pre-rejection candidate pool). One repo carries a new license type for this
+pilot: `wolke/bazi-mingli` — **CC BY-NC-SA 4.0** (NonCommercial, on top of the
+ShareAlike restriction already seen at trailofbits). Same audit-only posture as
+every prior copyleft/restrictive case: local clone + reading/reporting is fine
+(SkillArtisan itself isn't commercial, and nothing here is redistributed);
+**never copy or adapt into shipped MIT-licensed material.**
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `agentspace-so/agent-skills` | `18d61002379d` | 2026-04-28 | MIT | 1 | 1 | 15 |
+| `anysearch-ai/anysearch-skill` | `4d6cef918e93` | 2026-08-21 | Apache-2.0 | 1 | 1 | 5,810 |
+| `blitzreels/agent-skills` | `f07e9dd26fa3` | 2026-08-20 | MIT | 5 | 1 | 2 |
+| `ccheney/robust-skills` | `0ace9a7f5c20` | 2026-08-14 | MIT | 10 | 3 | 57 |
+| `chainbase-labs/agentkey` | `efc28096918b` | 2026-08-14 | Apache-2.0 | 1 | 1 | 591 |
+| `cklxx/elephant.ai` | `bc94628f41b7` | 2026-03-23 | MIT | 30 | 1 | 11 |
+| `cloudflare/kumo` | `e16b8ccfbcce` | 2026-08-20 | MIT | 2 | 1 | 3,429 |
+| `decebals/claude-code-java` | `f81fbd2adb38` | 2026-02-08 | MIT | 18 | 1 | 712 |
+| `edgesparkhq/agent-skills` | `d2745b1f5857` | 2026-05-15 | MIT | 2 | 2 | 1 |
+| `kesslerio/academic-deep-research-clawhub-skill` | `3d422ce3544e` | 2026-07-29 | Apache-2.0 | 1 | 1 | 19 |
+| `kimyx0207/kim_service` | `d218f4b50cb9` | 2026-08-13 | MIT | 9 | 1 | 163 |
+| `konata9/chinese-lottery-predict-skills` | `a02057a5440c` | 2026-07-28 | MIT | 1 | 1 | 28 |
+| `lngu/openclaw-skill-freeunlimited-websearch` | `3db7656c49b5` | 2026-02-20 | MIT | 1 | 1 | 2 |
+| `manojbajaj95/agent-knowledge-cards` | `2089f142cbc0` | 2026-08-20 | MIT | 1 | 1 | 4 |
+| `mitsuhiko/gh-issue-sync` | `955fe4c48653` | 2026-03-31 | Apache-2.0 | 1 | 1 | 160 |
+| `narumiruna/telegram-bot` | `3d6862152131` | 2026-08-21 | MIT | 1 | 1 | 1 |
+| `paymog/groundcover-cli` | `456ed7234e18` | 2026-08-18 | MIT | 1 | 1 | 1 |
+| `praveenspeaks/cinematic-script-writer` | `f84f7d24814b` | 2026-02-10 | MIT | 2 | 1 | 1 |
+| `qodo-ai/qodo-skills` | `357492caaaf3` | 2026-08-11 | MIT | 2 | 2 | 48 |
+| `reviewstage/stage-cli` | `eabf305a30a3` | 2026-08-11 | MIT | 9 | 1 | 263 |
+| `satya-janghu/agent-skills` | `24b06ad34ef7` | 2026-04-28 | MIT | 1 | 1 | 4 |
+| `sebastian-software/effective-print-design` | `d9d97a58acc9` | 2026-02-12 | MIT | 1 | 1 | 0 |
+| `snyk/studio-recipes` | `465f842b78f7` | 2026-08-20 | Apache-2.0 | 9 | 1 | 58 |
+| `wolke/bazi-mingli` | `b53b4b875a87` | 2026-01-23 | CC-BY-NC-SA-4.0* | 1 | 1 | 62 |
+| `xiaomingx/moltbot-connector-feishu-dingtalk` | `9dcac5e6a90e` | 2026-01-30 | Apache-2.0 | 4 | 1 | 7 |
+| `yejinlei/web-search-skill` | `00b2ab6b694f` | 2026-03-03 | MIT | 1 | 1 | 2 |
+| `zereight/gitlab-mcp` | `182ac8232843` | 2026-08-20 | MIT | 23 | 1 | 1,908 |
+
+**Structure notes:**
+
+- `cklxx/elephant.ai` (30 found vs. 1 listed) and `zereight/gitlab-mcp` (23 vs. 1)
+  are this phase's hidden collections — both well under the 200-skill chunking
+  threshold, audited in full.
+- `xiaomingx/moltbot-connector-feishu-dingtalk`: 2 exact-content duplicates
+  skipped by `dedup_by_content`.
+- `snyk/studio-recipes` — genuinely well-formed dedicated security-remediation
+  skills (real "Use this skill when:" trigger framing throughout), not a marketing
+  page. Worth noting: Snyk's own ToxicSkills research is this project's founding
+  citation for `security_scan.py`'s existence (see master spec) — this is the
+  first time that same organization's own skill-authoring shows up as audited
+  content rather than as a cited statistic.
+- `blitzreels/agent-skills`: a third independent `evals/evals.json` schema
+  variant collides with `detect_source()` — see audit-gap issue #11's Phase 17
+  comment.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.
