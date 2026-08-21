@@ -118,6 +118,7 @@ def audit_source(
     lifecycle: str | None,
     start: int = 0,
     end: int | None = None,
+    source: str = "auto",
 ) -> list[dict]:
     skill_dirs = dedup_by_content(find_skill_dirs([root]), label)
     total_found = len(skill_dirs)
@@ -128,7 +129,7 @@ def audit_source(
     reports = []
     for skill_dir in skill_dirs:
         try:
-            report = audit.audit_skill(skill_dir, timelessness, lifecycle)
+            report = audit.audit_skill(skill_dir, timelessness, lifecycle, source)
         except Exception as e:  # noqa: BLE001 — a single skill's crash must never sink the whole run (Phase 3's Bug #3)
             report = {"skill_name": skill_dir.name, "skill_path": str(skill_dir),
                       "error": f"{type(e).__name__}: {e}"}
@@ -225,6 +226,12 @@ def main() -> None:
                     help="Explicit label for a source dir (default: the directory's own basename)")
     p.add_argument("--timelessness", type=int, default=None, metavar="0-10")
     p.add_argument("--lifecycle", choices=["capability-uplift", "encoded-preference"], default=None)
+    p.add_argument("--source", choices=["auto", "first-party", "third-party"], default="auto",
+                    help="Force audit.py's source resolution for every skill in this run instead of "
+                         "per-skill auto-detection (issue #4/#11) — 'third-party' is the right choice "
+                         "for bulk-auditing a known external corpus, since detect_source()'s evals.json "
+                         "heuristic has a real, documented false-positive rate against unrelated projects "
+                         "that independently converged on this pipeline's own eval-schema shape")
     p.add_argument("--boilerplate-threshold", type=float, default=0.95,
                     help="Dominant-status rate above which a checklist item is flagged as likely boilerplate (default 0.95)")
     p.add_argument("--json", metavar="FILE", default=None, help="Write full structured output to FILE as JSON")
@@ -271,7 +278,7 @@ def main() -> None:
             print(f"Error: not a directory: {root}", file=sys.stderr)
             sys.exit(2)
         label = label_overrides.get(str(root), root.name)
-        reports = audit_source(label, root, args.timelessness, args.lifecycle, args.start, args.end)
+        reports = audit_source(label, root, args.timelessness, args.lifecycle, args.start, args.end, args.source)
         print(f"[{label}] {len(reports)} skill(s) audited under {root}", file=sys.stderr)
         all_reports.extend(reports)
 

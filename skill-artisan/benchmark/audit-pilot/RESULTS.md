@@ -2969,3 +2969,69 @@ collecting corroborations — the remaining findings (field families, full
 reserved-word check) were not separately investigated this phase. Zero code
 changes — **no release**. **9,434 skills now audited across the pilot**
 (9,314 + 120). Session pivots here to addressing #11 and #12 directly.
+
+## Post-Phase-29 fix: issues #11 and #12 closed, shipped as v2.6.0
+
+User's call after reviewing the accumulated evidence: implement both. Neither
+fix touches auto-detection's core falsifiability guarantee (issue #4's
+standing design goal) — both work around the two design-tradeoff issues at a
+different layer instead.
+
+### Issue #12: a new `authoring-template-detected` checklist item, not a discovery-level exclusion
+
+Six confirmed real instances (Phases 13, 19×2, 20, 22, 24) of author-provided
+skill-authoring templates getting discovered and audited as ordinary
+content, then drawing a misleading FAIL/rebuild verdict on content that's
+*supposed* to look unfilled. A `find_skill_dirs`-level directory-name
+exclusion was checked and rejected on this issue from the start (102 real
+skills across two corpora legitimately use `templates/skills/<name>/` as
+genuine storage) — the fix implemented here instead adds a narrow,
+content-based check inside `audit.py` itself: template syntax in the `name`
+field (`{{...}}`, `[TODO:...]`, and similar bracket-wrapped markers — real
+skill names essentially never contain these), or one of a handful of
+specific, verbatim self-declaring phrasings pulled directly from the six
+real instances in the `description` field (not a broad "contains the word
+template" match, which would risk sweeping up a real skill genuinely about
+authoring templates). Detection suppresses the misleading upgrade-vs-rebuild
+verdict; discovery itself is completely untouched, so there is zero risk of
+silently dropping real content — the exact regression a directory-name
+exclusion would have risked.
+
+**Verified against the whole pilot before shipping, not just the six known
+cases**: ran the new check against all ~10,242 real skills already vendored
+across every corpus. Exactly 6 hits — the six known instances, zero false
+positives, including two deliberate real-skill negative-test cases (a
+skill literally about generating document templates, a skill about
+managing TODO lists) that correctly did not trip the heuristic. **A seventh,
+previously unknown instance surfaced by the same sweep**:
+`nickcrew/claude-cortex`'s `skills/template-skill` (`name: template-skill`,
+"A template for creating new skills. Use when initializing a new skill to
+ensure proper structure and metadata.") — sitting mis-graded in the corpus
+since Phase 15, uncaught until this check existed. Regression tests added
+(`tests/test_authoring_template_stub.py`), using the real corpus frontmatter
+blocks for all seven confirmed instances plus three negative cases.
+
+### Issue #11: `--source` pass-through on `aggregate_findings.py`, not a change to `detect_source()`
+
+Fourteen real skills across ten-plus independent authors (Phases 16–29)
+converged closely enough on this pipeline's own `evals.json` shape to
+misclassify as first-party. Both alternatives that would touch
+`detect_source()` directly — dropping `evals.json` from auto-detection, or
+requiring a corroborating artifact — reopen issue #4's original
+unfalsifiability trap (a fresh first-party draft with real evals but no
+security-scan marker yet would silently reclassify as third-party and skip
+its own gate). The fix instead accepts the auto-detection's residual
+false-positive rate as the right trade for `audit.py`'s single-skill use
+case, and closes the actual gap this pilot has hit every phase since Phase
+16: `aggregate_findings.py` now accepts `--source {auto,first-party,
+third-party}`, so a bulk audit of a *known* third-party corpus can assert
+`--source third-party` up front instead of eating a bogus-FAIL correction
+after the fact. Regression tests added
+(`tests/test_aggregate_findings_source.py`), verified against a fixture
+using the real fluxcd/petekp/bmad-labs/atlassian-shaped `evals.json` (the
+specific sub-case with zero discriminator signal available either way).
+
+**Shipped as v2.6.0** (minor bump — both fixes add new checklist/CLI
+capability, not just corrected pattern matching, per this project's own
+semver interpretation). 172-test suite passes. Both audit-gap issues closed.
+No new corpus audited this pass — pilot total unchanged at 9,434 skills.

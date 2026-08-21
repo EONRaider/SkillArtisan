@@ -306,6 +306,69 @@ def check_content_hygiene(body: str) -> list[dict]:
     return items
 
 
+# Issue #12: an author-provided skill-authoring template (fill-in-the-blank
+# scaffolding, not real content) gets discovered and audited as an ordinary
+# skill, then drawn a misleading rebuild/FAIL verdict — a category error,
+# since the content isn't broken, it's meant to contain placeholders.
+# Confirmed on 6 real instances across the audit pilot (Phases 13, 19x2, 20,
+# 22, 24). A `find_skill_dirs`-level directory-name exclusion was checked and
+# rejected: 102 real, already-audited skills across two corpora legitimately
+# use `templates/skills/<name>/` as their real skill-storage convention, so
+# blindly excluding it would silently drop real content — a real regression,
+# not a hypothetical one (see benchmark/vendored/README.md's Phase 19 entry).
+# This check instead looks at content, narrowly, in exactly the two places
+# every confirmed instance actually signals template-ness:
+#   1. `name:` containing literal template syntax ({{...}}, [TODO:...], and
+#      similar bracket-wrapped placeholder markers) — real skill names are
+#      kebab-case identifiers that essentially never contain braces/brackets,
+#      so this has very little room for a false positive on genuine content.
+#   2. `description:` matching one of a handful of specific, verbatim
+#      self-declaring phrasings pulled directly from the six real instances
+#      (not a broad "contains the word template" match, which would risk a
+#      real skill *about* authoring templates or examples).
+# A skill that trips neither signal is graded normally, exactly as before.
+NAME_TEMPLATE_SYNTAX_RE = re.compile(r"\{\{|\}\}|\[TODO|\[FIXME|\[PLACEHOLDER|\[YOUR[\s_-]", re.IGNORECASE)
+DESCRIPTION_TEMPLATE_SELF_DECLARATION_RE = re.compile(
+    r"you (?:should |must )?never use this skill directly"
+    r"|copy this (?:directory|folder) and customize"
+    r"|rename this skill(?:'s)? (?:folder|directory)"
+    r"|(?:is|as) just a template\b"
+    r"|a template for creating"
+    r"|a brief description of what this skill does",
+    re.IGNORECASE,
+)
+
+
+def detect_authoring_template_stub(frontmatter: dict[str, str]) -> str | None:
+    """Return a human-readable reason if this looks like unfilled authoring
+    scaffolding, else None. See the design note above the regexes."""
+    name = frontmatter.get("name", "")
+    if NAME_TEMPLATE_SYNTAX_RE.search(name):
+        return f"name field contains template placeholder syntax: {name!r}"
+    description = frontmatter.get("description", "")
+    m = DESCRIPTION_TEMPLATE_SELF_DECLARATION_RE.search(description)
+    if m:
+        return f"description self-declares as a template: {m.group(0)!r}"
+    return None
+
+
+def check_authoring_template_stub(frontmatter: dict[str, str]) -> dict:
+    reason = detect_authoring_template_stub(frontmatter)
+    if reason:
+        # WARN, not MANUAL: the heuristic is confidently detecting a real
+        # pattern here (not "can't verify from files alone"), and WARN is
+        # what makes this surface inside aggregate_findings.py's review-queue
+        # entry alongside the other FAIL/WARN items it's meant to explain —
+        # a human triaging that entry needs this note in the same place as
+        # the findings it contextualizes, not buried in the full JSON only.
+        return {"id": "authoring-template-detected", "status": "WARN",
+                "detail": f"{reason} — this looks like unfilled skill-authoring scaffolding, not a real "
+                          "skill; other FAIL/WARN findings and the upgrade-vs-rebuild decision below are "
+                          "not meaningful for this content and should not be treated as a defect report"}
+    return {"id": "authoring-template-detected", "status": "PASS",
+            "detail": "no template-scaffolding signal in name/description"}
+
+
 def has_lifecycle_markers(body: str, frontmatter: dict[str, str]) -> bool:
     has_marker = "lifecycle" in body.lower() and "timelessness" in body.lower()
     # The `metadata` frontmatter field is reconstructed as one flat string by
@@ -421,6 +484,7 @@ def run_checklist(skill_path: Path, source: str = "first-party") -> list[dict]:
     third_party = source == "third-party"
     items: list[dict] = []
     items += check_frontmatter_and_paths(skill_path)
+    items.append(check_authoring_template_stub(frontmatter))
     items.append(check_description_quality(frontmatter))
     items.append(check_body_size(body))
     items += check_references_depth_and_toc(skill_path)
@@ -489,6 +553,14 @@ def summarize(items: list[dict]) -> dict:
 def decide_upgrade_vs_rebuild(items: list[dict], timelessness: int | None, lifecycle_category: str | None) -> dict:
     by_id = {i["id"]: i for i in items}
     reasons = []
+
+    if by_id.get("authoring-template-detected", {}).get("status") == "WARN":
+        # Issue #12: FAIL/WARN findings on unfilled authoring scaffolding
+        # aren't defects to fix — the content is supposed to look broken.
+        # Neither upgrade-in-place nor rebuild is a meaningful verdict here.
+        return {"decision": "upgrade-in-place",
+                "reasons": ["this looks like an authoring template, not a real skill — see "
+                            "authoring-template-detected above; no upgrade/rebuild verdict applies"]}
 
     desc_item = by_id.get("description-pushy-imperative", {})
     fm_item = by_id.get("frontmatter-valid", {})
