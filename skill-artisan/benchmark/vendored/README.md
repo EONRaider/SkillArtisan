@@ -767,3 +767,79 @@ first Elastic-licensed corpus.
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 16 cohort: 28 more low-sitemap-count repos (scale batch 2)
+
+Second batch of the low-quality-cohort methodology, drawn 2026-08-21 after the user
+approved scaling past the Phase 15 pilot. Same funnel, re-run fresh end to end
+(the Phase 15 screen data was scratchpad-local and the sitemap regenerates):
+20,000 URLs → 2,449 owner/repo pairs → 54 held repos excluded (25 original + the
+28-repo Phase 15 cohort + `tripleyak`) → 1,704 in the 1–3-listed tier → 18-call
+GraphQL screen → same exclusions (41 aggregator-shaped, 10 forks) → seeded
+stratified draw (`random.Random(16)`, 8/8/6/6 across 0–2★/3–49★/50–499★/≥500★).
+28 of 28 cloned, pinned, licenses read raw — 100% survival again. Zero exact
+duplicates against the 5,366 held skills.
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `aaronvanston/skills-presentations` | `b133d724fbed` | 2026-02-19 | MIT | 5 | 1 | 10 |
+| `agentchengfeng/best-minds` | `bcc2c829fde5` | 2026-01-07 | MIT | 1 | 1 | 103 |
+| `aitytech/agentkits-marketing` | `e1d08b668997` | 2026-07-16 | MIT* | 32 | 1 | 585 |
+| `andy-spike/skills` | `2737eadc3b88` | 2026-03-21 | MIT | 2 | 1 | 1 |
+| `chaterm/terminal-skills` | `464c2954287a` | 2026-03-03 | Apache-2.0 | 63 | 2 | 57 |
+| `cline/cline` | `fb60f9e5fdb1` | 2026-08-20 | Apache-2.0 | 8 | 1 | 66,586 |
+| `fluxcd/agent-skills` | `dc7d150f3355` | 2026-08-19 | Apache-2.0 | 6 | 3 | 209 |
+| `gabberflast/academic-pptx-skill` | `9f2b703ffe8d` | 2026-07-14 | MIT | 1 | 1 | 781 |
+| `httprunner/skills` | `a2f2c13619bd` | 2026-02-28 | MIT | 8 | 1 | 2 |
+| `iart-ai/tiktok-video-skills` | `2a775336b5a6` | 2026-06-22 | MIT | 4 | 3 | 7 |
+| `jazzychad/ios-code-audit` | `34edb296a150` | 2026-05-21 | MIT | 1 | 1 | 33 |
+| `joeseesun/yt-search-download` | `2b10938978b4` | 2026-03-06 | MIT | 1 | 1 | 116 |
+| `kelos-dev/agora` | `2f3ddaba7be7` | 2026-07-07 | Apache-2.0 | 1 | 1 | 1 |
+| `kochetkov-ma/claude-brewcode` | `421113f661b2` | 2026-08-16 | MIT (raw) | 54 | 3 | 31 |
+| `lukastk/boxyard` | `9f63bc168401` | 2026-08-13 | MIT | 1 | 1 | 0 |
+| `mave99a/novel-skill` | `0eadccbeb1fb` | 2026-01-07 | MIT | 1 | 1 | 12 |
+| `meitu/meitu-skills` | `20631793691d` | 2026-07-14 | MIT | 56 | 1 | 30 |
+| `memtensor/memos-cloud-skill` | `b1007f74d431` | 2026-06-26 | Apache-2.0 | 2 | 1 | 1 |
+| `neondatabase/postgres-skills` | `f96c51d43518` | 2026-07-26 | Apache-2.0 | 2 | 1 | 25 |
+| `ngmeyer/skills` | `701dfb8bd2ff` | 2026-06-21 | MIT | 10 | 1 | 2 |
+| `pixel-process-ug/superkit-agents` | `cc7fcb7e47bc` | 2026-03-16 | MIT | 64 | 1 | 1 |
+| `randroids-dojo/skills` | `37d0f88cf8d2` | 2026-08-12 | MIT | 10 | 1 | 46 |
+| `s1dashu/ip-as-logo-skill` | `b1bf517c54a4` | 2026-08-20 | MIT | 1 | 1 | 3,351 |
+| `sanity-io/next-sanity` | `1df99999db35` | 2026-08-20 | MIT | 12 | 1 | 950 |
+| `theplannerivan/planners-ppt-hell` | `1745d6e25ef7` | 2026-08-04 | AGPL-3.0* | 1 | 1 | 225 |
+| `yfe404/web-scraper` | `40ef9f8c45d4` | 2026-03-18 | MIT | 1 | 1 | 86 |
+| `youmind-openlab/ai-image-prompts-skill` | `de38e2a6f5ec` | 2026-08-21 | MIT | 1 | 1 | 679 |
+| `zavudev/zavu-skills` | `07542ba49cf9` | 2026-08-20 | Apache-2.0 | 13 | 2 | 1 |
+
+**License notes (`*` rows):**
+
+- `theplannerivan/planners-ppt-hell` — **AGPL-3.0**. Same audit-only posture as the
+  ELv2 and CC-BY-SA precedents: local clone + reading/reporting is fine; **never
+  copy or adapt its content into SkillArtisan's shipped MIT-licensed material**.
+- `aitytech/agentkits-marketing` — repo LICENSE is MIT, but its four
+  `document-skills/*` skills (docx/pdf/pptx/xlsx) are **redistributed copies of
+  Anthropic's proprietary document skills**, shipping Anthropic's own
+  "© 2025 Anthropic, PBC. All rights reserved." `LICENSE.txt` verbatim while the
+  frontmatter rebrands them ("brand: AgentKits Marketing by AityTech"). Treat
+  those four directories as Anthropic-proprietary content: audit-only, never
+  adapt. The provenance finding itself is documented in RESULTS.md Phase 16.
+- `kochetkov-ma/claude-brewcode` — GitHub API says NOASSERTION; raw read: MIT.
+
+**Structure notes:**
+
+- Five hidden collections ≥30 skills (`superkit-agents` 64, `chaterm` 63, `meitu`
+  56, `brewcode` 54→43 post-dedup, `aitytech` 32) — Phase 15's "~1 in 10 repos in
+  this tier is a hidden collection" prediction underestimated: here it's 5 of 28,
+  though all far smaller than Phase 15's 717-skill outlier. All audited fully per
+  the Phase 15 decision rule (each well under the 200-skill chunking threshold).
+- `kochetkov-ma/claude-brewcode`: 11 exact-content duplicates skipped by
+  `dedup_by_content` (platform-variant packaging).
+- `meitu/meitu-skills`: ships a generated top-level `SKILL.md` that is a package
+  release-notes manifest, not a skill (no frontmatter) — the phase's single
+  per-skill error, correct exit-code-4 behavior.
+- `fluxcd/agent-skills`: CNCF project whose own eval methodology independently
+  converged on this pipeline's exact `evals.json` schema (including
+  `expectations`) — the trigger for audit-gap issue #11.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.

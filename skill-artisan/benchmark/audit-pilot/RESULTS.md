@@ -1763,3 +1763,112 @@ expectation in an informative way. Scaling to further batches is viable at
 >50 skills as its own decision point at vendoring time (audit fully, defer, or
 swap in a bench replacement) rather than letting two repos supply 89% of a
 "low-count" cohort's skills.
+
+## Phase 16: 28 more low-sitemap-count repos — scale batch 2 (351 skills)
+
+First scale batch after the Phase 15 pilot's go decision. Funnel re-run fresh end
+to end (2026-08-21): 2,449 sitemap pairs → 54 held excluded → 1,704-repo tier →
+18-call GraphQL screen (no failures this time) → same aggregator/fork exclusions →
+seeded draw (`random.Random(16)`, same 8/8/6/6 bins). **28/28 verification
+survival** — the funnel's second consecutive 100%. 362 raw skills discovered, 11
+brewcode exact-duplicates deduped, **351 audited = 350 reports + 1 documented
+error** (meitu's generated release-notes manifest named `SKILL.md`, correct
+exit-code-4 behavior), reconciled exactly, single unchunked pass, ~5 min
+wall-clock. Content-as-data discipline maintained; nothing manipulative found.
+
+### The detection design limit, confirmed: fluxcd independently converged on this pipeline's exact evals schema (issue #11, new)
+
+Three `fluxcd/agent-skills` skills auto-detected first-party and drew two bogus
+FAILs each — but unlike Phase 15's case, their `evals/evals.json` uses the **full
+SkillArtisan schema including the `expectations` field v2.5.10's fix discriminates
+on**. FluxCD never used SkillArtisan: its `AGENTS.md` documents its own
+independently-built subagent eval methodology (score sub-agent output against the
+`expectations` array; with/without-skill baseline deltas in `benchmarks/*.md` —
+they even run the same baseline-delta rigor model). Second schema collision in two
+consecutive phases, on two different variants, proving content-shape detection on
+`evals.json` has no unique signal left to anchor on. Opened as **audit-gap issue
+#11** with three options (drop evals from auto-detection / require corroborating
+artifact / accept and document) — a deliberate design decision against issue #4's
+falsifiability rationale, not a third speculative patch. The 6 affected FAILs are
+counted as misclassification artifacts in this phase's numbers, not real findings.
+
+### The cohort's headline provenance finding: Anthropic's proprietary skills, rebranded and redistributed
+
+`aitytech/agentkits-marketing` (585★, "Enterprise-grade AI marketing automation")
+ships **redistributed copies of Anthropic's four proprietary document skills**
+(docx/pdf/pptx/xlsx): Anthropic's own `LICENSE.txt` ("© 2025 Anthropic, PBC. All
+rights reserved... governed by your agreement with Anthropic") verbatim in each
+skill directory, description text verbatim-identical to Anthropic's official
+skills, while the frontmatter rebrands them (`brand: AgentKits Marketing by
+AityTech`, `license: Proprietary. LICENSE.txt has complete terms`) inside a repo
+whose top-level LICENSE is MIT. Exactly the provenance/licensing defect class the
+lower-quality population was predicted to carry — found on the first ≥500★
+collection the draw produced. Recorded as an audit-only restriction in the
+vendored README; the four directories are treated as Anthropic-proprietary
+content.
+
+### Issue #10's second CJK data point, at full-corpus scale
+
+`chaterm/terminal-skills` (Chinese, 63 skills) FAILs `description-pushy-imperative`
+on 62 of 63 via the **length threshold, not the phrasing regex**: descriptions
+like `防火墙配置` ("firewall configuration") are 5 characters carrying ~25–40
+English characters' meaning, far under the English-calibrated 40-char floor.
+Phase 11's Korean corpus hit both bias mechanisms at 77%; this confirms the
+length-threshold dimension independently on a second CJK language at 98% of a
+corpus. Commented on #10 — the fix remains a deliberate design decision, not a
+threshold tweak made blind.
+
+### Corroborated, not new
+
+- **Issues #8/#9**: `triggers:` now on a fifth independent authorship model
+  (aitytech); two more coherent field families (aitytech's 10-field marketing
+  plugin family, 28/32; meitu's OpenClaw `requirements` + namespaced `metadata`
+  JSON, 55/56) plus singles (`homepage`, `platforms`) — both issues commented.
+- **Reserved-word instances 17 and 18**: brewcode's `my-claude` (inside a
+  separate `brewdoc/` plugin subtree, not the main `brewcode/skills/` tree) and
+  ngmeyer's `claude-md`.
+- **`path-references-exist`**: 2 FAILs, both read — joeseesun's literal
+  `[title](url)` placeholder is the **third independent corroboration** of the
+  Phase 12/14 documented-unfixed false-positive shape; ngmeyer's
+  `[deep-research](deep-research)` bare cross-skill name link genuinely doesn't
+  resolve (true positive, same class as Phase 15's cortex cross-references).
+- **Gitleaks (3, all read)**: `YOUR_ACCESS_TOKEN`/`YOUR_API_KEY` documentation
+  placeholders (andy-spike mercadopago, memtensor) and an obvious example UUID
+  (`a1b2c3d4-...`, planners-ppt-hell) — the established doc-example class, no
+  real secrets.
+- **`absolute-user-path` (12 HIGH, sampled)**: chaterm's `/home/user`,
+  `/home/node` are generic documentation placeholders — legitimate-content
+  class, same as daytona's product paths.
+- **All 6 `rebuild` decisions**: brewcode `*-setup` skills, all size-based
+  (spot-verified: `superreview-setup` 649 lines / ~11.2k tokens) — the
+  highest single-corpus rebuild count of the pilot, an authoring-style
+  consequence (monolithic setup documents), correctly called.
+- **Directory/name mismatch just 12** this phase (vs. Phase 15's 210) — the
+  class is author-concentration-driven, as established.
+
+### Hit rate and gradient — third data point on the cohort shape
+
+Review queue: **273 of 350 (78%)**. The five hidden collections (257 skills) run
+81%; the 23 true low-count repos run 71%. The Phase 15 "high-star incidental =
+cleanest" gradient partially recurs (cline 3/8, neondatabase 1/2,
+aaronvanston 0/5, kelos-dev 0/1) but with a sharp counterexample at the top:
+aitytech (585★) is 32/32 — high stars predict clean *incidental* skills, not
+clean *collections*, and the rebranded-content finding shows why star count
+alone is no provenance guarantee. Note for cross-phase comparison: gerund-naming
+WARN ran 93% here (326/350), just under the aggregator's 95% dynamic-boilerplate
+threshold, so it counts toward this phase's queue but was excluded from phases
+where it crossed 95% — phase-to-phase hit rates are directionally, not exactly,
+comparable.
+
+### Cost — sampled vs. exhaustive stated explicitly
+
+Read exhaustively: the 1 error, all 6 rebuilds, all 3 gitleaks skills, both
+path-reference FAILs, both reserved-word instances, the fluxcd detection anomaly
+(including its AGENTS.md methodology and benchmarks), the aitytech provenance
+chain (frontmatter + LICENSE.txt + repo LICENSE), all 28 license files. Sampled:
+2–4 per high-volume group (chaterm descriptions, meitu/aitytech field families,
+absolute-user-path, TOC, body-size). Zero code changes — findings were one new
+tracked design-limit issue (#11), three issue corroborations, and confirmed
+instances of established classes, so **no release** (Phase 14 precedent).
+Wall-clock including funnel re-run, triage, issue writing, and write-up: roughly
+2 hours. **5,493 skills now audited across the pilot** (5,142 + 351).
