@@ -3613,3 +3613,73 @@ file context), both PolyForm Shield licenses, both hidden collections' genuinene
 before committing to a full audit. Zero `scripts/` code changes — **no release**
 (established scale-batch precedent). **11,262 skills now audited across the pilot**
 (11,073 + 189), **492 repos**.
+
+## Phase 36: 20 more low-sitemap-count repos — scale batch 22, an official vendor drawn after its own third-party redistribution, a real Cloudflare security-audit skill (391 discovered, 370 net-new)
+
+Twenty-second scale batch (2026-08-21, seed 36). Funnel: 2,448 pairs → 486 held
+excluded (+20 from Phase 35) → 1,260-repo tier → 14-call GraphQL screen, 0 call-errors
+→ seeded draw, 20 repos, **20/20 vendored, zero rejections**. One NOASSERTION case
+(`svenja-dev/claude-code-skills`), resolved favorably as plain MIT.
+
+### An inverted cross-corpus-duplicate case: the official vendor drawn *after* its own third-party redistribution
+
+`microsoft/playwright-cli`'s own `skills/playwright-cli` is byte-identical to a copy
+already held from `sonofmagic-skills` (vendored in an earlier phase) — meaning a
+third party had already redistributed Microsoft's real skill before this phase drew
+Microsoft's own official source repo. Every prior cross-corpus-duplicate finding in
+this pilot has been "third party redistributes an official/other author's work";
+this is the same underlying mechanism (byte-identical content, one confirmed
+original) but with the draw order inverted — the true upstream source arriving
+*after* its downstream copy was already in the corpus. Excluded from the net-new
+count per the standing convention (content already counted once).
+
+### 391 discovered, 23 within-cohort duplicate files, 1 cross-corpus duplicate — 370 net-new
+
+`shining319/claude-code-single-person-workflow` mirrors 6 skills across up to 4
+plugin-packaging locations each (18 extra copies) — the same "bundled by value into
+multiple independently-installable plugins" pattern as Phase 8's financial-services;
+`svenja-dev/claude-code-skills` mirrors 2 skills flat/nested (2 extra copies). Both
+fully auto-handled by `dedup_by_content`.
+
+### Two real-name/real-vendor draws, both verified genuine
+
+`cloudflare/security-audit-skill` is Cloudflare's own official codebase
+security-auditing skill (agent-neutral methodology for finding exploitable
+vulnerabilities). `indranilbanerjee/digital-marketing-pro` (163 found vs. 1 listed,
+this phase's largest hidden collection) is a real, well-structured digital-marketing
+skill suite (SEO audits, campaign management, CRM sync) — genuine content, not an
+aggregator.
+
+### All security findings confirmed non-issues, including a second instance of the URL-path false-positive mechanism
+
+- `skilld-dev/vue-ecosystem-skills`' many `absolute-user-path` hits are mostly
+  Quasar's own documented `/home/your_user/...` placeholder convention, plus one
+  genuine third-party path embedded in a copied GitHub-discussion stack trace
+  (low severity, not the skill author's own machine).
+- `skills-il/localization`'s `shabbat-aware-scheduler` hits are a **second instance
+  of Phase 32's URL-path false-positive mechanism**: every match is
+  `hebcal.com/home/...` — a public Hebrew-calendar API's URL path segment, not a
+  filesystem path.
+- `svenja-dev/claude-code-skills`' `skill-security-analyzer` hits
+  (`dangerous-code-pattern`, `absolute-user-path`) are self-referential: the skill
+  itself is a tool for analyzing *other* skills' security posture, and its own
+  `SKILL.md` documents the exact patterns it looks for as worked examples — the
+  established self-referential-security-tooling class.
+- `indranilbanerjee/digital-marketing-pro`'s gitleaks hits are obviously-fake
+  placeholder API keys (`key-us14-abc123`, `pat-na1-xyz789`) in an MCP configuration
+  guide.
+
+### Corroborated, not new
+
+- **Zero reserved-word instances and zero `rebuild` decisions this phase** — a clean
+  result on both dimensions, second time in three phases.
+
+### Cost and hit rate
+
+Review queue: **341 of 368 (93%)** — matching Phase 34/35's high-hit-rate pattern.
+Read exhaustively: the inverted cross-corpus duplicate (byte-diffed against both
+copies), all gitleaks/security-pattern findings (traced to source in every flagged
+repo), the two hidden-collection repos' genuineness, both documented per-skill
+errors. Zero `scripts/` code changes — **no release** (established scale-batch
+precedent). **11,632 skills now audited across the pilot** (11,262 + 370), **512
+repos**.

@@ -2098,3 +2098,55 @@ discovered skills count as net-new. Full write-up:
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 36 cohort: 20 more low-sitemap-count repos (scale batch 22) — Cloudflare's own security-audit skill, an inverted cross-corpus duplicate
+
+Twenty-second batch (2026-08-21, seed 36). Funnel: 2,448 sitemap pairs → 486 held
+excluded → 1,260-repo tier → 14-call GraphQL screen (0 call-errors) → seeded draw.
+20 drawn, **20/20 vendored**, zero rejections.
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `cloudflare/security-audit-skill` | `8bac42001ddd` | 2026-07-06 | MIT | 1 | 1 | 3,002 |
+| `coderabbitai/skills` | `aa49953c4cb2` | 2026-08-11 | MIT | 2 | 2 | 156 |
+| `deusyu/translate-book` | `5d07e733fa93` | 2026-08-06 | MIT | 1 | 1 | 1,170 |
+| `emzod/speak-turbo` | `66193e3a7d08` | 2026-02-21 | MIT | 1 | 1 | 20 |
+| `gargantuax/openskills` | `6aeac2674258` | 2026-04-23 | MIT | 2 | 2 | 4 |
+| `indranilbanerjee/digital-marketing-pro` | `fa4ccd0a4afc` | 2026-08-17 | MIT | 163 | 1 | 763 |
+| `lsp-client/lsp-skill` | `66f3e419ed9c` | 2026-02-09 | MIT | 1 | 1 | 115 |
+| `microsoft/playwright-cli` | `2f85a94b7b88` | 2026-08-19 | Apache-2.0 | 2 | 2 | 12,710 |
+| `mohamed-hossam1/nextjs-skills` | `80d20aaf2aab` | 2026-05-30 | MIT | 2 | 1 | 8 |
+| `perkfly/ex-skill` | `c5ece53ab669` | 2026-04-02 | MIT | 1 | 1 | 2,242 |
+| `roble3/cc-blender-skill` | `11016c9a5847` | 2026-05-01 | MIT | 31 | 3 | 38 |
+| `seabbs/skills` | `f8fcb12e4efe` | 2026-08-14 | MIT | 52 | 1 | 5 |
+| `shining319/claude-code-single-person-workflow` | `1cec9b6f2570` | 2026-02-01 | MIT | 24 | 1 | 20 |
+| `skilld-dev/vue-ecosystem-skills` | `457fed3bee77` | 2026-08-14 | MIT | 33 | 2 | 176 |
+| `skills-il/localization` | `9acb2dcacbd6` | 2026-08-19 | MIT | 12 | 1 | 21 |
+| `staskh/trading_skills` | `658dcc13ac49` | 2026-07-30 | MIT | 28 | 1 | 338 |
+| `svenja-dev/claude-code-skills` | `4771c8e872ca` | 2026-05-14 | MIT* | 30 | 1 | 38 |
+| `twostraws/swiftui-agent-skill` | `be297ff80ddd` | 2026-04-20 | MIT | 2 | 1 | 4,494 |
+| `watertian/wechat-devtools-mcp` | `a26f20c8ae48` | 2026-08-20 | MIT | 1 | 1 | 119 |
+| `weaviate/agent-skills` | `2f62f9fb7784` | 2026-04-01 | BSD-3-Clause | 2 | 2 | 103 |
+
+**License note (the `*` row, NOASSERTION on the GraphQL screen, resolved
+favorably)**: `svenja-dev/claude-code-skills` is plain MIT on raw read.
+
+**Structure notes**:
+
+- `microsoft/playwright-cli`'s own `skills/playwright-cli` is byte-identical to a
+  copy already held from `sonofmagic-skills` — an **inverted** cross-corpus
+  duplicate: the true upstream/official source was drawn *after* a third party's
+  redistribution of it was already in the corpus. Same underlying mechanism as every
+  prior redistribution finding, just discovered in the opposite draw order. Excluded
+  from the net-new count.
+- `shining319/claude-code-single-person-workflow` mirrors 6 skills across up to 4
+  plugin-packaging locations each (18 extra copies, auto-deduped); `svenja-dev/
+  claude-code-skills` mirrors 2 skills flat/nested (2 extra copies, auto-deduped).
+- `cloudflare/security-audit-skill` is Cloudflare's own real official codebase
+  security-auditing skill. `indranilbanerjee/digital-marketing-pro` (163 found vs. 1
+  listed, this phase's largest hidden collection) is a genuine, well-structured
+  digital-marketing skill suite. Full write-up:
+  `../audit-pilot/RESULTS.md`'s Phase 36 section.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.
