@@ -1873,3 +1873,67 @@ favorably by raw read)**:
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 32 cohort: 20 more low-sitemap-count repos (scale batch 18) — a bundled real Chrome automation profile, a wholesale Anthropic-skills copy
+
+Eighteenth batch (2026-08-21, seed 32). Funnel: 2,448 sitemap pairs → 405 held
+excluded → 1,340-repo tier → 14-call GraphQL screen (0 call-errors) → seeded draw.
+20 drawn, **20/20 vendored**, zero rejections.
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `agentara/skills` | `dcb37f647711` | 2026-08-15 | MIT | 23 | 2 | 445 |
+| `alibaba-flyai/flyai-skill` | `f89974d2bd48` | 2026-08-21 | MIT | 1 | 1 | 917 |
+| `alibaba/skill-up` | `85661758ff44` | 2026-08-20 | Apache-2.0 | 19 | 1 | 647 |
+| `antonbabenko/terraform-skill` | `0a3a4a66e990` | 2026-07-03 | Apache-2.0* | 1 | 1 | 2,292 |
+| `anycap-ai/anycap` | `6314153ee599` | 2026-07-29 | MIT | 9 | 3 | 42 |
+| `catalyst-cooperative/agent-skills` | `249de8cbd265` | 2026-08-16 | MIT | 2 | 2 | 3 |
+| `cdeistopened/skill-stack` | `d607d66198b2` | 2026-07-07 | MIT | 81 | 1 | 27 |
+| `changeflowhq/skills` | `1ce59f2ca0e5` | 2026-02-10 | MIT | 4 | 1 | 9 |
+| `crustdata/skills` | `f2a0906836bf` | 2026-08-07 | MIT | 8 | 2 | 7 |
+| `fanzhidongyzby/openclaw-serper` | `9b2411287c8c` | 2026-02-11 | MIT | 2 | 1 | 4 |
+| `home-assistant/core` | `32a484642853` | 2026-08-21 | Apache-2.0 | 6 | 1 | 90,026 |
+| `iamzhihuix/happy-claude-skills` | `f49e7782a551` | 2026-04-19 | MIT | 13 | 3 | 303 |
+| `joeseesun/qiaomu-design` | `39dac8238a6b` | 2026-07-10 | MIT | 1 | 2 | 498 |
+| `larksuite/meegle-cli` | `0702dd3461a3` | 2026-08-20 | MIT | 1 | 1 | 210 |
+| `leonxlnx/unlazy` | `ed9e8d2b5919` | 2026-08-11 | MIT | 1 | 1 | 586 |
+| `openaccountant/skills` | `f5abe381f24b` | 2026-04-09 | MIT | 44 | 3 | 57 |
+| `raphaelsalaja/userinterface-wiki` | `256a954080c8` | 2026-03-17 | MIT | 1 | 2 | 873 |
+| `shmulc8/captain-obvious` | `4da9b1d9ce4c` | 2026-08-16 | MIT | 1 | 1 | 12 |
+| `talkstream/ru-text` | `73dc04a492fc` | 2026-08-17 | MIT | 4 | 1 | 209 |
+| `tencent/agentlymail` | `b4cccb1eecd7` | 2026-08-19 | Apache-2.0* | 1 | 1 | 36 |
+
+**License note (the two `*` rows, both NOASSERTION on the GraphQL screen, resolved
+favorably)**: `antonbabenko/terraform-skill` and `tencent/agentlymail` are both plain
+Apache-2.0, just with non-standard attribution text ahead of the license body
+(Anton Babenko's own header; Tencent's standard open-source preamble) that kept
+GitHub's classifier from confidently matching either.
+
+**Structure/dedup notes**:
+
+- `cdeistopened/skill-stack` (81 found vs. 1 listed) mirrors 8 skills byte-identically
+  into `public/skills/` and `.claude/skills/` (caught automatically by
+  `dedup_by_content`) and separately bundles a **full 17-skill wholesale copy of
+  Anthropic's official skills collection** under `.claude/skills/anthropic-skills/`
+  (`pdf`, `docx`, `pptx`, `xlsx`, `skill-creator`, `mcp-builder`, `canvas-design`, and
+  10 more) — 3 of the 17 are exact byte-for-byte matches against already-held copies
+  (excluded from the net-new count), the other 14 are different snapshots of the same
+  upstream content and stay counted per the standing convention.
+- `alibaba/skill-up` (19 found vs. 1 listed) is itself a real Go tool for evaluating
+  Agent Skills; 3 of its discovered entries are genuine `e2e/testdata/` Go test
+  fixtures with no frontmatter, correctly erroring individually (exit-code-4
+  contract), confirmed by reading the fixtures' own source-file documentation.
+- `changeflowhq/skills`' `stealth-browser` ships a full committed Chrome automation
+  profile (extensions, preferences) so automated sessions look like "a normal browser
+  with real extensions" — investigated end-to-end (no real `Cookies`/`History`/
+  `Login Data` files present, both flagged findings traced to Chrome's own internal
+  integrity token and an ad-blocker's public filter-list URL paths, not real secrets
+  or a leaked personal profile). Full write-up: `../audit-pilot/RESULTS.md`'s Phase 32
+  section.
+- `agentara/skills`' `world-cup-predictor` has a genuine, high-volume
+  `absolute-user-path` leak (118 hits, all the same author path baked into one
+  committed dashboard data file) — same concentrated-single-source shape as Phase
+  22's jimliu.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.

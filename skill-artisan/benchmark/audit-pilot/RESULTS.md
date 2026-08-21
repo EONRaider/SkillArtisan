@@ -3271,3 +3271,117 @@ notebooklm finding volume down to individual matches, both reserved-word instanc
 both hidden-collection repos' actual content before committing to a full audit. Zero
 `scripts/` code changes — **no release** (established scale-batch precedent). **10,228
 skills now audited across the pilot** (9,553 + 675), **412 repos**.
+
+## Phase 32: 20 more low-sitemap-count repos — scale batch 18, a bundled real Chrome automation profile investigated end-to-end, a wholesale copy of Anthropic's official skills collection, a real Go test-fixture directory correctly erroring individually (223 discovered, 212 net-new)
+
+Eighteenth scale batch (2026-08-21, seed 32). Funnel: 2,448 pairs → 405 held excluded
+(+20 from Phase 31) → 1,340-repo tier → 14-call GraphQL screen, 0 call-errors → seeded
+draw, 20 repos, **20/20 vendored, zero rejections**. Two NOASSERTION cases, both
+resolved favorably: `antonbabenko/terraform-skill` and `tencent/agentlymail` are both
+plain Apache-2.0 with non-standard header text before the license body (Anton
+Babenko's own attribution line; Tencent's standard open-source preamble), which is why
+GitHub's classifier didn't confidently match either.
+
+### 223 discovered → 215 after within-cohort dedup → 212 audited + 3 documented errors → 212 net-new after cross-corpus exclusion
+
+`cdeistopened/skill-stack` mirrors 8 skills byte-identically into both `public/skills/`
+and `.claude/skills/` (the established flat/nested install-location pattern) —
+`dedup_by_content` caught all 8 automatically. `alibaba/skill-up`'s
+`e2e/testdata/{custom-engine,mock-engine,multiturn-session}` correctly errored
+individually (exit-code-4 contract, "missing frontmatter") rather than crashing the
+batch — investigated directly rather than assumed: `alibaba/skill-up` is itself a real
+Go tool ("the evaluation and evolution tool for Agent Skills"), and these three
+directories are genuine Go end-to-end test fixtures under `e2e/testdata/`, each one's
+own header literally reading "This directory is a minimal skill-up fixture that
+exercises the ... engine local and http transports end-to-end. It is consumed by
+`e2e/custom_engine_test.go`." Same confirmed-correct-behavior class as Phase 15's
+glebis zero-frontmatter skills — not a bug, and `testdata` was not added to
+`find_skill_dirs`' `EXCLUDED_INTERMEDIATE_DIRS`, since the standing Phase-19 discipline
+(always check the whole held corpus before excluding a directory name) wasn't run this
+phase and a single instance doesn't warrant a code change on its own.
+
+**A seventh corroboration of the established "third party redistributes Anthropic's
+official skills collection" pattern, at wholesale scale**: `cdeistopened/skill-stack`
+bundles a full 17-skill copy of Anthropic's official skills repo under
+`.claude/skills/anthropic-skills/` (`pdf`, `docx`, `pptx`, `xlsx`, `skill-creator`,
+`mcp-builder`, `canvas-design`, `frontend-design`, `theme-factory`, `webapp-testing`,
+and 7 more). Three are exact byte-for-byte matches against already-held copies
+(`mcp-builder` vs. `yyh211-claude-meta-skill`'s copy, `skill-creator` vs.
+`anthropics-financial-services`' copy, and — interestingly — the generic authoring
+`template/SKILL.md` vs. `bmad-labs-skills`' copy of the same file) and are excluded
+from this phase's net-new count; the other 14 aren't exact hash matches against
+anything currently held (different snapshot timestamps of the same upstream content)
+and stay counted as ordinary third-party content per the standing convention (only
+proven byte-identical matches get excluded).
+
+### A bundled real Chrome automation profile, investigated end-to-end before concluding anything
+
+`changeflowhq/skills`' `stealth-browser` (author: stevebutterworth) is a real,
+legitimate "invisible Chrome automation via CDP" skill — it ships a **full committed
+Chrome user-data profile directory** (`profile/Default/`, `profile/Local State`, a
+real ad-blocker extension with all its ruleset files) so that automated sessions
+"look like a normal browser with real extensions," exactly as its own description
+states. This triggered both `gitleaks` (a `generic-api-key`-shaped match on
+`Secure Preferences`' `_recovery_token`) and `security-pattern-checks` (57
+`absolute-user-path` hits). Given the stakes of a possible real credential leak, this
+got the most thorough single-skill investigation of the phase: confirmed the profile
+directory contains **no** `Cookies`, `History`, or `Login Data` files (the actual
+Chrome databases that would carry real saved logins/browsing history) — only
+`Preferences`, `Secure Preferences`, `Local State`, and a pre-installed ad-blocker
+extension's own ruleset files. The `_recovery_token` is Chrome's own internal
+per-installation HMAC-style integrity value, not a user credential. The 57
+`absolute-user-path` hits are a genuine false-positive mechanism, not seen in this
+exact shape before: the `/home/[A-Za-z0-9_.-]+` regex matching **URL path segments**
+inside the bundled ad-blocker's own public filter-list JSON (`"urlFilter":
+"gamemasters.eu/home/wp-content/..."`) — a website's `/home/` page path, not a Linux
+home directory. Confirmed benign: a deliberately bundled, fresh, non-personally-used
+automation profile, not a leaked real one.
+
+### A genuine, high-volume `absolute-user-path` leak, traced to source
+
+`agentara/skills`' `world-cup-predictor` (nested under `skills/entertainment/`) has
+118 `absolute-user-path` HIGH findings, all in one committed data file
+(`assets/dashboard/data/final-subagent-dashboard.json`) — every hit is the same
+`"source": "file:///Users/taohe/Documents/world-cup-prediction-skill/..."` provenance
+field, the author's real local machine path baked into generated dashboard data.
+Same concentrated-single-source shape as Phase 22's jimliu (71 hits from one build
+log) — a genuine true positive, correctly caught.
+
+### Other confirmed-non-issue findings
+
+- `crustdata/skills`' `sales-prospecting` gitleaks hit is the established
+  `Authorization: Bearer YOUR_API_KEY` documentation placeholder.
+- `iamzhihuix/happy-claude-skills`' `open-source-prep` gitleaks `private-key` hit is
+  inside `references/secrets-patterns.md` — a skill that helps prepare a repo for
+  open-sourcing by finding secrets, whose own reference doc lists
+  `-----BEGIN ENCRYPTED PRIVATE KEY-----` as a pattern to search *for*. Same
+  self-referential meta-documentation class as Phase 4's malware-scanner pattern-
+  description text.
+- `home-assistant/core` (90,026★, this pilot's second-highest star count after Phase
+  29's graphify) contributed 6 real, genuine skills — the project's own official
+  contributor/maintainer tooling for PR review workflows
+  (`ha-pr-reviewer`/`ha-review`/`ha-quality-scale-verify`/etc.), same
+  "major vendor, small legitimate skill footprint" shape as fastapi (Phase 30) and
+  canner/oracle (Phase 24).
+
+### Corroborated, not new
+
+- `authoring-template-detected` (issue #12's fix): 212/212 PASS, zero false positives.
+- Third-party mode: `security-scan-marker-current`/`lifecycle-classified` correctly
+  N/A across all 212 skills.
+- **Zero reserved-word (`claude`/`anthropic`-named) instances and zero `rebuild`
+  decisions this phase** — a clean phase on both dimensions, matching the established
+  "not every phase needs a finding" pattern.
+
+### Cost and hit rate
+
+Review queue: **165 of 212 (78%)**. Zero crash-style errors (the 3 documented
+per-skill errors are the established exit-code-4 contract working correctly, not
+tool failures). Read exhaustively: the bundled Chrome profile (full directory listing,
+file-type check, both flagged findings traced to source), the wholesale
+Anthropic-skills redistribution (all 17 entries enumerated, 3 exact matches
+byte-diffed), the world-cup-predictor leak (traced to its single source file), all 3
+gitleaks findings, both NOASSERTION licenses, the Go test-fixture directory's own
+source-file documentation, `home-assistant/core`'s actual skill content. Zero
+`scripts/` code changes — **no release** (established scale-batch precedent).
+**10,440 skills now audited across the pilot** (10,228 + 212), **432 repos**.
