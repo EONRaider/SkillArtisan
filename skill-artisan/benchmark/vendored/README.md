@@ -999,3 +999,84 @@ findings, no new pattern.
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 19 cohort: 28 more low-sitemap-count repos (scale batch 5)
+
+Fifth batch (2026-08-21, seed 19). Funnel: 2,448 pairs → 137 held excluded (25
+original + 28+28+27+28 from Phases 15–18) → 1,619-repo tier → 17-call GraphQL
+screen, zero failures → same exclusions → seeded draw, 28 repos. **28 of 28
+cloned, pinned, licenses read raw — fifth consecutive 100% survival.**
+
+Two new license types this phase: `bitwize-music-studio/claude-ai-music-skills`
+is **CC0-1.0** (public domain dedication, the most permissive license possible —
+no restriction of any kind, audit or adapt both fine, though nothing here is
+being adapted regardless). `jorgealves/agent_skills` is **GPL-3.0** proper (as
+opposed to AGPL, already seen at Phase 15's `planners-ppt-hell` and this phase's
+own `prompt-security/clawsec`) — same audit-only posture as every other copyleft
+case for consistency. `bergside/typeui` (1,793★) was this phase's NOASSERTION —
+resolved favorably on raw read (MIT), same as every prior case except Phase 17's
+ykdojo.
+
+**Zero cross-corpus content duplicates this phase** (0/245 raw skills matched
+against the growing 6,150-skill held set) — Phase 18's jinfanzheng match was a
+one-off so far, not the start of a pattern.
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `agentlyhq/use-agently` | `639337583c28` | 2026-04-01 | MIT | 4 | 1 | 72 |
+| `ant-design/ant-design-cli` | `64fb308cf9d0` | 2026-08-17 | MIT | 1 | 1 | 253 |
+| `arcjet/skills` | `a46264ba4142` | 2026-08-20 | Apache-2.0 | 2 | 1 | 2 |
+| `autoclaw-cc/xiaohongshu-skills` | `b043748282a5` | 2026-05-24 | MIT | 6 | 1 | 1,799 |
+| `benedictking/tavily-web` | `a933268dee05` | 2026-04-21 | MIT | 1 | 1 | 2 |
+| `bergside/typeui` | `2a977f1f6616` | 2026-07-04 | MIT (raw)* | 4 | 1 | 1,793 |
+| `bitwize-music-studio/claude-ai-music-skills` | `b1b11a67e8ce` | 2026-07-21 | CC0-1.0 | 53 | 2 | 436 |
+| `cline/sdk-skill` | `c687e680df2c` | 2026-06-17 | Apache-2.0 | 1 | 1 | 10 |
+| `confa-tech/agent-skills` | `35fb4790614d` | 2026-05-19 | MIT | 1 | 1 | 0 |
+| `deveshpunjabi/modern-frontend-skill` | `cd8b630f8f97` | 2026-03-20 | MIT | 1 | 1 | 4 |
+| `evan715823/cheatsheet-generator-skill` | `c33d9ac4f907` | 2026-04-09 | MIT | 1 | 1 | 184 |
+| `flowkit-labs/skills` | `0c9e2b63f504` | 2026-08-12 | MIT | 1 | 1 | 1 |
+| `gyteng/kodevu` | `373a9da20057` | 2026-04-04 | MIT | 1 | 1 | 0 |
+| `jorgealves/agent_skills` | `85014ad37d71` | 2026-01-25 | GPL-3.0** | 36 | 2 | 2 |
+| `lewislulu/html-ppt-skill` | `f3a8435d3901` | 2026-04-26 | MIT | 1 | 1 | 8,002 |
+| `maartenlouis/elevenlabs-remotion-skill` | `156ff9d9077e` | 2026-01-24 | MIT | 1 | 1 | 4 |
+| `mattbx/shadcn-skills` | `4d6045fc5301` | 2026-04-27 | MIT | 2 | 2 | 18 |
+| `muxuuu/serenity-skill` | `c2fe93deedfd` | 2026-05-05 | MIT | 1 | 1 | 3,818 |
+| `nodnarbnitram/claude-code-extensions` | `35e7f7deae68` | 2026-04-20 | MIT | 45 | 1 | 15 |
+| `open-circle/agent-skills` | `6abb4f9299c6` | 2026-08-20 | MIT | 3 | 1 | 15 |
+| `open-pencil/skills` | `623927958f27` | 2026-06-11 | MIT | 1 | 1 | 15 |
+| `prompt-security/clawsec` | `aa3aed139701` | 2026-08-20 | AGPL-3.0** | 16 | 2 | 1,086 |
+| `silupanda/academic-researcher` | `e75d70d1b044` | 2026-02-16 | MIT | 7 | 1 | 12 |
+| `sonofmagic/skills` | `f7b109a855b9` | 2026-08-21 | MIT | 17 | 1 | 2 |
+| `tfboy1/academic-paper-writer` | `cf3dec4b829c` | 2026-06-19 | MIT | 5 | 1 | 246 |
+| `theagentservice/skills` | `c9a30434f00d` | 2026-02-15 | MIT | 1 | 1 | 0 |
+| `vitorpamplona/amethyst` | `0c63687ad48d` | 2026-08-21 | MIT | 31 | 2 | 1,588 |
+| `will2025btc/buffett-perspective` | `e18afcfc208f` | 2026-04-06 | MIT | 1 | 1 | 212 |
+
+\* NOASSERTION at screen, raw `LICENSE.md` reads MIT. \*\* Copyleft, audit-only
+posture applied for consistency (same as every other GPL-family/CC-BY-SA/ELv2
+case in this pilot).
+
+**Structure notes:**
+
+- `nodnarbnitram/claude-code-extensions` (45→28 post-dedup) and
+  `silupanda/academic-researcher` (7→1) both use the established
+  `.claude/`/`.codex/`/`.cursor/`/`.gemini/`/`.opencode/`/`.windsurf/`
+  cross-tool-mirroring convention (Phase 6's symlink-inflation class, now
+  content-mirrored rather than symlinked — `dedup_by_content` handles it
+  correctly, no code change needed).
+- **New audit-gap issue #12**: `nodnarbnitram`'s `templates/skill-skeleton`
+  (and, found by the same check, `secondsky-claude-skills`' and
+  `skymavis-skills`' equivalents from earlier phases) are genuine
+  fill-in-the-blank authoring templates discovered and audited as if real —
+  but unlike every prior `EXCLUDED_INTERMEDIATE_DIRS` addition, a blanket
+  `templates` exclusion would wrongly drop **102 already-audited real skills**
+  across `pixel-process-ug/superkit-agents` and `shoootyou/get-shit-done-multi`
+  (both use `templates/skills/<name>/` as their real skill-storage convention).
+  Documented, not fixed — see issue #12 and RESULTS.md's Phase 19 section.
+- `prompt-security/clawsec`: 15 `security-gitleaks-clean` FAILs, all the same
+  `RELEASE_PUBKEY_SHA256` constant repeated across its `claw-*` skill family — a
+  public verification hash, not a secret, confirmed by reading multiple
+  instances directly.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.

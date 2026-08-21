@@ -2085,3 +2085,86 @@ not a code change) and continued field-family/#11 corroboration, not a new
 mechanism — so **no release** (Phase 14/16/17 precedent). Wall-clock including
 the duplicate investigation, BSL license read, and write-up: roughly 1.5 hours.
 **5,911 skills now audited across the pilot** (5,628 + 283).
+
+## Phase 19: 28 more low-sitemap-count repos — scale batch 5 (221 skills)
+
+Fifth scale batch (2026-08-21, seed 19). Funnel: 2,448 pairs → 137 held excluded
+→ 1,619-repo tier → 17-call GraphQL screen, zero failures → seeded draw, 28
+repos. 28/28 cloned, pinned, licensed — fifth consecutive 100% survival. 245 raw
+discovered, 23 exact-content duplicates deduped across two repos (both the
+established `.claude/`/`.codex/`/`.cursor/`/`.gemini/`/`.opencode/`/`.windsurf/`
+cross-tool-mirroring convention, `dedup_by_content` handling it correctly), 222 =
+221 audited + 1 documented error (`vitorpamplona/amethyst`, missing frontmatter).
+Zero cross-corpus duplicates against the 6,150-skill held set — Phase 18's
+jinfanzheng match was a one-off, not a pattern starting. Reconciled exactly,
+single unchunked pass, ~182s wall-clock.
+
+### New audit-gap issue #12: authoring templates get discovered and audited as real skills — no safe fix exists
+
+`nodnarbnitram/claude-code-extensions`' `templates/skill-skeleton/SKILL.md` is an
+explicit fill-in-the-blank template (`name: {{SKILL_NAME}}`, every field a
+Mustache placeholder) — discovered and audited as a real skill, correctly FAILing
+`frontmatter-valid`/`description-pushy-imperative` and drawing a `rebuild`
+decision that's a category error (the content isn't broken, it's meant to
+contain placeholders). Checked directly whether `templates` could join
+`_common.py`'s `EXCLUDED_INTERMEDIATE_DIRS` the way `assets`/`tests`/`fixtures`/
+`example` were each added (only after confirming zero legitimate discoveries
+existed anywhere) — and unlike those four, `templates` **fails that test badly**:
+102 already-audited real skills across two corpora (`pixel-process-ug/
+superkit-agents`' 62-skill `templates/skills/<name>/` convention, Phase 15;
+`shoootyou/get-shit-done-multi`'s 32-skill `templates/skills/gsd-*`, Phase 15;
+`gastownhall/beads`' 1 skill, Phase 18) live under a path containing `templates`.
+Blindly excluding it would silently drop 102 real skills — checked, not assumed,
+a real regression risk this time, not a hypothetical one. Two more corroborating
+instances found by the same check: `secondsky-claude-skills`' (Phase 13) and
+`skymavis-skills`' (this phase) equivalent placeholder templates, neither
+previously flagged as anything but real content. None of the three carry a
+self-description marker the way Phase 12's flutter fixtures did, so there's no
+cheap structural signal — only a content-based heuristic (counting
+`{{...}}`/`[TODO:...]`-shaped placeholders in `name`/`description` specifically)
+could distinguish these, and that's meaningfully riskier than any prior addition.
+Opened as **audit-gap issue #12**, deliberately not fixed: low volume (3
+confirmed instances across 19 phases / ~6,100 skills), real risk of silently
+dropping legitimate content if guessed wrong.
+
+### Corroborated, not new
+
+- **Gitleaks (16, all traced to the same pattern)**: `prompt-security/clawsec`'s
+  15 hits are the identical `RELEASE_PUBKEY_SHA256` constant repeated across its
+  `claw-*` skill family — a public release-verification hash, not a secret,
+  confirmed across multiple instances directly, not sampled once and assumed
+  uniform. `nodnarbnitram`'s 1 hit is the established doc-example class.
+- **Issues #8/#9**: `prerequisites`/`requirements` corroborated again
+  (bitwize-music-studio); the `homepage`/`displayName`/`emoji` loader-metadata
+  cluster on three more repos; a new low-volume OpenClaw-ecosystem
+  platform-compatibility family (`clawdis`/`hermes`/`nanoclaw`/`picoclaw`/
+  `platforms`, 5 skills in `prompt-security/clawsec`) — noted, not opened as its
+  own issue given the volume.
+- **Zero reserved-word instances** — third phase in a row (17, 18, 19).
+- **2 `rebuild` decisions**: `nodnarbnitram`'s template stub (see issue #12
+  above — a category error, not a real finding about a real skill) and
+  `open-circle/agent-skills`' `formisch`, a genuine oversized body, correctly
+  called.
+- **`references-one-level-deep`** (2, both read): genuine nested subdirectories,
+  same established class.
+
+### Hit rate — sixth data point, lowest yet
+
+Review queue: **149 of 221 (67%)** — the lowest of the five scale batches
+(92%/78%/87%/72%/67%). High-star-incidental-is-clean holds again at the extreme:
+`lewislulu/html-ppt-skill` (8,002★) and `muxuuu/serenity-skill` (3,818★) are both
+clean 1/1s; `bergside/typeui` (1,793★) is the one exception this phase at 4/4 —
+not a strong enough counterexample to change the pattern's overall shape.
+
+### Cost — sampled vs. exhaustive stated explicitly
+
+Read exhaustively: the 1 error, both rebuild decisions, the template-stub
+discovery-gap investigation (including the 102-legitimate-discovery check across
+every held corpus), all 16 gitleaks hits (traced to source, not sampled),
+the two prior template instances found by the same check, all 28 license files.
+Sampled: 2–4 per high-volume group (gerund-naming, TOC, description framing,
+frontmatter unknown-fields). One new tracked design-limit issue (#12), zero code
+changes — so **no release** (Phase 14/16/17/18 precedent). Wall-clock including
+the template-directory investigation (the most involved piece: a full
+cross-corpus grep, not a quick check) and issue writeup: roughly 2 hours.
+**6,132 skills now audited across the pilot** (5,911 + 221).
