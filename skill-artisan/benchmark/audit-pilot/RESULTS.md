@@ -2691,3 +2691,76 @@ domain-density explanation for a rebuild cluster, not a new mechanism — so
 **no release** (Phase 14/16-22/24 precedent). Wall-clock: roughly 1 hour, one
 of the cheapest phases of the batch, proportionate to a small, clean corpus.
 **8,792 skills now audited across the pilot** (8,668 + 124).
+
+## Phase 26: 20 more low-sitemap-count repos — scale batch 12, a same-company self-duplicate (88 skills)
+
+Twelfth scale batch (2026-08-21, seed 26). Funnel: 2,448 pairs → 295 held
+excluded → 1,461-repo tier → 15-call GraphQL screen, zero failures → seeded
+draw, 20 repos (0–2★ bin still exhausted). 20/20 survived verification, one
+NOASSERTION resolved favorably. 90 raw discovered, 2 cross-corpus duplicates
+excluded, 88 = 88 audited, 0 errors, reconciled exactly, ~48s wall-clock.
+
+### A new character of cross-corpus duplicate: the same company, not a third party
+
+Two more cross-corpus hits (Phases 18, 20, and now 26 — four of the last
+nine phases checked, no longer rare). One is the now-familiar
+Anthropic-`skill-creator`-redistributed-by-a-third-party shape
+(`composio-community/skills`). The other is genuinely new:
+**`streamlit/agent-skills`' one skill is byte-identical to a copy already
+held from Phase 24's `streamlit/streamlit`** — the same company publishing
+the identical skill verbatim across two of its own repos, not a third party
+reusing someone else's content. After exclusion, `streamlit/agent-skills`
+contributes zero new skills — its entire audited value was already captured
+under Phase 24's pin. Recorded, not treated as a defect in either repo.
+
+### Second real instance of issue #11's specific full-schema-match sub-case
+
+`petekp/claude-code-setup`'s `latent-potential` writes `evals.json` using
+this pipeline's exact `expectations` field (verified: 3 occurrences,
+zero `assertions`) — the same full-schema-collision shape as Phase 16's
+fluxcd, not the bare-shape bucket the other 8 corroborations hit. Confirms
+fluxcd wasn't a one-off: a second independent author has now converged on
+the identical complete schema, with zero discriminator signal available
+either way. Commented on #11, still logged not acted on.
+
+### Corroborated, not new
+
+- **Two new license types**, both read in full and given the same audit-only
+  posture as every prior restrictive case: `alphamoemoe/foci` (LGPL-2.1, the
+  pilot's first) and `alexgreensh/token-optimizer` (PolyForm Noncommercial
+  1.0.0).
+- **Gitleaks/pattern findings (14 + 22, both traced to source)**:
+  `alexgreensh/token-optimizer`'s own `benchmark.py`/`runtime_env.py` —
+  alphabet-sequence fake GitHub tokens and generic placeholder paths
+  (`/Users/dev/project`, `<you>`), consistent with the skill's own stated
+  purpose (benchmarking against realistic test fixtures). All established
+  doc-example/test-fixture classes, high volume but uniform pattern.
+- **Reserved-word instances 29 and 30** (`petekp/claude-code-setup`'s
+  `claude-code-audit`, `torpedod/claude-council`'s `claude-council`) — a
+  second reserved-word phase after Phase 25's clean run, true positive holds.
+- **No new field families**; one notable spelling variant worth a passing
+  mention — `hamen/material-3-skill`'s `user-invokable` (hyphenated) is a
+  near-miss of the already-tracked true-positive `user_invocable` field
+  (underscore), correctly flagged as unrecognized since the strings differ,
+  not evidence of anything needing action.
+- **Zero `rebuild` decisions** this phase.
+
+### Hit rate — thirteenth data point
+
+Review queue: **51 of 88 (58%)**, the lowest since Phase 24. No clean
+star-count pattern this time — `yoshiko-pg/difit` (3,088★) and
+`alexgreensh/token-optimizer` (1,936★) are both fully clean (6/6 each), while
+`warpdotdev/oz-skills` (821★) runs 8/15 — consistent with the established
+"star count predicts nothing reliably" conclusion, no new signal.
+
+### Cost — sampled vs. exhaustive stated explicitly
+
+Read exhaustively: both cross-corpus duplicates (byte-diffed), the second
+full-schema-match evals.json (field-count verified), both new license texts
+in full, both high-volume gitleaks/pattern sources (traced to their real
+files, not sampled once and assumed), all 20 license files. Sampled: 2–4 per
+remaining high-volume group. Zero code changes — a new duplicate character
+worth recording and a second corroboration of #11's rarer sub-case, not a
+new mechanism — so **no release** (Phase 14/16-22/24/25 precedent).
+Wall-clock: roughly 1.5 hours. **8,880 skills now audited across the pilot**
+(8,792 + 88).

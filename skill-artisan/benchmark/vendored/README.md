@@ -1496,3 +1496,68 @@ full; its own domain density (each library's SKILL.md running well past
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 26 cohort: 20 more low-sitemap-count repos (scale batch 12) — third and fourth cross-corpus duplicates, two new license types
+
+Twelfth batch (2026-08-21, seed 26). Funnel: 2,448 pairs → 295 held excluded
+→ 1,461-repo tier → 15-call GraphQL screen, zero failures → same exclusions →
+seeded draw (0–2★ bin still exhausted). 20 of 20 cloned, pinned, licenses
+read raw — 100% survival. `rhavekost/author-toolkit`'s NOASSERTION resolved
+favorably on raw read (MIT).
+
+**Two new license types**, both read in full: `alphamoemoe/foci` — **LGPL-2.1**
+(the pilot's first, distinct from the GPL-3.0/AGPL-3.0 already seen), and
+`alexgreensh/token-optimizer` — **PolyForm Noncommercial License 1.0.0** (a
+real, recognized source-available license restricting commercial use,
+permitting any "permitted purpose" otherwise). Both get the same audit-only
+posture as every other restrictive-license case in this pilot.
+
+**Two more cross-corpus content duplicates** (a fourth consecutive phase
+where this check found a hit, following Phases 18/20): `composio-community/
+skills`' copy of Anthropic's `skill-creator` (matches Phase 18's
+`neondatabase-postgres-skills` copy) and — a genuinely different character
+from every prior instance — **`streamlit/agent-skills`' sole skill
+(`developing-with-streamlit`) is byte-identical to a copy already held from
+Phase 24's `streamlit/streamlit`**: the *same company* publishing the
+identical skill verbatim across two of its own repos, not a third party
+redistributing someone else's official content. After excluding the
+duplicate, `streamlit/agent-skills` contributes **zero** new skills to the
+pilot — its one skill was entirely redundant with already-held content.
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `alchaincyf/naval-skill` | `259e452ef6f6` | 2026-05-28 | MIT | 1 | 1 | 232 |
+| `alexgreensh/token-optimizer` | `4ac97642c0bd` | 2026-08-19 | PolyForm-NC-1.0* | 6 | 3 | 1,936 |
+| `alphamoemoe/foci` | `68012be7e5e1` | 2026-01-25 | LGPL-2.1* | 6 | 1 | 7 |
+| `composio-community/skills` | `c4b270016aa8` | 2026-03-19 | MIT | 1** | 2 | 148 |
+| `d4kooo/openclaw-token-memory-optimizer` | `8963642ad606` | 2026-02-05 | MIT | 1 | 1 | 20 |
+| `dbos-inc/agent-skills` | `f6d4d2394ef1` | 2026-08-19 | MIT | 4 | 2 | 17 |
+| `elementsix/elementsix-skills` | `bda217719e13` | 2026-03-04 | MIT | 1 | 1 | 303 |
+| `feicaiclub/video-spec-builder` | `9e73275b35e8` | 2026-05-18 | MIT | 1 | 1 | 915 |
+| `hamen/material-3-skill` | `14385f2bf380` | 2026-07-16 | MIT | 1 | 1 | 1,290 |
+| `mepuka/effect-ontology` | `c148102d5789` | 2025-12-25 | MIT | 15 | 1 | 5 |
+| `mrgediao/shuorenhua` | `1a97697fb2b1` | 2026-08-21 | MIT | 1 | 1 | 1,169 |
+| `petekp/claude-code-setup` | `f1cb10fdacff` | 2026-08-06 | MIT | 18 | 1 | 44 |
+| `rhavekost/author-toolkit` | `b78287003edf` | 2026-07-14 | MIT (raw)*** | 6 | 2 | 13 |
+| `safaiyeh/app-store-review-skill` | `6b98eb4f0e3b` | 2026-08-11 | MIT | 1 | 1 | 285 |
+| `shopmeskills/mcp` | `81f9813f632a` | 2026-02-20 | MIT | 2 | 1 | 3 |
+| `streamlit/agent-skills` | `c69a265613f1` | 2026-07-23 | Apache-2.0 | 0** | 1 | 224 |
+| `toolsai/auto-skill` | `f4e042cb1718` | 2026-08-17 | MIT | 1 | 1 | 196 |
+| `torpedod/claude-council` | `f963fd62a423` | 2026-04-22 | MIT | 1 | 1 | 13 |
+| `warpdotdev/oz-skills` | `6c08c49fc6c5` | 2026-04-17 | MIT | 15 | 2 | 821 |
+| `yoshiko-pg/difit` | `e4023997f359` | 2026-08-09 | MIT | 6 | 2 | 3,088 |
+
+\* audit-only posture applied for consistency. \*\* excludes 1 cross-corpus
+duplicate each. \*\*\* NOASSERTION at screen, raw read resolves favorably.
+
+**Structure notes**: `alexgreensh/token-optimizer` (16→6 post-dedup) and
+`yoshiko-pg/difit` (8→6) both use the established multi-platform-packaging
+convention. `alexgreensh`'s `token-optimizer` skill's own gitleaks/pattern
+findings (14 gitleaks, 22 HIGH) all trace to `scripts/benchmark.py` and
+`runtime_env.py` — fake alphabet-sequence test tokens
+(`ghp_ABCDEFghijklmnop...`) and generic example paths (`/Users/dev/project`,
+`<you>` placeholders), consistent with the tool's own purpose (benchmarking
+against realistic-looking test fixtures).
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.
