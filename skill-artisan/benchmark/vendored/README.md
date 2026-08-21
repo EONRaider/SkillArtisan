@@ -1080,3 +1080,86 @@ case in this pilot).
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 20 cohort: 27 more low-sitemap-count repos (scale batch 6) — second license rejection, two more cross-corpus duplicates
+
+Sixth batch (2026-08-21, seed 20). Funnel: 2,448 pairs → 165 held excluded →
+1,591-repo tier → 16-call GraphQL screen, zero failures → same exclusions →
+seeded draw, 28 repos. **28 drawn, 27 vendored.**
+
+`spotware/ctrader-skills` (NOASSERTION at screen) resolved unfavorably on raw
+read — genuine "All rights reserved... governed exclusively by the Spotware End
+User License Agreement... by installing, accessing, or using this software, you
+agree to be bound." No public grant at all. Dropped, clone deleted, not counted.
+Second real license rejection in the pilot (first: Phase 17's ykdojo). Every
+other NOASSERTION case (this phase's `vercel-labs/konsistent` included) has
+resolved favorably.
+
+**Two more cross-corpus content duplicates** — the check that found its first
+hit in eighteen phases at Phase 18 found two more this time, both again
+Anthropic's official `skill-creator`: `artivilla/agents-config`'s copy
+(identical to the Phase 8 `anthropics-financial-services` original) and
+`langfuse/skills`' copy (identical to Phase 18's own `neondatabase-postgres-skills`
+copy — a third-generation match, not directly against Phase 8). Both excluded
+from this phase's counts for the same reason as Phase 18's instance. **Revised
+framing from Phase 18's "one-off, not a pattern"**: three cross-corpus
+duplicates across three of the last three phases checked (0, then 1, then 2) —
+Anthropic's `skill-creator` being independently bundled as bootstrapping content
+by unrelated third parties looks like a recurring, not isolated, discovery
+pattern. Worth budgeting for in future phases' triage time.
+
+**A fourth confirmed instance of audit-gap issue #12's template-stub pattern**,
+found live this phase: `skillscatalog/registry`'s `templates/basic-skill/SKILL.md`
+(`name: my-skill-name`, `author: "@your-github-handle"`, and — new for this
+pattern — a self-labeling `tags: [example, template]`). Excluded from the
+audited count on direct human read, consistent with issue #12's own conclusion
+that no automated detection is safe; this is the first of the four confirmed
+instances to carry any self-description signal at all, worth a note added to
+issue #12 (not a reliable general heuristic — a real skill about creating
+document templates could legitimately carry the same tag — but a partial, weak
+one worth having on record).
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `agentspace-so/skills` | `88d28ef1d797` | 2026-05-22 | MIT | 2 | 2 | 12 |
+| `artivilla/agents-config` | `11c2e068c97f` | 2026-06-08 | MIT | 32* | 1 | 0 |
+| `behisecc/vibesec-skill` | `0590993b35ad` | 2026-02-17 | Apache-2.0 | 1 | 1 | 1,209 |
+| `benedictking/exa-search` | `f49762100f01` | 2026-04-21 | MIT | 1 | 1 | 5 |
+| `cfircoo/claude-code-toolkit` | `d6264305dcd0` | 2026-03-28 | MIT | 18 | 1 | 17 |
+| `cycleuser/skills` | `1f9017d7e68b` | 2026-08-18 | GPL-3.0** | 30 | 1 | 11 |
+| `fallow-rs/fallow-skills` | `2e10e44b2b20` | 2026-08-17 | MIT | 2 | 1 | 116 |
+| `freee/freee-mcp` | `85f81fd7c1d8` | 2026-08-20 | Apache-2.0 | 1 | 1 | 492 |
+| `iress/design-system` | `e5ded9bc6b9e` | 2026-08-04 | Apache-2.0 | 6 | 1 | 1 |
+| `jinchenma94/bazi-skill` | `112a5d84cd1a` | 2026-08-18 | MIT | 1 | 1 | 2,635 |
+| `joeseesun/qiaomu-mondo-poster-design` | `e82e411c403c` | 2026-03-16 | MIT | 1 | 1 | 1,108 |
+| `langfuse/skills` | `ff47830ae782` | 2026-08-20 | MIT | 1* | 1 | 251 |
+| `manzxiao/text-to-image-prompt-optimizer` | `58b6ce28fc38` | 2026-02-06 | MIT | 1 | 1 | 2 |
+| `michalparkola/tapestry-skills` | `80e1dc56df74` | 2026-03-11 | MIT | 7 | 2 | 523 |
+| `notedit/happy-skills` | `9a2d593b6207` | 2026-03-03 | MIT | 12 | 1 | 340 |
+| `openstockdata/stock-data-skill` | `5bee3d410faf` | 2026-03-16 | MIT | 1 | 1 | 18 |
+| `pbakaus/agent-reviews` | `ee827ae223aa` | 2026-07-08 | MIT | 3 | 2 | 228 |
+| `ruchernchong/claude-kit` | `e91af101140c` | 2026-05-18 | MIT | 10 | 1 | 0 |
+| `shadowcz007/skills` | `96f8a01c7754` | 2026-03-24 | MIT | 19 | 1 | 0 |
+| `skillscatalog/registry` | `e83c630d5931` | 2026-01-03 | MIT | 7* | 1 | 1 |
+| `srstomp/pokayokay` | `ef6a34d63bb9` | 2026-07-05 | MIT | 26 | 1 | 9 |
+| `supabase/supabase` | `31497ba12765` | 2026-08-21 | Apache-2.0 | 20 | 2 | 108,229 |
+| `utooland/skills` | `b4655b549e83` | 2026-02-02 | MIT | 1 | 1 | 1 |
+| `vectorize-io/hindsight` | `3de41af86758` | 2026-08-21 | MIT | 11 | 3 | 20,792 |
+| `vercel-labs/konsistent` | `bdf0cba9d12c` | 2026-08-14 | Apache-2.0 (raw)*** | 2 | 1 | 160 |
+| `vladm3105/aidoc-flow-framework` | `9f163fda7b9b` | 2026-08-16 | MIT | 60 | 1 | 16 |
+| `zc277584121/perpetuum` | `704d1c45f316` | 2026-08-14 | MIT | 1 | 1 | 0 |
+
+\* excludes exclusions noted above (artivilla: 1 cross-corpus dup, 33 on disk;
+langfuse: 1 cross-corpus dup, 2 on disk; skillscatalog: 1 template stub, 8 on
+disk). \*\* audit-only posture, consistent with every other copyleft case.
+\*\*\* NOASSERTION at screen, raw `LICENSE` reads standard Apache-2.0.
+
+**Structure notes**: `vladm3105/aidoc-flow-framework` (60) and
+`artivilla/agents-config` (32→31 after exclusion) are this phase's hidden
+collections, both audited in full. `supabase/supabase` (108,229★, the pilot's
+new highest star count) contributes 20 skills at a 14/20 in-queue rate — not as
+clean as electron/electron's Phase 18 example, another data point that star
+count predicts nothing reliably about collection-level cleanliness.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.

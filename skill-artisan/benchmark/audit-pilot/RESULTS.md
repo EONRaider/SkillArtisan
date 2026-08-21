@@ -2168,3 +2168,93 @@ changes — so **no release** (Phase 14/16/17/18 precedent). Wall-clock includin
 the template-directory investigation (the most involved piece: a full
 cross-corpus grep, not a quick check) and issue writeup: roughly 2 hours.
 **6,132 skills now audited across the pilot** (5,911 + 221).
+
+## Phase 20: 27 more low-sitemap-count repos — scale batch 6, second license rejection (275 skills)
+
+Sixth scale batch (2026-08-21, seed 20). Funnel: 2,448 pairs → 165 held excluded
+→ 1,591-repo tier → 16-call GraphQL screen, zero failures → seeded draw, 28
+repos. **Second real license rejection**: `spotware/ctrader-skills` (NOASSERTION
+at screen) resolved unfavorably on raw read — genuine proprietary "All rights
+reserved... governed exclusively by the Spotware End User License Agreement,"
+with an explicit acceptance-by-use clause. Dropped, clone deleted, not counted.
+27 vendored.
+
+### Cross-corpus duplicates: revising Phase 18's "one-off" framing after a second hit
+
+Two more cross-corpus content duplicates found by the standing per-phase check —
+`artivilla/agents-config` and `langfuse/skills` each bundle Anthropic's official
+`skill-creator`, byte-identical to already-held copies (`artivilla`'s matches
+Phase 8's original; `langfuse`'s matches Phase 18's own copy, a
+third-generation match). Both excluded from this phase's counts, same treatment
+as Phase 18's instance. **Revised**: Phase 18 called its first hit a one-off, not
+a pattern; three duplicates across the three most recent phases (0, 1, 2) reads
+differently — `skill-creator`'s independent bundling by unrelated third parties
+as bootstrapping content looks like a recurring discovery shape worth budgeting
+triage time for going forward, not an anomaly.
+
+### A fourth confirmed instance of issue #12's template-stub pattern, with a first partial signal
+
+`skillscatalog/registry`'s `templates/basic-skill/SKILL.md` — genuine
+placeholder (`name: my-skill-name`, `author: "@your-github-handle"`) — is the
+fourth confirmed instance across the pilot, found live and excluded on direct
+read, same as the prior three. Notable: it's the first of the four to carry any
+self-description signal at all (`tags: [example, template]`) — commented on #12
+as a partial, weak data point (not reliable enough to change the issue's
+"documented, not fixed" conclusion — a real skill about authoring document
+templates could legitimately carry the same tag).
+
+277 raw discovered (post-exclusions: 2 skill-creator dups + 1 template stub +
+spotware's 2 already dropped from selection = 5 total exclusions from the raw
+282), 277 = 275 audited + 2 documented errors (`shadowcz007/skills`, one skill
+with no frontmatter at all, one with an unterminated frontmatter block — a
+genuine YAML syntax defect, correctly distinguished and reported by
+`audit.py`'s existing error messages, not a new bug), reconciled exactly, single
+unchunked pass, ~153s wall-clock.
+
+### Reserved-word streak broken: first instance in four phases
+
+`artivilla/agents-config`'s `reclaude` — the first reserved-word hit since Phase
+16 (three consecutive phases, 17–19, had zero). Reserved-word true positive now
+19/19 across the whole pilot, still zero exceptions.
+
+### Corroborated, not new
+
+- **Issue #11's fifth corroboration**: `shadowcz007/skills` (Chinese-language
+  content) hits the same bare-shape bucket as Phases 17/19. Five authors now
+  (5dive, fluxcd, blitzreels, easy-cheese, shadowcz007), logged not acted on.
+- **Gitleaks (4 skills flagged, all traced to their exact scoped directory, not
+  a whole-repo sweep)**: doc-example placeholders (`sk-abc123xyz789`,
+  `sk_live_abc123xyz`, `your-secret-key`), one obviously-fake base64 example
+  (`c3VwZXJzZWNyZXQ=` = "supersecret" in a secrets-management doc), and a
+  genuine gitleaks false-positive-shaped match on a bare LLM model-name string
+  (`llama-3.1-70b-versatile`) — not a SkillArtisan bug, a third-party scanner
+  quirk on real content, same non-actionable class as prior phases.
+- **Issues #8/#9**: `triggers:` on a sixth independent model (`shadowcz007`);
+  the `displayName`/`emoji`/`homepage` cluster continues; a genuine true
+  positive worth confirming, not a new gap: `vectorize-io/hindsight`'s
+  `user_invocable` field correctly hard-FAILs (one of the fields the v2.5.0 fix
+  deliberately kept erroring, not allowlisted — working exactly as designed).
+- **2 `rebuild` decisions**: `notedit/happy-skills`' `spring-animation` and
+  `vladm3105/aidoc-flow-framework`'s `sdd-orchestrator`, both genuine oversized
+  bodies, correctly called.
+
+### Hit rate — seventh data point
+
+Review queue: **214 of 275 (78%)**. `supabase/supabase` (108,229★, the pilot's
+new highest star count, surpassing Phase 19's electron/electron) runs 14/20 in
+queue — not as clean as electron's Phase 18 example, another data point
+confirming star count predicts nothing reliably about collection-level
+cleanliness on its own.
+
+### Cost — sampled vs. exhaustive stated explicitly
+
+Read exhaustively: both errors, both rebuild decisions, the spotware rejection's
+full LICENSE text, both cross-corpus duplicates (byte-diffed), the template-stub
+instance, all 4 gitleaks-flagged skills (scoped to their exact directories, not
+a whole-repo sweep that would have pulled in irrelevant noise), all 27 license
+files. Sampled: 2–4 per high-volume group. Zero code changes — one new #11
+corroboration, one new #12 corroboration with a partial signal worth logging,
+and a revised (not new) framing on cross-corpus duplicates — so **no release**
+(Phase 14/16/17/18/19 precedent). Wall-clock including the license rejection,
+two duplicate investigations, and template-stub read: roughly 2 hours.
+**6,407 skills now audited across the pilot** (6,132 + 275).
