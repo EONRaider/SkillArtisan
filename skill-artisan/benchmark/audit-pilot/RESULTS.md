@@ -3164,3 +3164,110 @@ direct grep against the real clone, not assumed from the truncated preview), all
 LICENSE files, the CJK-MANUAL sample. Zero `scripts/` code changes — **no release**
 (Phase 14/16-22/24/25/27/28/29 precedent). **9,553 skills now audited across the pilot**
 (9,434 + 119), **392 repos**.
+
+## Phase 31: 20 more low-sitemap-count repos — scale batch 17, an attributed cross-corpus duplicate, a real product repo's test suite fully sweeping in, two Claude/Anthropic-subject-matter skills (119 skills, corrected: 680 discovered, 675 net-new)
+
+Seventeenth scale batch (2026-08-21, seed 31). Funnel: 2,448 pairs → 385 held excluded
+(+20 from Phase 30's cohort) → 1,360-repo tier → 14-call GraphQL screen, 0 call-errors
+→ seeded draw, 20 repos, **20/20 vendored, zero rejections**. Two NOASSERTION cases,
+both resolved favorably on raw read: `carmahhawwari/ui-design-brain`'s license lives at
+`LICENSE.txt` (GitHub's classifier didn't match the non-standard filename; content is
+plain MIT) and `matlab/agent-skills-playground`'s is a real, deliberately modified
+BSD-3-Clause — standard 3-clause language plus a fourth clause restricting use "solely
+... in conjunction with MathWorks products and service offerings." A new license
+character for the pilot (restrictive-but-real, same audit-only posture as Elastic-2.0/
+BSL/AGPL), not a rejection.
+
+### 680 discovered, 2 within-cohort exact-content duplicates, 3 cross-corpus duplicates — corrected net-new is 675
+
+`dedup_by_content` caught two ordinary within-cohort cases automatically (both the
+established shapes): `branding5/social-media-image-sizes` ships the same skill at both
+repo root and one directory down; `matlab/agent-skills-playground` bundles
+`matlab-generate-grader-assessments` by value into two separate demo packages
+(`assessment-generation-for-matlab-grader` and `course-generation`) — 680 discovered,
+678 audited after this automatic step.
+
+**A sixth, newly-distinct cross-corpus-duplicate character, found manually (content
+hashing runs cross-run, not just within a single `aggregate_findings.py` invocation, so
+this doesn't get caught automatically)**: `glittercowboy/taches-cc-resources`
+(TÂCHES, this phase's draw) and the already-held `cfircoo-claude-code-toolkit`
+(vendored earlier in the roadmap) share 6 identically-named skills, 3 of which are
+byte-identical (`create-plans`, `debug-like-expert`, `create-subagents`). Checked
+directly rather than assumed: `cfircoo-claude-code-toolkit`'s own README explicitly
+credits **"glittercowboy — Inspiration and Claude Code patterns"**, and glittercowboy's
+repo history predates cfircoo's earliest commit (2025-11-13 vs. 2026-03-28) — an
+attributed downstream adaptation, not silent copying, same-company self-duplication, or
+verbatim-preserved-as-original packaging (the three characters already on file from
+Phases 18/26/27). The 3 byte-identical skills are excluded from this phase's net-new
+count (already counted once, when `cfircoo-claude-code-toolkit` was originally
+audited); the other 9 skills in `glittercowboy/taches-cc-resources`, including the 3
+same-named-but-modified ones, are genuinely new content and stay counted. **678 − 3 =
+675 net-new skills this phase.**
+
+### Two hidden collections investigated directly before committing to a full audit
+
+`hookdeck/webhook-skills` (158 found vs. 1 listed) is Hookdeck's own real per-vendor
+webhook-integration library (one skill per payment/SaaS provider — Solidgate, Okta,
+Baselinker, Upollo, Resend, etc.), `metadata.author: hookdeck` on every entry.
+`rmyndharis/antigravity-skills` (307 found vs. 1 listed, this phase's largest single
+repo) is a large personal multi-domain collection (testing, architecture, multiple
+languages, DevOps) using a consistent templated "Use this skill when / Do not use this
+skill when" structure across entries — real generated content, not a link-list, so it
+stays in scope under the standing Phase 15+ inclusion criteria (incidental/personal
+bolt-on collections are audited regardless of size unless they're a literal
+aggregator).
+
+### The pilot's largest single-skill finding volume, fully traced to a real product's own test suite and docs — not a security problem
+
+`teng-lin/notebooklm-py` (18,841★, a real open-source NotebookLM CLI/MCP-server tool)
+ships its `SKILL.md` at the repo root, so the standing "root-level skill in a real
+product repo stays in scope" rule sweeps the whole codebase into the scan — 2,342
+total pattern findings, 78 gitleaks hits, both read down to source before concluding
+anything:
+- **78 gitleaks `generic-api-key` hits**, all inside `tests/_guardrails/
+  test_auth_master_token_bootstrap_boundary.py` and sibling test files — synthetic
+  64-character hex strings exercising the CLI's own auth-token bootstrap/repair logic
+  in its unit-test suite, not real credentials. Same confirmed-non-issue class as
+  Phase 4's deliberately-realistic test fixtures.
+- **70 of 74 HIGH `absolute-user-path` hits** are `/home/user/.notebooklm` in the
+  CLI's own documented default config path (`docs/cli-reference.md`,
+  `docs/configuration.md`) — the same generic-placeholder-username shape as Phase 15's
+  daytona and Phase 30's baidu-netdisk, not a real author path.
+- **4 `dangerous-code-pattern` (`import pickle`) hits**, all in files literally named
+  `test_auth_*_compatibility.py`/`test_auth_*_repair_service.py` — the product's own
+  legitimate pickle-based auth-storage compatibility tests, not skill-authored code a
+  Claude agent would execute.
+
+None of this is a new false-positive mechanism; it's the existing "real high-profile
+product's root-level bolt-on skill sweeps in the whole repo" pattern (Phase 24's
+oracle/canner, Phase 25's tondevrel) at a new scale, worth recording as the volume
+record it is.
+
+### Two reserved-word instances, a genuinely different shape than the prior 35
+
+`hookdeck/webhook-skills`' `claude-managed-agents-webhooks` and `lucaperret/
+agent-skills`' `anthropic-connector-submit` both contain "claude"/"anthropic" in their
+name — but checked directly, **neither fits the established "excluded from the
+author's own shipped list" framing that held 21 of the prior 35 instances**: both are
+listed openly in their own repo's README table, not segregated. The reason is
+different in kind, not just degree — both skills are genuinely *about* Claude/
+Anthropic's own products (verifying Claude Managed Agents' webhook signatures;
+submitting an MCP server to Anthropic's Connectors Directory), not a
+SkillArtisan-style "claude"-branded helper skill that would collide with this
+pipeline's own reserved-word rule. Recorded honestly as a distinct sub-case rather than
+force-fit into the existing framing, which per Phase 23's note was never guaranteed to
+generalize.
+
+### Cost and hit rate
+
+Review queue: **552 of 678 (81%)**. One `rebuild` decision, verified genuine:
+`trading212-labs/agent-skills`' `trading212-api` (1,146 lines, a real fintech
+company's official, comprehensive REST API reference — `metadata.author: Trading
+212` — same "real vendor reference density" shape as Phase 25/30). Zero per-skill
+errors across the full 678-skill pass (single unchunked run, largest repo 307). Read
+exhaustively: the rebuild decision, both within-cohort dedup pairs, the cross-corpus
+duplicate (byte-diffed, README-attribution confirmed), both NOASSERTION licenses, the
+notebooklm finding volume down to individual matches, both reserved-word instances,
+both hidden-collection repos' actual content before committing to a full audit. Zero
+`scripts/` code changes — **no release** (established scale-batch precedent). **10,228
+skills now audited across the pilot** (9,553 + 675), **412 repos**.

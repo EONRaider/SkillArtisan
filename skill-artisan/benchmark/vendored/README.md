@@ -1799,3 +1799,77 @@ third zero-reserved-word phase: `../audit-pilot/RESULTS.md`'s Phase 30 section.
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 31 cohort: 20 more low-sitemap-count repos (scale batch 17) — an attributed cross-corpus duplicate, a real product repo's full test suite in scope
+
+Seventeenth batch (2026-08-21, seed 31). Funnel: 2,448 sitemap pairs → 385 held
+excluded → 1,360-repo tier → 14-call GraphQL screen (0 call-errors) → seeded draw.
+20 drawn, **20/20 vendored**, zero rejections.
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `bartundmett/skills` | `a126a4cb557c` | 2026-01-25 | MIT | 3 | 1 | 11 |
+| `branding5/social-media-image-sizes` | `76e189160207` | 2026-04-30 | MIT | 2 | 1 | 5 |
+| `carmahhawwari/ui-design-brain` | `38f04c5a1dee` | 2026-02-27 | MIT* | 1 | 1 | 871 |
+| `cocoon-ai/architecture-diagram-generator` | `4b9087d55268` | 2026-05-13 | MIT | 1 | 1 | 6,984 |
+| `contentful/skills` | `1f817475b9ad` | 2026-08-20 | MIT | 9 | 1 | 37 |
+| `fugazi/test-automation-skills-agents` | `bb4fcdf9dcc4` | 2026-08-19 | MIT | 9 | 1 | 224 |
+| `glittercowboy/taches-cc-resources` | `1757615b99ab` | 2026-04-01 | MIT | 12 | 1 | 1,967 |
+| `harperfast/skills` | `c4b7bb3e6be2` | 2026-08-17 | Apache-2.0 | 2 | 1 | 3 |
+| `hookdeck/webhook-skills` | `0760add95b3f` | 2026-08-20 | MIT | 158 | 3 | 81 |
+| `iserter/laravel-claude-agents` | `8868214ee3fe` | 2026-04-20 | MIT | 15 | 2 | 43 |
+| `itechmeat/llm-code` | `f53cef9bbfba` | 2026-08-01 | MIT | 38 | 2 | 22 |
+| `lambdatest/agent-skills` | `0491a3a29aa1` | 2026-07-24 | MIT | 72 | 2 | 357 |
+| `lucaperret/agent-skills` | `e7039ec02cda` | 2026-03-20 | MIT | 6 | 1 | 6 |
+| `matlab/agent-skills-playground` | `1a4cdb907868` | 2026-08-12 | Modified-BSD-3-Clause* | 29 | 1 | 167 |
+| `mc3545dada/mspm0-skill` | `0cea5a0b234f` | 2026-07-28 | MIT | 1 | 1 | 354 |
+| `mempalace/mempalace` | `3e56979fb456` | 2026-08-20 | MIT | 12 | 1 | 58,519 |
+| `rmyndharis/antigravity-skills` | `3eff4af253b3` | 2026-08-03 | MIT | 307 | 2 | 1,354 |
+| `schrepa/graft` | `c9425b89a417` | 2026-03-26 | Apache-2.0 | 1 | 1 | 5 |
+| `teng-lin/notebooklm-py` | `3bb0c1850ac4` | 2026-08-17 | MIT | 1 | 1 | 18,841 |
+| `trading212-labs/agent-skills` | `aaed5cc2ebc5` | 2026-02-04 | MIT | 1 | 1 | 101 |
+
+**License notes (the two `*` rows, both NOASSERTION on the GraphQL screen, resolved
+favorably by raw read)**:
+
+- `carmahhawwari/ui-design-brain` — plain MIT text, just filed as `LICENSE.txt` rather
+  than the extension-less `LICENSE` GitHub's classifier expects.
+- `matlab/agent-skills-playground` — a real, deliberately modified BSD-3-Clause: the
+  MathWorks copyright, standard 3-clause redistribution/attribution language, plus a
+  fourth clause restricting use "solely for use in conjunction with MathWorks products
+  and service offerings." A new license character for this pilot (restrictive-but-real,
+  not a standard SPDX match) — same audit-only posture as every other non-permissive
+  license already in this table (read + report, never copy/adapt into SkillArtisan's
+  own MIT-licensed material).
+
+**Structure/dedup notes**:
+
+- `hookdeck/webhook-skills` (158 found vs. 1 listed) and `rmyndharis/antigravity-skills`
+  (307 found vs. 2 listed, this phase's largest single repo) were both investigated
+  directly before committing to a full audit — Hookdeck's own real per-vendor
+  webhook-integration library (`metadata.author: hookdeck` throughout) and a large
+  personal multi-domain skill collection respectively, both genuine content, neither an
+  aggregator/link-list.
+- `branding5/social-media-image-sizes` and `matlab/agent-skills-playground` each ship
+  one exact-content duplicate (flat-vs-nested packaging; the same skill bundled by
+  value into two separate demo packages) — both caught automatically by
+  `dedup_by_content`, not counted twice.
+- **A sixth, newly-distinct cross-corpus-duplicate character**: `glittercowboy/
+  taches-cc-resources` and the already-held `cfircoo-claude-code-toolkit` share 6
+  identically-named skills, 3 byte-identical (`create-plans`, `debug-like-expert`,
+  `create-subagents`). Confirmed as an **attributed downstream adaptation**, not
+  silent copying — `cfircoo-claude-code-toolkit`'s own README explicitly credits
+  "glittercowboy — Inspiration and Claude Code patterns," and glittercowboy's repo
+  history predates cfircoo's. The 3 byte-identical skills are excluded from this
+  phase's net-new count (already counted when `cfircoo-claude-code-toolkit` was
+  originally audited); glittercowboy's other 9 skills are genuinely new and stay
+  counted. **680 raw discovered, 678 after within-cohort dedup, 675 net-new to the
+  pilot.**
+- `teng-lin/notebooklm-py` (18,841★) ships `SKILL.md` at its repo root, sweeping its
+  whole real CLI-tool codebase into scope — the pilot's largest single-skill finding
+  volume (2,342 pattern findings, 78 gitleaks hits), fully traced to the product's own
+  test fixtures and documented default paths, not a security issue. Full write-up:
+  `../audit-pilot/RESULTS.md`'s Phase 31 section.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.
