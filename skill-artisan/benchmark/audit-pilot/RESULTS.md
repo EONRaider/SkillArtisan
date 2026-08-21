@@ -3549,3 +3549,67 @@ PolyForm Shield type), the cross-corpus duplicate, the construction-vertical and
 odoo-test content before concluding genuineness/rebuild respectively. Zero
 `scripts/` code changes — **no release** (established scale-batch precedent).
 **11,073 skills now audited across the pilot** (10,725 + 348), **472 repos**.
+
+## Phase 35: 20 more low-sitemap-count repos — scale batch 21, a fully clean discovery pass, second and third PolyForm Shield instances (189 discovered, 189 net-new)
+
+Twenty-first scale batch (2026-08-21, seed 35). Funnel: 2,448 pairs → 466 held excluded
+(+20 from Phase 34) → 1,280-repo tier → 14-call GraphQL screen, 0 call-errors → seeded
+draw, 20 repos, **20/20 vendored, zero rejections**. Two NOASSERTION cases, both
+resolved favorably: `benjitaylor/agentation` and `bitdriftlabs/bd-skills` are both
+**PolyForm Shield License 1.0.0** — the second and third instances of this license
+type, after Phase 34's first sighting. Standard audit-only posture applies to both.
+
+### A fully clean discovery pass — zero duplicates of any kind, zero errors, zero rebuilds
+
+189 raw discovered, **zero within-cohort exact-content duplicates, zero cross-corpus
+duplicates** (all 189 new `SKILL.md` hashes checked against all 11,071 unique hashes
+already held across the other 472 repos — zero collisions either direction), zero
+per-skill errors, zero `rebuild` decisions. **All 189 discovered skills count as
+net-new** — the first phase since scaling began with no duplicate-exclusion
+adjustment needed at all.
+
+### Two hidden collections, both verified genuine before auditing
+
+`40rty-ai/shopify-admin-skills` (117 found vs. 1 listed) is a real Shopify-store-
+operator skill suite (marketing, merchandising, support, operations sub-skills — a
+"master skill" pattern routing to specialized sub-skills). `coleam00/archon`
+(23,242★, a well-known open-source AI-agent/knowledge-engine project) contributed 14
+genuine contributor-tooling skills (triage, release management, best-practices
+references) — same "major project, real contributor-tooling skill set" shape as
+home-assistant/core (Phase 32) and fastapi (Phase 30).
+
+### One gitleaks finding and four security-pattern findings, all confirmed non-issues
+
+- `larksuite/openclaw-lark`'s `feishu-bitable` gitleaks hits are all `file_token`
+  values inside documented example API-response JSON — a Feishu Bitable attachment
+  reference ID, not a credential.
+- `40rty-ai/shopify-admin-skills`' one `absolute-user-path` hit is a real author path
+  in the repo's own `CLAUDE.md` dev-setup instructions (`claude --plugin-dir
+  /Users/tamired/...`) — a genuine but low-severity leak, in a root dev-doc rather
+  than user-facing skill content.
+- `coleam00/archon`'s `manage-run` hit is the established generic-placeholder shape
+  (`/Users/you/.archon/logs/...`); its `test-release` hits mix a GitHub-Actions
+  CI-runner's own standard home path (`/Users/runner/...`, not a personal path) with
+  a real contributor name (`/Users/rasmus/.bun/bin/archon`) documented as a known
+  reference baseline inside the skill's own troubleshooting guide — genuine but
+  low-stakes, documentation of a specific dev machine's state for comparison
+  purposes, not an actionable leak.
+- `solatis/claude-config`'s `cc-history` hits are the author's own real username
+  (`leon`) used deliberately as the worked example explaining Claude Code's own
+  project-path-mangling naming convention (`/Users/leon` → `-Users-leon`) — a real
+  name used as necessary illustrative content for the tool's own documentation, not a
+  leak.
+
+### Corroborated, not new
+
+- **Zero reserved-word (`claude`/`anthropic`-named) instances this phase.**
+
+### Cost and hit rate
+
+Review queue: **168 of 189 (89%)** — another high hit rate, consistent with Phase
+34's pattern of structural WARNs spread across many repos. Read exhaustively: the
+gitleaks finding, all 4 security-pattern-checks findings (each traced to its actual
+file context), both PolyForm Shield licenses, both hidden collections' genuineness
+before committing to a full audit. Zero `scripts/` code changes — **no release**
+(established scale-batch precedent). **11,262 skills now audited across the pilot**
+(11,073 + 189), **492 repos**.

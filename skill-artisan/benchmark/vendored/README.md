@@ -2055,3 +2055,46 @@ extension respectively confused the classifier.)
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 35 cohort: 20 more low-sitemap-count repos (scale batch 21) — a fully clean discovery pass
+
+Twenty-first batch (2026-08-21, seed 35). Funnel: 2,448 sitemap pairs → 466 held
+excluded → 1,280-repo tier → 14-call GraphQL screen (0 call-errors) → seeded draw.
+20 drawn, **20/20 vendored**, zero rejections.
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `40rty-ai/shopify-admin-skills` | `6765cb4f436b` | 2026-08-14 | MIT | 117 | 1 | 180 |
+| `aidenwu0209/paddleocr-skills` | `e73477d877a7` | 2026-08-15 | Apache-2.0 | 3 | 2 | 34 |
+| `benjitaylor/agentation` | `8158a97c10c3` | 2026-06-06 | PolyForm-Shield-1.0.0* | 2 | 2 | 4,408 |
+| `bitdriftlabs/bd-skills` | `67cdf68ade62` | 2026-08-08 | PolyForm-Shield-1.0.0* | 4 | 2 | 13 |
+| `coleam00/archon` | `c698f5d2eb30` | 2026-08-21 | MIT | 14 | 1 | 23,242 |
+| `duneanalytics/skills` | `bb0c9fcf0568` | 2026-04-30 | MIT | 2 | 2 | 24 |
+| `honeycombio/agent-skill` | `189553c8a879` | 2026-07-17 | MIT | 11 | 1 | 22 |
+| `larksuite/openclaw-lark` | `dde0be3680d6` | 2026-07-16 | MIT | 9 | 2 | 2,355 |
+| `leemysw/feishu-docx` | `b12a543399d1` | 2026-07-16 | MIT | 1 | 1 | 247 |
+| `makenotion/skills` | `423af2bf546c` | 2026-05-04 | MIT | 1 | 1 | 157 |
+| `openweb-ninja/openwebninja-skills` | `8ef0c37c9979` | 2026-06-24 | MIT | 2 | 1 | 4 |
+| `pippit-dev/pippit-skills` | `ae293d6c1965` | 2026-05-25 | MIT | 1 | 3 | 5 |
+| `shepsci/kaggle-skill` | `1e695e852411` | 2026-07-04 | MIT | 1 | 1 | 81 |
+| `solana-foundation/pay` | `ce5142ccdeb1` | 2026-08-11 | MIT | 1 | 1 | 1,759 |
+| `solatis/claude-config` | `6e72bc29e542` | 2026-02-09 | MIT | 11 | 1 | 900 |
+| `spartan-ng/spartan` | `850efb2e9fd9` | 2026-08-21 | MIT | 1 | 1 | 2,857 |
+| `vercel/microfrontends` | `55a1af830407` | 2026-07-09 | MIT | 1 | 1 | 45 |
+| `wholiver/swiftui-design-skill` | `2c82638ebd3c` | 2026-05-01 | MIT | 1 | 1 | 172 |
+| `wishworldbetter/seedex-skills` | `00155070fcf4` | 2026-05-21 | MIT | 1 | 1 | 49 |
+| `wot-ui/wot-starter` | `3975e92c881c` | 2026-08-04 | MIT | 5 | 1 | 377 |
+
+**License note (the two `*` rows, both NOASSERTION on the GraphQL screen, resolved
+favorably)**: `benjitaylor/agentation` and `bitdriftlabs/bd-skills` are both PolyForm
+Shield License 1.0.0 — the second and third instances of this license type in the
+pilot, after Phase 34's first sighting. Standard audit-only posture applies.
+
+**Structure note**: this cohort had **zero within-cohort duplicates, zero
+cross-corpus duplicates, zero per-skill errors, and zero `rebuild` decisions** — the
+first fully clean scale-batch phase on every one of these dimensions at once. All 189
+discovered skills count as net-new. Full write-up:
+`../audit-pilot/RESULTS.md`'s Phase 35 section.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.
