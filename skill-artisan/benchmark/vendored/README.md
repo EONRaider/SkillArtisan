@@ -2150,3 +2150,55 @@ favorably)**: `svenja-dev/claude-code-skills` is plain MIT on raw read.
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 37 cohort: 20 more low-sitemap-count repos (scale batch 23) — a first GFDL-1.3 license, per-skill license variation
+
+Twenty-third batch (2026-08-21, seed 37). Funnel: 2,448 sitemap pairs → 507 held
+excluded → 1,240-repo tier → 14-call GraphQL screen (0 call-errors) → seeded draw.
+20 drawn, **20/20 vendored**, zero rejections.
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `agricidaniel/banana-claude` | `a4b5a7e4f592` | 2026-04-14 | MIT | 1 | 1 | 967 |
+| `belt-sh/cli` | `5338e422f988` | 2026-07-13 | MIT | 1 | 1 | 7 |
+| `brettdavies/crawl4ai-skill` | `c696921b133d` | 2026-06-16 | MIT+Apache-2.0* | 1 | 1 | 46 |
+| `broomva/harness-engineering` | `12d68503307a` | 2026-06-27 | MIT | 2 | 1 | 25 |
+| `buildermethods/design-os` | `9dae0ba1f3dc` | 2026-08-10 | MIT | 1 | 1 | 1,844 |
+| `doany-skills/skills` | `6875ced85828` | 2026-07-14 | MIT | 1 | 1 | 6 |
+| `everyinc/charlie-cfo-skill` | `429f61bc0eb7` | 2026-01-29 | MIT | 1 | 1 | 301 |
+| `grasseed/google-search-browser-use` | `d456459f53cb` | 2026-01-24 | MIT | 2 | 1 | 3 |
+| `ivan-magda/swift-security-skill` | `bda2e0ccee6a` | 2026-06-17 | MIT | 1 | 1 | 30 |
+| `jim60105/copilot-prompt` | `532e3387abb6` | 2026-08-01 | GFDL-1.3 (repo)†† | 41 | 1 | 21 |
+| `kunchenguid/no-mistakes` | `59c8a730b7a9` | 2026-08-21 | MIT | 1 | 1 | 7,752 |
+| `microsoftdocs/mcp` | `caa3d670bf28` | 2026-05-10 | CC-BY-4.0 | 3 | 3 | 1,849 |
+| `msmps/opentui-skill` | `c9492e03a60f` | 2026-07-01 | MIT | 1 | 1 | 225 |
+| `nidhinjs/prompt-master` | `d15eabbe5d21` | 2026-06-10 | MIT | 1 | 1 | 11,557 |
+| `poemswe/co-researcher` | `88d4c87ff5bb` | 2026-07-22 | MIT | 15 | 1 | 128 |
+| `redbaronyyyyy-eng/humanizer-zh-academic` | `50e11af64eb4` | 2026-02-24 | MIT | 1 | 1 | 252 |
+| `referodesign/refero_skill` | `1d324d5be049` | 2026-08-04 | MIT | 1 | 1 | 195 |
+| `sdlll/claude-for-safari` | `8e0e6ed3c55c` | 2026-08-04 | MIT | 1 | 1 | 68 |
+| `slidevjs/slidev` | `dbc307b416d0` | 2026-08-19 | MIT | 1 | 1 | 48,176 |
+| `terkelg/anki-markdown` | `cb7946955ed2` | 2026-07-06 | MIT | 1 | 1 | 40 |
+
+**License notes**:
+
+- `brettdavies/crawl4ai-skill` (`*`, NOASSERTION on the screen) — dual MIT/Apache-2.0,
+  resolved favorably.
+- `jim60105/copilot-prompt` (`††`) — **first GNU Free Documentation License 1.3 in
+  the pilot** at the repo level. More notable: **individual skills inside this repo
+  carry their own genuinely varying per-skill `license:` field** (MIT,
+  GFDL-1.3-or-later, GPL-3.0-or-later all appear across different skills), including
+  one skill (`pptx`) correctly marked `license: Proprietary. LICENSE.txt has
+  complete terms` — confirmed to be a verbatim bundle of **Anthropic's own official
+  `pptx` skill** with its real `© 2025 Anthropic, PBC` `LICENSE.txt` intact. A
+  positive contrast to Phase 16's aitytech finding (the same class of content
+  redistributed silently under an MIT-labeled repo with no distinction) — this
+  author correctly scoped the license per-skill instead.
+
+**Structure note**: `doany-skills/skills`' `reddit-automation` is byte-identical to
+an already-held copy in `flowkit-labs-skills` — a new cross-corpus duplicate pairing,
+unrelated to any Anthropic-redistribution chain. Excluded from the net-new count.
+Full write-up: `../audit-pilot/RESULTS.md`'s Phase 37 section.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.

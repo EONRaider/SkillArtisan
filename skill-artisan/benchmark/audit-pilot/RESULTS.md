@@ -3683,3 +3683,67 @@ repo), the two hidden-collection repos' genuineness, both documented per-skill
 errors. Zero `scripts/` code changes — **no release** (established scale-batch
 precedent). **11,632 skills now audited across the pilot** (11,262 + 370), **512
 repos**.
+
+## Phase 37: 20 more low-sitemap-count repos — scale batch 23, a first GFDL-1.3 license, genuinely per-skill license variation, a correctly-labeled Anthropic redistribution (78 discovered, 77 net-new)
+
+Twenty-third scale batch (2026-08-21, seed 37). Funnel: 2,448 pairs → 507 held
+excluded (+20 from Phase 36) → 1,240-repo tier → 14-call GraphQL screen, 0
+call-errors → seeded draw, 20 repos, **20/20 vendored, zero rejections**. One
+NOASSERTION case (`brettdavies/crawl4ai-skill`), resolved favorably as dual
+MIT/Apache-2.0.
+
+### A first GFDL-1.3 license, and a genuinely new licensing-structure finding within it
+
+`jim60105/copilot-prompt` (41 found vs. 1 listed) is licensed **GNU Free
+Documentation License 1.3** at the repo level — a first for this pilot. But the more
+notable finding is structural: **individual skills inside this repo carry their own,
+genuinely varying per-skill `license:` frontmatter field** — MIT, GFDL-1.3-or-later,
+and GPL-3.0-or-later all appear across different skills in the same repo, alongside
+one skill (`pptx`) explicitly marked `license: Proprietary. LICENSE.txt has complete
+terms`. That skill is confirmed to be a verbatim bundle of **Anthropic's own official
+`pptx` skill**, complete with its real `© 2025 Anthropic, PBC. All rights reserved.`
+proprietary `LICENSE.txt`. This is a **positive contrast** to Phase 16's aitytech
+finding (Anthropic's proprietary document skills redistributed silently under an
+MIT-labeled repo with no distinction) — here the author correctly scoped the license
+per-skill rather than claiming Anthropic's content under their own repo-wide terms.
+Not byte-identical to any already-held Anthropic pptx copy (a different snapshot),
+so it stays counted as ordinary third-party content per the standing convention.
+
+### One more cross-corpus duplicate, unrelated to the Anthropic-redistribution family
+
+`doany-skills/skills`' `reddit-automation` is byte-identical to an already-held copy
+in `flowkit-labs-skills` — two independent third-party authors with identical Reddit-
+automation content, a new pairing not connected to any prior redistribution chain in
+this pilot. Excluded from the net-new count.
+
+### All gitleaks/security-pattern findings confirmed non-issues, concentrated in security-education skills
+
+`ivan-magda/swift-security-skill` and three of `jim60105/copilot-prompt`'s skills
+(`api-security`, `typescript-security`, `python-security`) are all genuine
+security-best-practices/OWASP-reference skills — every flagged
+credential-shaped string (`sk_live_...`, `os.system(`, `pickle.load(`,
+`subprocess ... shell=True`) is documented as an anti-pattern example inside the
+skill's own vulnerability-teaching content, the established self-referential class.
+One finding worth noting for its realism: `brettdavies/crawl4ai-skill`'s reference
+docs include `api_token = "gsk_1ClHGGJ7Lpn4WGybR7vNWGdyb3FY7zXEw3SCiy0BAVM9lL8CQv"` —
+a Groq-API-key-shaped string, more realistic-looking than the usual obviously-fake
+placeholders, but explicitly marked `eg:` (example) in upstream SDK-parameter
+documentation and repeated identically at two locations — confirmed documentation
+content, not a captured real key.
+
+### Corroborated, not new
+
+- **One reserved-word instance, the same new sub-shape as Phase 34**: `sdlll/
+  claude-for-safari` — a single-skill repo where the whole repo is the one
+  "claude"-branded tool.
+- **Zero `rebuild` decisions this phase.**
+
+### Cost and hit rate
+
+Review queue: **66 of 78 (85%)**. Zero per-skill errors, a small phase overall (78
+raw discovered, the smallest scale batch since Phase 17). Read exhaustively: every
+gitleaks/security-pattern finding traced to source, the per-skill license variation
+pattern (sampled 8 of `jim60105`'s 41 skills directly), the cross-corpus duplicate,
+`slidevjs/slidev`'s (48,176★) single skill verified genuine. Zero `scripts/` code
+changes — **no release** (established scale-batch precedent). **11,709 skills now
+audited across the pilot** (11,632 + 77), **532 repos**.
