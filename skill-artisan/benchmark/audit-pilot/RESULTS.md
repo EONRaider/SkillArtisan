@@ -1996,3 +1996,92 @@ changes — one new field-family corroboration set and one new issue-#11 data
 point, not a new mechanism — so **no release** (Phase 14/16 precedent). Wall-clock
 including the license rejection, gitignore fix, and write-up: roughly 1.5 hours.
 **5,628 skills now audited across the pilot** (5,493 + 135).
+
+## Phase 18: 28 more low-sitemap-count repos — scale batch 4, first cross-corpus duplicate (283 skills)
+
+Fourth scale batch (2026-08-21, seed 18). Funnel: 2,448 pairs → 109 held excluded
+→ 1,647-repo tier → 17-call GraphQL screen, zero failures → seeded draw, 28
+repos. 28/28 cloned, pinned, licensed — fourth consecutive 100% survival.
+
+### First cross-corpus content duplicate in eighteen phases of checking
+
+The standing per-phase cross-corpus hash check (run every phase since Phase 15,
+always 0 until now) found `jinfanzheng/kode-sdk-csharp`'s bundled `skill-creator`
+example is byte-identical to `anthropics-financial-services`' copy from Phase 8 —
+Anthropic's official skill-creator, legitimately reused as demo content inside a
+.NET SDK's example app (Apache-2.0 licensed per its own bundled `LICENSE.txt`,
+confirmed, not a provenance concern like Phase 16's aitytech case). Excluded from
+this phase's audited count and pilot totals — re-auditing an exact byte-for-byte
+copy would just reproduce Phase 8's findings and double-count one skill. Clone
+copy deleted, exclusion recorded in `../vendored/README.md`. jinfanzheng's other
+19 skills (real demo content: weather, hotel, flight, memory, data-analysis, etc.)
+audited normally.
+
+139 raw discovered (284 across the batch, minus the excluded duplicate = 283),
+1 documented error (`twilio/ai`'s `twilio-agent-connect`, missing frontmatter,
+correct exit-code-4 behavior), reconciled exactly, single unchunked pass, ~235s
+wall-clock.
+
+### Issue #11's fourth corroboration, same bucket as Phase 17
+
+`paulnsorensen/easy-cheese`'s `plate` skill lands in the identical "bare
+prompt/expected-output, no discriminator field" bucket Phase 17's blitzreels
+found — not a new schema variant, but a fourth independent author (5dive, fluxcd,
+blitzreels, easy-cheese) confirming that bucket isn't a one-off. Commented on
+#11 with the running count; still not acted on.
+
+### A new license type: Business Source License 1.1, applied without adaptation
+
+`materializeinc/agent-skills` carries BSL 1.1 — source-available, and actually
+**more permissive** than every prior non-permissive case this pilot has handled:
+explicit grant of "copy, modify, create derivative works, redistribute, and make
+non-production use." Its Additional Use Grant clause (database cluster
+memory/disk limits, "Database Service" definitions) is verbatim boilerplate from
+Materialize's main database product repo, applied without adaptation to a
+documentation-only skills repo — the same company reusing its own license
+template somewhere it doesn't quite fit, a milder version of Phase 16's
+misattributed-license finding. Recorded audit-only for consistency, though the
+license's own terms are broad enough that a case could be made otherwise.
+
+### Corroborated, not new
+
+- **Gitleaks (5, all read)**: dauquangthanh's JWT-shaped example header and
+  placeholder UUID/hex strings; materializeinc's SQL-syntax documentation
+  examples (`CREATE CONNECTION ... ACCESS KEY ID = 'ASIAV2KIV5LPTG6HGXG6'`) and a
+  truncated CLI-config placeholder token (`app-password = "mzp_...`) — all the
+  established doc-example class.
+- **Issues #8/#9**: `triggers:` on another independent model (`bataitools`);
+  new field-family singles (`agent_created`, `docs`/`homepage`, `keywords`,
+  `compatible-with`, `dependencies`, `tier`) spread across six different repos —
+  more evidence for the general pattern, no single new coherent family this
+  phase worth its own tracked issue.
+- **Zero reserved-word instances** — second phase in a row (Phase 17, now 18).
+- **1 `rebuild` decision**: none this phase — the second phase in a row with
+  zero, per the prior conversation's point that this count is corpus-composition
+  noise, not a SkillArtisan-maturity signal; not read into further here either.
+- **`references-one-level-deep`** (2, both read): genuine nested `references/`
+  subdirectories, same established class.
+- **`security-pattern-checks` FAIL** (12, sampled): real dangerous-code-pattern
+  and blocking-interactive-input matches in security-education content
+  (dauquangthanh, jinfanzheng, llama-farm) — same established class.
+
+### Hit rate — fifth data point
+
+Review queue: **202 of 282 (72%)** — the lowest of the four scale batches (Phase
+15: 92%, 16: 78%, 17: 87%). `electron/electron` (122,625★, the pilot's highest
+star count yet) continues the high-star-incidental-is-clean pattern seen in
+Phases 15 and 17 (2/5 in-queue, both boilerplate gerund-naming/TOC); no
+counterexample this phase the way Phase 16's aitytech was.
+
+### Cost — sampled vs. exhaustive stated explicitly
+
+Read exhaustively: the 1 error, the cross-corpus duplicate (both copies, byte
+diff confirmed, LICENSE.txt read), all 5 gitleaks skills, the BSL license text in
+full, the easy-cheese evals-schema anomaly and its issue-#11 comment, all 28
+license files. Sampled: 2–4 per high-volume group (gerund-naming, TOC,
+description framing, frontmatter unknown-fields). Zero code changes — one new
+cross-corpus-duplicate discovery pattern (first instance, handled by exclusion
+not a code change) and continued field-family/#11 corroboration, not a new
+mechanism — so **no release** (Phase 14/16/17 precedent). Wall-clock including
+the duplicate investigation, BSL license read, and write-up: roughly 1.5 hours.
+**5,911 skills now audited across the pilot** (5,628 + 283).

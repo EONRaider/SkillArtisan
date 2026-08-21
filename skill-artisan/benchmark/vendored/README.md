@@ -922,3 +922,80 @@ every prior copyleft/restrictive case: local clone + reading/reporting is fine
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 18 cohort: 28 more low-sitemap-count repos (scale batch 4) — first cross-corpus duplicate
+
+Fourth batch (2026-08-21, seed 18). Funnel: 2,448 pairs → 109 held excluded (25
+original + 28+28+27 from Phases 15–17) → 1,647-repo tier → 17-call GraphQL screen,
+zero failures → same exclusions → seeded draw, 28 repos. **28 of 28 cloned,
+pinned, licenses read raw — fourth consecutive 100% license-viable survival.**
+
+**First cross-corpus content duplicate found by the standing every-phase check**:
+`jinfanzheng/kode-sdk-csharp`'s `examples/Kode.Agent.WebApiAssistant/skills/
+skill-creator/SKILL.md` is byte-identical to `anthropics-financial-services`'
+`skill-creator` (Apache-2.0 licensed, confirmed via the skill's own bundled
+`LICENSE.txt`) — Anthropic's official skill-creator, legitimately bundled as demo
+content for a .NET SDK example app alongside 19 other real, functioning demo
+skills (weather, hotel, flight, email, etc. — genuine example-agent content, not
+broken stubs). Excluded from this phase's audited count (re-auditing it would
+reproduce Phase 8's own findings verbatim and double-count the same skill in the
+pilot total) — the clone's copy was deleted, `verification18.json` records the
+exclusion. jinfanzheng's audited count: 19, not 20. First hit in eighteen phases
+of this check running clean; every prior phase checked all held content and found
+zero cross-corpus matches.
+
+One new license type: `materializeinc/agent-skills` carries the **Business
+Source License 1.1** (BSL) — source-available, not OSI-approved, but its actual
+grant is broader than every prior non-permissive case in this pilot: "copy,
+modify, create derivative works, redistribute, and make non-production use" are
+explicitly granted (converts to Apache-2.0 on 2030-02-06). The license's
+"Additional Use Grant" section (database cluster memory/disk limits) is verbatim
+boilerplate from Materialize's main database-product repo, applied without
+adaptation to a documentation-only skills repo — a provenance oddity (same
+company reusing its own license template somewhere it doesn't quite fit,
+unlike Phase 16's aitytech misattributing someone else's license). Same
+audit-only posture applied for consistency with every other non-MIT/Apache case
+in this pilot.
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `bataitools/bat-skills` | `abeb0f47f8a8` | 2026-08-14 | MIT | 1 | 1 | 1 |
+| `coji/natural-japanese` | `0f1cc1c5a4e2` | 2026-08-17 | MIT | 1 | 1 | 476 |
+| `danielgwilson/luxin` | `ecaaf9dd1cc0` | 2026-08-21 | MIT | 10 | 1 | 1 |
+| `dauquangthanh/hanoi-rainbow` | `0e2ebaea024a` | 2026-01-23 | MIT | 41 | 2 | 14 |
+| `dinerojs/skills` | `19d469f92372` | 2026-02-28 | MIT | 3 | 1 | 2 |
+| `electron/electron` | `7ca7c5016631` | 2026-08-21 | MIT | 5 | 1 | 122,625 |
+| `event-catalog/skills` | `5f5c51b2e348` | 2026-07-09 | MIT | 5 | 1 | 12 |
+| `f-labs-io/agent-html-skills` | `5e0cdd181e8f` | 2026-07-13 | MIT | 19 | 1 | 50 |
+| `fetcher-sh/fetcher-skills` | `57aa03df66a4` | 2026-08-12 | MIT | 13 | 3 | 0 |
+| `gastownhall/beads` | `66048d4fb31a` | 2026-08-21 | MIT | 3 | 1 | 26,485 |
+| `geeksfino/finskills` | `8722415a68db` | 2026-03-05 | Apache-2.0 | 30 | 3 | 276 |
+| `ggprompts/tfe` | `b71818c5c92d` | 2026-06-10 | MIT | 1 | 1 | 20 |
+| `harbor-framework/harbor` | `c0acdfbf2441` | 2026-08-20 | Apache-2.0 | 9 | 2 | 4,490 |
+| `hardikpandya/stop-slop` | `8da1f030185b` | 2026-03-18 | MIT | 1 | 1 | 16,056 |
+| `irangareddy/openclaw-essentials` | `01e44e8e9c6d` | 2026-02-15 | MIT | 3 | 1 | 0 |
+| `jinfanzheng/kode-sdk-csharp` | `8531dbdfa539` | 2026-02-04 | MIT | 19* | 1 | 79 |
+| `knocklabs/skills` | `9940017b89d1` | 2026-08-20 | MIT | 7 | 2 | 0 |
+| `letz-ai/letzai-skill` | `6b108a4a6d81` | 2026-07-28 | MIT | 1 | 1 | 0 |
+| `livekit/agent-skills` | `8e7c931b8324` | 2026-06-16 | MIT | 2 | 2 | 65 |
+| `llama-farm/llamafarm` | `6244d466e886` | 2026-06-01 | Apache-2.0 | 19 | 1 | 835 |
+| `materializeinc/agent-skills` | `d0fd9ccc4707` | 2026-08-21 | BSL-1.1** | 8 | 1 | 3 |
+| `meowa-ai/meowa-skills` | `8a0db229dfde` | 2026-08-19 | MIT | 1 | 1 | 33 |
+| `mobbin/skills` | `9657786338c5` | 2026-05-04 | MIT | 1 | 1 | 15 |
+| `paulnsorensen/easy-cheese` | `fa07b9d8faba` | 2026-08-20 | MIT | 19 | 1 | 16 |
+| `skymavis/skills` | `02465de41221` | 2026-08-10 | MIT | 2 | 1 | 0 |
+| `summerkaze/skill-arkts-syntax-assistant` | `26ea21482590` | 2026-02-01 | MIT | 1 | 1 | 84 |
+| `twilio/ai` | `8aba46fb65dc` | 2026-08-13 | MIT | 57 | 2 | 30 |
+| `yetone/native-feel-skill` | `9bd88c6378e1` | 2026-05-30 | MIT | 1 | 1 | 1,895 |
+
+\* excludes 1 cross-corpus duplicate (Anthropic's `skill-creator`), 20 discovered
+on disk. \*\* Business Source License 1.1, see note above.
+
+**Structure notes**: `dauquangthanh/hanoi-rainbow` (41) and `twilio/ai` (57) are
+this phase's hidden collections — both audited in full, well under the 200-skill
+chunking threshold. `electron/electron` (122,625★, the pilot's highest star count
+yet) contributes 5 genuinely clean release-automation skills — boilerplate-only
+findings, no new pattern.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.
