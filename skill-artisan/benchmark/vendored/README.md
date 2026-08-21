@@ -2569,3 +2569,48 @@ continuing to propagate to unrelated third-party repos. Full write-up:
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 45 cohort: 20 more low-sitemap-count repos (scale batch 31) — PostHog's own real contributor-tooling collection, a second fully clean pass
+
+Thirty-first batch (2026-08-21, seed 45). Funnel: 2,448 sitemap pairs → 666 held
+excluded → 1,081-repo tier → 14-call GraphQL screen (0 call-errors) → seeded draw.
+20 drawn, **20/20 vendored**, zero rejections.
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `bin-huang/camoufox-cli` | `4d86686d8034` | 2026-08-18 | MIT | 1 | 1 | 334 |
+| `coingecko/skills` | `fcc056f640f8` | 2026-07-31 | MIT | 1 | 1 | 31 |
+| `cyxzdev/uncodixfy` | `e0e028058b52` | 2026-03-18 | MIT | 1 | 1 | 2,631 |
+| `framix-team/skill-email-html-mjml` | `c756db33010a` | 2026-08-10 | MIT | 1 | 1 | 64 |
+| `fvadicamo/dev-agent-skills` | `23114c993b1a` | 2026-08-09 | MIT | 6 | 2 | 70 |
+| `islambaraka90/fintech-algorithms-library` | `0be2e8f0bc1d` | 2026-08-18 | MIT | 1 | 1 | 4 |
+| `kukapay/crypto-skills` | `868a437f8dcb` | 2026-05-04 | MIT | 6 | 2 | 33 |
+| `liveblocks/skills` | `8244adfb6c8f` | 2026-06-18 | Apache-2.0 | 2 | 1 | 7 |
+| `mryll/skills` | `210386018396` | 2026-08-19 | MIT | 13 | 1 | 3 |
+| `ofershap/tailwind-best-practices` | `61fe3133a4c9` | 2026-02-20 | MIT | 1 | 1 | 13 |
+| `pasky/chrome-cdp-skill` | `ffea76a24b04` | 2026-06-28 | MIT | 1 | 1 | 3,230 |
+| `pinchtab/pinchtab` | `d81a2a8b0ef9` | 2026-08-18 | MIT | 5 | 1 | 10,115 |
+| `posthog/posthog` | `b103b96683bc` | 2026-08-21 | MIT (split)* | 247 | 2 | 38,202 |
+| `prathamlearnstocode/paper2code` | `fcffce7a1250` | 2026-04-03 | MIT | 1 | 1 | 1,499 |
+| `pzep1/xcode-build-skill` | `9b5c31392971` | 2026-02-04 | MIT | 1 | 1 | 137 |
+| `smartcontractkit/chainlink-agent-skills` | `6ea4b1a2c70d` | 2026-08-17 | MIT | 7 | 1 | 125 |
+| `thomaspraun/mql-developer` | `3b5e35882ce3` | 2026-02-08 | MIT | 1 | 1 | 42 |
+| `trpc/trpc` | `6a70335e02fa` | 2026-08-13 | MIT | 24 | 1 | 40,532 |
+| `xueheng-li/openclaw-wechat` | `ba751f037cf2` | 2026-03-07 | MIT | 1 | 1 | 152 |
+| `zgldh/xlsx-populate-skill` | `15e9801e508b` | 2026-02-03 | MIT | 1 | 1 | 8 |
+
+**License note (the `*` row, NOASSERTION on the screen, read in full and resolved
+favorably)**: `posthog/posthog` (38,202★) splits its license by directory — an
+"ee/" enterprise subtree under a separate license, everything else plain MIT — same
+pattern as Phase 43's langfuse and Phase 44's windmill. Verified all 247 discovered
+`SKILL.md` files sit outside `ee/`.
+
+**Structure note**: `posthog/posthog` is this phase's largest hidden collection and
+this pilot's own real internal engineering-skill library, verified genuine. `trpc/
+trpc` (40,532★) also contributed a genuine official collection. This phase had
+**zero within-cohort duplicates, zero cross-corpus duplicates, and zero per-skill
+errors** — the second fully clean discovery pass this session, after Phase 35. Full
+write-up: `../audit-pilot/RESULTS.md`'s Phase 45 section.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.

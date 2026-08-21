@@ -4296,3 +4296,58 @@ rebuild verdicts (one sampled directly), the license-directory split for
 secret-YAML gitleaks pattern. Zero `scripts/` code changes — **no release**
 (established scale-batch precedent). **13,905 skills now audited across the pilot**
 (13,617 + 288), **671 repos**.
+
+## Phase 45: 20 more low-sitemap-count repos — scale batch 31, PostHog's own real contributor-tooling collection, a second fully clean discovery pass (322 discovered, 322 net-new)
+
+Thirty-first scale batch (2026-08-21, seed 45). Funnel: 2,448 pairs → 666 held
+excluded (+20 from Phase 44) → 1,081-repo tier → 14-call GraphQL screen, 0
+call-errors → seeded draw, 20 repos, **20/20 vendored, zero rejections**. One
+NOASSERTION case, read in full and resolved favorably: `posthog/posthog` (38,202★)
+splits its license the same way as Phase 43's langfuse and Phase 44's windmill — an
+"ee/" enterprise subtree under a separate license, everything else plain MIT —
+verified all 247 discovered `SKILL.md` files sit outside `ee/`.
+
+### PostHog's own real contributor-tooling collection, this phase's largest hidden collection
+
+`posthog/posthog` (247 found vs. sitemap-listed count far lower) is PostHog's own
+extensive internal engineering-skill library — deep, product-specific contributor
+guidance (`modifying-taxonomic-filter`, `writing-kea-logics`,
+`implementing-warehouse-sources`, `establishing-code-ownership`, and more), verified
+genuine. `trpc/trpc` (40,532★) also contributed a real official collection (24
+found), including framework-specific setup skills for Next.js Pages/App Router.
+
+### A second fully clean discovery pass this session
+
+322 raw discovered, **zero within-cohort duplicates, zero cross-corpus
+duplicates, zero per-skill errors** — every discovered skill counts as net-new, the
+second time this exact combination has happened in this session (after Phase 35).
+
+### All gitleaks findings confirmed non-issues, all real public on-chain identifiers
+
+`coingecko/skills`' hits are the same well-known public Ethereum token contract
+addresses (WETH, USDT) already seen in Phase 43's documentation. `smartcontractkit/
+chainlink-agent-skills`' hits are real Chainlink Data Streams "access controller"
+addresses and VRF "Key hash" values — all public on-chain identifiers by design
+(documented in Chainlink's own official reference material, needed to identify which
+oracle/program to query), not secrets.
+
+### Corroborated, not new
+
+- **One reserved-word instance**, `posthog/posthog`'s `upgrade-claude-adapter` —
+  genuinely about Claude API version handling in PostHog's own codebase, the same
+  "about Claude's own products" sub-case established in Phases 31/33/39/40/42/44.
+- **One `rebuild` decision, verified genuine**: `posthog/posthog`'s
+  `implementing-warehouse-sources` (860 lines, real product-internals reference
+  density).
+
+### Cost and hit rate
+
+Review queue: **193 of 322 (60%)**. Read exhaustively: the rebuild decision, all
+three gitleaks findings (traced to real public on-chain data), `posthog/posthog`'s
+license-directory split (verified against all 247 discovered paths),
+`posthog/posthog` and `trpc/trpc`'s actual skill content. Zero `scripts/` code
+changes — **no release** (established scale-batch precedent). **14,227 skills now
+audited across the pilot** (13,905 + 322), **691 repos**.
+
+Session pauses here at the user's request, having just completed Phase 45 — no
+further phases run without a fresh instruction to continue.
