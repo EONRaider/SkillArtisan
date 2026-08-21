@@ -3482,3 +3482,70 @@ content given its record star count, `bytedance/agentkit-samples`' genuineness b
 committing to a full audit of its 163-skill hidden collection. Zero `scripts/` code
 changes — **no release** (established scale-batch precedent). **10,725 skills now
 audited across the pilot** (10,440 + 285), **452 repos**.
+
+## Phase 34: 20 more low-sitemap-count repos — scale batch 20, a new license type, this phase's highest hit rate, a real construction-industry vertical (349 discovered, 348 net-new)
+
+Twentieth scale batch (2026-08-21, seed 34). Funnel: 2,448 pairs → 445 held excluded
+(+20 from Phase 33) → 1,300-repo tier → 14-call GraphQL screen, 0 call-errors → seeded
+draw, 20 repos, **20/20 vendored, zero rejections**. Four NOASSERTION cases, all
+resolved favorably: `sunbigfly/ppt-agent-skills` and `vuetifyjs/0` are both plain MIT
+(a project-name line and a `.md` extension respectively confusing the classifier);
+`vercel/ai-elements` is plain Apache-2.0; `vercel-labs/before-and-after` is
+**PolyForm Shield License 1.0.0 — a new license type for the pilot** (permissive
+except for using the software to build a competing product/service, standard
+audit-only posture applies cleanly).
+
+### 349 discovered, zero within-cohort duplicates, one cross-corpus duplicate — 348 net-new
+
+Clean discovery this phase: 0 within-cohort exact-content duplicates (a first in
+several phases), 0 per-skill errors. One cross-corpus exact match:
+`poteto/noodle`'s `.agents/skills/frontend-design` matches
+`cdeistopened-skill-stack`'s already-held copy of Anthropic's official
+`frontend-design` skill — another corroboration of the recurring redistribution
+pattern, excluded from the net-new count. Notably, `poteto/noodle` also ships its
+own `skills/skill-creator` that is **not** a byte match against any held official
+copy — a locally modified/forked variant, left in scope as ordinary third-party
+content per the standing convention.
+
+### A real construction-industry vertical, and this phase's largest hidden collection
+
+`datadrivenconstruction/ddc_skills_for_ai_agents_in_construction` (221 found vs. 1
+listed) is genuine, verified BIM/IoT/construction-management domain content (digital
+twin sync, progress monitoring via computer vision, risk assessment) — a real niche
+professional vertical this pilot hadn't seen before, not an aggregator.
+
+### All four gitleaks findings confirmed non-issues
+
+- `10k-digital/lovable-claude-code`'s hit is a deliberately truncated JWT example
+  (`__lovable_token=eyJhbGciOiJSUzI1NiIs...`) documenting a preview-URL format, not a
+  real captured token.
+- `harishwarrior/flutter-claude-skills`' hit is inside an OWASP Mobile Top 10
+  reference doc's explicit `// ❌ BAD: Hardcoded credentials` example — the
+  established self-referential security-documentation class.
+- `tencentcloudbase/cloudbase-skills`' two hits are both `sk-1234567890` — an
+  obviously sequential-digit placeholder in a Coze API adapter's documentation
+  example.
+
+### Corroborated, not new
+
+- **One reserved-word instance, a genuinely new sub-shape**: `bayramannakov/
+  claude-reflect` — a single-skill repo (the whole repo *is* the one "claude"-branded
+  skill, a self-learning system that captures corrections and reminds the user to run
+  `/reflect`). Doesn't fit either established framing (no larger "shipped list" to be
+  excluded from; not itself about Claude/Anthropic's own products the way Phase 31/33's
+  instances were) — simply a straightforwardly "claude"-branded third-party tool,
+  recorded as its own honest shape rather than forced into a prior bucket.
+- One `rebuild` decision, verified genuine: `ahmed-lakosha/odoo-plugins`' `odoo-test`
+  (1,675 lines, real Odoo ERP testing reference content).
+
+### Cost and hit rate
+
+Review queue: **324 of 349 (93%)** — this phase's highest hit rate, driven mostly by
+the pervasive `description-pushy-imperative`/`references-toc-for-long-files`-style
+structural WARNs across several repos rather than any single concentrated defect.
+Zero per-skill errors, zero rebuild decisions beyond the one verified case. Read
+exhaustively: all 4 gitleaks findings, all 4 NOASSERTION licenses (including the new
+PolyForm Shield type), the cross-corpus duplicate, the construction-vertical and
+odoo-test content before concluding genuineness/rebuild respectively. Zero
+`scripts/` code changes — **no release** (established scale-batch precedent).
+**11,073 skills now audited across the pilot** (10,725 + 348), **472 repos**.

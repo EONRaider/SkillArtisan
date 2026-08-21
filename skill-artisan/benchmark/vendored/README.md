@@ -2000,3 +2000,58 @@ favorably)**:
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 34 cohort: 20 more low-sitemap-count repos (scale batch 20) — a new license type, a real construction-industry vertical
+
+Twentieth batch (2026-08-21, seed 34). Funnel: 2,448 sitemap pairs → 445 held
+excluded → 1,300-repo tier → 14-call GraphQL screen (0 call-errors) → seeded draw.
+20 drawn, **20/20 vendored**, zero rejections.
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `10k-digital/lovable-claude-code` | `7033f74d0c9d` | 2026-08-12 | MIT | 7 | 1 | 15 |
+| `agricidaniel/claude-youtube` | `84c3fa680520` | 2026-04-10 | MIT | 1 | 1 | 325 |
+| `ahmed-lakosha/odoo-plugins` | `5541d98fb5c1` | 2026-03-28 | MIT | 12 | 1 | 74 |
+| `alchaincyf/huashu-md-html` | `1de2f3dcb3c9` | 2026-05-28 | MIT | 1 | 1 | 886 |
+| `bartekmis/wordpress-performance-best-practices` | `577a08fb1c15` | 2026-04-19 | MIT | 1 | 1 | 12 |
+| `bayramannakov/claude-reflect` | `8dc9db43c9bf` | 2026-03-16 | MIT | 1 | 1 | 1,411 |
+| `datadrivenconstruction/ddc_skills_for_ai_agents_in_construction` | `34e0d78332ce` | 2026-02-14 | MIT | 221 | 1 | 282 |
+| `framara/react-flow-skill` | `a224eeb68442` | 2026-07-16 | MIT | 1 | 1 | 45 |
+| `harishwarrior/flutter-claude-skills` | `114379ad2864` | 2026-07-12 | MIT | 2 | 2 | 63 |
+| `heygen-com/liveavatar-agent-skills` | `ea33c4e87d23` | 2026-07-30 | MIT | 4 | 3 | 6 |
+| `opensearch-project/opensearch-agent-skills` | `5076c03d24fd` | 2026-08-19 | Apache-2.0 | 13 | 1 | 48 |
+| `poteto/noodle` | `82d2921c5237` | 2026-03-19 | MIT | 36 | 1 | 239 |
+| `rebelytics/one-skill-to-rule-them-all` | `281f13466cd3` | 2026-07-17 | CC-BY-4.0 | 1 | 1 | 1,964 |
+| `sunbigfly/ppt-agent-skills` | `13e353776d0b` | 2026-06-08 | MIT | 1 | 1 | 884 |
+| `tencentcloudbase/cloudbase-skills` | `737cbc528f3d` | 2026-08-20 | MIT | 29 | 1 | 28 |
+| `uview-pro/skills` | `65079e9b5d27` | 2026-07-21 | MIT | 2 | 2 | 9 |
+| `vercel-labs/before-and-after` | `178594233450` | 2026-02-08 | PolyForm-Shield-1.0.0* | 1 | 1 | 293 |
+| `vercel/ai-elements` | `6a9d5b1822ff` | 2026-08-21 | Apache-2.0 | 1 | 1 | 2,344 |
+| `victoriametrics/skills` | `f075f97f8991` | 2026-08-13 | Apache-2.0 | 12 | 1 | 45 |
+| `vuetifyjs/0` | `e84f6bfe4f8c` | 2026-08-20 | MIT | 2 | 1 | 750 |
+
+**License note (the `*` row, NOASSERTION on the GraphQL screen, resolved
+favorably)**: `vercel-labs/before-and-after` — **PolyForm Shield License 1.0.0, a new
+license type for this pilot** — permissive except for using the software to build a
+directly competing product/service. Standard audit-only posture applies (read +
+report, never copy/adapt into SkillArtisan's own MIT-licensed material), same as
+every other non-permissive license already in this table. (`sunbigfly/ppt-agent-
+skills`, `vercel/ai-elements`, and `vuetifyjs/0` were also NOASSERTION on the screen
+but are plain MIT/Apache-2.0 on raw read — a project-name line and a `.md` license
+extension respectively confused the classifier.)
+
+**Structure notes**:
+
+- `datadrivenconstruction/ddc_skills_for_ai_agents_in_construction` (221 found vs. 1
+  listed, this phase's largest hidden collection) is genuine BIM/IoT/construction-
+  management domain content — a real professional vertical not seen elsewhere in this
+  pilot.
+- `poteto/noodle`'s `.agents/skills/frontend-design` is another exact-byte
+  corroboration of the recurring Anthropic-skill-creator-family redistribution
+  pattern (matches `cdeistopened-skill-stack`'s copy), excluded from the net-new
+  count; its own `skills/skill-creator`, by contrast, is a locally modified variant
+  (not a byte match against any held official copy) and stays counted as ordinary
+  content.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.
