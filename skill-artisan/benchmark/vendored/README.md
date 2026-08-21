@@ -2521,3 +2521,51 @@ official skill. Full write-up: `../audit-pilot/RESULTS.md`'s Phase 43 section.
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 44 cohort: 20 more low-sitemap-count repos (scale batch 30) — a genuine public API key, a Matt Pocock lineage skill propagating further
+
+Thirtieth batch (2026-08-21, seed 44). Funnel: 2,448 sitemap pairs → 646 held
+excluded → 1,101-repo tier → 14-call GraphQL screen (0 call-errors) → seeded draw.
+20 drawn, **20/20 vendored**, zero rejections.
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `awesome-skills/code-review-skill` | `95c707b99929` | 2026-07-16 | MIT | 1 | 2 | 1,770 |
+| `bellopushon/whatsapp-cloud-api` | `8cd0934901cd` | 2026-07-01 | MIT | 1 | 1 | 7 |
+| `browser-use/browser-harness` | `41108b8676d4` | 2026-08-16 | MIT | 1 | 2 | 16,947 |
+| `cookjohn/gs-skills` | `df03c99f1a74` | 2026-03-13 | MIT | 6 | 1 | 486 |
+| `dynatrace-oss/dtctl` | `592aaac22c5e` | 2026-08-19 | Apache-2.0 | 3 | 3 | 178 |
+| `jahrome907/minecraft-agent-skills` | `17a0812d1c21` | 2026-07-26 | MIT | 52 | 1 | 117 |
+| `julianobarbosa/claude-code-skills` | `c65bcae40c82` | 2026-08-08 | MIT | 122 | 1 | 9 |
+| `kingbootoshi/nano-banana-2-skill` | `80bab9a92160` | 2026-02-26 | MIT | 1 | 1 | 405 |
+| `krutikjain/android-agent-skills` | `c5bf6731b844` | 2026-03-25 | MIT | 68 | 1 | 14 |
+| `laguagu/claude-code-nextjs-skills` | `0b1e8eea985f` | 2026-08-20 | MIT | 24 | 3 | 60 |
+| `leonardomso/rust-skills` | `fd2a861ab040` | 2026-06-14 | MIT | 1 | 1 | 433 |
+| `likaia/nginxpulse` | `0d41264ae441` | 2026-05-20 | MIT | 1 | 1 | 2,634 |
+| `n0an/swift-formatstyle-agent-skill` | `20f0e18d3303` | 2026-04-16 | MIT | 1 | 1 | 7 |
+| `natea/fitfinder` | `00ca4ebca53d` | 2025-10-26 | MIT | 30 | 1 | 4 |
+| `qwencloud/qwencloud-deploy` | `163614ca3a4a` | 2026-08-05 | Apache-2.0 | 1 | 1 | 3 |
+| `shadcn/improve` | `03369ee6d7ca` | 2026-06-15 | MIT | 1 | 1 | 8,957 |
+| `teeverc/effect-ts` | `2d77eb8e9f2a` | 2026-06-30 | MIT | 2 | 1 | 5 |
+| `tw93/kami` | `8bf6f46f74b5` | 2026-08-08 | MIT | 2 | 1 | 10,830 |
+| `windmill-labs/windmill` | `1a506b8f2221` | 2026-08-21 | AGPL-3.0 (split)* | 45 | 1 | 17,602 |
+| `wolke/ziwei-doushu` | `46bc6cd3c467` | 2026-01-23 | CC-BY-NC-SA-4.0* | 1 | 1 | 14 |
+
+**License notes (the two `*` rows, both NOASSERTION on the screen, both read in full
+and resolved favorably)**: `windmill-labs/windmill` (17,602★) splits its license by
+directory — files default to AGPLv3 except specific enterprise-flagged code under
+`backend/`/`frontend/`, which is proprietary — verified all 45 discovered
+`SKILL.md` files sit outside those paths. `wolke/ziwei-doushu` is standard CC
+BY-NC-SA 4.0.
+
+**Structure/content notes**: `browser-use/browser-harness`'s `metacritic` reference
+documents a genuine public API key exactly as such ("Metacritic's internal backend
+API is publicly accessible with a stable key embedded in every page") — confirmed
+non-issue by the skill's own text. `windmill-labs/windmill`'s `.agents/skills/
+grill-me` matches an already-held copy in `secondsky-claude-skills` — part of the
+`mattpocock-skills:grilling` lineage (this pilot's very first audited corpus)
+continuing to propagate to unrelated third-party repos. Full write-up:
+`../audit-pilot/RESULTS.md`'s Phase 44 section.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.

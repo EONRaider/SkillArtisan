@@ -4224,3 +4224,75 @@ skill content, `langfuse/langfuse`'s license-directory split verified against ev
 discovered skill path. Zero `scripts/` code changes — **no release** (established
 scale-batch precedent). **13,617 skills now audited across the pilot** (13,120 +
 497), **651 repos**.
+
+## Phase 44: 20 more low-sitemap-count repos — scale batch 30, a genuine public API key correctly caught by its own documentation, a Matt Pocock lineage skill propagating further (364 discovered, 288 net-new)
+
+Thirtieth scale batch (2026-08-21, seed 44). Funnel: 2,448 pairs → 646 held excluded
+(+20 from Phase 43) → 1,101-repo tier → 14-call GraphQL screen, 0 call-errors →
+seeded draw, 20 repos, **20/20 vendored, zero rejections**. Two NOASSERTION cases,
+both read in full and resolved favorably: `windmill-labs/windmill` (17,602★) splits
+its license — files default to AGPLv3 except specific enterprise-flagged snippets
+under `backend/`/`frontend/`, which are proprietary — verified all 45 discovered
+`SKILL.md` files sit outside those enterprise-flagged paths, so AGPLv3 applies (same
+audit-only posture already established); `wolke/ziwei-doushu` is standard CC
+BY-NC-SA 4.0.
+
+### A genuine public API key, self-documented as such by the skill itself
+
+`browser-use/browser-harness`'s `metacritic` scraping reference states outright:
+"Metacritic's internal backend API is publicly accessible with a stable key embedded
+in every page" — followed by that exact key, repeated 9 times through the
+documentation. Confirmed non-issue by the skill's own text: a real value, but
+explicitly the site's own public client-side key by design (same class as Phase
+38's Airbnb public API key), not a credential requiring protection.
+
+### A Matt Pocock lineage skill propagating to a fourth known location
+
+`windmill-labs/windmill`'s `.agents/skills/grill-me` matches an already-held copy in
+`secondsky-claude-skills` — `grill-me` is part of the `mattpocock-skills:grilling`
+lineage (the very first corpus this pilot audited, back in Phase 1-2). Real content
+from a well-known skill author continuing to surface in unrelated third-party repos,
+not itself a new mechanism, but a fresh data point on how far a popular
+skill-author's individual skills propagate independent of any single redistribution
+chain.
+
+### Two hidden collections with heavily concentrated, all-genuine `rebuild` verdicts
+
+`natea/fitfinder` (30 found vs. 1 listed) drew 8 `rebuild` decisions, all body-size,
+all verified real (its `flow-nexus-platform` skill alone is 1,157 lines — a
+comprehensive platform-integration reference). `julianobarbosa/claude-code-skills`
+(122 found vs. 1 listed) drew 3 more, same shape. Both repos are large personal
+multi-domain skill collections (DevOps/infra tooling, GitHub workflow automation,
+Flow-Nexus platform integration) with genuinely dense per-topic reference content —
+same "systematic verbose-template" or "genuinely comprehensive" authoring shape
+already seen in Phase 38/40's similar concentrations.
+
+### All gitleaks findings confirmed non-issues
+
+Beyond the Metacritic case above: `julianobarbosa/claude-code-skills`' many small
+hits (`1password`, `argocd`, `dependency-track`, `git`, `gitops-principles`,
+`grafana`, `obsidian`, `robusta-dev`, `senhasegura`) are all documentation
+placeholders (`k8s-generated-api-key`, a truncated JWT example) or Kubernetes
+`ExternalSecret`/`SecretStore` **resource definitions** — YAML structure describing
+*where* secrets come from, not containing actual secret values, a pattern match on
+shape rather than content.
+
+### Corroborated, not new
+
+- **One reserved-word instance**, `julianobarbosa/claude-code-skills`'
+  `obsidian-claude-integration` — genuinely about integrating Claude with Obsidian,
+  the same "about Claude's own products" sub-case established in Phases 31/33/39.
+- Extensive within-cohort duplication, all auto-handled: `jahrome907/minecraft-
+  agent-skills` mirrors its skills across 4 locations each (`plugins/`, `.agents/`,
+  `.codex/`, `.claude/`); `krutikjain/android-agent-skills` mirrors `.github/skills/`
+  against `skills/`.
+
+### Cost and hit rate
+
+Review queue: **219 of 290 (76%)**. Read exhaustively: the Metacritic public-key
+finding in full context, the Matt Pocock lineage match, both hidden collections'
+rebuild verdicts (one sampled directly), the license-directory split for
+`windmill-labs/windmill` (verified against all 45 discovered paths), the Kubernetes-
+secret-YAML gitleaks pattern. Zero `scripts/` code changes — **no release**
+(established scale-batch precedent). **13,905 skills now audited across the pilot**
+(13,617 + 288), **671 repos**.
