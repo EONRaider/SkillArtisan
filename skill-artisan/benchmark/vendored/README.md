@@ -2425,3 +2425,52 @@ convention. Full write-up: `../audit-pilot/RESULTS.md`'s Phase 41 section.
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 42 cohort: 20 more low-sitemap-count repos (scale batch 28) — four non-standard licenses read in full, a fourth Anthropic-redistribution author
+
+Twenty-eighth batch (2026-08-21, seed 42). Funnel: 2,448 sitemap pairs → 606 held
+excluded → 1,141-repo tier → 14-call GraphQL screen (0 call-errors) → seeded draw.
+20 drawn, **20/20 vendored**, zero rejections.
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `2ykwang/agent-skills` | `ce5d3dbd7e1b` | 2026-08-04 | MIT | 28 | 1 | 17 |
+| `alchaincyf/munger-skill` | `2d5d7a388a0c` | 2026-05-28 | MIT | 1 | 1 | 343 |
+| `alva-ai/skills` | `309633826aff` | 2026-08-20 | MIT | 1 | 1 | 38 |
+| `aminblg/simpleenglish` | `8e8a008a13e4` | 2026-08-21 | MIT | 1 | 1 | 2,683 |
+| `bahayonghang/drawio-skills` | `27dac02ce3b4` | 2026-07-21 | MIT | 2 | 2 | 276 |
+| `boraoztunc/skills` | `645553ca7622` | 2026-08-15 | Apache-2.0 | 70 | 1 | 270 |
+| `getsentry/warden` | `4973711d0420` | 2026-08-21 | FSL-1.1-ALv2* | 16 | 1 | 398 |
+| `imraywang/wewrite` | `ed8b0835878c` | 2026-08-17 | MIT | 10 | 1 | 3,150 |
+| `jiatastic/open-python-skills` | `41249c879cfa` | 2026-01-24 | MIT | 8 | 1 | 9 |
+| `joeseesun/qiaomu-info-card-designer` | `f8d6060bd300` | 2026-04-05 | MIT | 1 | 1 | 266 |
+| `johnwayneeee/casely-qa-skill` | `ea3ef3783ddf` | 2026-05-22 | MIT | 1 | 1 | 6 |
+| `karpathy/nanochat` | `92d63d4e8bb4` | 2026-07-03 | MIT | 1 | 1 | 57,386 |
+| `kulaxyz/self-learning-skills` | `d4e0a7ec1f1a` | 2026-06-30 | MIT | 1 | 1 | 938 |
+| `larashero3-dotcom/lieflat-charts` | `4eef5ce00d09` | 2026-08-19 | PolyForm-NC-1.0.0* | 1 | 1 | 1,602 |
+| `letta-ai/skills` | `16352df0a3ce` | 2026-07-03 | MIT* | 45 | 1 | 139 |
+| `mcdxai/meteor-rejects-v2` | `aa62d43e196e` | 2026-01-16 | GPL-3.0 | 1 | 1 | 6 |
+| `paradedb/agent-skills` | `e5a47774bdb6` | 2026-08-14 | MIT | 1 | 1 | 9 |
+| `powersync-ja/agent-skills` | `1652103ab820` | 2026-08-18 | MIT | 1 | 1 | 18 |
+| `webshare-proxy/skills` | `73dc1de2110e` | 2026-07-29 | MIT | 4 | 1 | 4 |
+| `zeejay0/gathered-scenes-zine-skill` | `eae9a62e20cb` | 2026-08-17 | Custom (non-commercial)* | 3 | 1 | 4,193 |
+
+**License notes (the four `*` rows, all NOASSERTION on the screen, each read in full
+per the post-Phase-40 discipline — none carried any deviant clause)**: `getsentry/
+warden` is a third FSL instance (FSL-1.1-ALv2); `larashero3-dotcom/lieflat-charts`
+is a standard PolyForm Noncommercial 1.0.0 (fourth instance in the pilot);
+`letta-ai/skills` is plain MIT; `zeejay0/gathered-scenes-zine-skill` is a genuine,
+legally thorough custom personal-non-commercial license.
+
+**Structure notes**: `boraoztunc/skills`' `frontend-design` matches three
+already-held copies at once — a **fourth independent author** redistributing
+Anthropic's official `frontend-design` skill (`cdeistopened-skill-stack`,
+`bbeierle12-skill-mcp-claude`, `poteto-noodle`); the same repo's `emil-design-eng`
+separately matches `petekp-claude-code-setup`'s copy, an unrelated pairing. Both
+excluded from the net-new count. `getsentry/warden`'s `__fixtures__/` directory
+holds 5 real test-fixture copies of a `test-skill` used to test its own GitHub
+Action workflow logic — genuine content, correctly deduped to one unique copy. Full
+write-up: `../audit-pilot/RESULTS.md`'s Phase 42 section.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.

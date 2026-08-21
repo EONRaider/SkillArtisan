@@ -4073,3 +4073,69 @@ gitleaks/security-pattern finding traced to source, the new FSL variant's full t
 Cloudflare's actual skill content. Zero `scripts/` code changes — **no release**
 (established scale-batch precedent). **12,943 skills now audited across the pilot**
 (12,864 + 79), **611 repos**.
+
+## Phase 42: 20 more low-sitemap-count repos — scale batch 28, four non-standard licenses all read in full with none deviant, a fourth author on the frontend-design redistribution chain, Karpathy's own nanochat skill (197 discovered, 177 net-new)
+
+Twenty-eighth scale batch (2026-08-21, seed 42). Funnel: 2,448 pairs → 606 held
+excluded (+20 from Phase 41) → 1,141-repo tier → 14-call GraphQL screen, 0
+call-errors → seeded draw, 20 repos, **20/20 vendored, zero rejections**. Four
+NOASSERTION cases, all read in full per the post-Phase-40 discipline (check every
+NOASSERTION license completely, not just enough to identify the base template) —
+none carried any deviant clause: `getsentry/warden` is a third FSL instance
+(FSL-1.1-ALv2, matching Phase 41's variant, standard template throughout);
+`larashero3-dotcom/lieflat-charts` is a standard PolyForm Noncommercial 1.0.0 (a
+fourth instance in the pilot); `letta-ai/skills` is plain MIT (Letta, Inc.);
+`zeejay0/gathered-scenes-zine-skill` is a genuine, legally thorough custom
+personal-non-commercial license (explicit grants for personal/research/hobby use,
+detailed commercial-use prohibitions, standard audit-only posture applies).
+
+### A real project's official skill, verified genuine at the source
+
+`karpathy/nanochat` (57,386★, Andrej Karpathy's well-known project) contributed one
+genuine skill, `read-arxiv-paper`.
+
+### A fourth independent author on the recurring `frontend-design` redistribution chain
+
+`boraoztunc/skills`' `frontend-design` matches **three** already-held copies at once
+(`cdeistopened-skill-stack`, `bbeierle12-skill-mcp-claude`, `poteto-noodle`) —
+Anthropic's official `frontend-design` skill, now confirmed redistributed by a
+fourth independent author. The same repo's `emil-design-eng` matches a separate,
+unrelated pairing (`petekp-claude-code-setup`'s already-held copy) — a distinct
+two-author duplicate, not part of the Anthropic-redistribution family. Both excluded
+from the net-new count.
+
+### Genuine test fixtures discovered and correctly audited as real content
+
+`getsentry/warden`'s `packages/warden/src/action/workflow/__fixtures__/` directory
+contains 5 copies of a `test-skill` (one canonical + 4 variants: `no-match`,
+`schedule`, `schedule-title`, `schedule-fixpr`) used to test warden's own GitHub
+Action workflow-trigger logic. `__fixtures__` (with double underscores, a common
+JS/TS testing convention) is not in `find_skill_dirs`' `EXCLUDED_INTERMEDIATE_DIRS`
+list, so these were discovered and correctly deduped to one unique copy by
+`dedup_by_content` — same class of finding as Phase 20's `alibaba/skill-up`
+`e2e/testdata/` case, correctly handled by existing tooling without needing a code
+change.
+
+### One gitleaks finding, confirmed a deliberately self-descriptive documentation example
+
+`bahayonghang/drawio-skills`' hit is a base64-encoded string in a Kubernetes-diagram
+import example — decoded, it reads literally `kubernetes-secret-must-not-cross`, a
+self-describing placeholder illustrating the concept being diagrammed, not a real
+credential.
+
+### Corroborated, not new
+
+- **Zero reserved-word instances this phase.**
+- **Zero `rebuild` decisions this phase.**
+- 14 within-cohort duplicates in `2ykwang/agent-skills` (the standard
+  `plugins/X/skills/` vs. `skills/X/` packaging pattern), auto-deduped.
+
+### Cost and hit rate
+
+Review queue: **94 of 179 (53%)** — a notably lower hit rate than the recent 65-93%
+range, worth reporting honestly rather than assuming a trend. Read exhaustively: all
+four non-standard licenses in full, both cross-corpus duplicates, the gitleaks
+finding (decoded), `getsentry/warden`'s fixture structure, `karpathy/nanochat`'s
+actual skill content. Zero `scripts/` code changes — **no release** (established
+scale-batch precedent). **13,120 skills now audited across the pilot** (12,943 +
+177), **631 repos**.
