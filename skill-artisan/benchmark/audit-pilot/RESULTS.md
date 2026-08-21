@@ -3918,3 +3918,93 @@ audit, `paddlepaddle/paddleocr` (88,058★) and `remix-run/react-router` (56,566
 sampled directly. Zero `scripts/` code changes — **no release** (established
 scale-batch precedent). **12,677 skills now audited across the pilot** (12,035 +
 642), **572 repos**.
+
+## Phase 40: 20 more low-sitemap-count repos — scale batch 26, a first-of-its-kind Anthropic-exclusion license rider, a systematically-oversized generated persona collection, Zed's own official skills (199 discovered, 186 net-new, 19 of 20 audited)
+
+Twenty-sixth scale batch (2026-08-21, seed 40). Funnel: 2,448 pairs → 567 held
+excluded (+20 from Phase 39) → 1,180-repo tier → 14-call GraphQL screen, 0
+call-errors → seeded draw, 20 repos, 20 cloned. **One excluded on license grounds
+before any audit tooling was run against it — a new category, distinct from every
+prior license rejection in this pilot.**
+
+### A first-of-its-kind finding: a license rider explicitly naming and excluding Anthropic
+
+`dicklesworthstone/agent_flywheel_clawdbot_skills_and_integrations`'s `LICENSE` is
+titled "MIT License (with OpenAI/Anthropic Rider)." Read in full before any further
+action: the rider defines "Restricted Parties" as OpenAI, L.L.C.; **Anthropic,
+PBC**; their affiliates; and "any person or entity acting directly or indirectly on
+behalf of, for the benefit of, or under the direction of any of the foregoing" —
+then states "no rights are granted to any Restricted Party," with "use" explicitly
+defined to include "analyzing, indexing," and "testing" the software, not just
+redistribution or commercial competition. Every prior non-permissive license in this
+pilot (Elastic-2.0, PolyForm variants, BSL, AGPL, CC-BY-NC, assorted bespoke terms)
+restricted *what could be done with the content downstream* — none of them named a
+specific AI lab and specifically barred that lab (or anyone acting on its behalf)
+from the exact act of reading/analyzing the software at all. Since this audit is
+being performed by an Anthropic-built AI system, continuing to run `audit.py`/
+`security_scan.py` against this repository's content would fall squarely inside the
+rider's own definition of prohibited "use" for a party it names by name. **The clone
+was deleted without running any analysis tooling against it**, and the repo is
+excluded from this phase's counts entirely (not audited, not "resolved favorably,"
+not backfilled with a replacement draw) — a genuinely new disposition, distinct from
+the funnel's existing NOASSERTION-resolves-favorably and no-license-rejected buckets.
+Flagged directly to the user rather than silently handled, given it's the first
+instance of its kind across 40 phases and touches a real legal/policy boundary
+specific to who is conducting this audit.
+
+### Five remaining NOASSERTION cases, all resolved favorably by raw read
+
+`jsonwebtoken/jwt-skills` (Okta, Inc. — real owner of jwt.io) is plain Apache-2.0;
+`lulu-eva/eva-skill` is CC BY-NC 4.0 (non-commercial, standard audit-only posture);
+`mastra-ai/skills` (Kepler Software, Inc., Mastra AI's parent company) is plain
+Apache-2.0; `netresearch/php-modernization-skill` is dual MIT/CC-BY-SA-4.0;
+`zed-industries/zed` (88,997★, the well-known code editor) is dual Apache-2.0/GPL at
+the repo level, with its 7 skills sitting under the Apache-2.0-licensed portion.
+
+### Zed's own official skills, and a seventh distinct agent-tool directory
+
+`zed-industries/zed` contributed 7 genuine official development-workflow skills
+(brand-writer, lint-creator, `zed-cherry-pick`, `gpui-test`, and more). One of them
+lives under `.factory/skills/` — a **seventh distinct agent-tool directory** this
+pilot has found real skills mirrored into, after `.claude/`, `.codex/`, `.gemini/`,
+`.hermes/`, `.vibe/`, and Phase 33's `.windsurf/`.
+
+### A systematically-oversized generated multi-role persona collection
+
+`nahisaho/musubi` (54 found vs. 1 listed) drew **22 `rebuild` decisions out of its
+own skills** — every single one on body-size grounds, verified by direct read (its
+`ai-ml-engineer` skill alone is 3,216 lines). This isn't a defect pattern spread
+across unrelated content; it's one consistent authoring template — a comprehensive
+multi-role "AI copilot persona" framework (ai-ml-engineer, api-designer,
+cloud-architect, database-administrator, security-auditor, and more, each with a
+"Role Definition" section instructing structured-dialogue behavior in Japanese) —
+applied uniformly and verbosely across every role. Real content throughout, just
+systematically oversized by the generation template itself, not a defect in any
+individual skill.
+
+### Remaining gitleaks findings and one documented error, all confirmed/correct
+
+- `currents-dev/playwright-best-practices-skill`'s hit is a `mockToken =
+  'test-verification-abc123'` in an authentication-flows documentation example.
+- `nahisaho/musubi`'s two hits are both `sk_live_abc123`-shaped placeholders in
+  API-design/vulnerability-pattern reference docs — the established class.
+- `joneqian/claude-skills-suite`'s `verification-loop` correctly errored (missing
+  frontmatter, exit-code-4 contract) — genuinely no `---` block present.
+
+### Corroborated, not new
+
+- **Zero reserved-word instances this phase.**
+- 12 within-cohort exact duplicates in `nahisaho/musubi` (a source-template vs.
+  installed-copy packaging pattern, `src/templates/.../skills/` vs. `.claude/
+  skills/`), auto-handled by `dedup_by_content`.
+
+### Cost and hit rate
+
+Review queue: **146 of 186 (78%)**. Read exhaustively: the excluded license in full
+before any other action, all three gitleaks findings, the documented error, a
+sampled `nahisaho/musubi` rebuild verified directly, Zed's actual skill content and
+its new `.factory/` discovery. Zero `scripts/` code changes — **no release**
+(established scale-batch precedent, and this phase's one meaningful decision — the
+license exclusion — was a judgment call about scope, not a code change). **12,864
+skills now audited across the pilot** (12,677 + 187), **591 repos** (572 + 19 —
+`dicklesworthstone` cloned then deleted, never counted).

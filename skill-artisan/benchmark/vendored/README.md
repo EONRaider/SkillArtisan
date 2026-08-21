@@ -2318,3 +2318,63 @@ Claude Code itself): `../audit-pilot/RESULTS.md`'s Phase 39 section.
 
 **Runnability confirmed**: same Python-only dependency chain as the rest of
 `scripts/`; no repo-specific tooling needed to audit any of them.
+
+## Phase 40 cohort: 19 of 20 low-sitemap-count repos (scale batch 26) — one excluded on a first-of-its-kind Anthropic-exclusion license rider
+
+Twenty-sixth batch (2026-08-21, seed 40). Funnel: 2,448 sitemap pairs → 567 held
+excluded → 1,180-repo tier → 14-call GraphQL screen (0 call-errors) → seeded draw,
+20 repos. **19 vendored and audited; 1 cloned then deleted without any analysis
+tooling run against it, on license grounds (see below).**
+
+| Repo | Pin | Commit date | License | Found | Sitemap | Stars |
+|---|---|---|---|---:|---:|---:|
+| `currents-dev/playwright-best-practices-skill` | `283d5cbc5d11` | 2026-07-21 | MIT | 1 | 1 | 360 |
+| `dingtalk-real-ai/dingtalk-workspace-cli` | `8ab2ac5e7c92` | 2026-08-21 | Apache-2.0 | 15 | 1 | 2,757 |
+| `emily2040/seedance-2.0` | `44b514992963` | 2026-08-06 | MIT | 29 | 1 | 6,823 |
+| `hughyau/qiushi-skill` | `671079144dd2` | 2026-07-20 | MIT | 11 | 1 | 3,725 |
+| `joneqian/claude-skills-suite` | `58444a34b26d` | 2026-02-10 | MIT | 16 | 2 | 30 |
+| `jsonwebtoken/jwt-skills` | `edca959b83f0` | 2026-04-07 | Apache-2.0* | 3 | 3 | 16 |
+| `lulu-eva/eva-skill` | `f76110e21ff0` | 2026-08-20 | CC-BY-NC-4.0* | 12 | 1 | 46 |
+| `magicseek/nblm` | `6d989d4b17be` | 2026-02-24 | MIT | 1 | 1 | 33 |
+| `mastra-ai/skills` | `690d5d6cc6e9` | 2026-07-30 | Apache-2.0* | 1 | 1 | 74 |
+| `n0an/app-intents-agent-skill` | `67cfdc1068b7` | 2026-06-18 | MIT | 1 | 1 | 30 |
+| `nahisaho/musubi` | `d9c21f4529ca` | 2026-01-02 | MIT | 54 | 1 | 71 |
+| `netresearch/php-modernization-skill` | `378947f9ee0c` | 2026-08-20 | MIT+CC-BY-SA-4.0* | 1 | 1 | 40 |
+| `op7418/youtube-clipper-skill` | `f31f077ee090` | 2026-01-22 | MIT | 1 | 1 | 2,152 |
+| `orziz/odai` | `c6cfc780f1bc` | 2026-08-21 | MIT | 2 | 1 | 95 |
+| `ryanbbrown/revealjs-skill` | `d0ccd344c4aa` | 2026-05-01 | MIT | 1 | 1 | 388 |
+| `sanky369/vibe-building-skills` | `e9714d8decbc` | 2026-07-12 | MIT | 40 | 3 | 29 |
+| `shawnpana/smux` | `70a6899bdec5` | 2026-05-01 | MIT | 1 | 1 | 1,518 |
+| `tursodatabase/agent-skills` | `34ced52fd1bd` | 2026-07-22 | MIT | 2 | 2 | 26 |
+| `zed-industries/zed` | `51a3ac29deb2` | 2026-08-21 | Apache-2.0/GPL (dual)* | 7 | 2 | 88,997 |
+
+**Excluded, not vendored**: `dicklesworthstone/agent_flywheel_clawdbot_skills_and_
+integrations` — its `LICENSE` is "MIT License (with OpenAI/Anthropic Rider)," which
+explicitly names Anthropic, PBC as a "Restricted Party" with "no rights... granted,"
+defining "use" to include "analyzing," "indexing," and "testing" the software —
+not just redistribution or commercial competition, unlike every other
+non-permissive license already in this table. Since this audit is performed by an
+Anthropic-built AI system, continuing would fall inside the rider's own definition
+of prohibited use for a party it names by name. Cloned, read, then **deleted without
+running any audit/analysis tooling against its content** — a new disposition,
+distinct from both the "resolved favorably" and "rejected, no real grant" buckets
+this pilot has used until now. Full write-up: `../audit-pilot/RESULTS.md`'s Phase 40
+section.
+
+**License notes (the remaining `*` rows, all NOASSERTION on the GraphQL screen,
+resolved favorably)**: `jsonwebtoken/jwt-skills` (Okta, Inc.) is plain Apache-2.0;
+`lulu-eva/eva-skill` is CC BY-NC 4.0; `mastra-ai/skills` (Kepler Software, Inc.) is
+plain Apache-2.0; `netresearch/php-modernization-skill` is dual MIT/CC-BY-SA-4.0;
+`zed-industries/zed` (88,997★) is dual Apache-2.0/GPL at the repo level, with its
+skills sitting under the Apache-2.0 portion.
+
+**Structure notes**: `zed-industries/zed` contributed a skill under `.factory/
+skills/` — a seventh distinct agent-tool directory this pilot has found real skills
+mirrored into. `nahisaho/musubi` (54 found vs. 1 listed) is a systematically-
+generated, uniformly verbose multi-role AI-copilot-persona collection — 22 of its
+own skills drew `rebuild` on body-size grounds, all genuine (its `ai-ml-engineer`
+skill alone is 3,216 lines), one consistent authoring template rather than a spread
+defect pattern.
+
+**Runnability confirmed**: same Python-only dependency chain as the rest of
+`scripts/`; no repo-specific tooling needed to audit any of them.
