@@ -8,6 +8,9 @@ name: Self-test audit action
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   audit-report-only:
     runs-on: ubuntu-latest
