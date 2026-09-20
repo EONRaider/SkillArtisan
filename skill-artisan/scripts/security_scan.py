@@ -106,6 +106,25 @@ UNSAFE_INTERPOLATION_PATTERNS = [
     re.compile(r"os\.system\([^)]*\.format\("),
 ]
 
+# Mirrors validate.py's check_path_references: a markdown doc *teaching*
+# about a dangerous pattern, path shape, or URL scheme — via a fenced
+# example or an inline `code span` — isn't a live instance of it. Only
+# applied to .md files; a real .py/.sh script has no such "this is
+# documentation, not code" convention, and stripping backticks there would
+# risk masking a real match instead (bash uses backticks for command
+# substitution).
+FENCED_CODE_BLOCK_RE = re.compile(r"```.*?```", re.DOTALL)
+INLINE_CODE_SPAN_RE = re.compile(r"`[^`\n]*`")
+
+
+def strip_markdown_code(text: str) -> str:
+    """Blank out fenced code blocks and inline code spans while preserving
+    every newline, so line numbers computed from the result still line up
+    with the original file."""
+    text = FENCED_CODE_BLOCK_RE.sub(lambda m: "\n" * m.group(0).count("\n"), text)
+    text = INLINE_CODE_SPAN_RE.sub("", text)
+    return text
+
 
 def iter_scannable_files(skill_path: Path, skillignore_patterns: list[str]):
     for path in sorted(skill_path.rglob("*")):
@@ -264,28 +283,31 @@ def run_pattern_checks(skill_path: Path) -> list[dict]:
             continue
         lines = text.split("\n")
         docstring_lines = docstring_line_numbers(text) if path.suffix.lower() == ".py" else set()
+        scan_lines = strip_markdown_code(text).split("\n") if path.suffix.lower() == ".md" else lines
 
         for lineno, line in enumerate(lines, start=1):
+            scan_line = scan_lines[lineno - 1]
+
             for abs_pattern in ABS_PATH_PATTERNS:
-                if abs_pattern.search(line):
+                if abs_pattern.search(scan_line):
                     findings.append({"file": str(rel), "line": lineno, "severity": "HIGH", "check": "absolute-user-path", "detail": line.strip()[:160]})
 
-            for match in EMAIL_PATTERN.finditer(line):
+            for match in EMAIL_PATTERN.finditer(scan_line):
                 email = match.group(0)
                 if not any(exc in email.lower() for exc in EMAIL_EXCEPTIONS):
                     findings.append({"file": str(rel), "line": lineno, "severity": "MEDIUM", "check": "email-address", "detail": email})
 
-            for match in HTTP_URL_PATTERN.finditer(line):
+            for match in HTTP_URL_PATTERN.finditer(scan_line):
                 url = match.group(0)
                 if not any(exc in url.lower() for exc in HTTP_URL_EXCEPTIONS):
                     findings.append({"file": str(rel), "line": lineno, "severity": "MEDIUM", "check": "insecure-http-url", "detail": url})
 
             for dc_pattern, desc in DANGEROUS_CODE_PATTERNS:
-                if dc_pattern.search(line):
+                if dc_pattern.search(scan_line):
                     findings.append({"file": str(rel), "line": lineno, "severity": "HIGH", "check": "dangerous-code-pattern", "detail": desc})
 
             for ui_pattern in UNSAFE_INTERPOLATION_PATTERNS:
-                if ui_pattern.search(line):
+                if ui_pattern.search(scan_line):
                     findings.append({"file": str(rel), "line": lineno, "severity": "HIGH", "check": "unsafe-command-interpolation", "detail": line.strip()[:160]})
 
             if (path.suffix.lower() in (".py", ".sh", ".bash")
