@@ -312,7 +312,7 @@ def cmd_aggregate(args: argparse.Namespace) -> int:
 
     if args.ci:
         if primary_pass_rate is None:
-            print(f"\nCI: no with_skill/primary configuration found — cannot evaluate threshold", file=sys.stderr)
+            print("\nCI: no with_skill/primary configuration found — cannot evaluate threshold", file=sys.stderr)
             return 4
         if primary_pass_rate < args.threshold:
             print(f"\nCI: FAIL — pass rate {primary_pass_rate:.2f} below threshold {args.threshold:.2f}", file=sys.stderr)

@@ -1,0 +1,32 @@
+name: Bug report
+description: Something in SkillArtisan's own scripts, agents, or GitHub Action is behaving incorrectly (not a skill-corpus finding — see the Audit-gap template for that).
+title: "Bug: <short description>"
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What you ran and what went wrong.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: SkillArtisan version
+      placeholder: e.g. 2.7.0 (see skill-artisan/.claude-plugin/plugin.json)
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: The exact command run and, if possible, a minimal SKILL.md/frontmatter that triggers it.
+    validations:
+      required: true

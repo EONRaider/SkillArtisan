@@ -94,7 +94,6 @@ def run_single_query(
     clean_name = f"{skill_name}-skill-{unique_id}"
     skills_root = Path(project_root) / ".claude" / "skills"
     project_skills_dir = skills_root / clean_name
-    skill_file = project_skills_dir / "SKILL.md"
 
     try:
         # Build the entry under a hidden staging name first, then publish it

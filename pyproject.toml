@@ -1,0 +1,21 @@
+# Tooling configuration only. SkillArtisan ships purely as a Claude Code
+# plugin + GitHub Action (see CONTRIBUTING.md), not a pip-installable
+# package — there is deliberately no [project]/[build-system] table here,
+# and adding one would incorrectly imply packaging status this repo doesn't
+# have. Both tools below work standalone without it.
+
+[tool.ruff]
+target-version = "py38"  # README's stated minimum supported Python version
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F"]
+# E501 (line-too-long) is deliberately off: this codebase's docstrings and
+# comments run long by a deliberate content-density choice documented
+# throughout (see references/writing-philosophy.md's own prose style) —
+# enabling it would force an unrelated cleanup pass unrelated to any single
+# change. `I` (isort) is deliberately off too: most scripts under tests/
+# insert `sys.path` entries before importing local modules (`# noqa: E402`),
+# a pattern isort's import-block sorting doesn't understand and would flag
+# on the exact code that's already correctly ordered for its purpose.
+ignore = ["E501"]

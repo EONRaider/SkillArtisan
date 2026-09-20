@@ -1,0 +1,44 @@
+name: Tests and lint
+
+# Runs the actual test suite and linter on push/PR — distinct from
+# self-test-action*.yml, which are workflow_dispatch-only by design because
+# this repo deliberately doesn't audit *itself* with the SkillArtisan action
+# on every push (see those files' own comments). This workflow never
+# invokes the audit action (`uses: ./`) and doesn't conflict with that
+# choice — it just runs this project's own Python test suite and linter,
+# same as any other codebase's CI.
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.8"
+
+      - name: Run test suite
+        run: python3 -m unittest discover -s skill-artisan/tests -p "test_*.py" -v
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.8"
+
+      - name: Install ruff
+        run: pip install ruff
+
+      - name: Run ruff
+        run: ruff check .
