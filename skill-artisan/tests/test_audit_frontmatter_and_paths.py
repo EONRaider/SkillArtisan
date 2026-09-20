@@ -101,5 +101,53 @@ class TestStructuredMissingReferences(unittest.TestCase):
             self.assertEqual(by_id["frontmatter-valid"]["status"], "PASS")
 
 
+class TestStructuredBashPermissionWarning(unittest.TestCase):
+    """A solid-coding review found audit.py's script-references-need-bash-permission
+    item substring-matching "Bash"/"permission" in validate.py's free text,
+    the exact hazard class this file's other tests already guard against for
+    missing_references. Fixed the same way: validate() exposes a structured
+    bash_permission_warning key; audit.py reads it directly."""
+
+    def make_skill_referencing_an_unguarded_script(self, skill_dir: Path) -> None:
+        skill_dir.mkdir(parents=True)
+        (skill_dir / "scripts").mkdir()
+        (skill_dir / "scripts" / "run.sh").write_text("#!/bin/sh\n")
+        (skill_dir / "SKILL.md").write_text(
+            "---\nname: unguarded-script-skill\ndescription: a skill for testing\n---\n"
+            "Run `${CLAUDE_SKILL_DIR}/scripts/run.sh` to do the thing.\n"
+        )
+
+    def test_validate_exposes_structured_bash_permission_warning(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            skill_dir = Path(tmp) / "unguarded-script-skill"
+            self.make_skill_referencing_an_unguarded_script(skill_dir)
+            result = validate.validate(skill_dir)
+            self.assertIsNotNone(result["bash_permission_warning"])
+            self.assertIn(result["bash_permission_warning"], result["warnings"])
+
+    def test_check_frontmatter_and_paths_survives_a_changed_bash_warning_wording(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            skill_dir = Path(tmp) / "unguarded-script-skill"
+            self.make_skill_referencing_an_unguarded_script(skill_dir)
+
+            real_validate = validate.validate
+
+            def patched_validate(skill_path):
+                result = real_validate(skill_path)
+                if result.get("bash_permission_warning"):
+                    old = result["bash_permission_warning"]
+                    new = "a totally reworded warning with no shared keywords"
+                    result["warnings"] = [new if w == old else w for w in result["warnings"]]
+                    result["bash_permission_warning"] = new
+                return result
+
+            with mock.patch.object(audit.validate, "validate", side_effect=patched_validate):
+                items = audit.check_frontmatter_and_paths(skill_dir)
+
+            item = next(i for i in items if i["id"] == "script-references-need-bash-permission")
+            self.assertEqual(item["status"], "WARN")
+            self.assertIn("totally reworded warning", item["detail"])
+
+
 if __name__ == "__main__":
     unittest.main()

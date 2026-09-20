@@ -8,6 +8,7 @@ per the scripts/ discipline (see references/script-design.md).
 from __future__ import annotations
 
 import math
+import os
 import re
 import sys
 from pathlib import Path
@@ -286,3 +287,111 @@ def find_skill_dirs(search_paths: list[Path]) -> list[Path]:
                 continue
             found.append(skill_dir)
     return sorted(set(found))
+
+
+def default_skill_search_roots(start: Path | None = None) -> list[Path]:
+    """Where a bare skill name (not a path) is looked for by default:
+    `start` (default cwd) walked up through every parent directory's own
+    `.claude/skills/` — project-local lookup that works from any
+    subdirectory of a project, not just its root — plus
+    `$CLAUDE_CONFIG_DIR` (or `~/.claude` if unset)'s own `skills/`,
+    `plugins/cache/`, and `plugins/marketplaces/` subdirectories.
+
+    dedup_search.py's own DEFAULT_SEARCH_PATHS deliberately stays to just
+    two paths, noting "there's no reliable single location for installed
+    plugin skills across every Claude Code version" — a fair caution when
+    it was written, but one that predates find_skill_dirs' Phase 13 rewrite
+    to a plain recursive walk with no fixed-depth assumptions (see that
+    function's own docstring). A wrong or nonexistent guess at the
+    plugin-cache layout today just means find_skill_dirs finds nothing
+    under it (it already skips any base that isn't a real directory) rather
+    than silently missing real content sitting at the wrong depth — so a
+    wider net is safe here in a way it wasn't before. resolve_skill_by_name
+    below is the other half of why: more candidates found means more
+    explicit disambiguation surfaced to the caller, never a wrong pick.
+    """
+    config_dir = Path(os.environ.get("CLAUDE_CONFIG_DIR", str(Path.home() / ".claude"))).resolve()
+    roots = [config_dir / "skills", config_dir / "plugins" / "cache", config_dir / "plugins" / "marketplaces"]
+    current = (start or Path.cwd()).resolve()
+    for directory in (current, *current.parents):
+        roots.append(directory / ".claude" / "skills")
+    return roots
+
+
+class SkillResolutionError(Exception):
+    """Raised by resolve_skill_by_name when a bare name doesn't resolve to
+    exactly one skill. Carries `.candidates` (possibly empty) so the caller
+    can print them and ask the user to disambiguate — never guesses."""
+
+    def __init__(self, message: str, candidates: list[Path] | None = None):
+        super().__init__(message)
+        self.candidates = candidates or []
+
+
+def resolve_skill_by_name(name: str, search_roots: list[Path] | None = None) -> Path:
+    """Resolve a bare skill name (no `/` in it) to its directory, searching
+    default_skill_search_roots() by default. An exact match — either the
+    directory's own basename or its SKILL.md's frontmatter `name:` field —
+    beats a fuzzy substring match. Raises SkillResolutionError, never
+    guesses, on zero or multiple exact matches (`.candidates` lists every
+    match found, for the caller to disambiguate with a real path instead);
+    a fuzzy-only match (no exact match at all) also raises, listing the
+    fuzzy matches as `.candidates`, rather than silently picking the
+    closest-looking one.
+    """
+    roots = search_roots if search_roots is not None else default_skill_search_roots()
+    found = find_skill_dirs(roots)
+
+    exact: list[Path] = []
+    fuzzy: list[Path] = []
+    for skill_dir in found:
+        if skill_dir.name == name:
+            exact.append(skill_dir)
+            continue
+        try:
+            frontmatter_name, _, _ = parse_skill_md(skill_dir)
+        except (ValueError, OSError):
+            frontmatter_name = ""
+        if frontmatter_name == name:
+            exact.append(skill_dir)
+        elif name in skill_dir.name:
+            fuzzy.append(skill_dir)
+
+    exact = sorted(set(exact))
+    if len(exact) == 1:
+        return exact[0]
+    if len(exact) > 1:
+        raise SkillResolutionError(
+            f"multiple skills named {name!r} found — pass a path instead of a bare name to disambiguate",
+            candidates=exact,
+        )
+    fuzzy = sorted(set(fuzzy))
+    if fuzzy:
+        raise SkillResolutionError(f"no skill exactly named {name!r} found; did you mean one of these?", candidates=fuzzy)
+    raise SkillResolutionError(f"no skill named {name!r} found under: {', '.join(str(r) for r in roots)}")
+
+
+def resolve_skill_path_or_name(raw: str) -> Path | None:
+    """CLI argument resolution shared by audit.py/validate.py: try `raw` as
+    a literal path first (unchanged behavior, full backward compatibility
+    with every existing invocation), and only fall back to
+    resolve_skill_by_name when it isn't a directory and contains no `/` —
+    a string with a `/` is unambiguously meant as a path, not a bare name,
+    so it keeps getting resolve_existing_dir's ordinary "not a directory"
+    error rather than a confusing "no skill named" one.
+
+    Prints the relevant error (including any candidates, for
+    SkillResolutionError) to stderr and returns None on failure — the
+    caller does `if result is None: return 2` (or `sys.exit(2)`), matching
+    resolve_existing_dir's own contract.
+    """
+    path = Path(raw)
+    if not path.is_dir() and "/" not in raw:
+        try:
+            return resolve_skill_by_name(raw)
+        except SkillResolutionError as e:
+            print(f"Error: {e}", file=sys.stderr)
+            for candidate in e.candidates:
+                print(f"  - {candidate}", file=sys.stderr)
+            return None
+    return resolve_existing_dir(raw)
