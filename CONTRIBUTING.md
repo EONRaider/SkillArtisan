@@ -8,6 +8,7 @@ Notes for anyone developing SkillArtisan itself, not just installing it — the 
 .
 ├── action.yml                   # GitHub Action definition — must live at repo root
 ├── .github/workflows/           # this repo's own self-test workflows for action.yml
+├── README.md                    # repo-root front door — distinct from skill-artisan/README.md, see below
 ├── skill-artisan/              # the plugin itself — install/run this
 │   ├── creating-skills/        # the bundled skill (decision gate, SKILL.md)
 │   ├── agents/ eval-viewer/ assets/ scripts/
@@ -21,7 +22,7 @@ Notes for anyone developing SkillArtisan itself, not just installing it — the 
 └── skill-artisan-master-spec.md      # design spec + 40-row Gap Table vs. skill-creator
 ```
 
-`skill-artisan-master-spec.md` stays at the root because it documents the *build process* itself, not the plugin — there's no equivalent inside `skill-artisan/`. `README.md` and `CHANGELOG.md` exist only inside `skill-artisan/` — one canonical copy each, not duplicated at root, since their content is versioned narrative that would drift. `LICENSE` is the one exception: it's duplicated at root *and* inside `skill-artisan/` on purpose — static boilerplate text with no drift risk, and GitHub's own tooling (license detection, GitHub Marketplace's publish-eligibility check) reads the repo-root copy specifically, while the `skill-artisan/` copy is what actually ships with the installed plugin.
+`skill-artisan-master-spec.md` stays at the root because it documents the *build process* itself, not the plugin — there's no equivalent inside `skill-artisan/`. `CHANGELOG.md` exists only inside `skill-artisan/` — one canonical copy, not duplicated at root, since its content is versioned narrative that would drift. `README.md` exists at *both* levels, but this is not the drift-risk duplication described above: the root `README.md` is the repo's front door (why the project exists, install instructions, the GitHub Action, licensing/credits) aimed at someone deciding whether to use SkillArtisan at all, while `skill-artisan/README.md` is the live plugin doc aimed at someone who already installed it — it explicitly defers back to the root README for anything not specific to the installed plugin, rather than repeating it. `LICENSE` is duplicated at root *and* inside `skill-artisan/` on purpose — static boilerplate text with no drift risk, and GitHub's own tooling (license detection, GitHub Marketplace's publish-eligibility check) reads the repo-root copy specifically, while the `skill-artisan/` copy is what actually ships with the installed plugin.
 
 ## Plugin architecture
 
