@@ -70,6 +70,15 @@ PATTERN_SCAN_EXTENSIONS = {
 
 # --- Pattern checks (--verbose only) ---------------------------------------
 
+# self-scan-exempt:start — see self_scan_exempt_line_numbers() below. These
+# definitions necessarily contain, as literal regex source and example
+# strings, the exact shapes they're built to detect (e.g. the line defining
+# the os.system( check contains the text "os.system("). When this file
+# scans itself — its scripts/ dir ships inside creating-skills, so a normal
+# audit of that skill includes it — those literals match their own checks,
+# not because anything here executes them. Keep this range limited to the
+# pattern *definitions*; the rest of the file (CLI parsing, the gitleaks
+# invocation, etc.) is still scanned like any other file.
 ABS_PATH_PATTERNS = [
     re.compile(r"/home/[A-Za-z0-9_.-]+"),
     re.compile(r"/Users/[A-Za-z0-9_.-]+"),
@@ -77,10 +86,10 @@ ABS_PATH_PATTERNS = [
 ]
 
 EMAIL_PATTERN = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b")
-EMAIL_EXCEPTIONS = ("example.com", "test.com", "localhost", "noreply@anthropic.com")
+EMAIL_EXCEPTIONS = ("example.com", "test.com", "localhost", "noreply@anthropic.com", "github.com")
 
 HTTP_URL_PATTERN = re.compile(r"http://[^\s\"'<>)]+")
-HTTP_URL_EXCEPTIONS = ("localhost", "127.0.0.1", "0.0.0.0", "example.com")  # NOT test.com — that's email-only
+HTTP_URL_EXCEPTIONS = ("localhost", "127.0.0.1", "0.0.0.0", "example.com", "github.com")  # NOT test.com — that's email-only
 
 DANGEROUS_CODE_PATTERNS = [
     (re.compile(r"os\.system\("), "os.system( call — arbitrary shell execution"),
@@ -105,6 +114,7 @@ UNSAFE_INTERPOLATION_PATTERNS = [
     re.compile(r"os\.system\([^)]*%\s*\("),                     # % string formatting into os.system
     re.compile(r"os\.system\([^)]*\.format\("),
 ]
+# self-scan-exempt:end
 
 # Mirrors validate.py's check_path_references: a markdown doc *teaching*
 # about a dangerous pattern, path shape, or URL scheme — via a fenced
@@ -252,6 +262,11 @@ def classify_gitleaks_severity(rule_id: str) -> str:
 
 # --- Pattern checks (tier 2, --verbose) -------------------------------------
 
+# Must match the sentinel comment text bracketing the pattern-definition
+# block near the top of this file exactly, byte for byte.
+SELF_SCAN_EXEMPT_START = "# self-scan-exempt:start"
+SELF_SCAN_EXEMPT_END = "# self-scan-exempt:end"
+
 
 def docstring_line_numbers(text: str) -> set[int]:
     """1-indexed line numbers that fall inside a triple-quoted Python string
@@ -271,6 +286,22 @@ def docstring_line_numbers(text: str) -> set[int]:
     return lines
 
 
+def self_scan_exempt_line_numbers(text: str) -> set[int]:
+    """1-indexed line numbers between the "self-scan-exempt" sentinel
+    comments bracketing this module's own pattern-definition literals
+    (ABS_PATH_PATTERNS through UNSAFE_INTERPOLATION_PATTERNS, above). Only
+    meaningful when `text` is security_scan.py's own source — see the
+    caller. Located by marker text rather than a hardcoded line range so it
+    keeps working if that block is edited or reordered."""
+    start = text.find(SELF_SCAN_EXEMPT_START)
+    end = text.find(SELF_SCAN_EXEMPT_END)
+    if start == -1 or end == -1:
+        return set()
+    start_line = text.count("\n", 0, start) + 1
+    end_line = text.count("\n", 0, end) + 1
+    return set(range(start_line, end_line + 1))
+
+
 def run_pattern_checks(skill_path: Path) -> list[dict]:
     patterns = load_skillignore(skill_path)
     findings = []
@@ -284,8 +315,11 @@ def run_pattern_checks(skill_path: Path) -> list[dict]:
         lines = text.split("\n")
         docstring_lines = docstring_line_numbers(text) if path.suffix.lower() == ".py" else set()
         scan_lines = strip_markdown_code(text).split("\n") if path.suffix.lower() == ".md" else lines
+        exempt_lines = self_scan_exempt_line_numbers(text) if path.name == "security_scan.py" else set()
 
         for lineno, line in enumerate(lines, start=1):
+            if lineno in exempt_lines:
+                continue
             scan_line = scan_lines[lineno - 1]
 
             for abs_pattern in ABS_PATH_PATTERNS:
