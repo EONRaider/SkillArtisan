@@ -54,6 +54,8 @@ import tempfile
 import zipfile
 from pathlib import Path
 
+from _common import resolve_existing_dir
+
 MARKER_FILENAME = ".security-scan-passed"
 
 CRITICAL_KEYWORDS = ("api", "key", "token", "password", "secret", "credential")
@@ -351,9 +353,8 @@ def main() -> None:
     parser.add_argument("--json", action="store_true", help="Emit structured JSON instead of a text report")
     args = parser.parse_args()
 
-    skill_path = Path(args.skill_path).resolve()
-    if not skill_path.is_dir():
-        print(f"Error: not a directory: {skill_path}", file=sys.stderr)
+    skill_path = resolve_existing_dir(args.skill_path)
+    if skill_path is None:
         sys.exit(2)
 
     if args.package:

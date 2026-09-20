@@ -39,7 +39,7 @@ from pathlib import Path
 import anthropic_client
 import audit
 import pr_execute
-from _common import find_skill_dirs
+from _common import find_skill_dirs, resolve_existing_dir
 
 DEFAULT_MAX_SKILLS = 10
 
@@ -202,9 +202,8 @@ def main() -> int:
     parser.add_argument("--summary-file", default=os.environ.get("GITHUB_STEP_SUMMARY"))
     args = parser.parse_args()
 
-    skills_path = Path(args.skills_path).resolve()
-    if not skills_path.is_dir():
-        print(f"Error: not a directory: {skills_path}", file=sys.stderr)
+    skills_path = resolve_existing_dir(args.skills_path)
+    if skills_path is None:
         return 2
 
     skill_dirs = find_skill_dirs([skills_path])
