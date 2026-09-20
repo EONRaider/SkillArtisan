@@ -44,6 +44,8 @@ Cut content the model would get right without it. Every sentence in a SKILL.md b
 
 This is in tension with "explain the why" above — the resolution is that the *why* should be as short as the reasoning actually requires, not padded into a paragraph. One clause is often enough.
 
+Leanness isn't just a cost/benefit judgment call — Claude Code enforces it mechanically after auto-compaction: only the first ~5000 tokens of a skill's body are re-attached, the rest silently drops, and re-attached skills share a 25,000-token budget across the whole session (oldest dropped first when that budget is exceeded). `scripts/audit.py`'s `check_body_size` FAILs past this exact 5000-token line for exactly this reason — a skill that reads fine on first load can go quietly incomplete after a single compaction if it's already near that ceiling. Treat the limit as load-bearing, not just a style preference: it's the boundary between "this guidance is available" and "this guidance silently isn't," which is a materially worse failure mode than a slightly terser skill.
+
 ## Coherent-unit scoping
 
 Distinct from degrees of freedom below — this is about the skill's *boundary*, not its *internal instruction style*. A skill should encapsulate one coherent unit of work, the way a well-scoped function does one thing.

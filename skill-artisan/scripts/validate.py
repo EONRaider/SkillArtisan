@@ -48,7 +48,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from _common import frontmatter_and_body, resolve_existing_dir
+from _common import frontmatter_and_body, resolve_skill_path_or_name
 
 SKILLS_REF_VERSION = "0.1.5"  # pinned — see references/script-design.md on pinning one-off runners
 
@@ -274,6 +274,72 @@ def check_path_references(skill_path: Path, body: str) -> list[str]:
     return sorted(set(missing))
 
 
+CLAUDE_SKILL_DIR_REF_RE = re.compile(r"\$\{CLAUDE_SKILL_DIR\}/([^\s`\"')\]>]+)")
+
+
+def check_claude_skill_dir_refs(skill_path: Path, content: str) -> list[str]:
+    """Find `${CLAUDE_SKILL_DIR}/...` references that don't resolve to a
+    real file under the skill directory. Deliberately runs on the RAW,
+    unstripped file content (frontmatter and body both — a scoped
+    `allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)` value is a real,
+    common place for this substitution to appear) — unlike
+    check_path_references, which strips fenced code blocks and inline code
+    spans before its markdown-link regex runs. `${CLAUDE_SKILL_DIR}/...`
+    references overwhelmingly live inside backticked shell snippets (it's
+    Claude Code's own runtime substitution for "this skill's own
+    directory," used in body commands and `allowed-tools` values, not
+    markdown links), so that stripping pass would make this check blind to
+    exactly what it exists to catch.
+
+    WARN-level in validate() below, not a hard error like
+    check_path_references: a skill's own documentation *about* the
+    `${CLAUDE_SKILL_DIR}` convention (e.g. a reference file explaining this
+    exact syntax with an illustrative, never-meant-to-exist example path)
+    is a false positive this check cannot structurally distinguish from a
+    genuinely broken reference, unlike check_path_references' narrower
+    prose-example exclusions — so this surfaces for a human/LLM read
+    instead of failing validation outright on a possible false positive.
+    """
+    missing = []
+    for match in CLAUDE_SKILL_DIR_REF_RE.finditer(content):
+        target = match.group(1).rstrip(".,;:\"')")
+        if target and not (skill_path / target).exists():
+            missing.append(target)
+    return sorted(set(missing))
+
+
+BUNDLED_SCRIPT_EXTENSIONS = (".sh", ".py", ".js", ".ts", ".mjs", ".rb")
+BASH_TOOL_RE = re.compile(r"\bBash\b")
+
+
+def check_scripts_need_bash_permission(skill_path: Path, frontmatter: dict[str, str], content: str) -> str | None:
+    """WARN, not error: a deliberate human-in-the-loop gate on a sensitive
+    script is a legitimate low-freedom-tier authoring choice (see
+    references/writing-philosophy.md's degrees-of-freedom tiers), not
+    automatically a bug — this only flags the likely-forgotten case where a
+    bundled script is mentioned but nothing grants Bash to run it, meaning
+    every invocation hits a permission prompt.
+
+    Looks for any bundled file with a script extension whose filename
+    appears anywhere in the raw content, then checks whether
+    `allowed-tools` grants Bash and `disallowed-tools` doesn't block it —
+    a lightweight heuristic (mention, not a verified call), matching the
+    confidence level of this codebase's other WARN-level content checks
+    (e.g. check_degrees_of_freedom_proxy).
+    """
+    allowed = frontmatter.get("allowed-tools", "")
+    disallowed = frontmatter.get("disallowed-tools", "")
+    has_bash = bool(BASH_TOOL_RE.search(allowed)) and not BASH_TOOL_RE.search(disallowed)
+    if has_bash:
+        return None
+    for script_file in sorted(skill_path.rglob("*")):
+        if script_file.suffix in BUNDLED_SCRIPT_EXTENSIONS and script_file.name in content:
+            return (f"references bundled script '{script_file.name}' but frontmatter doesn't grant Bash "
+                    f"permission (allowed-tools missing Bash, or disallowed-tools blocks it) — every "
+                    f"invocation will hit a permission prompt unless that's a deliberate gate")
+    return None
+
+
 def validate(skill_path: Path) -> dict:
     result: dict = {"skill_path": str(skill_path), "errors": [], "warnings": [], "info": [], "valid": True}
 
@@ -331,6 +397,18 @@ def validate(skill_path: Path) -> dict:
         result["missing_references_error"] = f"Missing referenced files: {', '.join(missing_refs)}"
         result["errors"].append(result["missing_references_error"])
 
+    dangling_skill_dir_refs = check_claude_skill_dir_refs(skill_path, content)
+    result["dangling_skill_dir_references"] = dangling_skill_dir_refs
+    if dangling_skill_dir_refs:
+        result["warnings"].append(
+            f"Dangling ${{CLAUDE_SKILL_DIR}} reference(s): {', '.join(dangling_skill_dir_refs)}"
+        )
+
+    bash_permission_warning = check_scripts_need_bash_permission(skill_path, frontmatter, content)
+    result["bash_permission_warning"] = bash_permission_warning
+    if bash_permission_warning:
+        result["warnings"].append(bash_permission_warning)
+
     result["valid"] = len(result["errors"]) == 0
     return result
 
@@ -374,7 +452,9 @@ def suggest_compatibility(surfaces: list[str]) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Validate a skill directory (skills-ref + Claude-specific checks)")
-    parser.add_argument("skill_path", nargs="?", help="Path to the skill directory (not needed with --suggest-compatibility)")
+    parser.add_argument("skill_path", nargs="?",
+                         help="Path to the skill directory, or a bare installed skill name to resolve "
+                              "(not needed with --suggest-compatibility)")
     parser.add_argument("--json", action="store_true", help="Emit structured JSON to stdout instead of a text report")
     parser.add_argument(
         "--suggest-compatibility", metavar="SURFACES",
@@ -395,7 +475,7 @@ def main() -> None:
         print("Error: skill_path is required unless --suggest-compatibility is given", file=sys.stderr)
         sys.exit(2)
 
-    skill_path = resolve_existing_dir(args.skill_path)
+    skill_path = resolve_skill_path_or_name(args.skill_path)
     if skill_path is None:
         sys.exit(2)
 
