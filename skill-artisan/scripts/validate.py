@@ -55,6 +55,17 @@ SKILLS_REF_VERSION = "0.1.5"  # pinned — see references/script-design.md on pi
 RESERVED_WORDS = ("anthropic", "claude")
 
 # The six fields agentskills.io's spec (and skills-ref) actually accept.
+# CRITICAL (issue #9): a third-party `tools` field (a YAML list of tool
+# names used as descriptive/cataloging metadata, distinct from this file's
+# own `allowed-tools`) must never be added here and must never be aliased to
+# `allowed-tools` — `allowed-tools` has real runtime permission-bypass
+# semantics (tools Claude can use without asking during the turn that
+# invokes this skill), and `PORTABLE_FIELDS` feeds run_skills_ref()'s
+# portable-field passthrough below. Doing either would grant real,
+# unintended permission-bypass behavior to skills whose authors never asked
+# for that. `tools` only ever goes through the WARN-level
+# THIRD_PARTY_FIELD_FAMILIES path (see `tool-usage-metadata` below), same as
+# every other non-portable field.
 PORTABLE_FIELDS = {"name", "description", "license", "compatibility", "metadata", "allowed-tools"}
 
 # Claude Code extensions (references/surface-matrix.md documents these in full).
@@ -74,15 +85,41 @@ CLAUDE_CODE_ONLY_FIELDS = {
 # on 817/817 skills of a corpus (mukul975/Anthropic-Cybersecurity-Skills)
 # taught nothing. Fields here downgrade to a portability warning naming the
 # family. Deliberately NOT included, so they keep hard-erroring: recorded
-# true positives and bespoke one-off conventions (`user_invocable` — an
-# underscore typo for the real `user-invocable` — plus `triggers`, `command`,
-# `agents`, `compatible_tools` from the Phase 5/6 pilot notes).
+# true positives (`user_invocable` — an underscore typo for the real
+# `user-invocable`) plus `command`, `agents`, `compatible_tools` from the
+# Phase 5/6 pilot notes. `triggers` was originally grouped with those three as
+# a "bespoke one-off convention" too, but issue #8 found it independently and
+# consistently used across five unrelated authorship models (Anthropic's own
+# zoom-plugin, NVIDIA, an academic genomics project, and two more) — real
+# corroborated convention, not a one-off, so it moved to `routing-metadata`
+# below. Any other still-undecided candidate raised only once in an issue
+# thread (`type`, a progressive-disclosure cluster, a marketing-metadata
+# family, `requirements`, a governance taxonomy — see issue #9's comments)
+# stays deliberately unresolved: one data point isn't enough to name/size a
+# family without risking the same speculative-guess problem this discipline
+# exists to avoid.
 THIRD_PARTY_FIELD_FAMILIES: dict[str, set[str]] = {
     "security-framework-taxonomy": {
         "mitre_attack", "nist_csf", "d3fend_techniques", "mitre_f3",
         "atlas_techniques", "nist_ai_rmf", "domain", "subdomain",
     },
     "common-authoring-metadata": {"author", "tags", "version"},
+    # Issue #8: a YAML list of trigger phrases. Corroborated across five
+    # independent authorship models (anthropics/knowledge-work-plugins,
+    # mims-harvard/tooluniverse, aitytech/agentkits-marketing, and two more) —
+    # not the one-off it was originally characterized as.
+    "routing-metadata": {"triggers"},
+    # Issue #9 (nvidia/skills, Phase 9): a real, consistently-used internal
+    # ownership/review-date triplet, e.g. `owner: "NVIDIA CORPORATION"`,
+    # `service: "auto-magic-calib"`, `reviewed: "2026-06-15"` (8 skills).
+    "governance-metadata": {"owner", "service", "reviewed"},
+    # Issue #9 (nvidia/skills, Phase 9): a YAML list of tool names used as
+    # descriptive/cataloging metadata (16 skills, e.g. `tools: [Read, Glob]`).
+    # This family name is a proposal open for maintainer confirmation — the
+    # issue explicitly left it unnamed pending explicit sign-off.
+    # `tools` must never be aliased to `allowed-tools` or added to
+    # PORTABLE_FIELDS — see the guardrail comment above PORTABLE_FIELDS.
+    "tool-usage-metadata": {"tools"},
 }
 
 GERUND_SUFFIXES = ("ing", "ing-")

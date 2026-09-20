@@ -93,11 +93,39 @@ class TestThirdPartyFieldFamilies(unittest.TestCase):
         self.assertEqual(unknown, ["totally_made_up_field"])
 
     def test_bespoke_conventions_still_error(self):
-        """Recorded Phase 5/6 patterns deliberately kept OUT of the families."""
-        for field in ("triggers", "command", "agents", "compatible_tools", "user_invocable"):
+        """Recorded Phase 5/6 patterns deliberately kept OUT of the families.
+        `triggers` used to be here too, until issue #8's corroboration moved
+        it into the `routing-metadata` family — see
+        test_issue_8_and_9_families_classify_as_known_third_party below."""
+        for field in ("command", "agents", "compatible_tools", "user_invocable"):
             _, known, unknown = validate.classify_extended_fields({"name": "x", field: "v"})
             self.assertIn(field, unknown, f"{field} must stay a hard error")
             self.assertEqual(known, {})
+
+    def test_issue_8_and_9_families_classify_as_known_third_party(self):
+        """Issue #8 (triggers, corroborated across 5 authorship models) and
+        issue #9 (nvidia/skills' owner/service/reviewed governance triplet,
+        and its separate `tools` cataloging field) all downgrade to a
+        portability warning instead of hard-erroring."""
+        frontmatter = {
+            "name": "x", "description": "y",
+            "triggers": "['deploy', 'ship it']",
+            "owner": "NVIDIA CORPORATION", "service": "auto-magic-calib", "reviewed": "2026-06-15",
+            "tools": "[Read, Glob]",
+        }
+        claude_only, known, unknown = validate.classify_extended_fields(frontmatter)
+        self.assertEqual(unknown, [], "all four fields must classify as known third-party, not unknown")
+        self.assertEqual(claude_only, [])
+        self.assertEqual(known.get("routing-metadata"), ["triggers"])
+        self.assertCountEqual(known.get("governance-metadata"), ["owner", "service", "reviewed"])
+        self.assertEqual(known.get("tool-usage-metadata"), ["tools"])
+
+    def test_tools_never_treated_as_portable_or_aliased(self):
+        """Issue #9's hard guardrail: `tools` must never be added to
+        PORTABLE_FIELDS or aliased to `allowed-tools` — only ever routed
+        through the WARN-level third-party family path."""
+        self.assertNotIn("tools", validate.PORTABLE_FIELDS)
+        self.assertNotIn("allowed-tools", validate.THIRD_PARTY_FIELD_FAMILIES.get("tool-usage-metadata", set()))
 
     def test_family_warning_text_avoids_the_audit_filter_word(self):
         """audit.py's check_frontmatter_and_paths buckets warnings by the
