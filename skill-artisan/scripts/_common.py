@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import math
 import re
+import sys
 from pathlib import Path
 
 FRONTMATTER_DELIM = "---"
@@ -147,6 +148,52 @@ TRIAL_PRESETS = {
     "reliable": 15,   # pre-review confidence
     "regression": 30,  # high-confidence regression detection before release
 }
+
+
+def frontmatter_and_body(content: str) -> tuple[dict[str, str], str]:
+    """Split a SKILL.md's raw content into its parsed frontmatter dict and
+    body text in one pass. audit.py's get_body and validate.py's validate()
+    each independently reimplemented this exact delimiter-boundary scan
+    (byte-identical except for a variable name) before being consolidated
+    here — the same failure mode that already caused a real production bug
+    once (two independently-drifted frontmatter parsers, see this file's own
+    git history), just for the body side instead of the frontmatter side.
+
+    Falls back to ({}, content) when the frontmatter block isn't
+    well-formed (no opening/closing delimiter) — the graceful-degradation
+    behavior validate.py's validate() relies on to report errors on a
+    malformed SKILL.md rather than crash. This is deliberately different
+    from parse_skill_md, which raises ValueError instead: a different
+    caller need (parse_skill_md's callers want a hard failure on malformed
+    input; validate() wants to keep validating and report what's wrong).
+    """
+    lines = content.split("\n")
+    if not lines or lines[0].strip() != FRONTMATTER_DELIM:
+        return {}, content
+    for i, line in enumerate(lines[1:], start=1):
+        if line.strip() == FRONTMATTER_DELIM:
+            return _parse_frontmatter_lines(lines[1:i]), "\n".join(lines[i + 1:])
+    return {}, content
+
+
+def resolve_existing_dir(raw_path: str) -> Path | None:
+    """Resolve a CLI path argument and print this project's standard
+    "not a directory" error if it isn't one. Six call sites across
+    audit.py, validate.py, security_scan.py, and gha_audit.py independently
+    reimplemented this exact check — identical wording, identical exit code
+    2 — before being consolidated here (pr_execute.py's git-repo-specific
+    check, `not path.is_dir() or not (path / ".git").exists()`, is a
+    genuinely different rule and stays separate). Caller does
+    `if path is None: return 2` (or `sys.exit(2)`) — this function never
+    exits the process itself, since each of the 4 CLIs owns its own
+    process-exit convention (some `return 2` from an argparse-dispatched
+    function, some call `sys.exit(2)` directly).
+    """
+    path = Path(raw_path).resolve()
+    if not path.is_dir():
+        print(f"Error: not a directory: {path}", file=sys.stderr)
+        return None
+    return path
 
 
 def find_skill_dirs(search_paths: list[Path]) -> list[Path]:

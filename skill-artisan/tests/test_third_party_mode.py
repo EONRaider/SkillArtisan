@@ -134,6 +134,26 @@ class TestThirdPartyReframing(unittest.TestCase):
         for item_id in ("evals-present", "lifecycle-classified"):
             self.assertNotEqual(find_item(report["items"], item_id)["status"], "N/A")
 
+    def test_malformed_evals_json_still_fails_for_a_third_party_skill(self):
+        """Guards apply_third_party_reframing's per-row match predicate: the
+        evals-present row only reframes the exact "no evals/evals.json"
+        detail (artifact absent), not any FAIL for that item id. A present
+        but malformed evals.json is a real content defect and must stay
+        scored FAIL even for a third-party skill -- a naive refactor keyed
+        only on status == "FAIL" would wrongly reframe this to N/A."""
+        import shutil
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            skill = Path(tmp) / "third-party-fixture"
+            shutil.copytree(THIRD_PARTY_FIXTURE, skill)
+            evals_dir = skill / "evals"
+            evals_dir.mkdir()
+            (evals_dir / "evals.json").write_text("{not valid json")
+            items = audit.run_checklist(skill, source="third-party")
+            item = find_item(items, "evals-present")
+            self.assertEqual(item["status"], "FAIL")
+            self.assertIn("invalid JSON", item["detail"])
+
     def test_other_checks_unaffected_by_source(self):
         third = audit.run_checklist(THIRD_PARTY_FIXTURE, source="third-party")
         first = audit.run_checklist(THIRD_PARTY_FIXTURE, source="first-party")

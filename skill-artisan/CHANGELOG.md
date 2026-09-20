@@ -6,6 +6,18 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.8.1] - 2026-09-20
+
+### Fixed
+- **Internal quality pass over `skill-artisan/scripts/*.py`** via a full `solid-coding` audit (5 principle-cluster reviews, every finding independently adversarially re-verified before applying). Refactor only — no observable behavior change for any existing caller; `184`-test suite passes before and after every increment, verified against real Python 3.8 as well as the dev environment's 3.10. OCP/pattern-fit, LSP/ISP/DIP, and Law-of-Demeter/CQS reviews came back with zero findings (mostly free functions over dicts/Paths, already table-driven where it matters — a legitimate clean result, not a shallow pass). Four findings confirmed real and fixed:
+  - **`_common.resolve_existing_dir()` replaces 6 copies of the identical "not a directory" CLI check** across `audit.py` (3 sites), `validate.py`, `security_scan.py`, and `gha_audit.py` — same stderr wording and exit code everywhere, previously drifting by copy-paste. `pr_execute.py`'s similar-looking but genuinely different git-repo check is correctly left alone.
+  - **`_common.frontmatter_and_body()` replaces a byte-identical frontmatter/body delimiter scan** duplicated in `audit.py`'s `get_body` and `validate.py`'s `validate()` — the same failure mode (independently-drifting frontmatter parsers) that previously caused a real production bug (a 704-char description silently reading as empty). Both edge cases (missing opening/closing delimiter) verified identical before and after.
+  - **`validate.validate()` now exposes `missing_references`/`missing_references_error` as structured keys**, instead of `audit.py`'s `check_frontmatter_and_paths` classifying a `path-references-exist` vs. `frontmatter-valid` finding by string-matching `"Missing referenced files"` in free text. This codebase already guards the analogous "gerund" substring hazard with an explicit comment and test; this closes the same class of gap here. A new test monkeypatches the message wording entirely and confirms classification still works.
+  - **`audit.py`'s three inline third-party N/A-reframing blocks (issue #4) consolidated into one table-driven `apply_third_party_reframing()`.** Adding a future 4th pipeline-artifact-only check no longer requires hand-writing a new inline special case. Table rows use per-item match/detail-builder callables, not a shared status flag, specifically because the three original blocks weren't uniform — `evals-present` only reframes the exact "artifact absent" case, never a present-but-malformed `evals.json` (a real content defect). Adversarial verification caught that a naive status-only table would have silently widened `evals-present`'s reframing to cover malformed-JSON cases too; a new regression test (`test_malformed_evals_json_still_fails_for_a_third_party_skill`) pins the previously-uncovered case directly.
+
+### Notes
+- Deferred: nothing — the two `PLAUSIBLE`-verdict findings above were adversarially re-verified against `principle-tensions.md`, revised to a right-sized fix, and applied; nothing was rejected outright, but both were genuinely reworked from their initial proposed shape rather than rubber-stamped (see each bullet above for what changed). `184`-test suite passes (174 baseline + 10 new).
+
 ## [2.8.0] - 2026-09-20
 
 ### Added

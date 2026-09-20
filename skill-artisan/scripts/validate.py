@@ -48,7 +48,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from _common import parse_frontmatter_raw
+from _common import frontmatter_and_body, resolve_existing_dir
 
 SKILLS_REF_VERSION = "0.1.5"  # pinned — see references/script-design.md on pinning one-off runners
 
@@ -284,17 +284,8 @@ def validate(skill_path: Path) -> dict:
         return result
 
     content = skill_md.read_text()
-    frontmatter = parse_frontmatter_raw(content)
+    frontmatter, body_after_frontmatter = frontmatter_and_body(content)
     name = frontmatter.get("name", "")
-
-    # Body after the closing --- (used both for skills-ref's stripped copy and path-ref checks)
-    lines = content.split("\n")
-    body_after_frontmatter = content
-    if lines and lines[0].strip() == "---":
-        for i, line in enumerate(lines[1:], start=1):
-            if line.strip() == "---":
-                body_after_frontmatter = "\n".join(lines[i + 1:])
-                break
 
     try:
         skills_ref_valid, skills_ref_errors = run_skills_ref(skill_path, frontmatter, body_after_frontmatter)
@@ -334,8 +325,11 @@ def validate(skill_path: Path) -> dict:
         result["errors"].append(f"Unrecognized frontmatter field(s): {', '.join(sorted(unknown))}")
 
     missing_refs = check_path_references(skill_path, body_after_frontmatter)
+    result["missing_references"] = missing_refs
+    result["missing_references_error"] = None
     if missing_refs:
-        result["errors"].append(f"Missing referenced files: {', '.join(missing_refs)}")
+        result["missing_references_error"] = f"Missing referenced files: {', '.join(missing_refs)}"
+        result["errors"].append(result["missing_references_error"])
 
     result["valid"] = len(result["errors"]) == 0
     return result
@@ -401,9 +395,8 @@ def main() -> None:
         print("Error: skill_path is required unless --suggest-compatibility is given", file=sys.stderr)
         sys.exit(2)
 
-    skill_path = Path(args.skill_path).resolve()
-    if not skill_path.is_dir():
-        print(f"Error: not a directory: {skill_path}", file=sys.stderr)
+    skill_path = resolve_existing_dir(args.skill_path)
+    if skill_path is None:
         sys.exit(2)
 
     result = validate(skill_path)

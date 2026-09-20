@@ -45,7 +45,7 @@ from pathlib import Path
 import pr_execute
 import security_scan
 import validate
-from _common import find_skill_dirs, parse_skill_md
+from _common import find_skill_dirs, frontmatter_and_body, parse_skill_md, resolve_existing_dir
 
 # --- Checklist item registry -------------------------------------------------
 # Each check returns (status, detail). Status is one of:
@@ -75,22 +75,23 @@ WINDOWS_PATH_RE = re.compile(r"[A-Za-z]:\\\\|[A-Za-z]:\\[A-Za-z]")
 
 def get_body(skill_path: Path) -> tuple[str, dict[str, str]]:
     _, _, content = parse_skill_md(skill_path)
-    lines = content.split("\n")
-    body = content
-    if lines and lines[0].strip() == "---":
-        for i, line in enumerate(lines[1:], start=1):
-            if line.strip() == "---":
-                body = "\n".join(lines[i + 1:])
-                break
-    from _common import parse_frontmatter_raw
-    return body, parse_frontmatter_raw(content)
+    frontmatter, body = frontmatter_and_body(content)
+    return body, frontmatter
 
 
 def check_frontmatter_and_paths(skill_path: Path) -> list[dict]:
     result = validate.validate(skill_path)
     items = []
-    ref_errors = [e for e in result["errors"] if e.startswith("Missing referenced files")]
-    other_errors = [e for e in result["errors"] if not e.startswith("Missing referenced files")]
+    # Read validate()'s structured missing_references/missing_references_error
+    # keys rather than string-matching result["errors"] for a "Missing
+    # referenced files" prefix — the same class of hazard this codebase
+    # already guards elsewhere for the "gerund" substring (see the comment
+    # and test_family_warning_text_avoids_the_audit_filter_word), just
+    # closed with a structured key here instead of a wording-collision
+    # guard, since validate.py already had the raw list on hand.
+    missing_refs = result.get("missing_references", [])
+    missing_refs_error = result.get("missing_references_error")
+    other_errors = [e for e in result["errors"] if e != missing_refs_error]
     items.append({
         "id": "frontmatter-valid",
         "status": "PASS" if not other_errors else "FAIL",
@@ -98,8 +99,8 @@ def check_frontmatter_and_paths(skill_path: Path) -> list[dict]:
     })
     items.append({
         "id": "path-references-exist",
-        "status": "FAIL" if ref_errors else "PASS",
-        "detail": "; ".join(ref_errors) or "every relative link resolves",
+        "status": "FAIL" if missing_refs else "PASS",
+        "detail": missing_refs_error or "every relative link resolves",
     })
     gerund_warnings = [w for w in result["warnings"] if "gerund" in w]
     items.append({
@@ -479,6 +480,61 @@ MANUAL_ONLY_ITEMS = [
 ]
 
 
+# Third-party reframing (issue #4): certain checklist items verify artifacts
+# only SkillArtisan's own pipeline produces, so they'd bogus-FAIL on every
+# skill not authored through it, regardless of quality. Each row names the
+# item id, a match predicate deciding whether *this specific result* should
+# downgrade to N/A for a third-party skill, and a detail-builder for the N/A
+# message. Predicates/builders are per-row, not a shared status flag or
+# string template, because the three cases are not uniform:
+# evals-present only reframes the missing-artifact case (exact detail
+# match) — a present-but-malformed evals.json is a real content defect and
+# must stay scored regardless of source, not just any FAIL. Consolidated
+# from three near-identical inline blocks in run_checklist (a solid-coding
+# audit, 2026-09-20) into apply_third_party_reframing below, run once after
+# the full item list is assembled.
+THIRD_PARTY_REFRAMING_TABLE = [
+    (
+        "evals-present",
+        lambda item: item["detail"] == "no evals/evals.json",
+        lambda item: "no evals/evals.json — a SkillArtisan pipeline artifact, not expected in a "
+                     "third-party skill; not scored. Add evals via the eval workflow if adopting this skill.",
+    ),
+    (
+        "security-scan-marker-current",
+        lambda item: item["status"] == "FAIL",
+        lambda item: f"{item['detail']} — the marker is a SkillArtisan packaging artifact, not expected "
+                     "in a third-party skill; not scored. security-gitleaks-clean and "
+                     "security-pattern-checks below still scan the actual content.",
+    ),
+    (
+        "lifecycle-classified",
+        lambda item: item["status"] == "FAIL",
+        lambda item: "no lifecycle classification — a SkillArtisan authoring convention "
+                     "(references/lifecycle.md), not expected in a third-party skill; not scored. "
+                     "Classify on adoption.",
+    ),
+]
+
+
+def apply_third_party_reframing(items: list[dict], third_party: bool) -> list[dict]:
+    """Downgrade pipeline-artifact-only checklist items to N/A for a
+    third-party skill, per THIRD_PARTY_REFRAMING_TABLE. Mutates and returns
+    the same list; a no-op when third_party is False."""
+    if not third_party:
+        return items
+    table = {row[0]: row[1:] for row in THIRD_PARTY_REFRAMING_TABLE}
+    for item in items:
+        entry = table.get(item["id"])
+        if entry is None:
+            continue
+        match, build_detail = entry
+        if match(item):
+            item["detail"] = build_detail(item)
+            item["status"] = "N/A"
+    return items
+
+
 def run_checklist(skill_path: Path, source: str = "first-party") -> list[dict]:
     body, frontmatter = get_body(skill_path)
     third_party = source == "third-party"
@@ -489,36 +545,10 @@ def run_checklist(skill_path: Path, source: str = "first-party") -> list[dict]:
     items.append(check_body_size(body))
     items += check_references_depth_and_toc(skill_path)
     items.append(check_no_human_docs_in_skill_dir(skill_path))
-
-    evals_item = check_evals_present(skill_path)
-    if third_party and evals_item["detail"] == "no evals/evals.json":
-        # Reframe only the missing-artifact case: a present evals file (bare
-        # list included — the check already understands that shape) is real
-        # content and stays scored regardless of source.
-        evals_item = {"id": "evals-present", "status": "N/A",
-                      "detail": "no evals/evals.json — a SkillArtisan pipeline artifact, not expected in a "
-                                "third-party skill; not scored. Add evals via the eval workflow if adopting this skill."}
-    items.append(evals_item)
-
-    security_items = check_security(skill_path)
-    if third_party:
-        for item in security_items:
-            if item["id"] == "security-scan-marker-current" and item["status"] == "FAIL":
-                item["status"] = "N/A"
-                item["detail"] = (f"{item['detail']} — the marker is a SkillArtisan packaging artifact, not expected "
-                                  "in a third-party skill; not scored. security-gitleaks-clean and "
-                                  "security-pattern-checks below still scan the actual content.")
-    items += security_items
-
+    items.append(check_evals_present(skill_path))
+    items += check_security(skill_path)
     items += check_content_hygiene(body)
-
-    lifecycle_item = check_lifecycle_classified(body, frontmatter)
-    if third_party and lifecycle_item["status"] == "FAIL":
-        lifecycle_item = {"id": "lifecycle-classified", "status": "N/A",
-                          "detail": "no lifecycle classification — a SkillArtisan authoring convention "
-                                    "(references/lifecycle.md), not expected in a third-party skill; not scored. "
-                                    "Classify on adoption."}
-    items.append(lifecycle_item)
+    items.append(check_lifecycle_classified(body, frontmatter))
     items.append(check_degrees_of_freedom_proxy(body))
     context_value = frontmatter.get("context", "inline (default)")
     items.append({"id": "architecture-declared", "status": "PASS", "detail": f"context: {context_value}"})
@@ -528,7 +558,7 @@ def run_checklist(skill_path: Path, source: str = "first-party") -> list[dict]:
                            "detail": "disable-model-invocation: true — skill is user-invoked only, description-optimizer is not applicable"})
         else:
             items.append(dict(item))
-    return items
+    return apply_third_party_reframing(items, third_party)
 
 
 def summarize(items: list[dict]) -> dict:
@@ -644,9 +674,8 @@ def print_report(report: dict) -> None:
 
 
 def cmd_bulk(args: argparse.Namespace) -> int:
-    target = Path(args.skills_dir).resolve()
-    if not target.is_dir():
-        print(f"Error: not a directory: {target}", file=sys.stderr)
+    target = resolve_existing_dir(args.skills_dir)
+    if target is None:
         return 2
 
     skill_dirs = find_skill_dirs([target])
@@ -682,9 +711,8 @@ def cmd_bulk(args: argparse.Namespace) -> int:
 
 
 def cmd_pr_plan(args: argparse.Namespace) -> int:
-    skill_path = Path(args.skill_path).resolve()
-    if not skill_path.is_dir():
-        print(f"Error: not a directory: {skill_path}", file=sys.stderr)
+    skill_path = resolve_existing_dir(args.skill_path)
+    if skill_path is None:
         return 2
     name, _, _ = parse_skill_md(skill_path)
     report = audit_skill(skill_path, None, None)
@@ -721,9 +749,8 @@ def cmd_pr_execute(args: argparse.Namespace) -> int:
 
 
 def cmd_report(args: argparse.Namespace) -> int:
-    skill_path = Path(args.skill_path).resolve()
-    if not skill_path.is_dir():
-        print(f"Error: not a directory: {skill_path}", file=sys.stderr)
+    skill_path = resolve_existing_dir(args.skill_path)
+    if skill_path is None:
         return 2
     try:
         report = audit_skill(skill_path, args.timelessness, args.lifecycle, source=args.source)
