@@ -6,6 +6,22 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.8.0] - 2026-09-20
+
+### Added
+- **Standard repository scaffolding**: `.github/CODEOWNERS`, `CODE_OF_CONDUCT.md` (Contributor Covenant v2.1), `.github/ISSUE_TEMPLATE/` (an `audit-gap` form modeled on this repo's actual, 100%-self-filed issue history, a generic `bug_report` form, and a `config.yml` redirecting security reports to GitHub Security Advisories per `SECURITY.md`), `.github/PULL_REQUEST_TEMPLATE.md`, and `.github/dependabot.yml` (scoped to the `github-actions` ecosystem only — there's no pip dependency file anywhere in the repo to track otherwise).
+- **`.github/workflows/tests.yml`**: this repo's Python test suite (`skill-artisan/tests/`) and a linter now actually run in CI on push/PR. Previously the only two workflows (`self-test-action*.yml`) exercised the GitHub Action against fixtures, `workflow_dispatch`-only by design — real unit-test execution had no CI coverage at all despite 172+ tests existing. This new workflow deliberately never invokes `uses: ./` (the audit action), so it doesn't touch the existing "never audit ourselves automatically" decision.
+- **`pyproject.toml`** (root): `[tool.ruff]` config only — no `[project]`/`[build-system]` table, since this repo deliberately isn't a pip-installable package. `select = ["E", "F"]`; `E501` (line length) and `I` (import sorting) are both off — `E501` because this codebase's docstrings/comments are long by a deliberate content-density choice, `I` because most of `tests/` deliberately inserts `sys.path` entries before importing local modules, a pattern isort's sorting doesn't understand and would misflag.
+- CI status badge added to the root README, alongside the existing release-version badge.
+
+### Fixed
+- Five small pre-existing lint findings surfaced by introducing `ruff` (unused imports in `benchmark/harness/report.py` and `tests/test_disable_model_invocation.py`, two extraneous f-string prefixes, and one genuinely dead local variable in `description_optimizer.py`'s skill-publishing path — a leftover from before the hidden-staging-name/atomic-rename approach replaced it). No behavior change; the dead variable was never read anywhere in the file.
+- **The README's stated `Python 3.8+` requirement was never actually true for 5 test files**, surfaced immediately by `tests.yml` actually running the suite on 3.8 for the first time (`test_aggregate_findings_source.py`, `test_audit_references_toc.py`, `test_disable_model_invocation.py`, `test_security_scan.py`, `test_third_party_mode.py`): each used PEP 604/585 syntax (`str | None`, `list[dict]`) in a function signature without `from __future__ import annotations`, which only became valid without it in 3.10+. Fixed by adding the same future-import every `scripts/*.py` module already uses, matching the existing convention rather than rewriting the signatures with `typing.Optional`/`typing.List`. Verified directly against real Python 3.8.20 (not just inferred from the CI failure), not just the CI logs: 174/174 tests pass.
+
+### Notes
+- Branch protection on `master` is a repo-settings change, not a file, and is left as a manual follow-up now that `tests.yml` exists to require as a check — not something this change enables on its own.
+- 174-test suite passes; `ruff check .` passes clean.
+
 ## [2.7.0] - 2026-09-20
 
 ### Added

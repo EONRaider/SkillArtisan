@@ -16,6 +16,8 @@ third-party corpus, where per-skill auto-detection was never the right
 question to begin with. See benchmark/audit-pilot/RESULTS.md's Phase 16-29
 sections and issue #11 for the full evidence trail.
 """
+from __future__ import annotations
+
 import json
 import shutil
 import sys

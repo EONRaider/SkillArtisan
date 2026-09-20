@@ -13,6 +13,8 @@ lines that are entirely a `#` comment for this check. This test guards two
 things at once: the false positive is gone, and a real interactive-input
 call (in code, not a comment) still gets caught.
 """
+from __future__ import annotations
+
 import sys
 import tempfile
 import unittest

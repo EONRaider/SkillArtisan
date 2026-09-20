@@ -1,0 +1,10 @@
+version: 2
+updates:
+  # No pip dependency file exists anywhere in this repo (it ships as a
+  # Claude Code plugin + GitHub Action, not a pip package — see
+  # pyproject.toml), so the only real ecosystem to track is the Action's
+  # own workflow dependencies (actions/checkout, etc.).
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

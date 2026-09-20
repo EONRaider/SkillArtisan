@@ -1,0 +1,5 @@
+# Forward-looking: SkillArtisan is currently maintained by a single owner,
+# so this file has no practical effect on review routing today. It exists
+# so that if/when branch protection ever requires code-owner review, there
+# is already a valid CODEOWNERS file for it to point to.
+* @EONRaider

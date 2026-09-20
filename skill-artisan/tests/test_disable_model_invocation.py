@@ -15,7 +15,8 @@ fixture doesn't get flagged for trigger machinery it can't use; the
 model-triggered control fixture still does), and the doc edits that
 describe this branch are actually present in the source files.
 """
-import re
+from __future__ import annotations
+
 import sys
 import unittest
 from pathlib import Path

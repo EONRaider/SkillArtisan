@@ -1,0 +1,49 @@
+name: Audit-gap finding
+description: A real-world corpus surfaced a validate.py/audit.py gap — an unrecognized frontmatter field family, a false positive/negative in a checklist item, or similar. This is this project's actual, primary issue pattern.
+title: "validate.py/audit.py: <short description of the gap>"
+labels: ["audit-gap"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Most issues in this repo are exactly this shape: a real-world skill corpus surfaced a gap while running the audit pilot. See existing closed `audit-gap` issues for the expected level of detail — a docs check against `https://code.claude.com/docs/en/skills.md`, corroboration across more than one corpus/author before a field family gets named, and a link to the pilot's own results file.
+  - type: input
+    id: corpus
+    attributes:
+      label: Corpus / repo
+      description: Which real-world skill repo(s) surfaced this?
+      placeholder: e.g. nvidia/skills
+    validations:
+      required: true
+  - type: input
+    id: phase
+    attributes:
+      label: Audit pilot phase (if applicable)
+      placeholder: e.g. Phase 9
+  - type: textarea
+    id: fields
+    attributes:
+      label: Field(s) / behavior observed
+      description: The exact frontmatter field(s), or the checklist item, involved.
+      placeholder: |
+        owner, service, reviewed — a real, consistently-used internal governance triplet
+    validations:
+      required: true
+  - type: input
+    id: occurrence-count
+    attributes:
+      label: Occurrence count
+      description: How many skills / what fraction of the corpus?
+      placeholder: e.g. 8 skills
+  - type: input
+    id: proposed-family
+    attributes:
+      label: Proposed family name (if this is a THIRD_PARTY_FIELD_FAMILIES candidate)
+      placeholder: e.g. governance-metadata
+  - type: textarea
+    id: why-not-fixed
+    attributes:
+      label: Why not fixed now
+      description: This project's standing discipline is to wait for independent corroboration (more than one unrelated corpus/author) before naming/sizing a new family, rather than guess from a single data point. State whether that bar is met yet.
+    validations:
+      required: true

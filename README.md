@@ -1,6 +1,7 @@
 # SkillArtisan
 
 [![GitHub release](https://img.shields.io/github/v/release/EONRaider/SkillArtisan)](https://github.com/EONRaider/SkillArtisan/releases/latest)
+[![Tests](https://github.com/EONRaider/SkillArtisan/actions/workflows/tests.yml/badge.svg)](https://github.com/EONRaider/SkillArtisan/actions/workflows/tests.yml)
 
 A plugin for Claude Code that builds, validates, secures, and maintains Claude Skills — superseding Anthropic's shipped `skill-creator` with a spec-compliant, cross-vendor, security-hardened successor.
 
@@ -39,7 +40,7 @@ Any repository can install SkillArtisan's audit as a GitHub Action to check its 
 
 ```yaml
 - uses: actions/checkout@v4
-- uses: EONRaider/SkillArtisan@v2.7.0
+- uses: EONRaider/SkillArtisan@v2.8.0
   with:
     skills-path: .                                    # default: whole workspace
     anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }} # optional — see below
@@ -64,7 +65,7 @@ Working on SkillArtisan itself, rather than installing it? See [CONTRIBUTING.md]
 
 ## Status
 
-**Current version: `2.7.0`** — see [`skill-artisan/CHANGELOG.md`](skill-artisan/CHANGELOG.md) for the full release history.
+**Current version: `2.8.0`** — see [`skill-artisan/CHANGELOG.md`](skill-artisan/CHANGELOG.md) for the full release history.
 
 ## Credits
 

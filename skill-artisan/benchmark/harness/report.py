@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 ARMS = ["skill-creator", "daymade-fork", "skillforge", "creating-skills"]
@@ -101,7 +100,7 @@ def main() -> None:
         print(render_markdown(report))
     else:
         print(render_markdown(report))
-        print(f"\n(--json for structured output)")
+        print("\n(--json for structured output)")
 
 
 if __name__ == "__main__":
