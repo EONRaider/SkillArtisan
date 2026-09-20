@@ -6,6 +6,11 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.9.1] - 2026-09-20
+
+### Fixed
+- **`security_scan.py`'s pattern checks (`--verbose`) flagged this plugin's own security-education prose as HIGH findings (issue #20)**: `references/security-checklist.md` documenting `os.system(`/`pickle.load(` as things the `dangerous-code-pattern` check catches, and `references/writing-philosophy.md`'s own "never do this" `C:\Users\...` example for `absolute-user-path`, both inside inline `code spans` — a self-referential false positive, not a hypothetical one, confirmed via `audit.py report` against this repo's own `creating-skills/`. Unlike the Phase 4 audit-pilot false positives deliberately left unfixed (`benchmark/audit-pilot/RESULTS.md`'s Phase 4 section — distinguishing a real call from a descriptive *label* inside actual Python source is unreliably ambiguous), this is a different, lower-risk signal: markdown's own inline-code/fenced-block syntax already unambiguously marks "this is shown, not live," the same signal `validate.py`'s `check_path_references` already relies on for the identical false-positive shape. Fixed with the same mechanism, scoped to `.md` files only (a `.py`/`.sh` file has no such convention, and bash backticks mean command substitution — a real risk, not documentation): `strip_markdown_code()` blanks fenced code blocks and inline code spans while preserving line numbers, applied before the `absolute-user-path`, `dangerous-code-pattern`, `unsafe-command-interpolation`, `email-address`, and `insecure-http-url` checks. Also closes a previously-unreported MEDIUM `insecure-http-url` false positive on the same `security-checklist.md` line, caught incidentally while verifying the fix. A genuinely dangerous pattern written outside a code span in a `.md` file is still caught — verified directly, not just by inspection. Regression tests added to `tests/test_security_scan.py` covering both directions (suppressed inside code spans, still flagged outside them) plus a `.py`-file control case.
+
 ## [2.9.0] - 2026-09-20
 
 ### Added
