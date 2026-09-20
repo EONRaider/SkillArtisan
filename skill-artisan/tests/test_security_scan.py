@@ -35,6 +35,66 @@ def findings_for(filename: str, content: str) -> list[dict]:
         return security_scan.run_pattern_checks(skill_path)
 
 
+class TestMarkdownCodeSpanExemption(unittest.TestCase):
+    """Regression test for issue #20: a markdown doc *teaching* about a
+    dangerous pattern or an absolute-path shape — inside a fenced block or
+    an inline `code span` — isn't a live instance of it. Mirrors
+    validate.py's check_path_references, which already strips exactly this
+    for its own false-positive shape. Guards both directions: the
+    documentation examples are no longer flagged, and the same patterns
+    written outside backticks in a .md file still are.
+    """
+
+    def test_inline_code_span_dangerous_pattern_is_not_flagged(self):
+        content = (
+            "| Check | Pattern |\n"
+            "|---|---|\n"
+            "| Dangerous code patterns: `os.system(`, `pickle.load(` | HIGH |\n"
+        )
+        findings = findings_for("security-checklist.md", content)
+        checks = [f["check"] for f in findings]
+        self.assertNotIn("dangerous-code-pattern", checks)
+
+    def test_inline_code_span_absolute_path_is_not_flagged(self):
+        content = "Never `C:\\Users\\...` — paths break across platforms.\n"
+        findings = findings_for("writing-philosophy.md", content)
+        checks = [f["check"] for f in findings]
+        self.assertNotIn("absolute-user-path", checks)
+
+    def test_fenced_code_block_dangerous_pattern_is_not_flagged(self):
+        content = (
+            "Don't do this:\n"
+            "```python\n"
+            "os.system(user_input)\n"
+            "```\n"
+        )
+        findings = findings_for("example.md", content)
+        checks = [f["check"] for f in findings]
+        self.assertNotIn("dangerous-code-pattern", checks)
+
+    def test_real_dangerous_pattern_outside_code_span_still_flagged(self):
+        content = "os.system(user_input)\n"
+        findings = findings_for("notes.md", content)
+        matches = [f for f in findings if f["check"] == "dangerous-code-pattern"]
+        self.assertEqual(len(matches), 1)
+        self.assertEqual(matches[0]["line"], 1)
+
+    def test_real_absolute_path_outside_code_span_still_flagged(self):
+        content = "Config lives at /home/attacker/.ssh/id_rsa on that box.\n"
+        findings = findings_for("notes.md", content)
+        matches = [f for f in findings if f["check"] == "absolute-user-path"]
+        self.assertEqual(len(matches), 1)
+        self.assertEqual(matches[0]["line"], 1)
+
+    def test_dangerous_pattern_in_python_file_is_unaffected_by_backticks(self):
+        # Backtick isn't valid Python 3 syntax; this only confirms non-.md
+        # files never go through the markdown-code-span exemption.
+        content = "os.system(f'`{user_input}`')\n"
+        findings = findings_for("run.py", content)
+        matches = [f for f in findings if f["check"] == "dangerous-code-pattern"]
+        self.assertEqual(len(matches), 1)
+
+
 class TestBlockingInteractiveInput(unittest.TestCase):
     def test_prose_mentioning_input_in_a_comment_is_not_flagged(self):
         content = (

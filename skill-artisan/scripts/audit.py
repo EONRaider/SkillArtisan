@@ -45,7 +45,7 @@ from pathlib import Path
 import pr_execute
 import security_scan
 import validate
-from _common import find_skill_dirs, parse_skill_md
+from _common import find_skill_dirs, frontmatter_and_body, parse_skill_md, resolve_existing_dir, resolve_skill_path_or_name
 
 # --- Checklist item registry -------------------------------------------------
 # Each check returns (status, detail). Status is one of:
@@ -75,22 +75,23 @@ WINDOWS_PATH_RE = re.compile(r"[A-Za-z]:\\\\|[A-Za-z]:\\[A-Za-z]")
 
 def get_body(skill_path: Path) -> tuple[str, dict[str, str]]:
     _, _, content = parse_skill_md(skill_path)
-    lines = content.split("\n")
-    body = content
-    if lines and lines[0].strip() == "---":
-        for i, line in enumerate(lines[1:], start=1):
-            if line.strip() == "---":
-                body = "\n".join(lines[i + 1:])
-                break
-    from _common import parse_frontmatter_raw
-    return body, parse_frontmatter_raw(content)
+    frontmatter, body = frontmatter_and_body(content)
+    return body, frontmatter
 
 
 def check_frontmatter_and_paths(skill_path: Path) -> list[dict]:
     result = validate.validate(skill_path)
     items = []
-    ref_errors = [e for e in result["errors"] if e.startswith("Missing referenced files")]
-    other_errors = [e for e in result["errors"] if not e.startswith("Missing referenced files")]
+    # Read validate()'s structured missing_references/missing_references_error
+    # keys rather than string-matching result["errors"] for a "Missing
+    # referenced files" prefix — the same class of hazard this codebase
+    # already guards elsewhere for the "gerund" substring (see the comment
+    # and test_family_warning_text_avoids_the_audit_filter_word), just
+    # closed with a structured key here instead of a wording-collision
+    # guard, since validate.py already had the raw list on hand.
+    missing_refs = result.get("missing_references", [])
+    missing_refs_error = result.get("missing_references_error")
+    other_errors = [e for e in result["errors"] if e != missing_refs_error]
     items.append({
         "id": "frontmatter-valid",
         "status": "PASS" if not other_errors else "FAIL",
@@ -98,14 +99,27 @@ def check_frontmatter_and_paths(skill_path: Path) -> list[dict]:
     })
     items.append({
         "id": "path-references-exist",
-        "status": "FAIL" if ref_errors else "PASS",
-        "detail": "; ".join(ref_errors) or "every relative link resolves",
+        "status": "FAIL" if missing_refs else "PASS",
+        "detail": missing_refs_error or "every relative link resolves",
     })
     gerund_warnings = [w for w in result["warnings"] if "gerund" in w]
     items.append({
         "id": "gerund-naming",
         "status": "WARN" if gerund_warnings else "PASS",
         "detail": "; ".join(gerund_warnings) or "name is gerund-form",
+    })
+    dangling_skill_dir_refs = result.get("dangling_skill_dir_references", [])
+    items.append({
+        "id": "claude-skill-dir-refs-exist",
+        "status": "WARN" if dangling_skill_dir_refs else "PASS",
+        "detail": (f"Dangling ${{CLAUDE_SKILL_DIR}} reference(s): {', '.join(dangling_skill_dir_refs)}"
+                   if dangling_skill_dir_refs else "every ${CLAUDE_SKILL_DIR}/... reference resolves"),
+    })
+    bash_warning = result.get("bash_permission_warning")
+    items.append({
+        "id": "script-references-need-bash-permission",
+        "status": "WARN" if bash_warning else "PASS",
+        "detail": bash_warning or "no unguarded bundled-script references found",
     })
     return items
 
@@ -190,6 +204,12 @@ def check_description_quality(frontmatter: dict[str, str]) -> dict:
 
 
 def check_body_size(body: str) -> dict:
+    """The 5000-token PASS ceiling isn't an arbitrary style preference: Claude
+    Code only re-attaches the first ~5000 tokens of a skill's body after
+    auto-compaction (the rest silently drops), and re-attached skills share a
+    25,000-token budget session-wide (oldest dropped first) — see
+    references/writing-philosophy.md's "Keep it lean" section.
+    """
     lines = body.count("\n") + 1
     approx_tokens = int(len(body.split()) * 1.3)
     if lines <= 500 and approx_tokens <= 5000:
@@ -409,6 +429,61 @@ def check_degrees_of_freedom_proxy(body: str) -> dict:
             "detail": f"{len(hits)} bare MUST/ALWAYS/NEVER directives — heuristic only, read each for an explained why (references/writing-philosophy.md)"}
 
 
+# Case-insensitive absolute words — a broader bloat signal than
+# BARE_DIRECTIVE_RE above, which only catches the literal ALL-CAPS
+# MUST/ALWAYS/NEVER tokens. Ported from a separate personal skill's linter
+# ("skill-audit"). Kept alongside, not replacing, check_degrees_of_freedom_proxy:
+# the two check different axes of writing-philosophy.md — that one is
+# "explain the why" (an under-explained-bare-directive signal, ALL-CAPS
+# only), this one is "keep it lean" (general verbosity/bloat, case-insensitive).
+ABSOLUTE_WORDS_RE = re.compile(
+    r"\b(always|never|must|do not|don't|only|critical|important|mandatory|required)\b", re.IGNORECASE
+)
+# Legitimate acronyms/proper nouns that are ALL-CAPS by convention, not by
+# "shouting" — excluded from the shouting-word count below. Calibrated
+# against this very codebase's own creating-skills/SKILL.md (self-
+# validation, per this project's own discipline of verifying a check
+# against real content before trusting it): an earlier version of this list
+# flagged this project's own PASS/FAIL/WARN/MANUAL checklist-status
+# vocabulary, plus MCP/AI/CLI/POST, as "shouting" — all legitimate
+# technical vocabulary, not emphasis.
+SHOUTING_WHITELIST = {
+    "HTML", "JSON", "YAML", "HTTP", "HTTPS", "API", "URL", "PNG", "SVG", "TODO",
+    "SKILL", "SKILLS", "CLAUDE", "PLUGIN", "ROOT", "ARGUMENTS", "FLAG", "NOTE",
+    "BASH", "FILE", "DIR", "CI", "PR", "ID", "IDS", "OK", "UI",
+    "MCP", "AI", "CLI", "GET", "POST", "PUT", "PATCH", "DELETE",
+    "PASS", "FAIL", "WARN", "MANUAL",
+}
+SHOUTING_WORD_RE = re.compile(r"\b[A-Z]{2,}\b")
+
+
+def check_prose_density(body: str) -> dict:
+    """Broader density/bloat scorer than check_degrees_of_freedom_proxy
+    above: counts case-insensitive "absolute" words plus ALL-CAPS
+    "shouting" words outside a legitimate-acronym whitelist, and tiers the
+    non-blank line count into lean/medium/heavy. A skill can be verbose
+    without ever using a bare MUST/ALWAYS/NEVER directive, or use a couple
+    in an otherwise lean body — the two checks are complementary, not
+    redundant.
+    """
+    non_blank_lines = [line for line in body.splitlines() if line.strip()]
+    line_count = len(non_blank_lines)
+    absolutes = len(ABSOLUTE_WORDS_RE.findall(body))
+    shouting = len([w for w in SHOUTING_WORD_RE.findall(body) if w not in SHOUTING_WHITELIST])
+    if line_count > 150 or absolutes > 15 or shouting > 15:
+        tier = "heavy"
+    elif line_count > 60:
+        tier = "medium"
+    else:
+        tier = "lean"
+    return {
+        "id": "prose-density",
+        "status": "PASS" if tier == "lean" else "WARN",
+        "detail": f"{tier} — {line_count} non-blank line(s), {absolutes} absolute word(s), {shouting} shouting word(s) "
+                  f"(references/writing-philosophy.md)",
+    }
+
+
 # --- Source detection (issue #4) ----------------------------------------------
 # Three checklist items (evals-present, security-scan-marker-current,
 # lifecycle-classified) verify artifacts only SkillArtisan's own pipeline
@@ -475,8 +550,76 @@ MANUAL_ONLY_ITEMS = [
     {"id": "multi-model-tested", "status": "MANUAL", "detail": "cannot verify from files alone — confirm a smoke-preset pass exists for Haiku, Sonnet, and Opus"},
     {"id": "description-optimizer-run", "status": "MANUAL", "detail": "cannot verify from files alone — confirm the 20-query/60-40-split optimizer was run, not just a hand-written description"},
     {"id": "inline-vs-fork-decision-correct", "status": "MANUAL",
-     "detail": "presence of `context: fork` is checkable, but whether it's the *right* call needs the worked examples in SKILL.md's Decision Gate section"},
+     "detail": "presence of `context: fork` is checkable, but whether it's the *right* call needs the worked examples in "
+               "SKILL.md's Decision Gate section, plus the worked criteria in "
+               "references/audit-judgment-lenses.md#fork-appropriateness"},
+    {"id": "prose-should-be-script", "status": "MANUAL",
+     "detail": "read the body for count/find/format/rename/validate-path/fixed-step-order prose a script could do "
+               "exactly instead — criteria in references/audit-judgment-lenses.md#prose-that-should-be-a-script"},
+    {"id": "prose-should-be-hook-or-disallowed-tools", "status": "MANUAL",
+     "detail": "read the body for 'never do X'/'don't run Y' prose a hook event or a disallowed-tools entry would "
+               "actually enforce, instead of relying on the model to remember — criteria in "
+               "references/audit-judgment-lenses.md#do-nots-that-should-be-enforced"},
+    {"id": "condensed-version-proposed", "status": "MANUAL",
+     "detail": "actionable only when body-size-limits or prose-density above is WARN/FAIL — propose a target line "
+               "count and a delete/move-to-reference/move-to-script breakdown, criteria in "
+               "references/audit-judgment-lenses.md#condensing-a-bloated-skill"},
 ]
+
+
+# Third-party reframing (issue #4): certain checklist items verify artifacts
+# only SkillArtisan's own pipeline produces, so they'd bogus-FAIL on every
+# skill not authored through it, regardless of quality. Each row names the
+# item id, a match predicate deciding whether *this specific result* should
+# downgrade to N/A for a third-party skill, and a detail-builder for the N/A
+# message. Predicates/builders are per-row, not a shared status flag or
+# string template, because the three cases are not uniform:
+# evals-present only reframes the missing-artifact case (exact detail
+# match) — a present-but-malformed evals.json is a real content defect and
+# must stay scored regardless of source, not just any FAIL. Consolidated
+# from three near-identical inline blocks in run_checklist (a solid-coding
+# audit, 2026-09-20) into apply_third_party_reframing below, run once after
+# the full item list is assembled.
+THIRD_PARTY_REFRAMING_TABLE = [
+    (
+        "evals-present",
+        lambda item: item["detail"] == "no evals/evals.json",
+        lambda item: "no evals/evals.json — a SkillArtisan pipeline artifact, not expected in a "
+                     "third-party skill; not scored. Add evals via the eval workflow if adopting this skill.",
+    ),
+    (
+        "security-scan-marker-current",
+        lambda item: item["status"] == "FAIL",
+        lambda item: f"{item['detail']} — the marker is a SkillArtisan packaging artifact, not expected "
+                     "in a third-party skill; not scored. security-gitleaks-clean and "
+                     "security-pattern-checks below still scan the actual content.",
+    ),
+    (
+        "lifecycle-classified",
+        lambda item: item["status"] == "FAIL",
+        lambda item: "no lifecycle classification — a SkillArtisan authoring convention "
+                     "(references/lifecycle.md), not expected in a third-party skill; not scored. "
+                     "Classify on adoption.",
+    ),
+]
+
+
+def apply_third_party_reframing(items: list[dict], third_party: bool) -> list[dict]:
+    """Downgrade pipeline-artifact-only checklist items to N/A for a
+    third-party skill, per THIRD_PARTY_REFRAMING_TABLE. Mutates and returns
+    the same list; a no-op when third_party is False."""
+    if not third_party:
+        return items
+    table = {row[0]: row[1:] for row in THIRD_PARTY_REFRAMING_TABLE}
+    for item in items:
+        entry = table.get(item["id"])
+        if entry is None:
+            continue
+        match, build_detail = entry
+        if match(item):
+            item["detail"] = build_detail(item)
+            item["status"] = "N/A"
+    return items
 
 
 def run_checklist(skill_path: Path, source: str = "first-party") -> list[dict]:
@@ -489,37 +632,12 @@ def run_checklist(skill_path: Path, source: str = "first-party") -> list[dict]:
     items.append(check_body_size(body))
     items += check_references_depth_and_toc(skill_path)
     items.append(check_no_human_docs_in_skill_dir(skill_path))
-
-    evals_item = check_evals_present(skill_path)
-    if third_party and evals_item["detail"] == "no evals/evals.json":
-        # Reframe only the missing-artifact case: a present evals file (bare
-        # list included — the check already understands that shape) is real
-        # content and stays scored regardless of source.
-        evals_item = {"id": "evals-present", "status": "N/A",
-                      "detail": "no evals/evals.json — a SkillArtisan pipeline artifact, not expected in a "
-                                "third-party skill; not scored. Add evals via the eval workflow if adopting this skill."}
-    items.append(evals_item)
-
-    security_items = check_security(skill_path)
-    if third_party:
-        for item in security_items:
-            if item["id"] == "security-scan-marker-current" and item["status"] == "FAIL":
-                item["status"] = "N/A"
-                item["detail"] = (f"{item['detail']} — the marker is a SkillArtisan packaging artifact, not expected "
-                                  "in a third-party skill; not scored. security-gitleaks-clean and "
-                                  "security-pattern-checks below still scan the actual content.")
-    items += security_items
-
+    items.append(check_evals_present(skill_path))
+    items += check_security(skill_path)
     items += check_content_hygiene(body)
-
-    lifecycle_item = check_lifecycle_classified(body, frontmatter)
-    if third_party and lifecycle_item["status"] == "FAIL":
-        lifecycle_item = {"id": "lifecycle-classified", "status": "N/A",
-                          "detail": "no lifecycle classification — a SkillArtisan authoring convention "
-                                    "(references/lifecycle.md), not expected in a third-party skill; not scored. "
-                                    "Classify on adoption."}
-    items.append(lifecycle_item)
+    items.append(check_lifecycle_classified(body, frontmatter))
     items.append(check_degrees_of_freedom_proxy(body))
+    items.append(check_prose_density(body))
     context_value = frontmatter.get("context", "inline (default)")
     items.append({"id": "architecture-declared", "status": "PASS", "detail": f"context: {context_value}"})
     for item in MANUAL_ONLY_ITEMS:
@@ -528,7 +646,7 @@ def run_checklist(skill_path: Path, source: str = "first-party") -> list[dict]:
                            "detail": "disable-model-invocation: true — skill is user-invoked only, description-optimizer is not applicable"})
         else:
             items.append(dict(item))
-    return items
+    return apply_third_party_reframing(items, third_party)
 
 
 def summarize(items: list[dict]) -> dict:
@@ -644,9 +762,8 @@ def print_report(report: dict) -> None:
 
 
 def cmd_bulk(args: argparse.Namespace) -> int:
-    target = Path(args.skills_dir).resolve()
-    if not target.is_dir():
-        print(f"Error: not a directory: {target}", file=sys.stderr)
+    target = resolve_existing_dir(args.skills_dir)
+    if target is None:
         return 2
 
     skill_dirs = find_skill_dirs([target])
@@ -682,9 +799,8 @@ def cmd_bulk(args: argparse.Namespace) -> int:
 
 
 def cmd_pr_plan(args: argparse.Namespace) -> int:
-    skill_path = Path(args.skill_path).resolve()
-    if not skill_path.is_dir():
-        print(f"Error: not a directory: {skill_path}", file=sys.stderr)
+    skill_path = resolve_existing_dir(args.skill_path)
+    if skill_path is None:
         return 2
     name, _, _ = parse_skill_md(skill_path)
     report = audit_skill(skill_path, None, None)
@@ -721,9 +837,8 @@ def cmd_pr_execute(args: argparse.Namespace) -> int:
 
 
 def cmd_report(args: argparse.Namespace) -> int:
-    skill_path = Path(args.skill_path).resolve()
-    if not skill_path.is_dir():
-        print(f"Error: not a directory: {skill_path}", file=sys.stderr)
+    skill_path = resolve_skill_path_or_name(args.skill_path)
+    if skill_path is None:
         return 2
     try:
         report = audit_skill(skill_path, args.timelessness, args.lifecycle, source=args.source)
@@ -743,7 +858,7 @@ def main() -> None:
     sub = parser.add_subparsers(dest="command", required=True)
 
     p_report = sub.add_parser("report", help="Audit a single skill directory")
-    p_report.add_argument("skill_path", help="Path to the skill directory")
+    p_report.add_argument("skill_path", help="Path to the skill directory, or a bare installed skill name to resolve")
     p_report.add_argument("--timelessness", type=int, default=None, metavar="0-10",
                            help="Timelessness score (references/lifecycle.md) — supply if known, feeds the upgrade-vs-rebuild decision")
     p_report.add_argument("--lifecycle", choices=["capability-uplift", "encoded-preference"], default=None,
