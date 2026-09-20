@@ -20,6 +20,8 @@ and skip the exact gate those checks exist to enforce; --source
 first-party remains the explicit override for artifact-less drafts.
 See benchmark/audit-pilot/RESULTS.md and issue #4.
 """
+from __future__ import annotations
+
 import sys
 import unittest
 from pathlib import Path

@@ -15,6 +15,8 @@ also accepting "## Contents", "## TOC", and "## Index" headings. This test
 guards both directions: a real "## Contents"-style TOC is no longer
 flagged, and a reference file with no TOC at all still is.
 """
+from __future__ import annotations
+
 import sys
 import unittest
 from pathlib import Path
