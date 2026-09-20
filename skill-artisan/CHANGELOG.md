@@ -6,6 +6,15 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.6.1] - 2026-09-20
+
+### Fixed
+- **`SECURITY.md`'s Supported Versions table still read `2.5.x (latest)` after the `2.6.0` release.** Nothing had bumped the table since it was first filled in at `2.5.12`. Fixed to `2.6.x (latest)` / `< 2.6`; the policy prose itself (single actively-developed line, no LTS branches, private-advisory-only reporting) was already correct and is unchanged.
+- **`CONTRIBUTING.md`'s "Repo layout" tree and prose omitted the root `README.md` entirely**, stating `README.md` "exist[s] only inside `skill-artisan/` — one canonical copy... not duplicated at root." This was accurate before `2.4.5` but not after: a substantial root `README.md` (the project's front door) has existed since that release. Fixed by adding it to the layout tree and clarifying the actual relationship — root `README.md` is why-this-exists/install/GitHub-Action framing for someone deciding whether to use the project; `skill-artisan/README.md` is the live plugin doc for someone who already has, and explicitly defers back to root rather than repeating it. This is not the drift-risk duplication the file correctly warns against for `CHANGELOG.md`.
+
+### Notes
+- Pure documentation-accuracy fixes; no code changed. 172-test suite passes (unchanged).
+
 ## [2.6.0] - 2026-08-21
 
 ### Added
