@@ -6,6 +6,16 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.7.0] - 2026-09-20
+
+### Added
+- **Three new `THIRD_PARTY_FIELD_FAMILIES` entries close out audit-gap issues #8 and #9.** `routing-metadata: {triggers}` (issue #8) — `triggers` was originally grouped with `command`/`agents`/`compatible_tools` as a "bespoke one-off convention," but five independent authorship models (Anthropic's own `anthropics/knowledge-work-plugins` zoom-plugin, `mims-harvard/tooluniverse`, `aitytech/agentkits-marketing`, and two more) converged on it as a real, coherent routing convention, corroborated across Phases 8, 10, and 16. `governance-metadata: {owner, service, reviewed}` and `tool-usage-metadata: {tools}` (issue #9, `nvidia/skills` Phase 9) — a real ownership/review-date triplet and a separate tool-cataloging list, found on 35 skills in one corpus. `tool-usage-metadata` is proposed here as the new family's name; issue #9 explicitly left it open for maintainer confirmation.
+- **Hard guardrail, moved to sit directly above `PORTABLE_FIELDS`:** `tools` must never be added to `PORTABLE_FIELDS` or aliased to `allowed-tools` — unlike `tools`, `allowed-tools` has real runtime permission-bypass semantics, and `PORTABLE_FIELDS` feeds `run_skills_ref()`'s portable-field passthrough. Originally drafted as a comment on the `tool-usage-metadata` entry itself; relocated during review to sit next to the declaration it actually protects, so an editor touching `PORTABLE_FIELDS` directly sees the warning locally instead of needing to find it ~50 lines away. Regression test added (`tests/test_field_classification.py::test_tools_never_treated_as_portable_or_aliased`) asserting `tools` is absent from `PORTABLE_FIELDS` and never aliased inside the new family.
+- Regression tests added: `test_issue_8_and_9_families_classify_as_known_third_party` (all three new families classify correctly, none falls through to `unknown`) and the guardrail test above. `test_bespoke_conventions_still_error` updated to drop `triggers` from its hard-error tuple, since it now has a resolved home.
+
+### Notes
+- Both fixes close audit-gap issues #8 and #9. The five other field-family candidates surfaced only in issue #9's comment thread (`type`, a `progressive_disclosure` cluster, a 10-field marketing family, `requirements`, and a governance taxonomy) stay deliberately unresolved — each is a single-corpus data point, and this project's standing discipline is to wait for independent corroboration rather than guess. 174-test suite passes.
+
 ## [2.6.1] - 2026-09-20
 
 ### Fixed
