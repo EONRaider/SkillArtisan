@@ -25,6 +25,14 @@ note. Reclaiming a held port additionally reads /proc, so it works only on
 Linux — see _is_own_process.
 """
 
+# Required for the builtin-generic annotations used throughout this file
+# (`list[dict]`, `dict[str, str] | None`). README's stated minimum is Python
+# 3.8, where those are a TypeError at import time rather than at call time —
+# so without this the module cannot be imported at all on 3.8. Every other
+# module in this project already carries it; this one was the omission, and
+# went unnoticed because nothing imported it until it gained tests.
+from __future__ import annotations
+
 import argparse
 import base64
 import json
