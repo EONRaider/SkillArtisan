@@ -4,7 +4,7 @@
     {
       "name": "spa-routing-eval",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8934", "--directory", "/home/eonraider/Desktop/SkillArtisan/skill-artisan/benchmark/harness/workspace/frontend-visual-qa/creating-skills/output/auditing-rendered-uis/evals/files"],
+      "runtimeArgs": ["-m", "http.server", "8934", "--directory", "workspace/frontend-visual-qa/creating-skills/output/auditing-rendered-uis/evals/files"],
       "port": 8934
     }
   ]

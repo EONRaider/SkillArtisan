@@ -19,8 +19,19 @@ this on Cowork or any headless/no-browser environment. Generate the viewer
 BEFORE self-evaluating outputs on Cowork (see SKILL.md's surface-aware eval
 section), so the human sees results as soon as they exist.
 
-No dependencies beyond the Python stdlib are required.
+Beyond the Python stdlib this shells out to `lsof`, to find what is already
+holding the requested port; without it the port check is skipped with a
+note. Reclaiming a held port additionally reads /proc, so it works only on
+Linux — see _is_own_process.
 """
+
+# Required for the builtin-generic annotations used throughout this file
+# (`list[dict]`, `dict[str, str] | None`). README's stated minimum is Python
+# 3.8, where those are a TypeError at import time rather than at call time —
+# so without this the module cannot be imported at all on 3.8. Every other
+# module in this project already carries it; this one was the omission, and
+# went unnoticed because nothing imported it until it gained tests.
+from __future__ import annotations
 
 import argparse
 import base64
@@ -227,7 +238,41 @@ def generate_html(runs: list[dict], skill_name: str, previous: dict[str, dict] |
     if benchmark:
         embedded["benchmark"] = benchmark
 
-    return template.replace("/*__EMBEDDED_DATA__*/", f"const EMBEDDED_DATA = {json.dumps(embedded)};")
+    return template.replace("/*__EMBEDDED_DATA__*/", f"const EMBEDDED_DATA = {_json_for_script_block(embedded)};")
+
+
+def _json_for_script_block(data) -> str:
+    """Serialize `data` as JSON that is safe to inline inside a <script> tag.
+
+    json.dumps alone is not enough here. Inside an HTML <script> element the
+    parser is still scanning for markup, so a JSON *string value* containing
+    the literal text `</script>` closes the element early and everything
+    after it is parsed as HTML — in this file's case, attacker-chosen HTML in
+    a page the viewer opens in the user's browser, same-origin with the local
+    server's file-writing POST /api/feedback endpoint. `<!--` can likewise
+    flip the parser into a comment-like state.
+
+    This matters because `data` is not trusted input: it carries raw model
+    output from eval runs and the contents of whatever third-party skill is
+    under review. Escaping every `<` as \u003c is the standard fix and is
+    sufficient — it neutralizes `</script>`, `<!--` and `<script` alike, and
+    JSON.parse decodes \u003c straight back to `<`, so the data round-trips
+    unchanged.
+
+    U+2028 and U+2029 are handled for a different reason: both are valid
+    inside a JSON string but are line terminators in JavaScript source, so an
+    unescaped one is a syntax error in the emitted literal. json.dumps'
+    default ensure_ascii=True already escapes them, so those two replacements
+    are currently no-ops — they are kept so that switching to
+    ensure_ascii=False (a reasonable-looking change, for smaller output or
+    readable non-ASCII) cannot quietly reintroduce the breakage.
+    """
+    return (
+        json.dumps(data)
+        .replace("<", "\\u003c")
+        .replace("\u2028", "\\u2028")
+        .replace("\u2029", "\\u2029")
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -235,21 +280,122 @@ def generate_html(runs: list[dict], skill_name: str, previous: dict[str, dict] |
 # ---------------------------------------------------------------------------
 
 
-def _kill_port(port: int) -> None:
+def _read_proc_cmdline(pid: int) -> str | None:
+    """Return /proc/<pid>/cmdline's raw bytes as text, or None if unreadable.
+
+    None means "could not determine", never "empty command line" — callers
+    must treat it as a failure to verify, not as evidence of anything.
+    """
+    try:
+        return Path(f"/proc/{pid}/cmdline").read_bytes().decode("utf-8", "replace")
+    except OSError:
+        return None
+
+
+def _is_own_process(pid: int, read_cmdline=None) -> bool:
+    """Is `pid` another instance of *this* script?
+
+    Compares this file's resolved path, and its bare filename, against the
+    argv entries in /proc/<pid>/cmdline. A match means the port is held by a
+    previous run of the viewer, which is ours to reclaim.
+
+    Returns False on any failure to read or parse — an unreadable cmdline, a
+    process owned by another user, a PID that has already exited, or a
+    platform without /proc. False here means "not verified", and callers must
+    treat it that way: the safe response to an unidentified process is to
+    leave it alone, not to assume it is ours.
+
+    PLATFORM LIMITATION: /proc/<pid>/cmdline is Linux-only. On macOS, and
+    anywhere else without procfs, no PID can ever be verified, so this always
+    returns False and _kill_port will refuse to kill anything — including the
+    viewer's own previous instance. That is deliberate: silently falling back
+    to killing whatever holds the port is the behaviour this check exists to
+    remove, and being unable to auto-reclaim a port is a much smaller problem
+    than terminating an unrelated process. The user is told to free the port
+    by hand, or to pass a different --port.
+    """
+    reader = read_cmdline if read_cmdline is not None else _read_proc_cmdline
+    raw = reader(pid)
+    if not raw:
+        return False
+    # cmdline is NUL-separated; a trailing NUL yields a final empty field.
+    argv = [part for part in raw.split("\0") if part]
+    if not argv:
+        return False
+    try:
+        own_path = str(Path(__file__).resolve())
+    except OSError:
+        return False
+    own_name = Path(__file__).name
+    for entry in argv:
+        if entry == own_path or Path(entry).name == own_name:
+            return True
+    return False
+
+
+def _kill_port(port: int, is_own_process=_is_own_process) -> None:
+    """Free `port`, but only by terminating this script's own prior instances.
+
+    Anything else holding the port is somebody else's process — a dev server,
+    a database, an unrelated tool the user is depending on. Terminating it to
+    claim a port is not a tradeoff worth making silently, so an unverified
+    holder is a hard stop: the PIDs are named and the process exits non-zero
+    rather than sending a signal on a guess.
+
+    See _is_own_process for the procfs-only limitation on how "ours" is
+    established.
+    """
     try:
         result = subprocess.run(["lsof", "-ti", f":{port}"], capture_output=True, text=True, timeout=5)
-        for pid_str in result.stdout.strip().split("\n"):
-            if pid_str.strip():
-                try:
-                    os.kill(int(pid_str.strip()), signal.SIGTERM)
-                except (ProcessLookupError, ValueError):
-                    pass
-        if result.stdout.strip():
-            time.sleep(0.5)
     except subprocess.TimeoutExpired:
-        pass
+        return
     except FileNotFoundError:
         print("Note: lsof not found, cannot check if port is in use", file=sys.stderr)
+        return
+
+    ours: list[int] = []
+    unrecognized: list[str] = []
+    for pid_str in result.stdout.strip().split("\n"):
+        pid_str = pid_str.strip()
+        if not pid_str:
+            continue
+        # Kept per-PID rather than hoisted into a comprehension on purpose:
+        # lsof can emit a line that isn't a PID (a warning, a header on some
+        # builds), and one such line must not take down the whole function.
+        try:
+            pid = int(pid_str)
+        except ValueError:
+            continue
+        if is_own_process(pid):
+            ours.append(pid)
+        else:
+            unrecognized.append(pid_str)
+
+    if unrecognized:
+        listed = ", ".join(unrecognized)
+        if not Path("/proc").is_dir():
+            print(
+                f"Error: port {port} is in use by PID(s) {listed}, and process ownership cannot be "
+                f"verified on this platform (no /proc). Free port {port} manually, or rerun with "
+                f"--port <other>.",
+                file=sys.stderr,
+            )
+        else:
+            print(
+                f"Error: port {port} is held by PID(s) {listed}, which are not instances of this "
+                f"script. Refusing to terminate an unrelated process. Free port {port} manually, "
+                f"or rerun with --port <other>.",
+                file=sys.stderr,
+            )
+        sys.exit(1)
+
+    for pid in ours:
+        try:
+            os.kill(pid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+    if ours:
+        time.sleep(0.5)
 
 
 class ReviewHandler(BaseHTTPRequestHandler):

@@ -68,6 +68,23 @@ PATTERN_SCAN_EXTENSIONS = {
     ".py", ".js", ".ts", ".jsx", ".tsx", ".sh", ".bash", ".md", ".yml", ".yaml", ".json", ".jsonl", ".toml",
 }
 
+# Config dotfiles worth reading even though they have no extension to match
+# on. `Path(".env").suffix` is "" — the leading dot is the stem, not a
+# suffix — so an extension-only gate silently skips exactly the files most
+# likely to hold a credential. `.env.local`, `.env.production` and friends
+# are covered by the prefix rule in should_pattern_scan.
+PATTERN_SCAN_FILENAMES = {
+    ".env", ".npmrc", ".netrc", ".pypirc", ".dockercfg", ".gitconfig", ".credentials",
+}
+
+
+def should_pattern_scan(rel_path: Path) -> bool:
+    """Is this a file type the pattern checks can meaningfully read?"""
+    if rel_path.suffix.lower() in PATTERN_SCAN_EXTENSIONS:
+        return True
+    name = rel_path.name
+    return name in PATTERN_SCAN_FILENAMES or name.startswith(".env.")
+
 # --- Pattern checks (--verbose only) ---------------------------------------
 
 # self-scan-exempt:start — see self_scan_exempt_line_numbers() below. These
@@ -91,11 +108,53 @@ EMAIL_EXCEPTIONS = ("example.com", "test.com", "localhost", "noreply@anthropic.c
 HTTP_URL_PATTERN = re.compile(r"http://[^\s\"'<>)]+")
 HTTP_URL_EXCEPTIONS = ("localhost", "127.0.0.1", "0.0.0.0", "example.com", "github.com")  # NOT test.com — that's email-only
 
+# Matched against the whole file, not line by line — see run_pattern_checks.
+# A call written across several lines (which any formatter will produce once
+# the argument list gets long) is still one call, and used to match nothing:
+#
+#     subprocess.run(
+#         cmd,
+#         shell=True,
+#     )
+#
+# `NOT_ATTR` is a guard against the builtin-name checks firing on unrelated
+# attribute access — without it, the bare-`compile(` check matches every
+# `re.compile(` in this very file, and `eval(` would match any `.eval(`
+# method on any object.
+NOT_ATTR = r"(?<![\w.])"
+
+# Some sinks are a Python concern specifically, and flagging them elsewhere
+# is wrong rather than merely noisy. `yaml.load` is the clear case: in
+# PyYAML it defaults to a loader that constructs arbitrary Python objects,
+# which is why the absence of SafeLoader is a finding — but js-yaml's `load`
+# has been the safe one since its 4.0, so the identical spelling in a .js
+# file means the opposite thing. Entries carrying a scope are only applied
+# to files with those suffixes.
+PY_ONLY = (".py",)
+
+# One nesting level of parentheses, so a keyword argument that follows a
+# nested call is still found: `subprocess.run(shlex.split(c), shell=True)`.
+_ARGS = r"(?:[^()]|\([^()]*\))*?"
+
+# Entries are (pattern, description, suffixes); suffixes is None for a check
+# that applies to every scanned file type.
 DANGEROUS_CODE_PATTERNS = [
-    (re.compile(r"os\.system\("), "os.system( call — arbitrary shell execution"),
-    (re.compile(r"subprocess\.[A-Za-z_]+\([^)]*shell\s*=\s*True"), "subprocess ... shell=True — shell injection risk"),
-    (re.compile(r"^\s*import pickle\b", re.MULTILINE), "import pickle — arbitrary code execution on untrusted input"),
-    (re.compile(r"pickle\.load\("), "pickle.load( — arbitrary code execution on untrusted input"),
+    (re.compile(r"os\.system\("), "os.system( call — arbitrary shell execution", None),
+    (re.compile(r"os\.popen\("), "os.popen( — spawns a shell, same injection surface as os.system", None),
+    (re.compile(r"subprocess\.[A-Za-z_]+\(" + _ARGS + r"shell\s*=\s*True"), "subprocess ... shell=True — shell injection risk", None),
+    (re.compile(r"subprocess\.getoutput\(|subprocess\.getstatusoutput\("), "subprocess.getoutput( — runs its argument through a shell unconditionally", None),
+    (re.compile(r"^\s*import pickle\b", re.MULTILINE), "import pickle — arbitrary code execution on untrusted input", None),
+    (re.compile(r"pickle\.loads?\("), "pickle.load( — arbitrary code execution on untrusted input", None),
+    (re.compile(r"^\s*import marshal\b", re.MULTILINE), "import marshal — deserializes arbitrary code objects", None),
+    (re.compile(r"marshal\.loads?\("), "marshal.loads( — deserializes arbitrary code objects, unsafe on untrusted input", None),
+    (re.compile(NOT_ATTR + r"eval\("), "eval( — executes an arbitrary expression", None),
+    (re.compile(NOT_ATTR + r"exec\("), "exec( — executes arbitrary statements", None),
+    (re.compile(NOT_ATTR + r"compile\("), "compile( — builds executable code from a string", None),
+    (re.compile(NOT_ATTR + r"__import__\("), "__import__( — imports a module named at runtime, often by untrusted input", None),
+    # Suppressed when a safe loader is named inside the same argument list:
+    # PyYAML's yaml.load defaults to a loader that can construct arbitrary
+    # Python objects, so it is the *absence* of SafeLoader that is the finding.
+    (re.compile(r"yaml\.load\((?![^)]{0,400}(?:SafeLoader|BaseLoader|CSafeLoader))"), "yaml.load( without SafeLoader — can instantiate arbitrary Python objects", PY_ONLY),
 ]
 
 # references/script-design.md checks: bundled scripts must be non-interactive
@@ -136,14 +195,35 @@ def strip_markdown_code(text: str) -> str:
     return text
 
 
-def iter_scannable_files(skill_path: Path, skillignore_patterns: list[str]):
+def iter_scannable_files(skill_path: Path, skillignore_patterns: list[str], include_hidden: bool = False):
+    """Walk the skill's files, applying .skillignore and the always-excluded dirs.
+
+    `include_hidden` controls whether dot-prefixed files and directories are
+    visited. It defaults to False because packaging shouldn't ship an
+    author's local dotfiles, but the *scanning* callers pass True: a scanner
+    that cannot see `.env`, `.npmrc`, `.claude/settings.json` or
+    `.github/workflows/` is blind to the files most likely to hold a
+    credential or to execute something, which is the opposite of the job.
+    See compute_content_hash and run_pattern_checks.
+
+    ALWAYS_EXCLUDE_DIRS (.git, __pycache__, node_modules) is enforced
+    regardless — `.git` in particular is excluded even when include_hidden is
+    True, since its object store is neither authored content nor reviewable
+    as text.
+
+    The scan marker is always skipped. It is a hash *of* this file set, so
+    including it in that file set would make every marker invalidate itself
+    the instant it was written.
+    """
     for path in sorted(skill_path.rglob("*")):
         if not path.is_file():
             continue
         rel = path.relative_to(skill_path)
-        if any(part in ALWAYS_EXCLUDE_DIRS or part.startswith(".") for part in rel.parts[:-1]):
+        if any(part in ALWAYS_EXCLUDE_DIRS for part in rel.parts[:-1]):
             continue
-        if is_hidden(rel):
+        if is_marker_file(rel):
+            continue
+        if not include_hidden and is_hidden(rel):
             continue
         if matches_skillignore(rel, skillignore_patterns):
             continue
@@ -152,6 +232,12 @@ def iter_scannable_files(skill_path: Path, skillignore_patterns: list[str]):
 
 def is_hidden(rel_path: Path) -> bool:
     return any(part.startswith(".") for part in rel_path.parts)
+
+
+def is_marker_file(rel_path: Path) -> bool:
+    """The scan marker, plus the temp files write_marker creates beside it."""
+    name = rel_path.name
+    return name == MARKER_FILENAME or (name.startswith(f".{MARKER_FILENAME}.") and name.endswith(".tmp"))
 
 
 def load_skillignore(skill_path: Path) -> list[str]:
@@ -185,10 +271,16 @@ def matches_skillignore(rel_path: Path, patterns: list[str]) -> bool:
 def compute_content_hash(skill_path: Path) -> str:
     """SHA256 over every non-excluded file's (relative path, content), sorted
     by path, null-separated. Deterministic — same content always hashes the
-    same, regardless of filesystem iteration order."""
+    same, regardless of filesystem iteration order.
+
+    Hidden files are included. The marker exists to detect content changing
+    after a clean scan; if dotfiles were outside the hash, adding or editing
+    a `.env`, a `.npmrc`, or a workflow under `.github/` would leave the
+    marker reporting "valid" afterwards, so the tamper check would be
+    structurally blind to exactly the edits most worth catching."""
     patterns = load_skillignore(skill_path)
     hasher = hashlib.sha256()
-    for _, rel in iter_scannable_files(skill_path, patterns):
+    for _, rel in iter_scannable_files(skill_path, patterns, include_hidden=True):
         full = skill_path / rel
         hasher.update(rel.as_posix().encode("utf-8"))
         hasher.update(b"\x00")
@@ -305,8 +397,11 @@ def self_scan_exempt_line_numbers(text: str) -> set[int]:
 def run_pattern_checks(skill_path: Path) -> list[dict]:
     patterns = load_skillignore(skill_path)
     findings = []
-    for path, rel in iter_scannable_files(skill_path, patterns):
-        if path.suffix.lower() not in PATTERN_SCAN_EXTENSIONS:
+    # include_hidden=True: `.env`, `.npmrc` and `.github/workflows/*.yml` are
+    # prime locations for a leaked credential or an unexpected execution
+    # path, and skipping them meant the pattern checks never looked.
+    for path, rel in iter_scannable_files(skill_path, patterns, include_hidden=True):
+        if not should_pattern_scan(rel):
             continue
         try:
             text = path.read_text(errors="replace")
@@ -316,6 +411,21 @@ def run_pattern_checks(skill_path: Path) -> list[dict]:
         docstring_lines = docstring_line_numbers(text) if path.suffix.lower() == ".py" else set()
         scan_lines = strip_markdown_code(text).split("\n") if path.suffix.lower() == ".md" else lines
         exempt_lines = self_scan_exempt_line_numbers(text) if path.name == "security_scan.py" else set()
+
+        # Dangerous-sink checks run against the whole file rather than one
+        # line at a time, so a call split across lines is still seen as one
+        # call. The text searched is the same text the per-line checks use
+        # (markdown code stripped for .md), and strip_markdown_code preserves
+        # every newline, so offsets still map back to real line numbers.
+        scan_text = "\n".join(scan_lines)
+        for dc_pattern, desc, dc_suffixes in DANGEROUS_CODE_PATTERNS:
+            if dc_suffixes is not None and path.suffix.lower() not in dc_suffixes:
+                continue
+            for match in dc_pattern.finditer(scan_text):
+                lineno = scan_text.count("\n", 0, match.start()) + 1
+                if lineno in exempt_lines:
+                    continue
+                findings.append({"file": str(rel), "line": lineno, "severity": "HIGH", "check": "dangerous-code-pattern", "detail": desc})
 
         for lineno, line in enumerate(lines, start=1):
             if lineno in exempt_lines:
@@ -335,10 +445,6 @@ def run_pattern_checks(skill_path: Path) -> list[dict]:
                 url = match.group(0)
                 if not any(exc in url.lower() for exc in HTTP_URL_EXCEPTIONS):
                     findings.append({"file": str(rel), "line": lineno, "severity": "MEDIUM", "check": "insecure-http-url", "detail": url})
-
-            for dc_pattern, desc in DANGEROUS_CODE_PATTERNS:
-                if dc_pattern.search(scan_line):
-                    findings.append({"file": str(rel), "line": lineno, "severity": "HIGH", "check": "dangerous-code-pattern", "detail": desc})
 
             for ui_pattern in UNSAFE_INTERPOLATION_PATTERNS:
                 if ui_pattern.search(scan_line):
@@ -380,8 +486,11 @@ def package_skill(skill_path: Path, output_dir: Path) -> Path:
     output_dir.mkdir(parents=True, exist_ok=True)
     skill_filename = output_dir / f"{skill_path.name}.skill"
 
-    # iter_scannable_files already excludes dotfiles (is_hidden), which covers
-    # .security-scan-passed itself — no separate marker exclusion needed here.
+    # Packaging keeps the default include_hidden=False: a distributed .skill
+    # bundle has no business carrying an author's local dotfiles. This is now
+    # a narrower exclusion than the scanner's — the scan reads those files
+    # (see run_pattern_checks) precisely so that anything dangerous in them is
+    # caught before it would have shipped.
     with zipfile.ZipFile(skill_filename, "w", zipfile.ZIP_DEFLATED) as zf:
         for path, rel in iter_scannable_files(skill_path, patterns):
             zf.write(path, rel.as_posix())

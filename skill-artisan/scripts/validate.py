@@ -34,13 +34,15 @@ the target surface(s) instead of leaving it to prose — see
 references/surface-matrix.md for what each surface name means in full.
 
 Exit codes: 0 clean (warnings allowed), 1 validation errors, 2 skill not
-found, 3 skills-ref unavailable (not on PATH and npx failed/unavailable).
+found, 3 skills-ref unavailable (no copy on PATH, no vendored copy, and no
+opt-in npx fallback).
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -50,7 +52,20 @@ from pathlib import Path
 
 from _common import frontmatter_and_body, resolve_skill_path_or_name
 
-SKILLS_REF_VERSION = "0.1.5"  # pinned — see references/script-design.md on pinning one-off runners
+SKILLS_REF_VERSION = "0.1.5"  # the vendored release; also the pin for the opt-in npx fallback
+
+# The vendored skills-ref, shipped with the plugin so validation needs no
+# network and no npm install. See vendor/README.md for provenance and the
+# registry integrity hash that lets this copy be re-verified byte for byte.
+VENDORED_SKILLS_REF = Path(__file__).resolve().parent.parent / "vendor" / "skills-ref" / "dist" / "cli.js"
+
+# Opt-in escape hatch for resolution step 3 — see find_skills_ref_cmd().
+ALLOW_NPX_FETCH_ENV = "SKILLS_REF_ALLOW_NPX_FETCH"
+
+SKILLS_REF_MISSING_MSG = (
+    "skills-ref not found: the vendored copy under vendor/skills-ref/ is missing or `node` is not on "
+    "PATH. Install Node.js, or install skills-ref globally (`npm install -g skills-ref`)."
+)
 
 RESERVED_WORDS = ("anthropic", "claude")
 
@@ -126,10 +141,29 @@ GERUND_SUFFIXES = ("ing", "ing-")
 
 
 def find_skills_ref_cmd() -> list[str] | None:
-    """Prefer a locally-installed skills-ref; fall back to a pinned npx run."""
+    """Resolve how to invoke skills-ref, preferring the author's own copy.
+
+    Order:
+      1. A `skills-ref` already on PATH — a deliberate local install is a
+         choice to respect, and it lets an author test against a newer
+         validator than the one vendored here.
+      2. The vendored copy under `vendor/skills-ref/`, run through `node`.
+         This is the normal path: it needs no network and no npm state, so
+         validation behaves identically on a laptop, in CI, and inside a
+         sandbox with egress blocked.
+      3. A pinned `npx` fetch — only when SKILLS_REF_ALLOW_NPX_FETCH=1 is
+         set. Fetching a package from a public registry at validate time
+         means executing third-party code that nothing on the machine has
+         vetted, on every run; a version pin bounds *which* release that is
+         but does not make it reviewed. Since the vendored copy makes the
+         fetch unnecessary, it stays available for the case where an author
+         deliberately wants a registry round-trip, and is off by default.
+    """
     if shutil.which("skills-ref"):
         return ["skills-ref"]
-    if shutil.which("npx"):
+    if VENDORED_SKILLS_REF.is_file() and shutil.which("node"):
+        return ["node", str(VENDORED_SKILLS_REF)]
+    if os.environ.get(ALLOW_NPX_FETCH_ENV) == "1" and shutil.which("npx"):
         return ["npx", "--yes", f"skills-ref@{SKILLS_REF_VERSION}"]
     return None
 
@@ -142,7 +176,7 @@ def run_skills_ref(skill_path: Path, frontmatter: dict[str, str], body_after_fro
     """
     cmd = find_skills_ref_cmd()
     if cmd is None:
-        raise RuntimeError("skills-ref not found: install it (`npm install -g skills-ref`) or ensure npx is on PATH")
+        raise RuntimeError(SKILLS_REF_MISSING_MSG)
 
     portable = {k: v for k, v in frontmatter.items() if k in PORTABLE_FIELDS}
     with tempfile.TemporaryDirectory() as tmp:
@@ -169,7 +203,7 @@ def run_skills_ref(skill_path: Path, frontmatter: dict[str, str], body_after_fro
         except subprocess.TimeoutExpired:
             raise RuntimeError("skills-ref timed out")
         except FileNotFoundError:
-            raise RuntimeError("skills-ref not found: install it (`npm install -g skills-ref`) or ensure npx is on PATH")
+            raise RuntimeError(SKILLS_REF_MISSING_MSG)
 
     output = (result.stdout + result.stderr).strip()
     if result.returncode == 0:

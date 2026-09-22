@@ -24,10 +24,13 @@ genuinely broken `{baseDir}/...` reference is still caught. Each mechanism
 fixed as found; this test file guards all of them plus real broken/valid
 links to make sure the fixes never regress.
 """
+import os
+import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _repo_paths import PLUGIN_ROOT, SCRIPTS_DIR  # noqa: E402
@@ -169,6 +172,120 @@ class TestCheckScriptsNeedBashPermission(unittest.TestCase):
             skill_path = Path(tmp)
             warning = validate.check_scripts_need_bash_permission(skill_path, {}, "Just prose, no scripts.\n")
             self.assertIsNone(warning)
+
+
+class TestFindSkillsRefCmd(unittest.TestCase):
+    """Resolution order for the skills-ref validator.
+
+    The three paths matter for different reasons: a copy the author
+    installed themselves should win over anything the plugin ships, the
+    vendored copy is what makes validation work offline, and the registry
+    fetch runs unvetted third-party code so it must not happen unless
+    someone explicitly asked for it.
+    """
+
+    def _which(self, *available):
+        available = set(available)
+        return lambda name: f"/usr/bin/{name}" if name in available else None
+
+    def test_locally_installed_skills_ref_wins(self):
+        with mock.patch.object(validate.shutil, "which", self._which("skills-ref", "node", "npx")):
+            self.assertEqual(validate.find_skills_ref_cmd(), ["skills-ref"])
+
+    def test_vendored_copy_used_when_nothing_is_installed(self):
+        with mock.patch.object(validate.shutil, "which", self._which("node", "npx")), \
+                mock.patch.dict(os.environ, {}, clear=True):
+            cmd = validate.find_skills_ref_cmd()
+        self.assertEqual(cmd, ["node", str(validate.VENDORED_SKILLS_REF)])
+
+    def test_vendored_copy_wins_over_npx_even_when_the_fetch_is_opted_into(self):
+        # The opt-in relaxes a restriction; it isn't a request to prefer the
+        # network over bytes already on disk.
+        with mock.patch.object(validate.shutil, "which", self._which("node", "npx")), \
+                mock.patch.dict(os.environ, {validate.ALLOW_NPX_FETCH_ENV: "1"}, clear=True):
+            cmd = validate.find_skills_ref_cmd()
+        self.assertEqual(cmd, ["node", str(validate.VENDORED_SKILLS_REF)])
+
+    def test_npx_fetch_is_not_used_without_the_opt_in(self):
+        # No skills-ref, no node: npx alone must not silently pull from the
+        # registry. Unavailable is the correct answer here.
+        with mock.patch.object(validate.shutil, "which", self._which("npx")), \
+                mock.patch.dict(os.environ, {}, clear=True):
+            self.assertIsNone(validate.find_skills_ref_cmd())
+
+    def test_npx_fetch_is_used_only_with_the_explicit_opt_in(self):
+        with mock.patch.object(validate.shutil, "which", self._which("npx")), \
+                mock.patch.dict(os.environ, {validate.ALLOW_NPX_FETCH_ENV: "1"}, clear=True):
+            cmd = validate.find_skills_ref_cmd()
+        self.assertEqual(cmd, ["npx", "--yes", f"skills-ref@{validate.SKILLS_REF_VERSION}"])
+
+    def test_opt_in_must_be_exactly_one(self):
+        # A truthy-looking value that isn't the documented opt-in shouldn't
+        # enable a registry fetch by accident.
+        for value in ("0", "true", "yes", ""):
+            with self.subTest(value=value):
+                with mock.patch.object(validate.shutil, "which", self._which("npx")), \
+                        mock.patch.dict(os.environ, {validate.ALLOW_NPX_FETCH_ENV: value}, clear=True):
+                    self.assertIsNone(validate.find_skills_ref_cmd())
+
+    def test_nothing_available_returns_none(self):
+        with mock.patch.object(validate.shutil, "which", self._which()), \
+                mock.patch.dict(os.environ, {}, clear=True):
+            self.assertIsNone(validate.find_skills_ref_cmd())
+
+    def test_missing_vendored_copy_falls_through_instead_of_crashing(self):
+        missing = validate.VENDORED_SKILLS_REF.parent / "does-not-exist.js"
+        with mock.patch.object(validate, "VENDORED_SKILLS_REF", missing), \
+                mock.patch.object(validate.shutil, "which", self._which("node", "npx")), \
+                mock.patch.dict(os.environ, {}, clear=True):
+            self.assertIsNone(validate.find_skills_ref_cmd())
+
+
+class TestVendoredSkillsRef(unittest.TestCase):
+    """The vendored copy itself — present, and actually runnable offline."""
+
+    def test_vendored_cli_is_shipped(self):
+        self.assertTrue(
+            validate.VENDORED_SKILLS_REF.is_file(),
+            f"vendored skills-ref missing at {validate.VENDORED_SKILLS_REF}",
+        )
+
+    def test_vendored_copy_validates_a_real_skill_without_network_or_path(self):
+        if not validate.shutil.which("node"):
+            self.skipTest("node not available")
+        with tempfile.TemporaryDirectory() as tmp:
+            skill = Path(tmp) / "testing-a-vendored-validator"
+            skill.mkdir()
+            (skill / "SKILL.md").write_text(
+                "---\n"
+                "name: testing-a-vendored-validator\n"
+                "description: Exercise the vendored validator against a skill that should pass cleanly.\n"
+                "---\n\n# Body\n"
+            )
+            # Empty environment and a PATH holding only the system dirs: no
+            # npm cache, no HOME, nothing to reach the registry with. If this
+            # passes, the vendored copy is genuinely self-contained.
+            result = subprocess.run(
+                [validate.shutil.which("node"), str(validate.VENDORED_SKILLS_REF), "validate", str(skill)],
+                capture_output=True, text=True, timeout=60,
+                env={"PATH": "/usr/bin:/bin"},
+            )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_vendored_copy_reports_a_real_failure(self):
+        if not validate.shutil.which("node"):
+            self.skipTest("node not available")
+        with tempfile.TemporaryDirectory() as tmp:
+            skill = Path(tmp) / "Bad_Name"
+            skill.mkdir()
+            (skill / "SKILL.md").write_text("---\nname: Bad_Name\n---\n\n# Body\n")
+            result = subprocess.run(
+                [validate.shutil.which("node"), str(validate.VENDORED_SKILLS_REF), "validate", str(skill)],
+                capture_output=True, text=True, timeout=60,
+                env={"PATH": "/usr/bin:/bin"},
+            )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("description", result.stdout + result.stderr)
 
 
 if __name__ == "__main__":
