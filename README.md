@@ -40,7 +40,7 @@ Any repository can install SkillArtisan's audit as a GitHub Action to check its 
 
 ```yaml
 - uses: actions/checkout@v4
-- uses: EONRaider/SkillArtisan@v2.9.0
+- uses: EONRaider/SkillArtisan@v2.10.0
   with:
     skills-path: .                                    # default: whole workspace
     anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }} # optional — see below
@@ -65,7 +65,7 @@ Working on SkillArtisan itself, rather than installing it? See [CONTRIBUTING.md]
 
 ## Status
 
-**Current version: `2.9.0`** — see [`skill-artisan/CHANGELOG.md`](skill-artisan/CHANGELOG.md) for the full release history.
+**Current version: `2.10.0`** — see [`skill-artisan/CHANGELOG.md`](skill-artisan/CHANGELOG.md) for the full release history.
 
 ## Credits
 
