@@ -44,6 +44,51 @@ from pathlib import Path
 from _common import parse_skill_md
 
 # ---------------------------------------------------------------------------
+HIDDEN_SENTINEL_FILENAME = ".skillartisan-hidden-skill.json"
+
+# ---------------------------------------------------------------------------
+# Child `claude -p` containment
+# ---------------------------------------------------------------------------
+
+# Tools the child is never allowed, regardless of what the host project's
+# settings would permit. A disallow beats an allow, which is the point: this
+# script runs `claude -p` with the host project's cwd, so without an explicit
+# denial the child inherits that project's permission allowlist, its hooks
+# and its credentials. It then gets handed the full body of whatever skill is
+# being audited — third-party content this project did not write — as part of
+# its prompt. A skill body that says "first, run this command" is then a
+# request the child is configured to grant.
+#
+# Nothing this script asks the child to do needs any of these: the trigger
+# test only observes whether a skill activates, and the rewrite calls only
+# transform text.
+CHILD_DENIED_TOOLS = [
+    "Bash", "BashOutput", "KillShell", "Write", "Edit", "MultiEdit", "NotebookEdit",
+    "Task", "WebFetch", "WebSearch",
+]
+
+
+def child_claude_safety_flags() -> list[str]:
+    """Permission flags for every nested `claude -p` this script spawns.
+
+    - `--permission-prompts none`: a non-interactive child has nobody to ask,
+      so anything that would prompt is denied instead of falling through to
+      whatever the host has configured to answer prompts.
+    - `--disallowedTools`: the hard denial described above.
+    - `--strict-mcp-config`: don't inherit the host project's MCP servers.
+      They are arbitrary third-party endpoints and are irrelevant here.
+
+    Deliberately not `--permission-mode plan`: it would change what the child
+    actually does, and the trigger test's whole measurement is whether a skill
+    activates on a normal turn.
+    """
+    return [
+        "--permission-prompts", "none",
+        "--strict-mcp-config",
+        "--disallowedTools", *CHILD_DENIED_TOOLS,
+    ]
+
+
 # Project root discovery (mirrors how Claude Code finds .claude/)
 # ---------------------------------------------------------------------------
 
@@ -128,6 +173,7 @@ def run_single_query(
         os.rename(staging_dir, project_skills_dir)
 
         cmd = ["claude", "-p", query, "--output-format", "stream-json", "--verbose", "--include-partial-messages"]
+        cmd.extend(child_claude_safety_flags())
         if model:
             cmd.extend(["--model", model])
 
@@ -299,14 +345,91 @@ def _hide_real_skill(project_root: Path, skill_name: str) -> Path | None:
     if not real_path.is_dir():
         return None
     hidden_path = real_path.with_name(f"{skill_name}.eval-hidden")
+    # Sentinel first, rename second. The restore below runs in a `finally`,
+    # which covers an exception or a Ctrl-C but not SIGKILL, an OOM kill, or
+    # a container being torn down — and any of those would leave the user's
+    # real, installed skill sitting under a `.eval-hidden` name, silently
+    # uninstalled, with nothing recording that it happened. The sentinel is
+    # what makes that recoverable on the next run (see
+    # recover_orphaned_hidden_skill).
+    #
+    # Written before the rename on purpose: a crash in the gap leaves a
+    # sentinel pointing at a path that was never moved, which recovery treats
+    # as nothing to do. The reverse order would leave a moved skill with no
+    # record of it.
+    _write_hidden_sentinel(project_root, skill_name, hidden_path)
     real_path.rename(hidden_path)
     return hidden_path
 
 
-def _restore_real_skill(hidden_path: Path | None, skill_name: str) -> None:
-    if hidden_path is None or not hidden_path.exists():
+def _sentinel_path(project_root: Path) -> Path:
+    return project_root / ".claude" / "skills" / HIDDEN_SENTINEL_FILENAME
+
+
+def _write_hidden_sentinel(project_root: Path, skill_name: str, hidden_path: Path) -> None:
+    sentinel = _sentinel_path(project_root)
+    sentinel.parent.mkdir(parents=True, exist_ok=True)
+    sentinel.write_text(json.dumps({
+        "skill_name": skill_name,
+        "hidden_path": str(hidden_path),
+        "pid": os.getpid(),
+    }))
+
+
+def _clear_hidden_sentinel(project_root: Path) -> None:
+    try:
+        _sentinel_path(project_root).unlink()
+    except FileNotFoundError:
+        pass
+
+
+def recover_orphaned_hidden_skill(project_root: Path) -> str | None:
+    """Put back a skill a previous run hid and never restored.
+
+    Called at startup. Returns a message describing what was recovered, or
+    None if there was nothing to do. A run killed outright (SIGKILL, OOM,
+    container teardown) never reaches its `finally`, so without this the
+    user's installed skill stays hidden indefinitely under a name Claude Code
+    does not load.
+    """
+    sentinel = _sentinel_path(project_root)
+    try:
+        record = json.loads(sentinel.read_text())
+    except FileNotFoundError:
+        return None
+    except (json.JSONDecodeError, OSError):
+        _clear_hidden_sentinel(project_root)
+        return None
+
+    hidden_path = Path(record.get("hidden_path", ""))
+    skill_name = record.get("skill_name", "")
+    if not skill_name or not hidden_path.is_dir():
+        # Crash before the rename, or already restored by hand.
+        _clear_hidden_sentinel(project_root)
+        return None
+
+    real_path = hidden_path.with_name(skill_name)
+    if real_path.exists():
+        # Something is already installed under the real name. Reinstating
+        # over it would destroy whichever copy is current, and this script
+        # cannot tell which that is — leave both and say so.
+        return (
+            f"Warning: a previous run left {hidden_path} hidden, but {real_path} also exists now. "
+            "Both were left in place; remove or rename one by hand."
+        )
+
+    hidden_path.rename(real_path)
+    _clear_hidden_sentinel(project_root)
+    return f"Restored {skill_name}, left hidden by an interrupted previous run."
+
+
+def _restore_real_skill(hidden_path: Path | None, skill_name: str, project_root: Path | None = None) -> None:
+    if hidden_path is None:
         return
-    hidden_path.rename(hidden_path.with_name(skill_name))
+    if hidden_path.exists():
+        hidden_path.rename(hidden_path.with_name(skill_name))
+    if project_root is not None:
+        _clear_hidden_sentinel(project_root)
 
 
 def run_eval(
@@ -325,7 +448,7 @@ def run_eval(
     try:
         return _run_eval_inner(eval_set, skill_name, description, num_workers, timeout, project_root, runs_per_query, trigger_threshold, model)
     finally:
-        _restore_real_skill(hidden_path, skill_name)
+        _restore_real_skill(hidden_path, skill_name, project_root)
 
 
 def _run_eval_inner(
@@ -391,6 +514,7 @@ def _run_eval_inner(
 
 def _call_claude(prompt: str, model: str | None, timeout: int = 300) -> str:
     cmd = ["claude", "-p", "--output-format", "text"]
+    cmd.extend(child_claude_safety_flags())
     if model:
         cmd.extend(["--model", model])
     env = {k: v for k, v in os.environ.items() if k != "CLAUDECODE"}
@@ -572,6 +696,13 @@ def run_loop(
     log_dir: Path | None = None,
 ) -> dict:
     project_root = find_project_root()
+    # Before anything else: if a previous run was killed while it had the
+    # user's real skill moved aside, put it back. See
+    # recover_orphaned_hidden_skill.
+    recovered = recover_orphaned_hidden_skill(project_root)
+    if recovered:
+        print(recovered, file=sys.stderr)
+
     name, original_description, content = parse_skill_md(skill_path)
     current_description = description_override or original_description
 

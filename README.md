@@ -20,7 +20,7 @@ claude plugin marketplace add EONRaider/claude-plugins
 claude plugin install skillartisan@eonraider
 ```
 
-Requirements: Python 3.8+, [gitleaks](https://github.com/gitleaks/gitleaks) (for security scanning), `claude` CLI (for evaluation runs and description optimization), and Node.js (`npx`, for the `skills-ref` frontmatter validator — `validate.py` falls back to a pinned `npx` run if `skills-ref` isn't already installed locally). `git` and the GitHub CLI (`gh`, authenticated) are required only for `scripts/pr_execute.py`'s real-effects path (`audit.py pr-execute`) — everything else works without either.
+Requirements: Python 3.8+, [gitleaks](https://github.com/gitleaks/gitleaks) (for security scanning), `claude` CLI (for evaluation runs and description optimization), and Node.js (to run the `skills-ref` frontmatter validator — a copy is vendored at `skill-artisan/vendor/skills-ref/`, so no network or `npm install` is needed; `validate.py` prefers a `skills-ref` you installed yourself if one's on `PATH`, and will fetch a pinned one via `npx` only if you opt in with `SKILLS_REF_ALLOW_NPX_FETCH=1`). `git` and the GitHub CLI (`gh`, authenticated) are required only for `scripts/pr_execute.py`'s real-effects path (`audit.py pr-execute`) — everything else works without either.
 
 ## Quick start
 
@@ -40,7 +40,7 @@ Any repository can install SkillArtisan's audit as a GitHub Action to check its 
 
 ```yaml
 - uses: actions/checkout@v4
-- uses: EONRaider/SkillArtisan@v2.10.0
+- uses: EONRaider/SkillArtisan@v2.11.0
   with:
     skills-path: .                                    # default: whole workspace
     anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }} # optional — see below
@@ -65,7 +65,7 @@ Working on SkillArtisan itself, rather than installing it? See [CONTRIBUTING.md]
 
 ## Status
 
-**Current version: `2.10.0`** — see [`skill-artisan/CHANGELOG.md`](skill-artisan/CHANGELOG.md) for the full release history.
+**Current version: `2.11.0`** — see [`skill-artisan/CHANGELOG.md`](skill-artisan/CHANGELOG.md) for the full release history.
 
 ## Credits
 

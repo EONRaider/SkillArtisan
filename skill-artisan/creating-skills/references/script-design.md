@@ -33,7 +33,13 @@ Many agent harnesses truncate tool output past 10-30K characters. A script that 
 
 ## One-off commands: prefer pinned runners
 
-For a dependency a script needs but that doesn't warrant becoming a project dependency itself, prefer a pinned one-off runner over assuming the environment has it pre-installed: `uvx`, `pipx`, `npx`, `bunx`, `deno run`, `go run`, each with an explicit version pin. `validate.py` does exactly this for `skills-ref` (`npx --yes skills-ref@0.1.5`) rather than requiring authors to globally install it first — falling back to a locally-installed copy first if one's on `PATH`, since a pin only matters when there isn't already a deliberate local choice to respect. State the actual runtime prerequisite (Node.js, in that case) via the skill's `compatibility` field rather than silently assuming it's there.
+For a dependency a script needs but that doesn't warrant becoming a project dependency itself, a pinned one-off runner (`uvx`, `pipx`, `npx`, `bunx`, `deno run`, `go run`) beats assuming the environment has it pre-installed — but treat it as the fallback, not the design. **Pinning is not reviewing.** A pin fixes *which* release gets fetched; it does nothing about the fact that a fetch downloads third-party code from a public registry and executes it on the author's machine, unvetted, on every run. It also fails in exactly the environments a validator most needs to work in: a CI runner with egress blocked, an offline session, a sandbox. There the fetch doesn't produce a failing check, it produces no check at all.
+
+So prefer vendoring the dependency into the repo when it's small enough to review and stable enough not to churn. Vendored bytes show up in a diff, are pinned by commit rather than by a name the registry could re-point, and behave identically everywhere. Record the registry's own integrity hash next to the vendored copy so anyone can re-verify byte-identity later — that's what makes "we vendored it" checkable rather than a claim.
+
+`validate.py` is the worked example. It resolves `skills-ref` in three steps: a copy already on `PATH` first (a deliberate local install is a choice to respect, and it lets an author test against a newer validator), then the vendored copy under `vendor/skills-ref/` run through `node`, and only then the pinned `npx --yes skills-ref@0.1.5` — gated behind an explicit `SKILLS_REF_ALLOW_NPX_FETCH=1` opt-in, because once vendoring has made the fetch unnecessary, doing it silently is all cost. `vendor/README.md` carries the provenance and the integrity hashes.
+
+State the actual runtime prerequisite (Node.js, in that case) via the skill's `compatibility` field rather than silently assuming it's there, and be precise about which parts need what: running the vendored copy needs `node`, not `npx`.
 
 ## The scripts/ discipline
 

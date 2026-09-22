@@ -1,0 +1,58 @@
+{
+  "name": "skills-ref",
+  "version": "0.1.5",
+  "description": "Reference library for Agent Skills",
+  "keywords": [
+    "agent",
+    "ai",
+    "claude",
+    "skills",
+    "reference",
+    "cli",
+    "anthropic"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "skills-ref": "dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "lint:fix": "eslint \"src/**/*.ts\" \"tests/**/*.ts\" --fix",
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.10.2",
+    "eslint": "^9.17.0",
+    "globals": "^15.15.0",
+    "prettier": "^3.4.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.1",
+    "vitest": "^2.1.8"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "js-yaml": "^4.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "YanchaoMa <crazyyanchao@gmail.com>"
+}

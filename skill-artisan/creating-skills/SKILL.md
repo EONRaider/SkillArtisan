@@ -2,7 +2,7 @@
 name: creating-skills
 description: Create new Claude Skills from scratch, or validate, secure, and evaluate ones already drafted. Use when the user wants to build a skill, package a repeated workflow into something Claude can reuse, or asks whether something "should be a skill" — this runs a decision gate first (skill vs. CLAUDE.md vs. AGENTS.md vs. MCP vs. subagent vs. plugin) and checks whether something already covers the request before writing anything new. Also use for validating a SKILL.md's frontmatter, gerund naming, or portable-field compliance; scanning a skill for leaked secrets or unsafe patterns; benchmarking a skill's task-success rate with and without it enabled; or optimizing a description for triggering accuracy. Covers Claude Code, Claude.ai, Cowork, Claude Tag, and Messages API authoring, targeting the cross-vendor agentskills.io spec by default. Use even without the word "skill" — "turn this into something Claude can reuse", "why isn't my skill triggering", "is this safe to publish", "does this frontmatter look right".
 license: MIT (see plugin root LICENSE)
-compatibility: Claude Code, for the full workflow (subagents for eval runs, Bash for scripts/). Claude.ai and Cowork work with reduced capability — see "Claude.ai-specific instructions" and "Cowork-specific instructions" below. Requires Python 3.8+, Node.js (npx, for the skills-ref validator), and gitleaks (github.com/gitleaks/gitleaks) for security scanning. git and the GitHub CLI (gh, authenticated) are required only for audit.py pr-execute's real-effects path — everything else works without either.
+compatibility: Claude Code, for the full workflow (subagents for eval runs, Bash for scripts/). Claude.ai and Cowork work with reduced capability — see their sections below. Requires Python 3.8+, Node.js (runs the skills-ref validator vendored at vendor/skills-ref/; npx only for the opt-in SKILLS_REF_ALLOW_NPX_FETCH=1 fallback), and gitleaks. git and gh only for audit.py pr-execute. The eval viewer needs lsof, and reclaims a busy port only on Linux, where /proc lets it confirm the port is its own.
 ---
 
 # Creating Skills
@@ -172,6 +172,20 @@ Before packaging or publishing, run the security scan and read `references/secur
 python <plugin-path>/scripts/security_scan.py <skill-path>            # default: gitleaks gate only
 python <plugin-path>/scripts/security_scan.py <skill-path> --verbose  # + pattern checks, educational
 ```
+
+The scan reads hidden files and directories inside the skill (`.env`,
+`.npmrc`, `.github/workflows/`) — they are where credentials and unexpected
+execution most often live, and the content hash behind the tamper marker
+covers them too, so editing one after a clean scan invalidates the marker.
+`.git/` stays excluded. Packaging still leaves dotfiles out of the `.skill`
+bundle.
+
+This plugin's own scripts have side effects worth understanding before you
+run them — `pr_execute.py --execute` pushes to real repositories, and
+`description_optimizer.py` spawns nested `claude -p` and is fed the audited
+skill's body verbatim. Their limits, and what stays the operator's
+responsibility, are in the repository's `SECURITY.md` under "Known
+limitations and residual risk".
 
 ## Lifecycle
 

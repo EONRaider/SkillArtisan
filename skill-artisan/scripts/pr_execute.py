@@ -19,18 +19,28 @@ has no interactive prompt (script-design.md: non-interactive only, no
 blocking input()) and no "--yes"/auto-confirm flag that could let a
 confirmation be skipped programmatically. `--execute` is the only thing that
 unlocks real side effects, and the decision to pass it always happens one
-layer up, in one of two contexts:
+layer up.
 
-- **Interactive chat**: per creating-skills/SKILL.md's "Auditing existing
-  skills" subsection 6, the orchestrator must obtain a separate, explicit
-  human confirmation in chat before ever passing `--execute` — every time,
-  not once per skill.
-- **The GitHub Action** (`../action.yml`, `scripts/gha_audit.py`): a target
-  repo's maintainer provisioning the `ANTHROPIC_API_KEY` secret is the
-  equivalent one-time authorization event for that context — installing the
-  workflow and setting the secret is the opt-in, so no further per-run
-  confirmation is expected once it's configured. Every other invariant below
-  (additive-only, idempotent, no `--yes` flag) still applies unchanged.
+**The default is per-run human confirmation.** Per creating-skills/SKILL.md's
+"Auditing existing skills" subsection 6, the orchestrator must obtain a
+separate, explicit human confirmation before ever passing `--execute` —
+every time, not once per skill, and not once per session.
+
+There is exactly one exception, and it is not a general one: **the GitHub
+Action** (`../action.yml`, driven by `scripts/gha_audit.py`). There, a target
+repo's maintainer installing the workflow and provisioning the
+`ANTHROPIC_API_KEY` secret is itself the authorization event, and the run has
+no human present to ask. The carve-out is scoped to that one caller and that
+one reason — a human deliberately configured this exact automation on this
+exact repository in advance.
+
+Do not generalize it. "This context is automated", "this is CI", "this is a
+non-interactive session", "the user already approved a similar run" are not
+instances of the carve-out; they are the cases it excludes. Any caller other
+than gha_audit.py's Action path needs a fresh human confirmation for each
+`--execute`. Every other invariant below (additive-only, explicit staging,
+lease-checked push, idempotent, no `--yes` flag) applies to the Action path
+unchanged.
 
 Either way, this script cannot obtain that confirmation itself; it can only
 refuse to run without something already having decided to pass `--execute`.
@@ -40,6 +50,15 @@ changes include any deleted or renamed file relative to the base branch.
 Additive-only is the entire trust basis for touching a repository this
 plugin doesn't own, so this is checked mechanically, not left to the
 orchestrator's discretion.
+
+**Only the inspected changes are committed.** Staging is by explicit path
+(the exact set `--dry-run` prints), never `git add -A`, so an unrelated file
+sitting in the clone cannot ride along into a public PR. The push uses
+`--force-with-lease`, so re-running resets this script's own branch as
+intended but refuses to overwrite a remote branch that moved underneath it.
+`--pr-body-file` must resolve inside the clone or the working directory and
+is size-capped — its contents get published, so it is not an arbitrary file
+read.
 
 **Idempotent**: if a branch/PR already exists for this skill+upstream
 combination (deterministic branch name, not time-stamped), the script
@@ -76,6 +95,10 @@ from pathlib import Path
 # in either the index or working-tree column — the additive-only invariant.
 NON_ADDITIVE_CODES = {"D", "R"}
 
+# GitHub rejects a PR body over 65536 characters outright, so anything
+# larger is a mistake (a wrong path, a log file) rather than a long body.
+MAX_PR_BODY_BYTES = 65536
+
 
 def run_git(repo_path: Path, args: list[str]) -> subprocess.CompletedProcess:
     return subprocess.run(["git", "-C", str(repo_path), *args], capture_output=True, text=True, timeout=30)
@@ -97,15 +120,31 @@ def check_gh_available() -> tuple[bool, bool]:
 
 
 def get_change_status(repo_path: Path) -> list[tuple[str, str]]:
-    """Parse `git status --porcelain` into (status_code, path) pairs. Two-
+    """Parse `git status --porcelain -z` into (status_code, path) pairs. Two-
     character status codes (index + working tree) are kept whole, since a
-    deletion can show up in either column (e.g. " D" or "D ")."""
-    result = run_git(repo_path, ["status", "--porcelain"])
+    deletion can show up in either column (e.g. " D" or "D ").
+
+    `-z` rather than line-based parsing: without it git C-quotes any path
+    containing a space, a quote, or a non-ASCII byte, so the path read back
+    out is not the path on disk. That was tolerable while the paths were
+    only ever printed, but they are now passed to `git add` as the exact set
+    to stage (see stage_paths), and a mangled path there would either fail
+    the add or stage the wrong thing.
+    """
+    result = run_git(repo_path, ["status", "--porcelain", "-z"])
     changes = []
-    for line in result.stdout.splitlines():
-        if not line.strip():
+    fields = [f for f in result.stdout.split("\0")]
+    i = 0
+    while i < len(fields):
+        entry = fields[i]
+        i += 1
+        if not entry.strip():
             continue
-        code, path = line[:2], line[3:]
+        code, path = entry[:2], entry[3:]
+        # A rename/copy entry is followed by its source path as a separate
+        # NUL-terminated field. Consume it so it isn't read as a new entry.
+        if code and code[0] in ("R", "C"):
+            i += 1
         changes.append((code, path))
     return changes
 
@@ -252,46 +291,108 @@ def ensure_fork(repo_path: Path, upstream_repo: str) -> tuple[bool, str]:
     return True, login
 
 
-def create_branch_commit_push(repo_path: Path, branch: str, commit_message: str, fork_owner: str, repo_name: str) -> tuple[bool, str]:
+def stage_paths(repo_path: Path, paths: list[str]) -> tuple[bool, str]:
+    """Stage exactly `paths` — never `git add -A`.
+
+    `-A` stages whatever is in the working tree at the moment it runs, which
+    is not the same set the caller inspected and approved. The gap matters in
+    two ways. It is wider than the verified set: the only content gate here
+    is verify_additive_only, which rejects deletions and renames but says
+    nothing about untracked files, so a stray `.env`, a credentials file, or
+    scratch output sitting in the clone was swept into the commit and then
+    force-pushed to a repository this plugin does not own. And it is a moving
+    set: anything written to the tree between the status call and the add —
+    by a concurrent process, an editor, a build — was picked up too.
+
+    Passing the explicit list closes both. What `--dry-run` printed is
+    exactly what gets committed, and nothing else can join it in between.
+
+    Paths are sent in batches because a large change set can otherwise
+    exceed the platform's argument-length limit.
+    """
+    if not paths:
+        return False, "nothing to stage"
+    batch_size = 200
+    for start in range(0, len(paths), batch_size):
+        batch = paths[start:start + batch_size]
+        result = run_git(repo_path, ["add", "--"] + batch)
+        if result.returncode != 0:
+            return False, result.stderr.strip()
+    return True, ""
+
+
+def create_branch_commit_push(repo_path: Path, branch: str, commit_message: str, fork_owner: str, repo_name: str, paths: list[str]) -> tuple[bool, str]:
     checkout = run_git(repo_path, ["checkout", "-B", branch])
     if checkout.returncode != 0:
         return False, checkout.stderr.strip()
 
-    add = run_git(repo_path, ["add", "-A"])
-    if add.returncode != 0:
-        return False, add.stderr.strip()
+    staged_ok, stage_error = stage_paths(repo_path, paths)
+    if not staged_ok:
+        return False, stage_error
 
     commit = run_git(repo_path, ["commit", "-m", commit_message])
     if commit.returncode != 0:
         return False, commit.stderr.strip()
 
-    # --force is correct, not just tolerated: branch_name_for is deterministic
-    # specifically so re-running finds and resets the same branch rather than
-    # piling up new ones (see its own docstring), and checkout -B above always
-    # rebuilds it fresh from the current base. A plain push only works on the
-    # branch's first-ever push — any second run (a genuinely different fix, or
-    # a retry after a downstream step like PR creation failed last time, which
-    # still leaves the branch pushed) is a guaranteed non-fast-forward without
-    # --force. Found live: a run that got past pushing but then failed at
-    # `gh pr create` (a since-fixed repo permission gap) left exactly that
-    # state, and the next run's plain push rejected as non-fast-forward —
-    # except the real error never surfaced, because it silently fell through
-    # to the SSH fallback below instead (fixed by only trying that fallback
-    # when we're not already pushing to the same repo, since retrying the
-    # exact same push over SSH can't succeed either, and its unrelated
-    # "Permission denied (publickey)" was masking the actual failure).
-    push = run_git(repo_path, ["push", "--force", "--set-upstream", "origin", branch])
+    # A force push of some kind is genuinely required: branch_name_for is
+    # deterministic specifically so re-running finds and resets the same
+    # branch rather than piling up new ones (see its own docstring), and
+    # `checkout -B` above always rebuilds it fresh from the current base. A
+    # plain push only works on the branch's first-ever push — any second run
+    # (a genuinely different fix, or a retry after a downstream step like PR
+    # creation failed last time, which still leaves the branch pushed) is a
+    # guaranteed non-fast-forward. Found live: a run that got past pushing
+    # but then failed at `gh pr create` (a since-fixed repo permission gap)
+    # left exactly that state, and the next run's plain push rejected as
+    # non-fast-forward — except the real error never surfaced, because it
+    # silently fell through to the SSH fallback below instead (fixed by only
+    # trying that fallback when we're not already pushing to the same repo,
+    # since retrying the exact same push over SSH can't succeed either, and
+    # its unrelated "Permission denied (publickey)" was masking the actual
+    # failure).
+    #
+    # But --force is the wrong force. It overwrites the remote branch
+    # whatever is on it, including work this run has never seen: a
+    # same-named branch someone else opened, or commits a collaborator
+    # pushed on top. With push access to the upstream repo — which
+    # ensure_fork deliberately detects and uses — that discards someone
+    # else's commits from a repository this plugin does not own.
+    # --force-with-lease overwrites only if the remote is still where this
+    # run last observed it, so the reset-my-own-branch case keeps working and
+    # the clobber-somebody-else's-work case fails loudly instead.
+    #
+    # The fetch establishes that observation. Without it the lease has no
+    # baseline to compare against and a legitimate re-push is rejected as
+    # stale; it is best-effort because a branch that does not exist on the
+    # remote yet makes the fetch fail, and that case is a normal first push.
+    def push_to(remote: str) -> subprocess.CompletedProcess:
+        run_git(repo_path, ["fetch", remote, branch])
+        return run_git(repo_path, ["push", "--force-with-lease", "--set-upstream", remote, branch])
+
+    push = push_to("origin")
     if push.returncode != 0 and not is_same_repo(repo_path, f"{fork_owner}/{repo_name}"):
         # origin is the upstream repo itself (read-only for us) rather than
         # the fork — retry against the fork's URL explicitly rather than
         # assuming "origin" is always right.
-        fork_url = f"git@github.com:{fork_owner}/{repo_name}.git"
-        push = run_git(repo_path, ["push", "--force", "--set-upstream", fork_url, branch])
+        push = push_to(f"git@github.com:{fork_owner}/{repo_name}.git")
         if push.returncode != 0:
-            return False, push.stderr.strip()
+            return False, _push_error(push)
     elif push.returncode != 0:
-        return False, push.stderr.strip()
+        return False, _push_error(push)
     return True, ""
+
+
+def _push_error(push: subprocess.CompletedProcess) -> str:
+    """Make a refused lease legible rather than looking like a transient error."""
+    stderr = push.stderr.strip()
+    if "stale info" in stderr or "fetch first" in stderr or "non-fast-forward" in stderr:
+        return (
+            f"{stderr}\n"
+            "The remote branch has moved since this run last saw it, so the push was refused "
+            "rather than overwriting commits this run did not create. Inspect the branch before "
+            "retrying; if the remote content really is disposable, delete the branch explicitly."
+        )
+    return stderr
 
 
 def open_pr(upstream_repo: str, fork_owner: str, branch: str, base_branch: str, title: str, body: str) -> tuple[bool, str]:
@@ -322,6 +423,51 @@ def get_default_branch(repo_path: Path) -> str:
         if line.startswith("HEAD branch:"):
             return line.split(":", 1)[1].strip()
     return "main"
+
+
+def read_pr_body_file(raw_path: str, repo_path: Path) -> str:
+    """Read the PR body from a file, contained and size-capped.
+
+    The path arrives from the orchestrator and its contents get published to
+    a repository this plugin does not own, so it is neither trusted nor
+    unbounded. Two limits:
+
+    Containment — the resolved path must sit inside the clone being
+    contributed to or inside the current working directory. Without that,
+    `--pr-body-file ~/.ssh/id_rsa` or `--pr-body-file /etc/passwd` reads an
+    arbitrary file and posts it publicly, which is a plausible way for a
+    path built from audit output to go wrong, and an obvious one for a
+    malicious PR body template to be aimed. Symlinks are resolved before the
+    check, so a link inside the clone cannot point out of it.
+
+    Size — capped at MAX_PR_BODY_BYTES. Pointing this at a log file or a
+    binary shouldn't turn into an enormous API request.
+
+    Raises ValueError with a message meant for the operator.
+    """
+    path = Path(raw_path).resolve()
+    if not path.is_file():
+        raise ValueError(f"--pr-body-file is not a readable file: {path}")
+
+    roots = [repo_path.resolve(), Path.cwd().resolve()]
+    if not any(path == root or root in path.parents for root in roots):
+        raise ValueError(
+            f"--pr-body-file must live inside the clone ({roots[0]}) or the current directory "
+            f"({roots[1]}); refusing to read {path} and publish it to a repository this plugin "
+            "does not own."
+        )
+
+    size = path.stat().st_size
+    if size > MAX_PR_BODY_BYTES:
+        raise ValueError(
+            f"--pr-body-file is {size} bytes; the maximum is {MAX_PR_BODY_BYTES} "
+            "(GitHub rejects PR bodies above that anyway)."
+        )
+
+    try:
+        return path.read_text(encoding="utf-8")
+    except UnicodeDecodeError as e:
+        raise ValueError(f"--pr-body-file is not valid UTF-8 text: {e}")
 
 
 def cmd(args: argparse.Namespace) -> int:
@@ -366,7 +512,14 @@ def cmd(args: argparse.Namespace) -> int:
     diff_summary = get_diff_summary(repo_path)
     base_branch = get_default_branch(repo_path)
     pr_title = args.pr_title or f"Additive fixes for {args.skill_name} (via SkillArtisan audit)"
-    pr_body = Path(args.pr_body_file).read_text() if args.pr_body_file else DEFAULT_PR_BODY_TEMPLATE
+    if args.pr_body_file:
+        try:
+            pr_body = read_pr_body_file(args.pr_body_file, repo_path)
+        except ValueError as e:
+            print(f"Error: {e}", file=sys.stderr)
+            return 2
+    else:
+        pr_body = DEFAULT_PR_BODY_TEMPLATE
 
     if args.dry_run:
         if direct_push:
@@ -394,7 +547,10 @@ def cmd(args: argparse.Namespace) -> int:
     fork_owner = fork_result
 
     commit_message = args.commit_message or f"Additive fixes for {args.skill_name} (via SkillArtisan audit)"
-    push_ok, push_error = create_branch_commit_push(repo_path, branch, commit_message, fork_owner, repo_name)
+    # Exactly the paths verified above and printed by --dry-run; see stage_paths.
+    push_ok, push_error = create_branch_commit_push(
+        repo_path, branch, commit_message, fork_owner, repo_name, [path for _, path in changes]
+    )
     if not push_ok:
         print(f"Error: push failed — {push_error}", file=sys.stderr)
         return 13
