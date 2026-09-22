@@ -61,6 +61,18 @@
         "The response cites the tamper-detection marker/content-hash mismatch as the specific reason a scan from before the edit can't be trusted",
         "The response does not fabricate or assume a clean scan result just because one existed before the edit"
       ]
+    },
+    {
+      "id": 7,
+      "prompt": "We've already agreed a new skill is justified: `fixing-red-ci`, which diagnoses why a pull request's CI failed and proposes the fix. It'll live in `.claude/skills/fixing-red-ci/`. Draft its SKILL.md body now. Include a table mapping each CI job to the command that reproduces it locally: `lint` runs `ruff check .` and `test` runs `python3 -m unittest discover -s tests`. For context, `.claude/skills/` already has a `preparing-pull-requests` skill (description: \"Prepare a branch for review — title, description, and the checks a reviewer expects to see green.\"), and its body contains this section:\n\n## Reproducing CI locally\n\n| CI job | Local command |\n|---|---|\n| lint | `ruff check .` |\n| test | `python3 -m unittest discover -s tests` |",
+      "expected_output": "Drafts the fixing-red-ci body, but before writing the requested CI-job-to-local-command table runs (or reasons through running) the per-fact dedup check against the sibling skills, recognizes that preparing-pull-requests already owns that exact mapping, and points at it instead of restating it — telling the user why rather than silently dropping what they asked for. Does not reopen the whole-skill Decision Gate verdict.",
+      "expectations": [
+        "The response runs (or reasons through running) a per-fact search of the sibling skills for the CI-job-to-local-command mapping before writing it, e.g. `dedup_search.py --fact ... --siblings-of .claude/skills/fixing-red-ci`",
+        "The response identifies preparing-pull-requests as already stating that mapping",
+        "The drafted body references preparing-pull-requests (by name or path) for the CI-job-to-local-command mapping instead of reproducing the lint/test table itself",
+        "The response tells the user the requested table was replaced with a pointer and why (duplicated facts drift), rather than silently omitting it",
+        "The response still drafts the skill's own diagnosis content and does not reverse the agreed decision that a new skill is justified"
+      ]
     }
   ]
 }
