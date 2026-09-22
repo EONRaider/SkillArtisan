@@ -80,6 +80,12 @@ Once the gate says "create new" (or "improve existing"):
 2. **Interview and research.** Ask about edge cases and dependencies before drafting. Check `scripts/dedup_search.py` results again if research turns up something new.
 3. **Write the frontmatter.** See `references/frontmatter-spec.md` for the full field table and constraints. If this is a `disable-model-invocation: true` skill, write a plain, accurate description of what it does and stop there — skip the pushy/trigger-context treatment below entirely, there's no auto-trigger to optimize for. Otherwise, keep the description pushy *and* imperative — list concrete trigger contexts explicitly, including ones that don't name the domain directly, **and** phrase it as "Use when..." — these are complementary techniques, not alternatives (see the frontmatter spec's worked example). Name it in gerund form (`creating-x`, `reviewing-x`) — `scripts/validate.py` checks this and suggests alternatives.
 4. **Write the body.** Match instruction specificity to task fragility using the three degrees-of-freedom tiers in `references/writing-philosophy.md`, and scope the skill as one coherent unit of work (same file, separate section — it's a different check from degrees of freedom, don't conflate them). Imperative voice, explain the *why*, keep it lean. Bundle a script rather than let every invocation reinvent the same helper.
+
+   **Per-fact dedup check.** Check 2 of the Decision Gate asks whether a whole skill already exists; it can't see a single fact already stated in a sibling's body. Before a drafted paragraph or table restates a governance, tooling, CI, or convention fact (which CI job maps to which local command, a versioning rule, a required review step), search the sibling skills in the same skills directory for it:
+   ```bash
+   python <plugin-path>/scripts/dedup_search.py --fact "<the fact, as you'd write it>" --siblings-of <skill-path>
+   ```
+   Hits are a shortlist of sibling body blocks, not a verdict — read each in context, and grep sibling bodies for the fact's distinctive terms when nothing scores (it's lexical). Where a sibling already covers the fact, name that skill and point at it instead of restating it; see "One home per fact" in `references/writing-philosophy.md`.
 5. **Validate frontmatter and structure:**
    ```bash
    python <plugin-path>/scripts/validate.py <skill-path>

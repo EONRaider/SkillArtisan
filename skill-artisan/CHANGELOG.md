@@ -6,6 +6,13 @@ All notable changes to SkillArtisan are documented here. Format follows [Keep a 
 - **Minor version** for new capability within a stage that doesn't break existing usage (e.g. adding cross-agent evaluation as an opt-in mode within v1).
 - **Patch version** for fixes — corrected patterns, tightened validation, documentation accuracy.
 
+## [2.10.0] - 2026-09-22
+
+### Added
+- **Per-fact dedup check while drafting a new skill's body**, complementing (not replacing) the Decision Gate's whole-skill check 2. Motivated by a real downstream miss: a justified new skill's first draft restated a CI-job-to-local-command mapping that a sibling skill in the same skills directory already owned; the drafting pass didn't catch it, an independent adversarial review did, later. Check 2 structurally couldn't have — `dedup_search.py --query` scores frontmatter descriptions only, and the mapping lived in the sibling's body. `SKILL.md`'s "Authoring a new skill" step 4 now names the check explicitly: before a drafted paragraph or table restates a governance, tooling, CI, or convention fact, search the sibling skills for it and point at the existing home instead of copying it. `references/writing-philosophy.md`'s "Content hygiene" gains the matching "One home per fact" rule with the why (two copies drift; a reader can't tell which is current).
+- **`dedup_search.py --fact "<fact>" --siblings-of <draft-skill-dir>`**: a fact-level mode over sibling SKILL.md *bodies*. Splits each body into blocks (paragraphs, tables, lists, fenced code kept whole across inner blank lines), tags each with its nearest heading, and ranks by coverage — the fraction of the fact's terms a block contains — rather than Jaccard, since a one-line fact against a multi-row table would otherwise score near zero for the table's size alone. Keeps two-letter terms (CI, PR, gh) that the whole-skill tokenizer drops, since exactly those carry the facts this mode looks for; `--query` tokenization is unchanged. `--siblings-of` searches the draft's parent directory instead of the default paths and excludes the draft itself; reports `SKILL.md:line`, heading, and matched terms. Same shortlist-not-verdict contract as `--query`. Covered by a new `tests/test_dedup_search.py` (the script's first dedicated tests), including a regression fixture rebuilt from the incident's shape: a sibling whose description never mentions CI, with the mapping table in its body.
+- **`creating-skills/evals/evals.json` eval 7** covers the drafting flow: the user explicitly asks for a CI-mapping table a sibling already owns; the expected behavior is to point at the sibling and say why, without reopening the agreed "create new" verdict.
+
 ## [2.9.2] - 2026-09-20
 
 ### Fixed
