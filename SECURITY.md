@@ -82,11 +82,16 @@ substitute for a human decision. What remains:
 
 ### `scripts/description_optimizer.py` spawns nested `claude -p`
 
-The child runs with the host project's working directory and inherits the
-environment, including credentials. It is given explicit permission flags —
-tool execution and file writes denied, MCP servers not inherited, anything
-that would prompt denied rather than auto-answered — so a child cannot act
-on the machine. Two things are not fixed:
+Each child runs in its own empty temporary project root (never the host
+project, never HOME) and inherits the environment, including credentials.
+It is given explicit permission and isolation flags — an explicit read-only
+`--tools` allowlist (none at all for the rewrite calls), tool execution and
+file writes denied, the user's settings, plugins and hooks not loaded
+(`--setting-sources project,local`), MCP servers and claude.ai connectors
+not inherited, anything that would prompt denied rather than auto-answered —
+so a child cannot act on the machine. A trigger-test child is killed the
+moment it starts invoking the candidate skill, so the skill body is never
+executed. Two things are not fixed:
 
 - **Indirect prompt injection.** Optimizing an existing skill's description
   means putting that skill's body into the child's prompt. If the skill is
@@ -99,12 +104,18 @@ on the machine. Two things are not fixed:
   authenticated session are exactly what the child needs to run at all, so
   they are not scrubbed.
 
-The script also moves an already-installed skill of the same name aside for
-the duration of an eval, so the real skill doesn't absorb triggers meant for
-the candidate. That is now crash-safe: a sentinel file records the move, and
-the next run restores anything an interrupted run left hidden. If both a
-hidden copy and a reinstalled skill exist, the script leaves both alone and
-says so rather than guessing which is current.
+Because user settings are not loaded, a setup that authenticates through
+the user-level `settings.json` (an `apiKeyHelper`, or an `env` block setting
+the API endpoint) will not authenticate the child; export the equivalent
+environment variables instead. The one-call model preflight fails fast if
+the child can't run.
+
+Up to 2.11.0 the script moved an already-installed skill of the same name
+aside for the duration of an eval. Isolated roots made that unnecessary and
+it no longer happens, but the recovery for a run killed mid-move remains: a
+sentinel file left by such a run is found on the next start and the skill
+restored. If both a hidden copy and a reinstalled skill exist, the script
+leaves both alone and says so rather than guessing which is current.
 
 ### The eval viewer serves on localhost
 

@@ -256,7 +256,10 @@ attempted with `--holdout 0` and this thread is now closed, not paused.
   unrelated to (2)); (2) a filesystem race in `description_optimizer.py`'s synthetic
   skill-directory publish/teardown, fixed in `2.2.3` but not sufficient on its own to fix
   (1). Always `--num-workers 1` for `axis2_trigger_scorer.py` until (1) is separately
-  investigated.
+  investigated. A third cause, found and fixed in `2.12.0`: every worker installed its
+  candidate into one shared project root, so each child saw its siblings'
+  identically-described copies and a trigger on a sibling's copy scored as a miss. Each
+  run now gets a private root; (1) still needs re-measuring before raising the default.
 - **Task-success and trigger-accuracy are different axes for a reason — don't let one
   eval run answer both.** A task-success ("with-skill") run should deliberately hand the
   skill to the executor rather than relying on organic triggering; conflating the two
