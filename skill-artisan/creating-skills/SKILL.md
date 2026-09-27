@@ -157,8 +157,9 @@ Skip this entire stage for `disable-model-invocation: true` skills — the model
 3. Run the optimizer:
    ```bash
    python <plugin-path>/scripts/description_optimizer.py run \
-     --eval-set <eval_set.json> --skill-path <path> --model <model-id-powering-this-session>
+     --eval-set <eval_set.json> --skill-path <path> --model <opus|sonnet|haiku>
    ```
+   Pass the alias of the model powering this session: `--model` goes verbatim to every nested `claude -p`, and a full model id the installed CLI doesn't know fails a one-call preflight before any eval usage is spent. Every child runs in its own empty temp project root without the user's settings, plugins or MCP servers, so `--num-workers` > 1 is safe and nothing is written into the project or `~/.claude`; if `TMPDIR` sits inside a directory with its own `.claude/`, the run refuses to start.
    Uses a 60/40 train/validation split (shuffled once, fixed across iterations — not reshuffled each round), each query run 3x for a reliable trigger rate against a 0.5 threshold, up to 5 iterations, and selects the best iteration by **validation** pass rate, not train (avoids picking an iteration that overfit the queries it was tuned against). Opens a live HTML report that updates each iteration.
 4. Apply `best_description` from the output to the skill's frontmatter. Show before/after and the scores.
 

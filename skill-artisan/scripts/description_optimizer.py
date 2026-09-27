@@ -15,10 +15,15 @@ those surfaces (see creating-skills/references/surface-matrix.md); there is
 no fallback path, since the CLI is the only way to run a query against the
 model that's actually powering the current session.
 
+Every `claude -p` child runs in its own empty temporary project root with
+the user's settings, plugins and MCP servers excluded and a restricted
+toolset, so the only skill it can find besides the CLI's built-ins is the
+candidate under test, and concurrent workers never see each other's copies.
+
 Usage:
     python scripts/description_optimizer.py run \\
         --eval-set trigger_evals.json --skill-path ./my-skill \\
-        --model <model-id-powering-this-session>
+        --model <opus|sonnet|haiku>
 
     python scripts/description_optimizer.py report results.json -o report.html
 """
@@ -26,6 +31,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import contextlib
 import html
 import json
 import os
@@ -40,6 +46,7 @@ import time
 import webbrowser
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
+from typing import Iterator
 
 from _common import parse_skill_md
 
@@ -50,33 +57,57 @@ HIDDEN_SENTINEL_FILENAME = ".skillartisan-hidden-skill.json"
 # Child `claude -p` containment
 # ---------------------------------------------------------------------------
 
-# Tools the child is never allowed, regardless of what the host project's
-# settings would permit. A disallow beats an allow, which is the point: this
-# script runs `claude -p` with the host project's cwd, so without an explicit
-# denial the child inherits that project's permission allowlist, its hooks
-# and its credentials. It then gets handed the full body of whatever skill is
-# being audited — third-party content this project did not write — as part of
-# its prompt. A skill body that says "first, run this command" is then a
-# request the child is configured to grant.
+# Tools the child is never allowed, regardless of what any settings file
+# would permit. A disallow beats an allow, which is the point: the child gets
+# handed the full body of whatever skill is being audited — third-party
+# content this project did not write — as part of its prompt. A skill body
+# that says "first, run this command" must not be a request the child is
+# configured to grant.
 #
 # Nothing this script asks the child to do needs any of these: the trigger
 # test only observes whether a skill activates, and the rewrite calls only
-# transform text.
+# transform text. The explicit `--tools` allowlists below already leave them
+# out; this list stays as a second, independent layer.
 CHILD_DENIED_TOOLS = [
     "Bash", "BashOutput", "KillShell", "Write", "Edit", "MultiEdit", "NotebookEdit",
     "Task", "WebFetch", "WebSearch",
 ]
 
+# The whole toolset a trigger-test child gets. `Skill` is the thing being
+# measured and `Read` is the other way a model loads a skill (reading its
+# SKILL.md directly — both count as a trigger). `Glob`/`Grep` keep the
+# read-only "look around first" behaviour the stream parser already allows
+# for. Everything else is left out: a run only has to reach the decision to
+# invoke the skill, never to carry it out.
+TRIGGER_TEST_TOOLS = ("Skill", "Read", "Glob", "Grep")
+
+# The rewrite calls in improve_description() transform text and need no tools
+# at all. `--tools ""` is the CLI's documented spelling of "none".
+TEXT_ONLY_TOOLS: tuple[str, ...] = ()
+
 
 def child_claude_safety_flags() -> list[str]:
-    """Permission flags for every nested `claude -p` this script spawns.
+    """Permission and isolation flags for every nested `claude -p` this script spawns.
 
     - `--permission-prompts none`: a non-interactive child has nobody to ask,
       so anything that would prompt is denied instead of falling through to
       whatever the host has configured to answer prompts.
-    - `--disallowedTools`: the hard denial described above.
-    - `--strict-mcp-config`: don't inherit the host project's MCP servers.
-      They are arbitrary third-party endpoints and are irrelevant here.
+    - `--setting-sources project,local`: don't load the *user's* settings.
+      That is where their enabled plugins, user-level skills, hooks and
+      permission allowlist live. Plugins and user skills compete with the
+      candidate for the same trigger (the real installed copy of the skill
+      under test is usually one of them), and hooks or connectors with write
+      tools can act outside the test. The project and local sources resolve
+      against the child's cwd, which is always an empty temporary root (see
+      isolated_project_root), so they load nothing either.
+    - `--strict-mcp-config`: don't inherit any MCP servers — user, project or
+      claude.ai connectors. They are arbitrary third-party endpoints, some
+      with write tools, and irrelevant here.
+    - `--no-session-persistence`: don't write a resumable transcript into
+      the user's session history for every one of the hundreds of throwaway
+      runs an optimization makes.
+    - `--disallowedTools`: the hard denial described above. Kept last: it is
+      variadic, and anything positional after it would be swallowed.
 
     Deliberately not `--permission-mode plan`: it would change what the child
     actually does, and the trigger test's whole measurement is whether a skill
@@ -84,21 +115,91 @@ def child_claude_safety_flags() -> list[str]:
     """
     return [
         "--permission-prompts", "none",
+        "--setting-sources", "project,local",
         "--strict-mcp-config",
+        "--no-session-persistence",
         "--disallowedTools", *CHILD_DENIED_TOOLS,
     ]
 
 
-# Project root discovery (mirrors how Claude Code finds .claude/)
+def child_tools_flag(tools: tuple[str, ...]) -> list[str]:
+    """`--tools` restricting the child to exactly `tools` (empty = no tools)."""
+    return ["--tools", ",".join(tools)]
+
+
+def child_env() -> dict[str, str]:
+    """The child's environment: the host's, minus CLAUDECODE.
+
+    Dropping CLAUDECODE lets `claude -p` nest inside a Claude Code session
+    without tripping the interactive-terminal guard (safe for subprocess use).
+    """
+    return {k: v for k, v in os.environ.items() if k != "CLAUDECODE"}
+
+
+# ---------------------------------------------------------------------------
+# Isolated project roots
 # ---------------------------------------------------------------------------
 
+ISOLATED_ROOT_PREFIX = "skillartisan-desc-opt-"
 
-def find_project_root() -> Path:
-    current = Path.cwd()
-    for parent in [current, *current.parents]:
+
+class IsolationError(RuntimeError):
+    """A temporary project root would not actually be isolated."""
+
+
+def _claude_dir_ancestor(path: Path) -> Path | None:
+    """The nearest proper ancestor of `path` that holds a `.claude` directory.
+
+    Claude Code discovers `.claude/skills/` in the parents of its cwd as well
+    as in the cwd itself (verified against the CLI: a skill two directories
+    up appears in `available_skills`), so a temporary root under any such
+    directory — a project, or HOME, whose `.claude/` is the user config dir —
+    would load that directory's skills alongside the candidate.
+    """
+    for parent in path.resolve().parents:
         if (parent / ".claude").is_dir():
             return parent
-    return current
+    return None
+
+
+def make_isolated_project_root() -> Path:
+    """Create an empty, private project root for one `claude -p` child.
+
+    Every child gets its own. That is what makes `--num-workers` > 1 correct:
+    a child only ever sees its own candidate copy, never a concurrent
+    sibling's identically-described one, and nothing is ever written into the
+    user's project or HOME.
+
+    Raises IsolationError, after removing what it created, when the system
+    temp directory sits under a directory with a `.claude/` of its own.
+    """
+    root = Path(tempfile.mkdtemp(prefix=ISOLATED_ROOT_PREFIX))
+    leak = _claude_dir_ancestor(root)
+    if leak is not None:
+        shutil.rmtree(root, ignore_errors=True)
+        raise IsolationError(
+            f"the temp directory {root.parent} is inside {leak}, which has a .claude/ directory "
+            f"that Claude Code would also load skills from, so test runs there would not be "
+            f"isolated. Point TMPDIR at a directory outside any project and outside HOME "
+            f"(e.g. TMPDIR=/tmp)."
+        )
+    return root
+
+
+@contextlib.contextmanager
+def isolated_project_root() -> Iterator[Path]:
+    """make_isolated_project_root(), removed again on exit."""
+    root = make_isolated_project_root()
+    try:
+        yield root
+    finally:
+        shutil.rmtree(root, ignore_errors=True)
+
+
+def check_isolation() -> None:
+    """Fail fast (IsolationError) if isolated roots can't be created here."""
+    with isolated_project_root():
+        pass
 
 
 # ---------------------------------------------------------------------------
@@ -106,20 +207,8 @@ def find_project_root() -> Path:
 # ---------------------------------------------------------------------------
 
 
-def run_single_query(
-    query: str,
-    skill_name: str,
-    skill_description: str,
-    timeout: int,
-    project_root: str,
-    model: str | None = None,
-    start_delay: float = 0.0,
-) -> bool:
-    """Run one query against `claude -p` and report whether the skill triggered.
-
-    Registers a uniquely-named skill directory at .claude/skills/<name>/SKILL.md
-    so it shows up in Claude's available_skills list under a name we can grep
-    for in the tool-use stream, then cleans it up unconditionally.
+def _write_candidate_skill(project_root: Path, clean_name: str, skill_description: str) -> None:
+    """Install the candidate at <project_root>/.claude/skills/<clean_name>/SKILL.md.
 
     Deliberately NOT .claude/commands/<name>.md: that registers as a slash
     command, not as a skill, so it never appears in available_skills and the
@@ -128,252 +217,229 @@ def run_single_query(
     uses .claude/commands/, which no longer round-trips; .claude/skills/ is
     the path Claude Tag's discovery convention already documents, and it's
     the one that actually surfaces here).
+
+    No staging-and-rename dance: the root is private to one child and is
+    written before that child starts, so there is no concurrent scan to race.
+    """
+    skill_dir = project_root / ".claude" / "skills" / clean_name
+    skill_dir.mkdir(parents=True)
+    indented_desc = "\n  ".join(skill_description.split("\n"))
+    (skill_dir / "SKILL.md").write_text(
+        f"---\nname: {clean_name}\ndescription: |\n  {indented_desc}\n---\n\n"
+        f"# {clean_name}\n\nThis skill handles: {skill_description}\n"
+    )
+
+
+class _TriggerDetector:
+    """Watches a `claude -p --output-format stream-json` event stream for a
+    Skill or Read tool call naming one specific skill.
+
+    A turn's FIRST tool call is not necessarily the diagnostic one — the model
+    may look around (Read a data file, Glob, etc.) before invoking the skill
+    under test, and multi-turn responses can have several assistant turns
+    before that happens. Bailing out on the first non-Skill/Read tool_use (an
+    earlier version of this parser did exactly that) silently misreports "did
+    not trigger" for any response that doesn't call the skill as its literal
+    first action — confirmed directly: a manual `claude -p` run against this
+    exact mechanism showed the model call another tool first, Skill second, on
+    a query that should obviously trigger. So every tool call in every turn is
+    inspected, and only the process's own `result` event (or its exit, or the
+    timeout) concludes "did not trigger".
+    """
+
+    def __init__(self, clean_name: str) -> None:
+        self.clean_name = clean_name
+        self._pending_tool: str | None = None
+        self._partial_input = ""
+
+    def feed(self, event: dict) -> bool:
+        """Process one event; True as soon as the candidate is being invoked."""
+        kind = event.get("type")
+        if kind == "stream_event":
+            return self._feed_partial(event.get("event", {}))
+        if kind == "assistant":
+            return self._feed_message(event.get("message", {}))
+        return False
+
+    def _feed_partial(self, se: dict) -> bool:
+        se_type = se.get("type", "")
+        if se_type == "content_block_start":
+            block = se.get("content_block", {})
+            is_candidate_tool = block.get("type") == "tool_use" and block.get("name") in ("Skill", "Read")
+            self._pending_tool = block.get("name") if is_candidate_tool else None
+            self._partial_input = ""
+        elif se_type == "content_block_delta" and self._pending_tool:
+            delta = se.get("delta", {})
+            if delta.get("type") == "input_json_delta":
+                self._partial_input += delta.get("partial_json", "")
+                return self.clean_name in self._partial_input
+        elif se_type in ("content_block_stop", "message_stop"):
+            self._pending_tool = None
+        return False
+
+    def _feed_message(self, message: dict) -> bool:
+        for item in message.get("content", []):
+            if item.get("type") != "tool_use":
+                continue
+            tool_input = item.get("input", {})
+            if item.get("name") == "Skill" and self.clean_name in str(tool_input.get("skill", "")):
+                return True
+            if item.get("name") == "Read" and self.clean_name in str(tool_input.get("file_path", "")):
+                return True
+        return False
+
+
+def _iter_stream_events(stream, deadline: float) -> Iterator[dict]:
+    """Yield each JSON object line from `stream` until EOF.
+
+    Raises TimeoutError at `deadline`. EOF, not process exit, ends the
+    stream: polling the process first (an earlier version did) drops whatever
+    lines were still buffered when it exited, and a process that has closed
+    its stdout may not have been reaped yet. Non-JSON lines are skipped.
+    """
+    fd = stream.fileno()
+    buffer = b""
+    while True:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise TimeoutError
+        ready, _, _ = select.select([fd], [], [], min(remaining, 1.0))
+        if not ready:
+            continue
+        chunk = os.read(fd, 65536)
+        if chunk:
+            buffer += chunk
+        lines = buffer.split(b"\n")
+        buffer = b"" if not chunk else lines.pop()
+        for raw in lines:
+            line = raw.decode("utf-8", errors="replace").strip()
+            if not line:
+                continue
+            try:
+                event = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(event, dict):
+                yield event
+        if not chunk:
+            return
+
+
+def _stop(process: subprocess.Popen) -> None:
+    if process.poll() is None:
+        process.kill()
+    process.wait()
+    if process.stdout is not None:
+        process.stdout.close()
+
+
+def run_single_query(
+    query: str,
+    skill_name: str,
+    skill_description: str,
+    timeout: int,
+    model: str | None = None,
+    start_delay: float = 0.0,
+) -> bool:
+    """Run one query against `claude -p` and report whether the skill triggered.
+
+    The candidate is installed under a randomized name in a project root
+    private to this one call, so the stream can be grepped for exactly that
+    name. The child is stopped the moment it starts invoking the candidate:
+    that is the whole measurement, and letting it go on to execute the skill
+    only burns time and usage.
     """
     if start_delay > 0:
-        # Kept as defense in depth alongside the atomic publish below —
-        # concurrent claude -p startups scanning .claude/skills/ still
-        # benefit from not all landing in the same instant.
+        # Staggers a wave of concurrent CLI startups so they don't all land
+        # in the same instant.
         time.sleep(start_delay)
 
-    unique_id = os.urandom(4).hex()
-    clean_name = f"{skill_name}-skill-{unique_id}"
-    skills_root = Path(project_root) / ".claude" / "skills"
-    project_skills_dir = skills_root / clean_name
+    clean_name = f"{skill_name}-skill-{os.urandom(4).hex()}"
 
-    try:
-        # Build the entry under a hidden staging name first, then publish it
-        # with a single os.rename() into its real name. mkdir() followed by
-        # a separate write_text() (the previous approach) leaves a window
-        # where a concurrent claude -p process's startup skill-discovery
-        # scan of this same shared .claude/skills/ directory can observe the
-        # directory with no SKILL.md yet, or a partially-flushed one — a real
-        # race, confirmed via a dedicated filesystem-only stress test (old
-        # approach: ~99% of concurrent scans caught a broken entry; this
-        # approach: 0%), even with the start_delay stagger above, since that
-        # only reduces the odds of landing in the window rather than closing
-        # it. Note this fix on its own did NOT resolve the 0%-at-4-workers-
-        # vs-75%-at-1-worker collapse documented in axis2_trigger_scorer.py —
-        # a live post-fix re-check still showed that drop, traced to raw
-        # resource contention (concurrent claude -p processes starving each
-        # other of CPU/network/API throughput on one machine) rather than
-        # this race. Worth fixing regardless — os.rename() within the same
-        # filesystem is atomic, so any directory listing of .claude/skills/
-        # during this call only ever sees the complete final entry or
-        # nothing — never a partial one. skills_root and its parents must
-        # exist before the rename target's parent does, so create those (but
-        # not the final dir).
-        skills_root.mkdir(parents=True, exist_ok=True)
-        staging_dir = skills_root / f".{clean_name}.staging-{os.getpid()}"
-        staging_dir.mkdir(parents=True, exist_ok=True)
-        indented_desc = "\n  ".join(skill_description.split("\n"))
-        (staging_dir / "SKILL.md").write_text(
-            f"---\nname: {clean_name}\ndescription: |\n  {indented_desc}\n---\n\n"
-            f"# {clean_name}\n\nThis skill handles: {skill_description}\n"
-        )
-        os.rename(staging_dir, project_skills_dir)
+    with isolated_project_root() as project_root:
+        _write_candidate_skill(project_root, clean_name, skill_description)
 
         cmd = ["claude", "-p", query, "--output-format", "stream-json", "--verbose", "--include-partial-messages"]
+        cmd.extend(child_tools_flag(TRIGGER_TEST_TOOLS))
         cmd.extend(child_claude_safety_flags())
         if model:
             cmd.extend(["--model", model])
-
-        # Drop CLAUDECODE so nesting `claude -p` inside a Claude Code session
-        # doesn't trip the interactive-terminal guard (safe for subprocess use).
-        env = {k: v for k, v in os.environ.items() if k != "CLAUDECODE"}
 
         # stdin=DEVNULL: without it, worker processes can inherit a stdin
         # that neither closes nor produces data, so `claude -p` stalls for
         # several seconds probing for piped input before proceeding. Found
         # while verifying this port end-to-end; the original skill-creator
         # script leaves stdin unset and eats that stall on every call.
-        process = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, cwd=project_root, env=env)
+        process = subprocess.Popen(
+            cmd, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+            cwd=project_root, env=child_env(),
+        )
 
-        triggered = False
-        start_time = time.time()
-        buffer = ""
-        pending_tool_name = None
-        accumulated_json = ""
-
+        detector = _TriggerDetector(clean_name)
         try:
-            while time.time() - start_time < timeout:
-                if process.poll() is not None:
-                    remaining = process.stdout.read()
-                    if remaining:
-                        buffer += remaining.decode("utf-8", errors="replace")
-                    break
-
-                ready, _, _ = select.select([process.stdout], [], [], 1.0)
-                if not ready:
-                    continue
-                chunk = os.read(process.stdout.fileno(), 8192)
-                if not chunk:
-                    break
-                buffer += chunk.decode("utf-8", errors="replace")
-
-                while "\n" in buffer:
-                    line, buffer = buffer.split("\n", 1)
-                    line = line.strip()
-                    if not line:
-                        continue
-                    try:
-                        event = json.loads(line)
-                    except json.JSONDecodeError:
-                        continue
-
-                    if event.get("type") == "stream_event":
-                        # A turn's FIRST tool call is not necessarily the
-                        # diagnostic one — the model may look around (Bash,
-                        # Read a data file, etc.) before invoking the skill
-                        # under test, and multi-turn responses can have
-                        # several assistant turns before that happens. Bailing
-                        # out on the first non-Skill/Read tool_use (the
-                        # previous version of this loop did exactly that)
-                        # silently misreports "did not trigger" for any
-                        # response that doesn't call the skill as its literal
-                        # first action — confirmed directly: a manual
-                        # `claude -p` run against this exact mechanism showed
-                        # the model call Bash first, Skill second, on a query
-                        # that should obviously trigger. Keep watching across
-                        # every tool call and every turn instead, and only
-                        # conclude "did not trigger" when the process's own
-                        # `result` event (or the process exiting/timing out)
-                        # says the turn is actually over.
-                        se = event.get("event", {})
-                        se_type = se.get("type", "")
-                        if se_type == "content_block_start":
-                            cb = se.get("content_block", {})
-                            if cb.get("type") == "tool_use":
-                                tool_name = cb.get("name", "")
-                                if tool_name in ("Skill", "Read"):
-                                    pending_tool_name = tool_name
-                                    accumulated_json = ""
-                                else:
-                                    pending_tool_name = None
-                        elif se_type == "content_block_delta" and pending_tool_name:
-                            delta = se.get("delta", {})
-                            if delta.get("type") == "input_json_delta":
-                                accumulated_json += delta.get("partial_json", "")
-                                if clean_name in accumulated_json:
-                                    triggered = True
-                        elif se_type in ("content_block_stop", "message_stop"):
-                            if pending_tool_name and clean_name in accumulated_json:
-                                triggered = True
-                            pending_tool_name = None
-                    elif event.get("type") == "assistant":
-                        # Same fix as above: scan every tool_use in this
-                        # message rather than returning on the first one, and
-                        # don't return from the function at all here — later
-                        # assistant turns in the same response may still call
-                        # the skill under test.
-                        message = event.get("message", {})
-                        for content_item in message.get("content", []):
-                            if content_item.get("type") != "tool_use":
-                                continue
-                            tool_name = content_item.get("name", "")
-                            tool_input = content_item.get("input", {})
-                            if tool_name == "Skill" and clean_name in tool_input.get("skill", ""):
-                                triggered = True
-                            elif tool_name == "Read" and clean_name in tool_input.get("file_path", ""):
-                                triggered = True
-                    elif event.get("type") == "result":
-                        return triggered
+            for event in _iter_stream_events(process.stdout, time.monotonic() + timeout):
+                if detector.feed(event):
+                    return True
+                if event.get("type") == "result":
+                    return False
+        except TimeoutError:
+            # The run never got a real answer. A timeout and a genuine
+            # non-trigger are indistinguishable in the return value, and for
+            # should-trigger queries that is a false negative — confirmed
+            # directly: a manual claude -p run against this mechanism took
+            # over two minutes on a plain query with the 60s timeout this
+            # script once shipped with. Surface it on stderr since the return
+            # type is a plain bool used by run_eval, and callers aggregating
+            # many runs can grep for this to catch a too-short --timeout.
+            print(
+                f"WARNING: run_single_query timed out after {timeout}s without the skill triggering "
+                f"(query: {query[:60]!r}) — counted as not-triggered, which may be wrong. "
+                f"Consider a longer --timeout.",
+                file=sys.stderr,
+            )
+            return False
         finally:
-            if process.poll() is None:
-                # Loop exited via the timeout condition, not a clean `result`
-                # event or process exit — this run never got a real answer,
-                # and silently returning `triggered` (False, almost always,
-                # since triggering the skill tends to take longer than
-                # answering "no") misreports "did not trigger" for a call
-                # that simply didn't finish in time. Confirmed directly: a
-                # manual claude -p run against this exact mechanism took over
-                # two minutes on a plain query with the default 60s timeout
-                # this script shipped with — every should-trigger query in an
-                # affected run reads as a false negative, while should-not-
-                # trigger queries are unaffected (their correct answer is
-                # also `False`, so a timeout and a genuine non-trigger are
-                # indistinguishable for them). Surface this on stderr since
-                # the return type here is a plain bool used elsewhere
-                # (run_eval, run_loop) and changing it would ripple out;
-                # a caller aggregating many runs can grep for this to catch
-                # a too-short --timeout before trusting the trigger rate.
-                print(
-                    f"WARNING: run_single_query timed out after {timeout}s before the "
-                    f"process finished (query: {query[:60]!r}) — counted as not-triggered, "
-                    f"which may be wrong. Consider a longer --timeout.",
-                    file=sys.stderr,
-                )
-                process.kill()
-                process.wait()
+            _stop(process)
 
-        return triggered
-    finally:
-        # Same atomicity concern as the publish above, mirrored for teardown:
-        # unlink() then rmdir() are two separate calls, so a concurrent
-        # discovery scan can catch the directory between them — SKILL.md
-        # already gone, directory still present and still named clean_name.
-        # Rename it out of .claude/skills/ first (atomic, and the destination
-        # name is unique per call so it can't collide) so any listing of
-        # .claude/skills/ during teardown sees either the complete entry or
-        # nothing, never a mid-deletion one — then remove the detached copy.
-        if project_skills_dir.exists():
-            torn_down = skills_root / f".{clean_name}.torndown-{os.getpid()}"
-            try:
-                os.rename(project_skills_dir, torn_down)
-                shutil.rmtree(torn_down, ignore_errors=True)
-            except OSError:
-                pass  # already gone; leave it rather than risk deleting real content
+        # The stream ended without a `result` event.
+        if process.returncode != 0:
+            print(
+                f"WARNING: claude -p exited {process.returncode} without a result (query: {query[:60]!r}) "
+                f"— counted as not-triggered.",
+                file=sys.stderr,
+            )
+        return False
 
 
-def _hide_real_skill(project_root: Path, skill_name: str) -> Path | None:
-    """If the skill under test is already installed for real at
-    .claude/skills/<skill_name>/ in the same project root used for testing,
-    move it aside for the duration of the eval and return the path it was
-    moved to (None if there was nothing to hide).
+# ---------------------------------------------------------------------------
+# Recovery for skills hidden by SkillArtisan 2.11.0 and earlier
+# ---------------------------------------------------------------------------
+#
+# Up to 2.11.0 the trigger test ran in the user's own project root and moved
+# an installed same-named skill aside for the duration, recording the move in
+# a sentinel file so a run killed outright (SIGKILL, OOM, container teardown)
+# could be undone on the next start. Isolated roots made the move unnecessary
+# and it is gone; the recovery half stays so a user upgrading straight after
+# such a crash still gets their skill back.
 
-    Found while dogfooding this exact script on a real, already-installed
-    project skill: the synthetic per-query test copy gets a randomized name
-    specifically so it doesn't collide with anything — but if the real skill
-    is *also* sitting right there under its natural name with a near-identical
-    description, the model tends to reach for the naturally-named real one
-    instead of the synthetic candidate. The harness only counts a trigger on
-    the synthetic name, so every one of those turns reads as a silent miss —
-    trigger rate looks wrong for reasons that have nothing to do with the
-    description being tested. This only matters for "improving an existing
-    skill" (a brand-new skill has nothing installed yet to collide with).
+
+def _legacy_project_root() -> Path:
+    """Where 2.11.0 and earlier installed test copies and hid skills.
+
+    The nearest cwd ancestor with a `.claude/` — which, from a directory
+    without one, is HOME. That was the bug; it is kept here only to *look*
+    for an orphaned sentinel in the place those versions would have left it.
+    Nothing is ever written there.
     """
-    real_path = project_root / ".claude" / "skills" / skill_name
-    if not real_path.is_dir():
-        return None
-    hidden_path = real_path.with_name(f"{skill_name}.eval-hidden")
-    # Sentinel first, rename second. The restore below runs in a `finally`,
-    # which covers an exception or a Ctrl-C but not SIGKILL, an OOM kill, or
-    # a container being torn down — and any of those would leave the user's
-    # real, installed skill sitting under a `.eval-hidden` name, silently
-    # uninstalled, with nothing recording that it happened. The sentinel is
-    # what makes that recoverable on the next run (see
-    # recover_orphaned_hidden_skill).
-    #
-    # Written before the rename on purpose: a crash in the gap leaves a
-    # sentinel pointing at a path that was never moved, which recovery treats
-    # as nothing to do. The reverse order would leave a moved skill with no
-    # record of it.
-    _write_hidden_sentinel(project_root, skill_name, hidden_path)
-    real_path.rename(hidden_path)
-    return hidden_path
+    current = Path.cwd()
+    for parent in [current, *current.parents]:
+        if (parent / ".claude").is_dir():
+            return parent
+    return current
 
 
 def _sentinel_path(project_root: Path) -> Path:
     return project_root / ".claude" / "skills" / HIDDEN_SENTINEL_FILENAME
-
-
-def _write_hidden_sentinel(project_root: Path, skill_name: str, hidden_path: Path) -> None:
-    sentinel = _sentinel_path(project_root)
-    sentinel.parent.mkdir(parents=True, exist_ok=True)
-    sentinel.write_text(json.dumps({
-        "skill_name": skill_name,
-        "hidden_path": str(hidden_path),
-        "pid": os.getpid(),
-    }))
 
 
 def _clear_hidden_sentinel(project_root: Path) -> None:
@@ -387,10 +453,7 @@ def recover_orphaned_hidden_skill(project_root: Path) -> str | None:
     """Put back a skill a previous run hid and never restored.
 
     Called at startup. Returns a message describing what was recovered, or
-    None if there was nothing to do. A run killed outright (SIGKILL, OOM,
-    container teardown) never reaches its `finally`, so without this the
-    user's installed skill stays hidden indefinitely under a name Claude Code
-    does not load.
+    None if there was nothing to do.
     """
     sentinel = _sentinel_path(project_root)
     try:
@@ -423,55 +486,31 @@ def recover_orphaned_hidden_skill(project_root: Path) -> str | None:
     return f"Restored {skill_name}, left hidden by an interrupted previous run."
 
 
-def _restore_real_skill(hidden_path: Path | None, skill_name: str, project_root: Path | None = None) -> None:
-    if hidden_path is None:
-        return
-    if hidden_path.exists():
-        hidden_path.rename(hidden_path.with_name(skill_name))
-    if project_root is not None:
-        _clear_hidden_sentinel(project_root)
-
-
 def run_eval(
     eval_set: list[dict],
     skill_name: str,
     description: str,
     num_workers: int,
     timeout: int,
-    project_root: Path,
     runs_per_query: int = 3,
     trigger_threshold: float = 0.5,
     model: str | None = None,
 ) -> dict:
-    """Run every query runs_per_query times and grade against trigger_threshold."""
-    hidden_path = _hide_real_skill(project_root, skill_name)
-    try:
-        return _run_eval_inner(eval_set, skill_name, description, num_workers, timeout, project_root, runs_per_query, trigger_threshold, model)
-    finally:
-        _restore_real_skill(hidden_path, skill_name, project_root)
+    """Run every query runs_per_query times and grade against trigger_threshold.
 
-
-def _run_eval_inner(
-    eval_set: list[dict],
-    skill_name: str,
-    description: str,
-    num_workers: int,
-    timeout: int,
-    project_root: Path,
-    runs_per_query: int,
-    trigger_threshold: float,
-    model: str | None,
-) -> dict:
+    Each run gets its own isolated project root (see run_single_query), so
+    runs are independent at any `num_workers`.
+    """
     with ProcessPoolExecutor(max_workers=num_workers) as executor:
         future_to_info = {}
         task_index = 0
         for item in eval_set:
             for run_idx in range(runs_per_query):
-                # Stagger launches within each wave of `num_workers` concurrent
-                # tasks (see run_single_query's start_delay docstring note).
+                # Stagger launches within each wave of `num_workers`
+                # concurrent tasks (see run_single_query's start_delay).
                 start_delay = (task_index % num_workers) * 0.5
                 future = executor.submit(
-                    run_single_query, item["query"], skill_name, description, timeout, str(project_root), model, start_delay
+                    run_single_query, item["query"], skill_name, description, timeout, model, start_delay
                 )
                 future_to_info[future] = (item, run_idx)
                 task_index += 1
@@ -513,15 +552,46 @@ def _run_eval_inner(
 
 
 def _call_claude(prompt: str, model: str | None, timeout: int = 300) -> str:
+    """One text-in, text-out `claude -p` call with no tools, in an isolated root."""
     cmd = ["claude", "-p", "--output-format", "text"]
+    cmd.extend(child_tools_flag(TEXT_ONLY_TOOLS))
     cmd.extend(child_claude_safety_flags())
     if model:
         cmd.extend(["--model", model])
-    env = {k: v for k, v in os.environ.items() if k != "CLAUDECODE"}
-    result = subprocess.run(cmd, input=prompt, capture_output=True, text=True, env=env, timeout=timeout)
+    with isolated_project_root() as cwd:
+        result = subprocess.run(
+            cmd, input=prompt, capture_output=True, text=True, cwd=cwd, env=child_env(), timeout=timeout
+        )
     if result.returncode != 0:
         raise RuntimeError(f"claude -p exited {result.returncode}\nstderr: {result.stderr}")
     return result.stdout
+
+
+MODEL_ALIASES = ("opus", "sonnet", "haiku")
+PREFLIGHT_PROMPT = "Reply with the single word OK."
+
+
+def preflight_model(model: str, timeout: int = 120) -> str | None:
+    """Check that `claude -p --model <model>` works before any real usage is spent.
+
+    `--model` goes verbatim to every `claude -p` this script spawns. A value
+    the installed CLI doesn't accept makes each call exit non-zero — which the
+    trigger runs would silently count as "not triggered" for a whole eval
+    pass, and which then crashes the run at the first improve_description()
+    call. One trivial call through the exact path the rewrite calls use
+    catches that up front. Returns None when the model works, otherwise a
+    message for the user.
+    """
+    try:
+        _call_claude(PREFLIGHT_PROMPT, model, timeout=timeout)
+    except (RuntimeError, subprocess.TimeoutExpired, OSError) as exc:
+        return (
+            f"`claude -p --model {model}` failed, so nothing was run: {exc}\n"
+            f"Pass a model alias the CLI resolves itself ({', '.join(MODEL_ALIASES)}), or a full "
+            f"model id the installed `claude` accepts — check with "
+            f"`claude -p --model <id> 'say OK'`."
+        )
+    return None
 
 
 def improve_description(
@@ -695,11 +765,10 @@ def run_loop(
     live_report_path: Path | None = None,
     log_dir: Path | None = None,
 ) -> dict:
-    project_root = find_project_root()
-    # Before anything else: if a previous run was killed while it had the
-    # user's real skill moved aside, put it back. See
+    # Before anything else: if a 2.11.0-or-earlier run was killed while it had
+    # the user's real skill moved aside, put it back. See
     # recover_orphaned_hidden_skill.
-    recovered = recover_orphaned_hidden_skill(project_root)
+    recovered = recover_orphaned_hidden_skill(_legacy_project_root())
     if recovered:
         print(recovered, file=sys.stderr)
 
@@ -725,7 +794,7 @@ def run_loop(
             print(f"\n{'='*60}\nIteration {iteration}/{max_iterations}\nDescription: {current_description}\n{'='*60}", file=sys.stderr)
 
         all_queries = train_set + val_set
-        all_results = run_eval(all_queries, name, current_description, num_workers, timeout, project_root, runs_per_query, trigger_threshold, model)
+        all_results = run_eval(all_queries, name, current_description, num_workers, timeout, runs_per_query, trigger_threshold, model)
 
         train_query_set = {q["query"] for q in train_set}
         train_result_list = [r for r in all_results["results"] if r["query"] in train_query_set]
@@ -969,6 +1038,17 @@ def cmd_run(args: argparse.Namespace) -> int:
 
     name, _, _ = parse_skill_md(skill_path)
 
+    # Fail fast, before a live report is opened or any eval usage is spent.
+    try:
+        check_isolation()
+    except IsolationError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+    problem = preflight_model(args.model)
+    if problem:
+        print(f"Error: {problem}", file=sys.stderr)
+        return 1
+
     if args.report != "none":
         if args.report == "auto":
             timestamp = time.strftime("%Y%m%d_%H%M%S")
@@ -1035,7 +1115,12 @@ def main() -> None:
     p_run.add_argument("--runs-per-query", type=int, default=3)
     p_run.add_argument("--trigger-threshold", type=float, default=0.5)
     p_run.add_argument("--holdout", type=float, default=0.4, help="Fraction held out for validation (0 disables the split)")
-    p_run.add_argument("--model", required=True, help="Model ID powering the current session")
+    p_run.add_argument(
+        "--model", required=True,
+        help="Model for every nested `claude -p`, passed verbatim to its --model. Prefer an alias "
+             "(opus, sonnet, haiku) matching the current session; a full id works only if the installed "
+             "CLI accepts it. Checked with one trivial call before the eval starts.",
+    )
     p_run.add_argument("--verbose", action="store_true")
     p_run.add_argument("--report", default="auto", help="HTML report path ('auto' for temp file, 'none' to disable)")
     p_run.add_argument("--no-browser", action="store_true", help="Don't auto-open the report (Cowork/headless)")

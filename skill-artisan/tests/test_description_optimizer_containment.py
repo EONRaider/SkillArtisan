@@ -7,20 +7,23 @@ Run: python3 -m unittest skill-artisan/tests/test_description_optimizer_containm
 Two properties, both about this script's side effects on the host machine
 rather than on the description it is optimizing:
 
-  - It spawns nested `claude -p` processes with the host project's cwd, so
-    without explicit flags the child inherits that project's permission
-    allowlist, hooks and MCP servers — and then receives the full body of the
-    third-party skill under audit as prompt text. A skill body asking for a
-    command to be run would be a request the child is configured to grant.
+  - It spawns nested `claude -p` processes that receive the full body of the
+    third-party skill under audit as prompt text. Without explicit flags the
+    child inherits the user's permission allowlist, hooks, plugins and MCP
+    servers, and a skill body asking for a command to be run would be a
+    request the child is configured to grant.
 
-  - It moves the user's real installed skill aside for the duration of an
-    eval and restores it in a `finally`. A `finally` does not run on SIGKILL,
-    an OOM kill, or a container teardown, so the skill could be left silently
-    uninstalled with nothing recording it.
+  - Up to 2.11.0 it moved the user's real installed skill aside for the
+    duration of an eval and restored it in a `finally`, which does not run on
+    SIGKILL, an OOM kill, or a container teardown. The move is gone (every
+    run now has its own isolated root, see
+    test_description_optimizer_isolation.py), but a sentinel left by such a
+    crash must still be recovered on the next start.
 """
 from __future__ import annotations
 
 import json
+import os
 import sys
 import tempfile
 import unittest
@@ -43,6 +46,21 @@ class TestChildClaudeSafetyFlags(unittest.TestCase):
     def test_does_not_inherit_the_host_projects_mcp_servers(self):
         self.assertIn("--strict-mcp-config", do.child_claude_safety_flags())
 
+    def test_does_not_load_user_settings_plugins_or_skills(self):
+        flags = do.child_claude_safety_flags()
+        self.assertIn("--setting-sources", flags)
+        sources = flags[flags.index("--setting-sources") + 1].split(",")
+        self.assertNotIn("user", sources)
+
+    def test_the_variadic_tool_denial_comes_last(self):
+        # Anything after it would be parsed as another tool name.
+        flags = do.child_claude_safety_flags()
+        self.assertEqual(flags[flags.index("--disallowedTools") + 1:], do.CHILD_DENIED_TOOLS)
+
+    def test_the_toolsets_given_to_children_exclude_every_denied_tool(self):
+        for toolset in (do.TRIGGER_TEST_TOOLS, do.TEXT_ONLY_TOOLS):
+            self.assertFalse(set(toolset) & set(do.CHILD_DENIED_TOOLS), toolset)
+
     def test_denies_the_execution_and_write_tools(self):
         flags = do.child_claude_safety_flags()
         self.assertIn("--disallowedTools", flags)
@@ -63,10 +81,28 @@ class TestChildClaudeSafetyFlags(unittest.TestCase):
         # One definition, one per call site.
         self.assertEqual(applied, spawn_sites + 1,
                          "a `claude -p` call site is missing child_claude_safety_flags()")
+        self.assertEqual(source.count("cmd.extend(child_tools_flag("), spawn_sites,
+                         "a `claude -p` call site is missing an explicit --tools allowlist")
+
+
+def _write_legacy_sentinel(root: Path, skill_name: str, hidden_path: Path) -> None:
+    """The sentinel 2.11.0 wrote before moving a skill aside."""
+    sentinel = do._sentinel_path(root)
+    sentinel.parent.mkdir(parents=True, exist_ok=True)
+    sentinel.write_text(json.dumps({"skill_name": skill_name, "hidden_path": str(hidden_path), "pid": 1}))
+
+
+def _legacy_hide(root: Path, skill_name: str) -> Path:
+    """Reproduce what 2.11.0's _hide_real_skill left behind: sentinel, then rename."""
+    real_path = root / ".claude" / "skills" / skill_name
+    hidden_path = real_path.with_name(f"{skill_name}.eval-hidden")
+    _write_legacy_sentinel(root, skill_name, hidden_path)
+    real_path.rename(hidden_path)
+    return hidden_path
 
 
 class TestHiddenSkillRecovery(unittest.TestCase):
-    """The hide/restore cycle has to survive a process that never returns."""
+    """A skill hidden by a 2.11.0 run that was killed outright must come back."""
 
     def _project(self, tmp: str, skill_name: str = "a-real-skill") -> tuple[Path, Path]:
         root = Path(tmp)
@@ -75,27 +111,15 @@ class TestHiddenSkillRecovery(unittest.TestCase):
         (skill / "SKILL.md").write_text("---\nname: a-real-skill\ndescription: d\n---\n")
         return root, skill
 
-    def test_hiding_writes_a_sentinel_recording_where_the_skill_went(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root, skill = self._project(tmp)
-            hidden = do._hide_real_skill(root, "a-real-skill")
-            self.assertFalse(skill.exists())
-            record = json.loads(do._sentinel_path(root).read_text())
-        self.assertEqual(record["skill_name"], "a-real-skill")
-        self.assertEqual(record["hidden_path"], str(hidden))
-
-    def test_normal_restore_puts_the_skill_back_and_clears_the_sentinel(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root, skill = self._project(tmp)
-            hidden = do._hide_real_skill(root, "a-real-skill")
-            do._restore_real_skill(hidden, "a-real-skill", root)
-            self.assertTrue(skill.is_dir())
-            self.assertFalse(do._sentinel_path(root).exists())
+    def test_the_skill_is_no_longer_moved_aside_at_all(self):
+        # Isolated roots made hiding unnecessary; moving the user's files is
+        # a side effect with nothing left to justify it.
+        self.assertFalse(hasattr(do, "_hide_real_skill"))
 
     def test_a_killed_run_is_recovered_on_the_next_startup(self):
         with tempfile.TemporaryDirectory() as tmp:
             root, skill = self._project(tmp)
-            do._hide_real_skill(root, "a-real-skill")
+            _legacy_hide(root, "a-real-skill")
             # No _restore_real_skill call at all — the process died here.
             self.assertFalse(skill.exists())
 
@@ -107,7 +131,7 @@ class TestHiddenSkillRecovery(unittest.TestCase):
     def test_recovery_is_idempotent(self):
         with tempfile.TemporaryDirectory() as tmp:
             root, skill = self._project(tmp)
-            do._hide_real_skill(root, "a-real-skill")
+            _legacy_hide(root, "a-real-skill")
             do.recover_orphaned_hidden_skill(root)
             self.assertIsNone(do.recover_orphaned_hidden_skill(root))
             self.assertTrue(skill.is_dir())
@@ -121,8 +145,7 @@ class TestHiddenSkillRecovery(unittest.TestCase):
         # Sentinel exists but the skill was never actually moved.
         with tempfile.TemporaryDirectory() as tmp:
             root, skill = self._project(tmp)
-            do._write_hidden_sentinel(root, "a-real-skill",
-                                      skill.with_name("a-real-skill.eval-hidden"))
+            _write_legacy_sentinel(root, "a-real-skill", skill.with_name("a-real-skill.eval-hidden"))
             self.assertIsNone(do.recover_orphaned_hidden_skill(root))
             self.assertTrue(skill.is_dir(), "the un-moved skill must be left alone")
             self.assertFalse(do._sentinel_path(root).exists())
@@ -130,7 +153,7 @@ class TestHiddenSkillRecovery(unittest.TestCase):
     def test_recovery_refuses_to_overwrite_a_reinstalled_skill(self):
         with tempfile.TemporaryDirectory() as tmp:
             root, skill = self._project(tmp)
-            hidden = do._hide_real_skill(root, "a-real-skill")
+            hidden = _legacy_hide(root, "a-real-skill")
             # The user reinstalled it while the orphan was sitting there.
             skill.mkdir(parents=True)
             (skill / "SKILL.md").write_text("---\nname: a-real-skill\ndescription: new\n---\n")
@@ -149,12 +172,19 @@ class TestHiddenSkillRecovery(unittest.TestCase):
             self.assertIsNone(do.recover_orphaned_hidden_skill(root))
             self.assertFalse(sentinel.exists())
 
-    def test_hiding_nothing_leaves_no_sentinel(self):
+    def test_legacy_root_is_where_2_11_0_would_have_left_the_sentinel(self):
+        # 2.11.0 resolved its root by walking up to the nearest .claude/ —
+        # from a directory without one, HOME. Recovery has to look there.
         with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            (root / ".claude" / "skills").mkdir(parents=True)
-            self.assertIsNone(do._hide_real_skill(root, "not-installed"))
-            self.assertFalse(do._sentinel_path(root).exists())
+            root, _ = self._project(tmp)
+            work = root / "src" / "pkg"
+            work.mkdir(parents=True)
+            previous = Path.cwd()
+            os.chdir(work)
+            try:
+                self.assertEqual(do._legacy_project_root().resolve(), root.resolve())
+            finally:
+                os.chdir(previous)
 
 
 if __name__ == "__main__":
