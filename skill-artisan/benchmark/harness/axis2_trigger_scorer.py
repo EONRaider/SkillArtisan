@@ -35,17 +35,16 @@ def main() -> None:
     p.add_argument("trigger_evals", help="Path to a trigger-evals.json (list of {query, should_trigger})")
     p.add_argument("--runs-per-query", type=int, default=3)
     p.add_argument(
-        "--num-workers", type=int, default=1,
-        help="Concurrent claude -p launches. Default 1 (sequential) — verified directly "
-             "that >1 caused real detection failures here (0%% should-trigger pass rate at "
-             "num-workers=4 vs. 75%% at num-workers=1 on an identical query set). Until "
-             "2.12.0 every worker shared one project root, so each child saw its siblings' "
-             "identically-described candidate copies and a trigger on a sibling's copy "
-             "scored as a miss; each run now gets a private root. A live re-check at "
-             "num-workers=4 before that fix also showed the tool-call decision itself "
-             "missing the timeout, consistent with raw resource contention (concurrent "
-             "claude -p processes competing for CPU/network/API throughput on one "
-             "machine). Raise only after re-measuring against the sequential baseline.",
+        "--num-workers", type=int, default=4,
+        help="Concurrent claude -p launches. Default 4. Before 2.12.0 this defaulted to 1: "
+             "every worker shared one project root, so each child saw its siblings' "
+             "identically-described candidate copies, and 4 workers measured well below "
+             "sequential (0%% vs. 75%% should-trigger once; 10/16 vs. 14/16 after the 2.2.3 "
+             "race fix). Each run now gets a private root; re-measured on "
+             "debugging-network-issues at 3 runs/query, 4 workers scored 15/16 vs. 16/16 "
+             "sequential (45/48 vs. 47/48 correct runs, Fisher p=0.62), zero timeouts in "
+             "either arm, about 3x faster. Drop to 1 if timeout warnings appear on a "
+             "slower machine.",
     )
     p.add_argument(
         "--timeout", type=int, default=180,

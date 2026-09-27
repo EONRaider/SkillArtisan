@@ -255,11 +255,18 @@ attempted with `--holdout 0` and this thread is now closed, not paused.
   timeout window (confirmed live at `--num-workers 4`: a 14/16 baseline dropped to 10/16,
   unrelated to (2)); (2) a filesystem race in `description_optimizer.py`'s synthetic
   skill-directory publish/teardown, fixed in `2.2.3` but not sufficient on its own to fix
-  (1). Always `--num-workers 1` for `axis2_trigger_scorer.py` until (1) is separately
-  investigated. A third cause, found and fixed in `2.12.0`: every worker installed its
-  candidate into one shared project root, so each child saw its siblings'
-  identically-described copies and a trigger on a sibling's copy scored as a miss. Each
-  run now gets a private root; (1) still needs re-measuring before raising the default.
+  (1). A third cause, found and fixed in `2.12.0`: every worker installed its candidate
+  into one shared project root, so each child saw its siblings' identically-described
+  copies and a trigger on a sibling's copy scored as a miss. Each run now gets a private
+  root. **Re-measured in `2.12.0`** on `debugging-network-issues` (the same description and
+  eval set as the 14/16 baseline above), 3 runs/query, `sonnet`, 180s timeout, on a
+  4-vCPU cloud VM: `--num-workers 1` scored 16/16 (23/24 should-trigger runs, 0/24 false
+  triggers, 329s); `--num-workers 4` scored 15/16 (22/24, 1/24, 112s). Zero timeouts in
+  either arm; 47/48 vs. 45/48 correct runs is noise (Fisher p = 0.62). So contention (1)
+  did not reproduce here, and `axis2_trigger_scorer.py` now defaults to 4 workers. What
+  caused the old drop — the shared root, contention on that machine, or the old code
+  letting every triggered run execute the whole skill — was not isolated. One skill, one
+  sample per arm: drop to `--num-workers 1` if timeout warnings appear on a slower box.
 - **Task-success and trigger-accuracy are different axes for a reason — don't let one
   eval run answer both.** A task-success ("with-skill") run should deliberately hand the
   skill to the executor rather than relying on organic triggering; conflating the two
